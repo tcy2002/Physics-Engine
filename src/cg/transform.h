@@ -40,4 +40,4 @@ public:
 
 #include "transform.inl"
 
-} // namespace data_cg
+} // namespace pe_cg

@@ -28,4 +28,4 @@ public:
     void render() const;
 };
 
-} // namespace ui
+} // namespace pe_ui

@@ -26,4 +26,4 @@ public:
     void setMat3(const char* name, const pe_cg::Matrix3x3& value) const;
 };
 
-} // namespace ui
+} // namespace pe_ui

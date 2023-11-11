@@ -69,4 +69,4 @@ public:
     real getProj(int i) const;
 };
 
-} // namespace ui
+} // namespace pe_ui

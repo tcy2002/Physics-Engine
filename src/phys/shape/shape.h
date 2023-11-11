@@ -30,4 +30,4 @@ public:
 #define VEC_MAX pe_cg::Vector3(REAL_MAX, REAL_MAX, REAL_MAX)
 #define VEC_MIN pe_cg::Vector3(REAL_MIN, REAL_MIN, REAL_MIN)
 
-} // namespace phys_shape
+} // namespace pe_phys_shape

@@ -49,4 +49,4 @@ public:
 
 #include "matrix3x3.inl"
 
-} // namespace data_cg
+} // namespace pe_cg

@@ -37,4 +37,4 @@ public:
     void motion(int, int);
 };
 
-} // namespace ui
+} // namespace pe_ui

@@ -24,4 +24,4 @@ public:
     vertices(std::move(vs)), faces(std::move(fs)) {}
 };
 
-} // namespace data_cg
+} // namespace pe_cg

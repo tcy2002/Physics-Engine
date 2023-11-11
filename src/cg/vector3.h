@@ -46,4 +46,4 @@ public:
 
 #include "vector3.inl"
 
-} // namespace data_cg
+} // namespace pe_cg

@@ -16,4 +16,4 @@ public:
     void project(const pe_cg::Transform& transform, const pe_cg::Vector3& axis, real& min, real& max) const override;
 };
 
-} // namespace phys_shape
+} // namespace pe_phys_shape
