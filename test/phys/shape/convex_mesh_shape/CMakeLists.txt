@@ -1,0 +1,3 @@
+add_executable(TestConvexMeshShape test.cpp)
+
+target_link_libraries(TestConvexMeshShape PhysShape)
