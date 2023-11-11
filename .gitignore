@@ -1,3 +1,5 @@
+!opengl
+
 # build
 cmake-build-*/
 build/
