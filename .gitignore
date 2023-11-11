@@ -1,6 +1,3 @@
-!opengl/
-!opengl/**
-
 # build
 cmake-build-*/
 build/
@@ -42,3 +39,6 @@ build/
 *.exe
 *.out
 *.app
+
+!opengl/
+!opengl/**
