@@ -16,14 +16,14 @@ bool ConvexMeshShape::isConvex() const {
 }
 
 void ConvexMeshShape::getAABB(const pe_cg::Transform& transform, pe_cg::Vector3& min, pe_cg::Vector3& max) const {
-    min = VEC_MAX;
-    max = VEC_MIN;
+    min = PE_VEC_MAX;
+    max = PE_VEC_MIN;
     auto& rot = transform.getBasis();
     auto& pos = transform.getOrigin();
     for (auto& p: _mesh.vertices) {
         auto v = rot * p.position;
-        min = MIN_VEC(min, v);
-        max = MAX_VEC(max, v);
+        min = PE_MIN_VEC(min, v);
+        max = PE_MAX_VEC(max, v);
     }
     min += pos;
     max += pos;
@@ -41,8 +41,8 @@ bool ConvexMeshShape::isInside(const pe_cg::Transform& transform, const pe_cg::V
 void ConvexMeshShape::project(const pe_cg::Transform& transform, const pe_cg::Vector3& axis, real& min, real& max) const {
     auto local_axis = transform.getBasis().transposed() * axis;
     auto offset = transform.getOrigin().dot(axis);
-    min = REAL_MAX;
-    max = REAL_MIN;
+    min = PE_REAL_MAX;
+    max = PE_REAL_MIN;
     for (auto& p: _mesh.vertices) {
         auto v = p.position.dot(local_axis);
         min = std::min(min, v);

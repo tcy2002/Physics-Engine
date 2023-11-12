@@ -14,9 +14,9 @@ private:
     size_t _triangle_count;
     uint32_t *_indices;
 
-    MEMBER_SET_GET(bool, visible, Visible)
-    MEMBER_SET_GET(pe_cg::Transform, transform, Transform)
-    MEMBER_SET_GET(pe_cg::Vector3, color, Color)
+    PE_MEMBER_SET_GET(bool, visible, Visible)
+    PE_MEMBER_SET_GET(pe_cg::Transform, transform, Transform)
+    PE_MEMBER_SET_GET(pe_cg::Vector3, color, Color)
 
     void loadMesh(const pe_cg::Mesh& mesh);
 

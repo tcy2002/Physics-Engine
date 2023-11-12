@@ -52,8 +52,8 @@ bool BoxShape::isConvex() const {
 }
 
 void BoxShape::getAABB(const pe_cg::Transform& transform, pe_cg::Vector3& min, pe_cg::Vector3& max) const {
-    min = VEC_MAX;
-    max = VEC_MIN;
+    min = PE_VEC_MAX;
+    max = PE_VEC_MIN;
     auto& rot = transform.getBasis();
     auto& pos = transform.getOrigin();
     pe_cg::Vector3 p;
@@ -62,8 +62,8 @@ void BoxShape::getAABB(const pe_cg::Transform& transform, pe_cg::Vector3& min, p
         p.y = i & 2 ? _half_size.y : -_half_size.y;
         p.z = i & 4 ? _half_size.z : -_half_size.z;
         auto v = rot * p;
-        min = MIN_VEC(min, v);
-        max = MAX_VEC(max, v);
+        min = PE_MIN_VEC(min, v);
+        max = PE_MAX_VEC(max, v);
     }
     min += pos;
     max += pos;

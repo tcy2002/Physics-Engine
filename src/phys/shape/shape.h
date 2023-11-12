@@ -24,10 +24,10 @@ public:
     virtual const pe_cg::Mesh& getMesh() const { return _mesh; }
 };
 
-#define MAX_VEC(a, b) pe_cg::Vector3(std::max((a).x, (b).x), std::max((a).y, (b).y), std::max((a).z, (b).z))
-#define MIN_VEC(a, b) pe_cg::Vector3(std::min((a).x, (b).x), std::min((a).y, (b).y), std::min((a).z, (b).z))
+#define PE_MAX_VEC(a, b) pe_cg::Vector3(std::max((a).x, (b).x), std::max((a).y, (b).y), std::max((a).z, (b).z))
+#define PE_MIN_VEC(a, b) pe_cg::Vector3(std::min((a).x, (b).x), std::min((a).y, (b).y), std::min((a).z, (b).z))
 
-#define VEC_MAX pe_cg::Vector3(REAL_MAX, REAL_MAX, REAL_MAX)
-#define VEC_MIN pe_cg::Vector3(REAL_MIN, REAL_MIN, REAL_MIN)
+#define PE_VEC_MAX pe_cg::Vector3(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX)
+#define PE_VEC_MIN pe_cg::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
 
 } // namespace pe_phys_shape

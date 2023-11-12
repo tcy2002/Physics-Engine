@@ -17,34 +17,34 @@ public:
     Matrix3x3(real m00, real m01, real m02, real m10, real m11, real m12, real m20, real m21, real m22):
     _m{{m00, m01, m02}, {m10, m11, m12}, {m20, m21, m22}} {}
 
-    PHYS_FORCE_INLINE real* operator[](int);
-    PHYS_FORCE_INLINE const real* operator[](int) const;
-    PHYS_FORCE_INLINE Matrix3x3 operator-() const;
-    PHYS_FORCE_INLINE Matrix3x3 operator+(const Matrix3x3&) const;
-    PHYS_FORCE_INLINE Matrix3x3 operator-(const Matrix3x3&) const;
-    PHYS_FORCE_INLINE Matrix3x3 operator*(real) const;
-    PHYS_FORCE_INLINE Matrix3x3 operator/(real) const;
-    PHYS_FORCE_INLINE Matrix3x3& operator+=(const Matrix3x3&);
-    PHYS_FORCE_INLINE Matrix3x3& operator-=(const Matrix3x3&);
-    PHYS_FORCE_INLINE Matrix3x3& operator*=(real);
-    PHYS_FORCE_INLINE Matrix3x3& operator/=(real);
-    PHYS_FORCE_INLINE Matrix3x3 operator*(const Matrix3x3&) const;
-    PHYS_FORCE_INLINE Matrix3x3& operator*=(const Matrix3x3&);
-    PHYS_FORCE_INLINE Vector3 operator*(const Vector3&) const;
+    PE_FORCE_INLINE real* operator[](int);
+    PE_FORCE_INLINE const real* operator[](int) const;
+    PE_FORCE_INLINE Matrix3x3 operator-() const;
+    PE_FORCE_INLINE Matrix3x3 operator+(const Matrix3x3&) const;
+    PE_FORCE_INLINE Matrix3x3 operator-(const Matrix3x3&) const;
+    PE_FORCE_INLINE Matrix3x3 operator*(real) const;
+    PE_FORCE_INLINE Matrix3x3 operator/(real) const;
+    PE_FORCE_INLINE Matrix3x3& operator+=(const Matrix3x3&);
+    PE_FORCE_INLINE Matrix3x3& operator-=(const Matrix3x3&);
+    PE_FORCE_INLINE Matrix3x3& operator*=(real);
+    PE_FORCE_INLINE Matrix3x3& operator/=(real);
+    PE_FORCE_INLINE Matrix3x3 operator*(const Matrix3x3&) const;
+    PE_FORCE_INLINE Matrix3x3& operator*=(const Matrix3x3&);
+    PE_FORCE_INLINE Vector3 operator*(const Vector3&) const;
 
-    PHYS_FORCE_INLINE real determinant() const;
-    PHYS_FORCE_INLINE real trace() const;
-    PHYS_FORCE_INLINE Matrix3x3 transposed() const;
-    PHYS_FORCE_INLINE void transpose();
-    PHYS_FORCE_INLINE Matrix3x3 inverse() const;
-    PHYS_FORCE_INLINE void invert();
-    PHYS_FORCE_INLINE void setRotation(const Vector3 &axis, real angle);
+    PE_FORCE_INLINE real determinant() const;
+    PE_FORCE_INLINE real trace() const;
+    PE_FORCE_INLINE Matrix3x3 transposed() const;
+    PE_FORCE_INLINE void transpose();
+    PE_FORCE_INLINE Matrix3x3 inverse() const;
+    PE_FORCE_INLINE void invert();
+    PE_FORCE_INLINE void setRotation(const Vector3 &axis, real angle);
 
-    PHYS_FORCE_INLINE static const Matrix3x3& identity();
-    PHYS_FORCE_INLINE static const Matrix3x3& zeros();
-    PHYS_FORCE_INLINE static const Matrix3x3& ones();
+    PE_FORCE_INLINE static const Matrix3x3& identity();
+    PE_FORCE_INLINE static const Matrix3x3& zeros();
+    PE_FORCE_INLINE static const Matrix3x3& ones();
 
-    PHYS_FORCE_INLINE friend std::ostream& operator<<(std::ostream& os, const Matrix3x3& mat);
+    PE_FORCE_INLINE friend std::ostream& operator<<(std::ostream& os, const Matrix3x3& mat);
 };
 
 #include "matrix3x3.inl"
