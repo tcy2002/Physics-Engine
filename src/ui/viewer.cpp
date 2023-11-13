@@ -48,6 +48,7 @@ void Viewer::display() {
     _program->setFloat("gProj[3]", (float)_camera->getProj(3));
 
     for (auto &mesh: _meshes) {
+        if (!mesh->isVisible()) continue;
         auto& transform = mesh->getTransform();
         _program->setMat3("gWorldBasis", transform.getBasis());
         _program->setVec3("gWorldOrigin", transform.getOrigin());
@@ -79,13 +80,13 @@ void Viewer::motion(int x, int y) {
     _camera->motion(x, y);
 }
 
-Viewer::Viewer(int width, int height) {
+Viewer::Viewer(const std::string& name, int width, int height) {
     int argc = 0;
     char **argv = nullptr;
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
     glutInitWindowSize(width, height);
-    glutCreateWindow("Physics Engine Viewer");
+    glutCreateWindow(name.c_str());
     glewInit();
 
     glutSetKeyRepeat(0);
@@ -110,8 +111,8 @@ Viewer::~Viewer() {
     }
 }
 
-Viewer &Viewer::initViewerInstance(int width, int height) {
-    static Viewer instance(width, height);
+Viewer& Viewer::initViewerInstance(const std::string& name, int width, int height) {
+    static Viewer instance(name, width, height);
     return instance;
 }
 
@@ -134,8 +135,10 @@ void Viewer::run() {
     _program->setFloat("gAmbientIntensity", 0.4f);
     _program->setFloat("gDiffuseIntensity", 0.8f);
     _program->setVec3("gLightDirection", pe_cg::Vector3(1, -2, -3).normalized());
+
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.6, 0.85, 0.918, 1.);
     glClearDepth(1.);
+
     glutMainLoop();
 }

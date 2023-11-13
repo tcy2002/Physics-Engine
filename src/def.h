@@ -1,9 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 namespace pe {
-    template <typename T> using Array = std::vector<T>;
+    template <typename T>
+    using Array = std::vector<T>;
+
+    template <typename K, typename V>
+    using KVStore = std::unordered_map<K, V>;
 } // namespace pe
 
 #ifdef USE_DOUBLE
@@ -21,6 +26,24 @@ typedef float real;
 #else
 #define PE_FORCE_INLINE __attribute__ ((always_inline)) inline
 #endif
+
+#define PE_EPS 1e-5
+#define APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
+
+#define PE_BOOL_SET_GET(name, Name) \
+protected: \
+bool _##name; \
+public: \
+void set##Name(bool t){ _##name = t; } \
+bool is##Name() const { return _##name; } \
+private:
+
+#define PE_BOOL_GET(name, Name) \
+protected: \
+bool _##name; \
+public: \
+const T& is##Name() const { return _##name; } \
+private:
 
 #define PE_MEMBER_SET_GET(T, name, Name) \
 protected: \

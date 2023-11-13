@@ -3,7 +3,7 @@
 using namespace pe_phys_shape;
 
 BoxShape::BoxShape(const pe_cg::Vector3& size):
-_half_size(size / 2) {
+    _half_size(size / 2) {
     real x = _half_size.x, y = _half_size.y, z = _half_size.z;
     _mesh = {
             {

@@ -3,11 +3,11 @@
 using namespace pe_ui;
 
 Camera::Camera() :
-_yaw(0.), _pitch(0.),
-_position(pe_cg::Vector3::zeros()),
-_fov(M_PI / 2.),
-_transform(pe_cg::Transform::identity()),
-_proj{1., 1., -1.0002, -0.20002} {}
+    _yaw(0.), _pitch(0.),
+    _position(pe_cg::Vector3::zeros()),
+    _fov(M_PI / 2.),
+    _transform(pe_cg::Transform::identity()),
+    _proj{1., 1., -1.0002, -0.20002} {}
 
 void Camera::mouse(int button, int state, int, int) {
     std::lock_guard<std::mutex> lock(_mutex_trans);

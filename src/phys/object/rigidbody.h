@@ -4,10 +4,10 @@
 
 namespace pe_phys_object {
 
-class RigidBody : CollisionBody {
+class RigidBody : public CollisionBody {
 public:
     bool isDeformable() const override { return false; }
-    virtual bool isFracturable() const { return false; }
+    virtual bool isBreakable() const { return false; }
 };
 
 } // namespace pe_phys_object

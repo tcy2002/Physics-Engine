@@ -8,7 +8,7 @@
 
 #define EPS 1e-5
 
-#define EQUAL(a, b) (abs((a) - (b)) < EPS)
+#define EQUAL(a, b) (std::abs((a) - (b)) < EPS)
 #define EQUAL_INT(a, b) ((a) == (b))
 
 #define ASSERT_EQUAL(a, b) assert(EQUAL(a, b));

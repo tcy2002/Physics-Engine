@@ -14,7 +14,7 @@ private:
     size_t _triangle_count;
     uint32_t *_indices;
 
-    PE_MEMBER_SET_GET(bool, visible, Visible)
+    PE_BOOL_SET_GET(visible, Visible)
     PE_MEMBER_SET_GET(pe_cg::Transform, transform, Transform)
     PE_MEMBER_SET_GET(pe_cg::Vector3, color, Color)
 

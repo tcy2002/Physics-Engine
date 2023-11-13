@@ -1,8 +1,8 @@
 add_library(
     PhysObject
-    collision_body.h
-    rigidbody.h rigidbody.cpp
+    collision_body.h collision_body.cpp
+    rigidbody.h
     softbody.h softbody.cpp
-    fracturable_body.h fracturable_body.cpp
+    fracture_body.h fracture_body.cpp
     terrain.h terrain.cpp
 )

@@ -13,7 +13,7 @@ namespace pe_ui {
  */
 class Viewer {
 private:
-    Viewer(int width, int height);
+    Viewer(const std::string& name, int width, int height);
     ~Viewer();
 
     Camera* _camera;
@@ -21,7 +21,7 @@ private:
     pe::Array<MeshRenderer*> _meshes;
 
 public:
-    static Viewer& initViewerInstance(int width = 800, int height = 600);
+    static Viewer& initViewerInstance(const std::string& name, int width = 800, int height = 600);
 
     void setCamera(const pe_cg::Vector3& position, real yaw, real pitch);
     void addMesh(const pe_cg::Mesh& mesh,
