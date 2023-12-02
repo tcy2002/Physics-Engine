@@ -1,3 +1,3 @@
-add_executable(TestBoxShape test.cpp)
+add_executable(PETestBoxShape test.cpp)
 
-target_link_libraries(TestBoxShape PhysShape)
+target_link_libraries(PETestBoxShape PEPhys)

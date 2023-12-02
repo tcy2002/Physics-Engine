@@ -1,14 +1,14 @@
 #pragma once
 
 #include "def.h"
-#include "cg/vector3.h"
+#include "common/vector3.h"
 #include "phys/object/rigidbody.h"
 
 namespace pe_core {
 
 class World {
-    PE_MEMBER_SET_GET(pe_cg::Vector3, gravity, Gravity);
-    PE_MEMBER_SET_GET(real, time_step, TimeStep);
+    PE_MEMBER_SET_GET(pe_common::Vector3, gravity, Gravity);
+    PE_MEMBER_SET_GET(PEReal, time_step, TimeStep);
 
 protected:
     pe::KVStore<uint32_t, pe_phys_object::CollisionBody*> _cbs;

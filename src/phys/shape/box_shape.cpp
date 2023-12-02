@@ -2,9 +2,9 @@
 
 using namespace pe_phys_shape;
 
-BoxShape::BoxShape(const pe_cg::Vector3& size):
+BoxShape::BoxShape(const pe_common::Vector3& size):
     _half_size(size / 2) {
-    real x = _half_size.x, y = _half_size.y, z = _half_size.z;
+    PEReal x = _half_size.x, y = _half_size.y, z = _half_size.z;
     _mesh = {
             {
                     {{-x,  y, -z}, {0, 1, 0}},
@@ -51,12 +51,12 @@ bool BoxShape::isConvex() const {
     return true;
 }
 
-void BoxShape::getAABB(const pe_cg::Transform& transform, pe_cg::Vector3& min, pe_cg::Vector3& max) const {
+void BoxShape::getAABB(const pe_common::Transform& transform, pe_common::Vector3& min, pe_common::Vector3& max) const {
     min = PE_VEC_MAX;
     max = PE_VEC_MIN;
     auto& rot = transform.getBasis();
     auto& pos = transform.getOrigin();
-    pe_cg::Vector3 p;
+    pe_common::Vector3 p;
     for (int i = 0; i < 8; i++) {
         p.x = i & 1 ? _half_size.x : -_half_size.x;
         p.y = i & 2 ? _half_size.y : -_half_size.y;
@@ -69,21 +69,21 @@ void BoxShape::getAABB(const pe_cg::Transform& transform, pe_cg::Vector3& min, p
     max += pos;
 }
 
-bool BoxShape::isInside(const pe_cg::Transform& transform, const pe_cg::Vector3& point) const {
+bool BoxShape::isInside(const pe_common::Transform& transform, const pe_common::Vector3& point) const {
     auto local_pos = transform.inverseTransform(point);
     return std::abs(local_pos.x) <= _half_size.x &&
            std::abs(local_pos.y) <= _half_size.y &&
            std::abs(local_pos.z) <= _half_size.z;
 }
 
-void BoxShape::project(const pe_cg::Transform& transform, const pe_cg::Vector3& axis, real& min, real& max) const {
+void BoxShape::project(const pe_common::Transform& transform, const pe_common::Vector3& axis, PEReal& min, PEReal& max) const {
     auto local_axis = transform.getBasis().transposed() * axis;
-    real offset = transform.getOrigin().dot(axis);
-    pe_cg::Vector3 ext;
+    PEReal offset = transform.getOrigin().dot(axis);
+    pe_common::Vector3 ext;
     ext.x = local_axis.x > 0 ? _half_size.x : -_half_size.x;
     ext.y = local_axis.y > 0 ? _half_size.y : -_half_size.y;
     ext.z = local_axis.z > 0 ? _half_size.z : -_half_size.z;
-    real half_ext = ext.dot(local_axis);
+    PEReal half_ext = ext.dot(local_axis);
     min = offset - half_ext;
     max = offset + half_ext;
 }

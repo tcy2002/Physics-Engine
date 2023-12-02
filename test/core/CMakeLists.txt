@@ -1,6 +1,6 @@
 add_executable(
-    TestCore
+    PETestCore
     test.cpp
 )
 
-target_link_libraries(TestCore Core)
+target_link_libraries(PETestCore PECore)

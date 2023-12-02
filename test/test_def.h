@@ -4,7 +4,7 @@
 #include <random>
 #include <sys/timeb.h>
 
-#include "../src/def.h"
+#include "def.h"
 
 #define EPS 1e-5
 
@@ -20,20 +20,20 @@ void randInit() {
     ftime(&t);
 }
 
-real randR() {
+PEReal randR() {
     static std::default_random_engine e(t.millitm);
-    static std::uniform_real_distribution<real> u(-1e3, 1e3);
+    static std::uniform_real_distribution<PEReal> u(-1e3, 1e3);
     return u(e);
 }
 
-real randPos() {
+PEReal randPos() {
     static std::default_random_engine e(t.millitm);
-    static std::uniform_real_distribution<real> u(1e-3, 1e3);
+    static std::uniform_real_distribution<PEReal> u(1e-3, 1e3);
     return u(e);
 }
 
-real randNeg() {
+PEReal randNeg() {
     static std::default_random_engine e(t.millitm);
-    static std::uniform_real_distribution<real> u(-1e3, -1e-3);
+    static std::uniform_real_distribution<PEReal> u(-1e3, -1e-3);
     return u(e);
 }

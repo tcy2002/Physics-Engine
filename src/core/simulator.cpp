@@ -1,5 +1,5 @@
 #include "simulator.h"
-#include "ui/viewer.h"
+#include "viewer/opengl_viewer.h"
 
 using namespace pe_core;
 
@@ -10,6 +10,5 @@ void Simulator::init(const pe::Array<pe_phys_object::CollisionBody*>& objs) {
 }
 
 SimulatorWithUi::SimulatorWithUi(const std::string& name) {
-    pe_ui::Viewer::initViewerInstance(name, 800, 600)
-    .setCamera({0, 0, 3}, 0, 0);
+    pe_viewer::OpenglViewer::open(name);
 }

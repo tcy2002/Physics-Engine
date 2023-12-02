@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include "def.h"
 #include "world.h"
 #include "phys/object/collision_body.h"
@@ -7,7 +8,7 @@
 namespace pe_core {
 
 class Simulator {
-    PE_MEMBER_SET_GET(real, phys_dt, PhysDt);
+    PE_MEMBER_SET_GET(PEReal, phys_dt, PhysDt);
 
 protected:
     World _world;
@@ -17,7 +18,7 @@ public:
 };
 
 class SimulatorWithUi : public Simulator {
-    PE_MEMBER_SET_GET(real, render_dt, RenderDt);
+    PE_MEMBER_SET_GET(PEReal, render_dt, RenderDt);
 
 public:
     explicit SimulatorWithUi(const std::string& name);

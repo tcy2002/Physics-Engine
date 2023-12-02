@@ -6,7 +6,7 @@
 using namespace pe_phys_shape;
 
 void testConstruct() {
-    BoxShape box(pe_cg::Vector3(1., 2., 3.));
+    BoxShape box(pe_common::Vector3(1., 2., 3.));
     ConvexMeshShape meshShape(box.getMesh());
 
     ASSERT_EQUAL_INT(meshShape.getType(), ShapeType::MESH)
@@ -19,11 +19,11 @@ void testConstruct() {
 }
 
 void testAABB() {
-    BoxShape box(pe_cg::Vector3(1., 2., 3.));
+    BoxShape box(pe_common::Vector3(1., 2., 3.));
     ConvexMeshShape meshShape(box.getMesh());
-    pe_cg::Vector3 min, max;
+    pe_common::Vector3 min, max;
 
-    meshShape.getAABB(pe_cg::Transform::identity(), min, max);
+    meshShape.getAABB(pe_common::Transform::identity(), min, max);
     ASSERT_EQUAL(min.x, -0.5)
     ASSERT_EQUAL(min.y, -1.0)
     ASSERT_EQUAL(min.z, -1.5)
@@ -31,8 +31,8 @@ void testAABB() {
     ASSERT_EQUAL(max.y, 1.0)
     ASSERT_EQUAL(max.z, 1.5)
 
-    pe_cg::Transform transform;
-    transform.setTranslation(pe_cg::Vector3(1., 2., 3.));
+    pe_common::Transform transform;
+    transform.setTranslation(pe_common::Vector3(1., 2., 3.));
     meshShape.getAABB(transform, min, max);
     ASSERT_EQUAL(min.x, 0.5)
     ASSERT_EQUAL(min.y, 1.0)
@@ -41,8 +41,8 @@ void testAABB() {
     ASSERT_EQUAL(max.y, 3.0)
     ASSERT_EQUAL(max.z, 4.5)
 
-    transform.setRotation(pe_cg::Vector3::up(), M_PI / 4);
-    transform.setTranslation(pe_cg::Vector3(0., 0., 0.));
+    transform.setRotation(pe_common::Vector3::up(), M_PI / 4);
+    transform.setTranslation(pe_common::Vector3(0., 0., 0.));
     meshShape.getAABB(transform, min, max);
     ASSERT_EQUAL(min.x, -sqrt(2.))
     ASSERT_EQUAL(min.y, -1)
@@ -53,62 +53,62 @@ void testAABB() {
 }
 
 void testIsInside() {
-    BoxShape box(pe_cg::Vector3(1., 2., 3.));
+    BoxShape box(pe_common::Vector3(1., 2., 3.));
     ConvexMeshShape meshShape(box.getMesh());
 
-    ASSERT_EQUAL(meshShape.isInside(pe_cg::Transform::identity(),
-                                    pe_cg::Vector3(0., 0., 0.)),
+    ASSERT_EQUAL(meshShape.isInside(pe_common::Transform::identity(),
+                                    pe_common::Vector3(0., 0., 0.)),
                  true)
-    ASSERT_EQUAL(meshShape.isInside(pe_cg::Transform::identity(),
-                                    pe_cg::Vector3(0.499, 0.999, 1.499)),
+    ASSERT_EQUAL(meshShape.isInside(pe_common::Transform::identity(),
+                                    pe_common::Vector3(0.499, 0.999, 1.499)),
                  true)
-    ASSERT_EQUAL(meshShape.isInside(pe_cg::Transform::identity(),
-                                    pe_cg::Vector3(0.501, 1.001, 1.501)),
+    ASSERT_EQUAL(meshShape.isInside(pe_common::Transform::identity(),
+                                    pe_common::Vector3(0.501, 1.001, 1.501)),
                  false)
 
-    pe_cg::Transform transform;
+    pe_common::Transform transform;
     transform.setRotation({0, 1, 0}, M_PI / 4);
     transform.setTranslation({2, 2, 2});
     ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe_cg::Vector3(2., 2., 2.)),
+                                    pe_common::Vector3(2., 2., 2.)),
                  true)
     ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe_cg::Vector3(1.999 + sqrt(1.999), 2.999, 1.999 + sqrt(1.999) / 2)),
+                                    pe_common::Vector3(1.999 + sqrt(1.999), 2.999, 1.999 + sqrt(1.999) / 2)),
                  true)
     ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe_cg::Vector3(2.001 + sqrt(2.001), 3.001, 2.001 + sqrt(2.001) / 2)),
+                                    pe_common::Vector3(2.001 + sqrt(2.001), 3.001, 2.001 + sqrt(2.001) / 2)),
                  false)
 }
 
 void testProject() {
-    BoxShape box(pe_cg::Vector3(1., 2., 3.));
+    BoxShape box(pe_common::Vector3(1., 2., 3.));
     ConvexMeshShape meshShape(box.getMesh());
-    real min, max;
+    PEReal min, max;
 
-    meshShape.project(pe_cg::Transform::identity(), pe_cg::Vector3::up(), min, max);
+    meshShape.project(pe_common::Transform::identity(), pe_common::Vector3::up(), min, max);
     ASSERT_EQUAL(min, -1.)
     ASSERT_EQUAL(max, 1.)
 
-    meshShape.project(pe_cg::Transform::identity(), pe_cg::Vector3::right(), min, max);
+    meshShape.project(pe_common::Transform::identity(), pe_common::Vector3::right(), min, max);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
 
-    meshShape.project(pe_cg::Transform::identity(), pe_cg::Vector3::forward(), min, max);
+    meshShape.project(pe_common::Transform::identity(), pe_common::Vector3::forward(), min, max);
     ASSERT_EQUAL(min, -1.5)
     ASSERT_EQUAL(max, 1.5)
 
-    pe_cg::Transform transform;
+    pe_common::Transform transform;
     transform.setRotation({0, 1, 0}, M_PI / 4);
     transform.setTranslation({2, 2, 2});
-    meshShape.project(transform, pe_cg::Vector3::up(), min, max);
+    meshShape.project(transform, pe_common::Vector3::up(), min, max);
     ASSERT_EQUAL(min, 1.)
     ASSERT_EQUAL(max, 3.)
 
-    meshShape.project(transform, pe_cg::Vector3::right(), min, max);
+    meshShape.project(transform, pe_common::Vector3::right(), min, max);
     ASSERT_EQUAL(min, 2. - sqrt(2.))
     ASSERT_EQUAL(max, 2. + sqrt(2.))
 
-    meshShape.project(transform, pe_cg::Vector3::forward(), min, max);
+    meshShape.project(transform, pe_common::Vector3::forward(), min, max);
     ASSERT_EQUAL(min, 2. - sqrt(2.))
     ASSERT_EQUAL(max, 2. + sqrt(2.))
 }
