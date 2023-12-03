@@ -4,14 +4,14 @@
 
 using namespace pe_viewer;
 
-ShaderProgram::ShaderProgram(const char* vertPath, const char* fragPath) {
+ShaderProgram::ShaderProgram(const char* vert_path, const char* frag_path) {
     _program_id = glCreateProgram();
 
-    int vertID = createShader(vertPath, GL_VERTEX_SHADER);
+    int vertID = createShader(vert_path, GL_VERTEX_SHADER);
     glAttachShader(_program_id, vertID);
     glDeleteShader(vertID);
 
-    int fragID = createShader(fragPath, GL_FRAGMENT_SHADER);
+    int fragID = createShader(frag_path, GL_FRAGMENT_SHADER);
     glAttachShader(_program_id, fragID);
     glDeleteShader(fragID);
 
@@ -55,6 +55,10 @@ void ShaderProgram::linkProgramAndCheck(int program) {
 
 void ShaderProgram::use() const {
     glUseProgram(_program_id);
+}
+
+void ShaderProgram::unuse() const {
+    glUseProgram(0);
 }
 
 void ShaderProgram::setBool(const char* name, bool value) const {
