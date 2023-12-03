@@ -9,7 +9,10 @@ namespace pe_viewer {
 // Note: This module is not thread-safe, so the upper module
 // should ensure that only one thread is modifying the mesh
 
-enum RenderType { R_MESH, R_LINE };
+enum RenderType {
+    R_MESH,
+    R_LINE
+};
 
 /**
  * @brief Basic render
@@ -24,6 +27,8 @@ protected:
 
     PE_BOOL_GET(inited, Inited)
     PE_BOOL_GET(dynamic, Dynamic)
+    PE_MEMBER_SET_GET(pe_common::Transform, transform, Transform)
+    PE_MEMBER_SET_GET(pe_common::Vector3, color, Color)
 
 public:
     Renderer();
@@ -41,11 +46,6 @@ public:
  */
 class MeshRenderer : public Renderer {
 private:
-    PE_BOOL_SET_GET(showLines, ShowLines)
-    PE_MEMBER_SET_GET(pe_common::Transform, transform, Transform)
-    PE_MEMBER_SET_GET(pe_common::Vector3, color, Color)
-    PE_MEMBER_SET_GET(pe_common::Vector3, lineColor, LineColor)
-
     void loadMesh(const pe_common::Mesh& mesh);
 
 public:
@@ -64,7 +64,6 @@ public:
 class LineRenderer : public Renderer {
 private:
     PE_MEMBER_SET_GET(PEReal, width, Width)
-    PE_MEMBER_SET_GET(pe_common::Vector3, color, Color)
 
     void loadLine(const pe::Array<pe_common::Vector3>& points);
 

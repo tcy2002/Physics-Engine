@@ -1,9 +1,8 @@
 #pragma once
 
-#include "common/vector3.h"
-#include "common/matrix3x3.h"
+#include "public_include.h"
 
-namespace pe_viewer {
+namespace simple_viewer {
 
 class ShaderProgram {
 private:
@@ -23,8 +22,8 @@ public:
     void setBool(const char* name, bool value) const;
     void setInt(const char* name, int value) const;
     void setFloat(const char* name, float value) const;
-    void setVec3(const char* name, const pe_common::Vector3& value) const;
-    void setMat3(const char* name, const pe_common::Matrix3x3& value) const;
+    void setVec3(const char* name, const SV_Vector3& value) const;
+    void setMat3(const char* name, const SV_Matrix3& value) const;
 };
 
-} // namespace pe_viewer
+} // namespace simple_viewer

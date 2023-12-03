@@ -10,5 +10,5 @@ void Simulator::init(const pe::Array<pe_phys_object::CollisionBody*>& objs) {
 }
 
 SimulatorWithUi::SimulatorWithUi(const std::string& name) {
-    pe_viewer::OpenglViewer::open(name);
+    simple_viewer::OpenglViewer::open(name);
 }

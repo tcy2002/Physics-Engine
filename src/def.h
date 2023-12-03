@@ -4,6 +4,7 @@
 #include <queue>
 #include <unordered_map>
 
+//// some common types
 namespace pe {
     template <typename T>
     using Array = std::vector<T>;
@@ -24,7 +25,7 @@ typedef double PEReal;
 #define PE_REAL_MAX __DBL_MAX__
 #define PE_REAL_MIN __DBL_DENORM_MIN__
 #else
-typedef float real;
+typedef float PEReal;
 #define PE_REAL_MAX __FLT_MAX__
 #define PE_REAL_MIN __FLT_DENORM_MIN__
 #endif
@@ -37,7 +38,7 @@ typedef float real;
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#else
+#elif defined LINUX
 #include <sys/time.h>
 #include <unistd.h>
 #endif

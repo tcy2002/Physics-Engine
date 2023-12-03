@@ -1,11 +1,9 @@
 #pragma once
 
 #include <mutex>
-#include <iostream>
-#include "def.h"
-#include "common/transform.h"
+#include "public_include.h"
 
-namespace pe_viewer {
+namespace simple_viewer {
 
 /**
  * @brief A UE-stylized 3rd-person camera
@@ -35,28 +33,28 @@ public:
     void keyboard(unsigned char key, int state);
     void reshape(int width, int height);
 
-    void setPosition(const pe_common::Vector3& position);
-    void setYaw(PEReal yaw);
-    void setPitch(PEReal pitch);
-    void setProj(PEReal fov_degree, PEReal aspect, PEReal near_, PEReal far_);
+    void setPosition(const SV_Vector3& position);
+    void setYaw(float yaw);
+    void setPitch(float pitch);
+    void setProj(float fov_degree, float aspect, float near_, float far_);
 
-    const pe_common::Transform& getTransform(int64_t time);
-    PEReal getProj(int i) const;
+    const SV_Transform& getTransform(int64_t time);
+    float getProj(int i) const;
 
 private:
     std::mutex _mutex_trans, _mutex_proj;
-    PEReal _yaw, _pitch;
-    pe_common::Vector3 _position;
-    PEReal _fov, _aspect, _near, _far;
-    pe_common::Transform _transform;
-    PEReal _proj[4];
+    float _yaw, _pitch;
+    SV_Vector3 _position;
+    float _fov, _aspect, _near, _far;
+    SV_Transform _transform;
+    float _proj[4];
 
-    const PEReal MoveSpeedMin = 0.05, MoveSpeedMax = 1., MoveSpeedStep = 0.05;
-    PEReal _move_speed = MoveSpeedMin;
-    const PEReal RotateSpeed = 0.004;
-    PEReal _rotate_speed = RotateSpeed;
-    const PEReal WheelStep = 8.0;
-    const PEReal KeyStep = 200.0;
+    const float MoveSpeedMin = 0.05, MoveSpeedMax = 1., MoveSpeedStep = 0.05;
+    float _move_speed = MoveSpeedMin;
+    const float RotateSpeed = 0.004;
+    float _rotate_speed = RotateSpeed;
+    const float WheelStep = 8.0;
+    const float KeyStep = 200.0;
 
     int _state_left = 1, _state_middle = 1, _state_right = 1;
     int _state_w = 1, _state_a = 1, _state_s = 1, _state_d = 1;
@@ -64,4 +62,4 @@ private:
     int _last_x = -1, _last_y = -1;
 };
 
-} // namespace pe_viewer
+} // namespace simple_viewer

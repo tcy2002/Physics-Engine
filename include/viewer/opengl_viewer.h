@@ -6,19 +6,6 @@
 
 namespace pe_viewer {
 
-enum ObjType {
-    OBJ_MESH,
-    OBJ_LINE
-};
-enum ObjUpdateType {
-    OBJ_UPDATE_MESH,
-    OBJ_UPDATE_MESH_TRANSFORM,
-    OBJ_UPDATE_MESH_COLOR,
-    OBJ_UPDATE_LINE,
-    OBJ_UPDATE_MESH_WIDTH,
-    OBJ_UPDATE_LINE_COLOR
-};
-
 /**
  * @brief A singleton, single-window, reopenable OpenGL viewer
  *
@@ -46,6 +33,7 @@ public:
     static int addLine(const pe::Array<pe_common::Vector3>& points);
     static bool updateLine(int id, const pe::Array<pe_common::Vector3>& points);
     static bool updateLineWidth(int id, PEReal width);
+    static bool updateLineTransform(int id, const pe_common::Transform& transform);
     static bool updateLineColor(int id, const pe_common::Vector3& color);
     static void delLine(int id);
     static void clearLines();

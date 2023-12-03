@@ -2,18 +2,18 @@
 
 #include "GL/glew.h"
 
-using namespace pe_viewer;
+using namespace simple_viewer;
 
 ShaderProgram::ShaderProgram(const char* vert_path, const char* frag_path) {
     _program_id = glCreateProgram();
 
-    int vertID = createShader(vert_path, GL_VERTEX_SHADER);
-    glAttachShader(_program_id, vertID);
-    glDeleteShader(vertID);
+    int vert_id = createShader(vert_path, GL_VERTEX_SHADER);
+    glAttachShader(_program_id, vert_id);
+    glDeleteShader(vert_id);
 
-    int fragID = createShader(frag_path, GL_FRAGMENT_SHADER);
-    glAttachShader(_program_id, fragID);
-    glDeleteShader(fragID);
+    int frag_id = createShader(frag_path, GL_FRAGMENT_SHADER);
+    glAttachShader(_program_id, frag_id);
+    glDeleteShader(frag_id);
 
     linkProgramAndCheck(_program_id);
 }
@@ -73,11 +73,11 @@ void ShaderProgram::setFloat(const char* name, float value) const {
     glUniform1f(glGetUniformLocation(_program_id, name), value);
 }
 
-void ShaderProgram::setVec3(const char* name, const pe_common::Vector3& value) const {
+void ShaderProgram::setVec3(const char* name, const SV_Vector3& value) const {
     glUniform3f(glGetUniformLocation(_program_id, name), (float)value.x, (float)value.y, (float)value.z);
 }
 
-void ShaderProgram::setMat3(const char* name, const pe_common::Matrix3x3& value) const {
+void ShaderProgram::setMat3(const char* name, const SV_Matrix3& value) const {
     static float buf[9];
     buf[0] = (float)value[0][0]; buf[1] = (float)value[1][0]; buf[2] = (float)value[2][0];
     buf[3] = (float)value[0][1]; buf[4] = (float)value[1][1]; buf[5] = (float)value[2][1];

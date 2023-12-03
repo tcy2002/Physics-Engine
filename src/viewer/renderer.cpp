@@ -2,13 +2,15 @@
 
 #include <GL/glew.h>
 
-using namespace pe_viewer;
+using namespace simple_viewer;
 
 Renderer::Renderer():
     VAO(0), VBO(0), EBO(0),
     _vertex_count(0), _vertices(nullptr),
     _triangle_count(0), _indices(nullptr),
-    _inited(false), _dynamic(false) {}
+    _inited(false), _dynamic(false),
+    _transform(SV_Transform::identity()),
+    _color({1, 1, 1}) {}
 
 Renderer::~Renderer() {
     deinit();
@@ -17,14 +19,14 @@ Renderer::~Renderer() {
 }
 
 void Renderer::deinit() {
-    if (!_inited) return;
+    if (VAO == 0) return;
+    glDeleteVertexArrays(1, &VAO); VAO = 0;
+    if (VBO != 0) { glDeleteBuffers(1, &VBO); VBO = 0; }
+    if (EBO != 0) { glDeleteBuffers(1, &EBO); EBO = 0; }
     _inited = false;
-    if (VAO != 0) glDeleteVertexArrays(1, &VAO);
-    if (VBO != 0) glDeleteBuffers(1, &VBO);
-    if (EBO != 0) glDeleteBuffers(1, &EBO);
 }
 
-void MeshRenderer::loadMesh(const pe_common::Mesh &mesh) {
+void MeshRenderer::loadMesh(const SV_Mesh& mesh) {
     // load vertex data
     _vertex_count = mesh.vertices.size();
     _vertices = new float[_vertex_count * 6];
@@ -57,12 +59,11 @@ void MeshRenderer::loadMesh(const pe_common::Mesh &mesh) {
     }
 }
 
-MeshRenderer::MeshRenderer(const pe_common::Mesh& mesh, bool dynamic):
-    Renderer(),
-    _transform(pe_common::Transform::identity()),
-    _color({0.3, 0.25, 0.8}) {
+MeshRenderer::MeshRenderer(const SV_Mesh& mesh, bool dynamic):
+    Renderer() {
     loadMesh(mesh);
     _dynamic = dynamic;
+    _color = {0.3, 0.25, 0.8};
 }
 
 void MeshRenderer::init(int VAP_position, int VAP_normal) {
@@ -90,14 +91,14 @@ void MeshRenderer::render() const {
     glBindVertexArray(0);
 }
 
-bool MeshRenderer::updateMesh(const pe_common::Mesh &mesh) {
+bool MeshRenderer::updateMesh(const SV_Mesh& mesh) {
     if (!_dynamic) return false;
     loadMesh(mesh);
     _inited = false;
     return true;
 }
 
-void LineRenderer::loadLine(const pe::Array<pe_common::Vector3>& points) {
+void LineRenderer::loadLine(const std::vector<SV_Vector3>& points) {
     _vertex_count = (points.size() - 1) * 2;
     _vertices = new float[_vertex_count * 3];
     size_t i = 0;
@@ -117,11 +118,11 @@ void LineRenderer::loadLine(const pe::Array<pe_common::Vector3>& points) {
     _vertices[i] = (float)points.back().z;
 }
 
-LineRenderer::LineRenderer(const pe::Array<pe_common::Vector3>& points):
-    Renderer(),
-    _width(1),
-    _color({1, 0.95, 0}) {
+LineRenderer::LineRenderer(const std::vector<SV_Vector3>& points, bool dynamic):
+    Renderer(), _width(1) {
     loadLine(points);
+    _dynamic = dynamic;
+    _color = {1, 0.95, 0};
 }
 
 void LineRenderer::init(int VAP_position, int VAP_normal) {
@@ -146,7 +147,7 @@ void LineRenderer::render() const {
     glBindVertexArray(0);
 }
 
-bool LineRenderer::updateLine(const pe::Array<pe_common::Vector3>& points) {
+bool LineRenderer::updateLine(const std::vector<SV_Vector3>& points) {
     if (!_dynamic) return false;
     loadLine(points);
     _inited = false;

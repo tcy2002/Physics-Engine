@@ -10,25 +10,20 @@
 #include "shader_vert.h"
 #include "shader_frag.h"
 
-using namespace pe_viewer;
+using namespace simple_viewer;
 
-//// camera
+//// camera: might be set by two threads at the same time
 static std::atomic<Camera*> camera = nullptr;
 
 //// shader
 static ShaderProgram* shader = nullptr;
 
 //// object
-static pe::Array<pe::Pair<int, Renderer*>> objs;
+static std::vector<std::pair<int, Renderer*>> objs;
 static int max_id = -1;
 static std::mutex mtx;
 
 static void drawMesh(MeshRenderer* mesh) {
-    // set mesh properties
-    auto& transform = mesh->getTransform();
-    shader->setMat3("gWorldBasis", transform.getBasis());
-    shader->setVec3("gWorldOrigin", transform.getOrigin());
-    shader->setVec3("gColor", mesh->getColor());
     shader->setFloat("gAmbientIntensity", 0.8f);
     shader->setFloat("gDiffuseIntensity", 0.4f);
 
@@ -41,10 +36,6 @@ static void drawMesh(MeshRenderer* mesh) {
 }
 
 static void drawLine(LineRenderer* line) {
-    // set line properties
-    shader->setMat3("gWorldBasis", pe_common::Matrix3x3::identity());
-    shader->setVec3("gWorldOrigin", pe_common::Vector3::zeros());
-    shader->setVec3("gColor", line->getColor());
     shader->setFloat("gAmbientIntensity", 1.0f);
     shader->setFloat("gDiffuseIntensity", 0);
 
@@ -65,6 +56,12 @@ static void drawObjects() {
         } else if (!objs[i].second->isInited()) {
             objs[i].second->init(1, 2);
         }
+
+        // render object
+        auto& transform = objs[i].second->getTransform();
+        shader->setMat3("gWorldBasis", transform.getBasis());
+        shader->setVec3("gWorldOrigin", transform.getOrigin());
+        shader->setVec3("gColor", objs[i].second->getColor());
         if (objs[i].second->type() == RenderType::R_MESH) {
             drawMesh(dynamic_cast<MeshRenderer*>(objs[i].second));
         } else if (objs[i].second->type() == RenderType::R_LINE) {
@@ -123,10 +120,11 @@ static void timer(int) {
 
 static void close() {
     if (shader == nullptr) return;
+    delete shader; shader = nullptr;
+    std::unique_lock<std::mutex> lock(mtx);
     for (auto& obj: objs) {
         obj.second->deinit();
     }
-    delete shader; shader = nullptr;
 }
 
 void OpenglViewer::open(const std::string &name, int width, int height) {
@@ -154,7 +152,7 @@ void OpenglViewer::open(const std::string &name, int width, int height) {
 
     shader = new ShaderProgram(shader_vert, shader_frag);
     shader->use();
-    shader->setVec3("gLightDirection", pe_common::Vector3(1, -2, -3).normalized());
+    shader->setVec3("gLightDirection", SV_Vector3(1, -2, -3).normalized());
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.6, 0.85, 0.918, 1.);
@@ -169,26 +167,20 @@ void OpenglViewer::close() {
     }
 }
 
-void OpenglViewer::setCamera(const pe_common::Vector3& position, PEReal yaw, PEReal pitch) {
+void OpenglViewer::setCamera(const SV_Vector3& position, float yaw, float pitch) {
     if (camera.load() == nullptr) {
         camera.store(new Camera);
-        PEReal aspect = 1.0;
+        float aspect = 1.0;
         if (glutGetWindow() != 0) {
             auto width = glutGet(GLUT_WINDOW_WIDTH);
             auto height = glutGet(GLUT_WINDOW_HEIGHT);
-            aspect = (PEReal)width / height;
+            aspect = (float)width / (float)height;
         }
         camera.load()->setProj(45., aspect, .1, 1000.);
     }
     camera.load()->setPosition(position);
     camera.load()->setYaw(yaw);
     camera.load()->setPitch(pitch);
-}
-
-int OpenglViewer::addMesh(const pe_common::Mesh& mesh, bool dynamic) {
-    std::unique_lock<std::mutex> lock(mtx);
-    objs.emplace_back(++max_id, new MeshRenderer(mesh, dynamic));
-    return max_id;
 }
 
 static int findObj(int id, int type) {
@@ -202,151 +194,62 @@ static int findObj(int id, int type) {
     return -1;
 }
 
-//void OpenglViewer::qryObj(const ObjQryParam &param) {
-//    std::unique_lock<std::mutex> lock(mtx);
-//    if (param.action == ObjAction::OBJ_ADD) {
-//        if (param.type == ObjType::OBJ_MESH) {
-//            objs.emplace_back(++max_id, new MeshRenderer(param.mesh, param.dynamic));
-//        } else if (param.type == ObjType::OBJ_LINE) {
-//            objs.emplace_back(++max_id, new LineRenderer(param.start, param.end));
-//        } else {
-//            throw std::runtime_error("Unknown object type");
-//        }
-//    } else if (param.action == ObjAction::OBJ_UPDATE) {
-//        int obj_idx = findObj(param.id, param.type);
-//        if (obj_idx < 0) return;
-//        if (param.type == ObjType::OBJ_MESH) {
-//            auto mesh = dynamic_cast<MeshRenderer*>(objs[obj_idx].second);
-//            if (param.attrib == ObjAttrib::MESH) {
-//                mesh->updateMesh(param.mesh);
-//            } else if (param.attrib == ObjAttrib::MESH_COLOR) {
-//                mesh->setColor(param.color);
-//            } else if (param.attrib == ObjAttrib::MESH_TRANSFORM) {
-//                mesh->setTransform(param.transform);
-//            } else {
-//                throw std::runtime_error("Unknown object attribute");
-//            }
-//        } else if (param.type == ObjType::OBJ_LINE) {
-//            auto line = dynamic_cast<LineRenderer*>(objs[obj_idx].second);
-//            if (param.attrib == ObjAttrib::LINE) {
-//                line->updateLine(param.start, param.end);
-//            } else if (param.attrib == ObjAttrib::LINE_COLOR) {
-//                line->setColor(param.color);
-//            } else if (param.attrib == ObjAttrib::LINE_WIDTH) {
-//                line->setWidth(param.width);
-//            } else {
-//                throw std::runtime_error("Unknown object attribute");
-//            }
-//        } else {
-//            throw std::runtime_error("Unknown object type");
-//        }
-//    } else if (param.action == ObjAction::OBJ_DEL) {
-//        int obj_idx = findObj(param.id, param.type);
-//        if (obj_idx < 0) return;
-//        objs[obj_idx].first = -1;
-//    } else if (param.action == ObjAction::OBJ_CLEAR_ALL) {
-//        for (auto& obj: objs) {
-//            if (obj.second->type() == param.type) {
-//                obj.first = -1;
-//            }
-//        }
-//    } else {
-//        throw std::runtime_error("Unknown object action");
-//    }
-//}
-
-bool OpenglViewer::updateMesh(int id, const pe_common::Mesh& mesh) {
+int OpenglViewer::addObj(const ObjInitParam &param) {
     std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_MESH);
-    if (obj_idx < 0) return false;
-    return dynamic_cast<MeshRenderer*>(objs[obj_idx].second)->updateMesh(mesh);
-}
-
-bool OpenglViewer::updateMeshTransform(int id, const pe_common::Transform& transform) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_MESH);
-    if (obj_idx < 0) return false;
-    dynamic_cast<MeshRenderer*>(objs[obj_idx].second)->setTransform(transform);
-    return true;
-}
-
-bool OpenglViewer::updateMeshColor(int id, const pe_common::Vector3& color) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_MESH);
-    if (obj_idx < 0) return false;
-    dynamic_cast<MeshRenderer*>(objs[obj_idx].second)->setColor(color);
-    return true;
-}
-
-void OpenglViewer::delMesh(int id) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_MESH);
-    if (obj_idx < 0) return;
-    objs[obj_idx].first = -1;
-}
-
-void OpenglViewer::clearMeshes() {
-    std::unique_lock<std::mutex> lock(mtx);
-    for (auto& mesh: objs) {
-        if (mesh.second->type() == RenderType::R_MESH) {
-            mesh.first = -1;
-        }
+    switch (param.type) {
+        case ObjType::OBJ_MESH:
+            objs.emplace_back(++max_id, new MeshRenderer(param.mesh, param.dynamic));
+            break;
+        case ObjType::OBJ_LINE:
+            objs.emplace_back(++max_id, new LineRenderer(param.line, param.dynamic));
+            break;
+        default:
+            throw std::runtime_error("Unknown object type");
     }
-}
-
-int OpenglViewer::addLine(const pe::Array<pe_common::Vector3>& points) {
-    std::unique_lock<std::mutex> lock(mtx);
-    objs.emplace_back(++max_id, new LineRenderer(points));
     return max_id;
 }
 
-bool OpenglViewer::updateLine(int id, const pe::Array<pe_common::Vector3>& points) {
+bool OpenglViewer::updateObj(const ObjUpdateParam &param) {
     std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_LINE);
-    if (obj_idx < 0) return false;
-    dynamic_cast<LineRenderer*>(objs[obj_idx].second)->updateLine(points);
-    return true;
-}
+    int obj_idx;
+    if (param.act_type != OBJ_CLEAR_ALL_TYPE) {
+        obj_idx = findObj(param.obj_id, param.obj_type);
+        if (obj_idx < 0) return false;
+    }
 
-bool OpenglViewer::updateLineWidth(int id, PEReal width) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_LINE);
-    if (obj_idx < 0) return false;
-    dynamic_cast<LineRenderer*>(objs[obj_idx].second)->setWidth(width);
-    return true;
-}
-
-bool OpenglViewer::updateLineColor(int id, const pe_common::Vector3 &color) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_LINE);
-    if (obj_idx < 0) return false;
-    dynamic_cast<LineRenderer*>(objs[obj_idx].second)->setColor(color);
-    return true;
-}
-
-void OpenglViewer::delLine(int id) {
-    std::unique_lock<std::mutex> lock(mtx);
-    int obj_idx = findObj(id, RenderType::R_LINE);
-    if (obj_idx < 0) return;
-    objs[obj_idx].first = -1;
-}
-
-void OpenglViewer::clearLines() {
-    std::unique_lock<std::mutex> lock(mtx);
-    for (auto& mesh: objs) {
-        if (mesh.second->type() == RenderType::R_LINE) {
-            mesh.first = -1;
-        }
+    switch (param.act_type) {
+        case OBJ_UPDATE_TRANSFORM:
+            objs[obj_idx].second->setTransform(param.transform);
+            return true;
+        case OBJ_UPDATE_COLOR:
+            objs[obj_idx].second->setColor(param.color);
+            return true;
+        case OBJ_UPDATE_MESH:
+            return dynamic_cast<MeshRenderer*>(objs[obj_idx].second)->updateMesh(param.mesh);
+        case OBJ_UPDATE_LINE:
+            return dynamic_cast<LineRenderer*>(objs[obj_idx].second)->updateLine(param.line);
+        case OBJ_UPDATE_LINE_WIDTH:
+            dynamic_cast<LineRenderer*>(objs[obj_idx].second)->setWidth(param.line_width);
+            return true;
+        case OBJ_DEL:
+            objs[obj_idx].first = -1;
+            return true;
+        case OBJ_CLEAR_ALL_TYPE:
+            for (auto& obj: objs) {
+                if (obj.second->type() == param.obj_type) {
+                    obj.first = -1;
+                }
+            }
+            return true;
+        default:
+            throw std::runtime_error("Unknown update command type");
     }
 }
 
 OpenglViewer::~OpenglViewer() {
     close();
-    for (auto& mesh: objs) {
-        delete mesh.second;
-    }
     for (auto& obj: objs) {
         delete obj.second;
     }
-    delete camera;
+    delete camera.load();
 }
