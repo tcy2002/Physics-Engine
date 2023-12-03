@@ -15,7 +15,7 @@ using namespace pe_viewer;
 static std::atomic<Camera*> camera = nullptr;
 static ShaderProgram* program = nullptr;
 static pe::Array<pe::Pair<int, MeshRenderer*>> meshes;
-static int mesh_count = 0;
+static int max_mesh_id = -1;
 static std::mutex mtx_meshes;
 
 static void display() {
@@ -112,7 +112,7 @@ void OpenglViewer::open(const std::string &name, int width, int height) {
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutTimerFunc(16, timer, 1);
-    glutCloseFunc(close);
+    glutCloseFunc(::close);
 
     program = new ShaderProgram(shader_vert, shader_frag);
     program->use();
@@ -152,8 +152,8 @@ void OpenglViewer::setCamera(const pe_common::Vector3& position, PEReal yaw, PER
 int OpenglViewer::addMesh(const pe_common::Mesh& mesh, bool dynamic) {
     std::unique_lock<std::mutex> lock(mtx_meshes);
     auto mr = new MeshRenderer(mesh, dynamic);
-    meshes.emplace_back(mesh_count, mr);
-    return mesh_count++;
+    meshes.emplace_back(++max_mesh_id, mr);
+    return max_mesh_id;
 }
 
 static int findMesh(int id) {
@@ -193,7 +193,6 @@ void OpenglViewer::delMesh(int id) {
     int mesh_idx = findMesh(id);
     if (mesh_idx < 0) return;
     meshes[mesh_idx].first = -1;
-    mesh_count--;
 }
 
 void OpenglViewer::clearMeshes() {
@@ -201,7 +200,6 @@ void OpenglViewer::clearMeshes() {
     for (auto& mesh: meshes) {
         mesh.first = -1;
     }
-    mesh_count = 0;
 }
 
 OpenglViewer::~OpenglViewer() {

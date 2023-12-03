@@ -10,7 +10,7 @@ int main() {
         OpenglViewer::open("UITest", 800, 600);
     });
     auto log_thread = std::thread([&]{
-        int num = 0;
+        int num = 0, id = -1;
         while (++num < 600) {
             if (num % 10 == 0) {
                 std::cout << num / 10 << std::endl;
@@ -19,16 +19,17 @@ int main() {
                 OpenglViewer::setCamera({0, 0, 3}, 0, 0);
             }
             if (num == 200) {
-                std::cout << "add mesh: " << OpenglViewer::addMesh(box_mesh, true) << std::endl;
+                id = OpenglViewer::addMesh(box_mesh);
+                std::cout << "add mesh: " << id << std::endl;
             }
             if (num == 500) {
-                std::cout << "del mesh: " << 0 << std::endl;
-                OpenglViewer::delMesh(0);
+                std::cout << "del mesh: " << id << std::endl;
+                OpenglViewer::delMesh(id);
             }
             for (auto& p : box_mesh.vertices) {
                 p.position *= 0.999;
             }
-            OpenglViewer::updateMesh(0, box_mesh);
+            OpenglViewer::updateMesh(id, box_mesh);
             Sleep(10);
         }
         OpenglViewer::close();
@@ -37,8 +38,9 @@ int main() {
     log_thread.join();
     pe_common::Transform transform;
     transform.setEulerRotation(0, 0, 1);
-    std::cout << "add mesh: " << OpenglViewer::addMesh(box_mesh) << std::endl;
-    std::cout << "set transform: " << OpenglViewer::updateMeshTransform(0, transform) << std::endl;
+    int id = OpenglViewer::addMesh(box_mesh);
+    std::cout << "add mesh: " << id << std::endl;
+    OpenglViewer::updateMeshTransform(id, transform);
     OpenglViewer::open("PhysicsEngine", 800, 600);
     OpenglViewer::close();
     return 0;

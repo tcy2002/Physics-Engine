@@ -72,9 +72,9 @@ void MeshRenderer::init() {
 void MeshRenderer::deinit() {
     if (!_inited) return;
     _inited = false;
+    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
-    glDeleteVertexArrays(1, &VAO);
 }
 
 void MeshRenderer::render() const {

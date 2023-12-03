@@ -10,5 +10,5 @@ else()
 endif()
 
 target_include_directories(PEOpenglViewer PRIVATE ${OPENGL_INCLUDE_DIR})
-target_link_directories(PEOpenglViewer PUBLIC ${OPENGL_LIB_DIR})
+target_link_directories(PEOpenglViewer INTERFACE ${OPENGL_LIB_DIR})
 target_link_libraries(PEOpenglViewer PRIVATE glew32 freeglut ${OPENGL_LIB})
