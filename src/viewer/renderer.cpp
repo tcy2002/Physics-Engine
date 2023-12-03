@@ -8,7 +8,7 @@ Renderer::Renderer():
     VAO(0), VBO(0), EBO(0),
     _vertex_count(0), _vertices(nullptr),
     _triangle_count(0), _indices(nullptr),
-    _inited(false) {}
+    _inited(false), _dynamic(false) {}
 
 Renderer::~Renderer() {
     deinit();
@@ -19,8 +19,8 @@ Renderer::~Renderer() {
 void Renderer::deinit() {
     if (!_inited) return;
     _inited = false;
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    if (VAO != 0) glDeleteVertexArrays(1, &VAO);
+    if (VBO != 0) glDeleteBuffers(1, &VBO);
     if (EBO != 0) glDeleteBuffers(1, &EBO);
 }
 
@@ -59,10 +59,10 @@ void MeshRenderer::loadMesh(const pe_common::Mesh &mesh) {
 
 MeshRenderer::MeshRenderer(const pe_common::Mesh& mesh, bool dynamic):
     Renderer(),
-    _dynamic(dynamic),
     _transform(pe_common::Transform::identity()),
     _color({0.3, 0.25, 0.8}) {
     loadMesh(mesh);
+    _dynamic = dynamic;
 }
 
 void MeshRenderer::init(int VAP_position, int VAP_normal) {
@@ -126,13 +126,14 @@ LineRenderer::LineRenderer(const pe::Array<pe_common::Vector3>& points):
 
 void LineRenderer::init(int VAP_position, int VAP_normal) {
     if (_inited) return;
+    auto draw_mode = _dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
     if (VAO == 0) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
     }
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, (GLsizei)(sizeof(float) * 3 * _vertex_count), _vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizei)(sizeof(float) * 3 * _vertex_count), _vertices, draw_mode);
     glVertexAttribPointer(VAP_position, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
     _inited = true;
 }
@@ -145,7 +146,9 @@ void LineRenderer::render() const {
     glBindVertexArray(0);
 }
 
-void LineRenderer::updateLine(const pe::Array<pe_common::Vector3>& points) {
+bool LineRenderer::updateLine(const pe::Array<pe_common::Vector3>& points) {
+    if (!_dynamic) return false;
     loadLine(points);
     _inited = false;
+    return true;
 }

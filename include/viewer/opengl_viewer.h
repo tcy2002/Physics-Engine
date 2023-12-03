@@ -6,12 +6,26 @@
 
 namespace pe_viewer {
 
+enum ObjType {
+    OBJ_MESH,
+    OBJ_LINE
+};
+enum ObjUpdateType {
+    OBJ_UPDATE_MESH,
+    OBJ_UPDATE_MESH_TRANSFORM,
+    OBJ_UPDATE_MESH_COLOR,
+    OBJ_UPDATE_LINE,
+    OBJ_UPDATE_MESH_WIDTH,
+    OBJ_UPDATE_LINE_COLOR
+};
+
 /**
  * @brief A singleton, single-window, reopenable OpenGL viewer
  *
  *
  */
 class OpenglViewer {
+    //// Window
 public:
     static void open(const std::string& name, int width = 800, int height = 600);
     static void close();
@@ -20,7 +34,7 @@ public:
 public:
     static void setCamera(const pe_common::Vector3& position, PEReal yaw, PEReal pitch);
 
-    //// Mesh
+    //// Object
 public:
     static int addMesh(const pe_common::Mesh& mesh, bool dynamic = false);
     static bool updateMesh(int id, const pe_common::Mesh& mesh);
@@ -29,23 +43,12 @@ public:
     static void delMesh(int id);
     static void clearMeshes();
 
-    //// Line
-public:
-    static int addLine(const pe_common::Vector3& start, const pe_common::Vector3& end);
-    static bool updateLine(int id, const pe_common::Vector3& start, const pe_common::Vector3& end);
+    static int addLine(const pe::Array<pe_common::Vector3>& points);
+    static bool updateLine(int id, const pe::Array<pe_common::Vector3>& points);
     static bool updateLineWidth(int id, PEReal width);
     static bool updateLineColor(int id, const pe_common::Vector3& color);
     static void delLine(int id);
     static void clearLines();
-
-    //// Point
-public:
-    static int addPoint(const pe_common::Vector3& position);
-    static bool updatePoint(int id, const pe_common::Vector3& position);
-    static bool updatePointSize(int id, PEReal size);
-    static bool updatePointColor(int id, const pe_common::Vector3& color);
-    static void delPoint(int id);
-    static void clearPoints();
 
     //// TODO: Text Panel
 

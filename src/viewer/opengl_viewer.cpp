@@ -59,7 +59,6 @@ static void drawObjects() {
     for (int i = (int)objs.size() - 1; i >= 0; i--) {
         // update object
         if (objs[i].first == -1) {
-            objs[i].second->deinit();
             delete objs[i].second;
             objs.erase(objs.begin() + i);
             continue;

@@ -6,7 +6,10 @@
 
 namespace pe_viewer {
 
-enum ObjType { OBJ_MESH, OBJ_LINE };
+enum ObjType {
+    OBJ_MESH,
+    OBJ_LINE
+};
 enum ObjUpdateType {
     OBJ_UPDATE_MESH,
     OBJ_UPDATE_MESH_TRANSFORM,
