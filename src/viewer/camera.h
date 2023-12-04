@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mutex>
-#include "public_include.h"
+#include "def.h"
 
 namespace simple_viewer {
 
@@ -33,20 +33,22 @@ public:
     void keyboard(unsigned char key, int state);
     void reshape(int width, int height);
 
-    void setPosition(const SV_Vector3& position);
+    void setPosition(const Vector3& position);
     void setYaw(float yaw);
     void setPitch(float pitch);
     void setProj(float fov_degree, float aspect, float near_, float far_);
 
-    const SV_Transform& getTransform(int64_t time);
+    const Transform& getTransform(long long time);
     float getProj(int i) const;
+
+    void reset(long long time);
 
 private:
     std::mutex _mutex_trans, _mutex_proj;
     float _yaw, _pitch;
-    SV_Vector3 _position;
+    Vector3 _position;
     float _fov, _aspect, _near, _far;
-    SV_Transform _transform;
+    Transform _transform;
     float _proj[4];
 
     const float MoveSpeedMin = 0.05, MoveSpeedMax = 1., MoveSpeedStep = 0.05;
@@ -60,6 +62,7 @@ private:
     int _state_w = 1, _state_a = 1, _state_s = 1, _state_d = 1;
     int _state_q = 1, _state_e = 1;
     int _last_x = -1, _last_y = -1;
+    long long _last_time = 0;
 };
 
 } // namespace simple_viewer

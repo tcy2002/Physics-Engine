@@ -1,3 +1,3 @@
-add_executable(PETestThread test.cpp)
+add_executable(PETestThreadPool test.cpp)
 
-target_link_libraries(PETestThread PECommon)
+target_link_libraries(PETestThreadPool ${TEST_EXT_LIBS})

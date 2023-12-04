@@ -1,9 +1,9 @@
 #pragma once
 
 #include <fstream>
-#include "common/mesh.h"
+#include "phys/def.h"
 
-void meshToObj(const pe_common::Mesh &mesh, const std::string &filename) {
+void meshToObj(const pe::Mesh &mesh, const std::string &filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open file " << filename << std::endl;

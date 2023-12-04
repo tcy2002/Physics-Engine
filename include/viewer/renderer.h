@@ -1,17 +1,16 @@
 #pragma once
 
-#include "common/mesh.h"
-#include "common/transform.h"
-#include "def.h"
+#include "public_def.h"
 
-namespace pe_viewer {
+namespace simple_viewer {
 
 // Note: This module is not thread-safe, so the upper module
 // should ensure that only one thread is modifying the mesh
 
+// must be consistent with the ObjType in opengl_viewer.h
 enum RenderType {
-    R_MESH,
-    R_LINE
+    R_MESH = 1,
+    R_LINE = 2
 };
 
 /**
@@ -19,16 +18,16 @@ enum RenderType {
  */
 class Renderer {
 protected:
-    uint32_t VAO, VBO, EBO;
-    size_t _vertex_count;
+    unsigned int VAO, VBO, EBO;
+    unsigned long long _vertex_count;
     float *_vertices;
-    size_t _triangle_count;
-    uint32_t *_indices;
+    unsigned long long _triangle_count;
+    unsigned int *_indices;
 
     PE_BOOL_GET(inited, Inited)
     PE_BOOL_GET(dynamic, Dynamic)
-    PE_MEMBER_SET_GET(pe_common::Transform, transform, Transform)
-    PE_MEMBER_SET_GET(pe_common::Vector3, color, Color)
+    PE_MEMBER_SET_GET(SV_Transform, transform, Transform)
+    PE_MEMBER_SET_GET(SV_Vector3, color, Color)
 
 public:
     Renderer();
@@ -46,16 +45,16 @@ public:
  */
 class MeshRenderer : public Renderer {
 private:
-    void loadMesh(const pe_common::Mesh& mesh);
+    void loadMesh(const SV_Mesh& mesh);
 
 public:
-    explicit MeshRenderer(const pe_common::Mesh& mesh, bool dynamic = false);
+    explicit MeshRenderer(const SV_Mesh& mesh, bool dynamic = false);
 
     int type() const override { return RenderType::R_MESH; }
     void init(int VAP_position, int VAP_normal) override;
     void render() const override;
 
-    bool updateMesh(const pe_common::Mesh& mesh);
+    bool updateMesh(const SV_Mesh& mesh);
 };
 
 /**
@@ -63,18 +62,18 @@ public:
  */
 class LineRenderer : public Renderer {
 private:
-    PE_MEMBER_SET_GET(PEReal, width, Width)
+    PE_MEMBER_SET_GET(float, width, Width)
 
-    void loadLine(const pe::Array<pe_common::Vector3>& points);
+    void loadLine(const std::vector<SV_Vector3>& points);
 
 public:
-    explicit LineRenderer(const pe::Array<pe_common::Vector3>& points);
+    explicit LineRenderer(const std::vector<SV_Vector3>& points, bool dynamic = false);
 
     int type() const override { return RenderType::R_LINE; }
     void init(int VAP_position, int VAP_normal) override;
     void render() const override;
 
-    bool updateLine(const pe::Array<pe_common::Vector3>& points);
+    bool updateLine(const std::vector<SV_Vector3>& points);
 };
 
-} // namespace pe_viewer
+} // namespace simple_viewer

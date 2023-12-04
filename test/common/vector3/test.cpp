@@ -3,26 +3,24 @@
 #include "eigen_std.h"
 #include "test_def.h"
 
-using namespace pe_common;
-
 void testConstruct() {
-    PEReal n[] = {randR(), randR(), randR()};
-    Vector3 a, b(n[0], n[1], n[2]);
+    Real n[] = {randR(), randR(), randR()};
+    Vector3Test a, b(n[0], n[1], n[2]);
     Vector3Std ae(0, 0, 0), be(n[0], n[1], n[2]);
 
     ASSERT_VECTOR3_EIGEN_EQUAL(a, ae)
     ASSERT_VECTOR3_EIGEN_EQUAL(b, be)
 
-    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3::zeros(), Vector3Std::Zero())
-    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3::ones(), Vector3Std::Ones())
-    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3::forward(), Vector3Std::UnitZ())
-    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3::up(), Vector3Std::UnitY())
-    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3::right(), Vector3Std::UnitX())
+    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3Test::zeros(), Vector3Std::Zero())
+    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3Test::ones(), Vector3Std::Ones())
+    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3Test::forward(), Vector3Std::UnitZ())
+    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3Test::up(), Vector3Std::UnitY())
+    ASSERT_VECTOR3_EIGEN_EQUAL(Vector3Test::right(), Vector3Std::UnitX())
 }
 
 void testOperator() {
-    PEReal n[] = {randPos(), randNeg(), randR(), randR(), randR(), randR()};
-    Vector3 a, b(n[0], n[1], n[2]), c(n[3], n[4], n[5]);
+    Real n[] = {randPos(), randNeg(), randR(), randR(), randR(), randR()};
+    Vector3Test a, b(n[0], n[1], n[2]), c(n[3], n[4], n[5]);
     Vector3Std ae(0, 0 ,0), be(n[0], n[1], n[2]), ce(n[3], n[4], n[5]);
 
     ASSERT_VECTOR3_EIGEN_EQUAL(a + b, ae + be)
@@ -60,8 +58,8 @@ void testOperator() {
 }
 
 void testMath() {
-    PEReal n[] = {randPos(), randNeg(), randR(), randR(), randR(), randR()};
-    Vector3 a, b(n[0], n[1], n[2]), c(n[3], n[4], n[5]);
+    Real n[] = {randPos(), randNeg(), randR(), randR(), randR(), randR()};
+    Vector3Test a, b(n[0], n[1], n[2]), c(n[3], n[4], n[5]);
     Vector3Std ae(0, 0 ,0), be(n[0], n[1], n[2]), ce(n[3], n[4], n[5]);
 
     ASSERT_EQUAL(a.norm(), ae.norm())
@@ -78,40 +76,40 @@ void testMath() {
 }
 
 void testGeometry() {
-    Vector3 a, b(3, 5, 4), c(0, 1, 0);
-
-    Vector3 a_p_c = a.project(c);
+    Vector3Test a, b(3, 5, 4), c(0, 1, 0);
     Vector3Std ae(0, 0, 0);
+
+    Vector3Test a_p_c = a.project(c);
     ASSERT_EQUAL(a_p_c.x, 0)
     ASSERT_EQUAL(a_p_c.y, 0)
     ASSERT_EQUAL(a_p_c.z, 0)
 
-    Vector3 b_p_c = b.project(c);
+    Vector3Test b_p_c = b.project(c);
     ASSERT_EQUAL(b_p_c.x, 0)
     ASSERT_EQUAL(b_p_c.y, 5)
     ASSERT_EQUAL(b_p_c.z, 0)
 
-    Vector3 a_r_c = a.reflect(c);
+    Vector3Test a_r_c = a.reflect(c);
     ASSERT_EQUAL(a_r_c.x, 0)
     ASSERT_EQUAL(a_r_c.y, 0)
     ASSERT_EQUAL(a_r_c.z, 0)
 
-    Vector3 b_r_c = b.reflect(c);
+    Vector3Test b_r_c = b.reflect(c);
     ASSERT_EQUAL(b_r_c.x, -3)
     ASSERT_EQUAL(b_r_c.y, 5)
     ASSERT_EQUAL(b_r_c.z, -4)
 
-    Vector3 a_ro_c = a.rotate(c, M_PI / 2);
+    Vector3Test a_ro_c = a.rotate(c, M_PI / 2);
     ASSERT_EQUAL(a_ro_c.x, 0)
     ASSERT_EQUAL(a_ro_c.y, 0)
     ASSERT_EQUAL(a_ro_c.z, 0)
 
-    Vector3 b_ro_c = b.rotate(c, M_PI / 2);
+    Vector3Test b_ro_c = b.rotate(c, M_PI / 2);
     ASSERT_EQUAL(b_ro_c.x, 4)
     ASSERT_EQUAL(b_ro_c.y, 5)
     ASSERT_EQUAL(b_ro_c.z, -3)
 
-    PEReal angle = b.angle(b);
+    Real angle = b.angle(b);
     ASSERT_EQUAL(angle, 0)
     angle = b.angle(c);
     ASSERT_EQUAL(angle, M_PI / 4)
@@ -125,7 +123,6 @@ int main() {
         testMath();
     }
     testGeometry();
-    Eigen::Vector3d a(1, 2, 3), b(4, 5, 6);
 
     return 0;
 }

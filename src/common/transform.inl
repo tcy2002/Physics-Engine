@@ -1,38 +1,56 @@
-Vector3 Transform::operator*(const Vector3& v) const {
+template<typename Scalar>
+Vector3<Scalar> Transform<Scalar>::operator*(const Vector3<Scalar>& v) const {
     return _basis * v + _origin;
 }
 
-Transform Transform::operator*(const Transform& t) const {
+template<typename Scalar>
+Transform<Scalar> Transform<Scalar>::operator*(const Transform<Scalar>& t) const {
     return {_basis * t._basis, _basis * t._origin + _origin};
 }
 
-Transform& Transform::operator*=(const Transform& t) {
+template<typename Scalar>
+Transform<Scalar>& Transform<Scalar>::operator*=(const Transform<Scalar>& t) {
     _origin += _basis * t._origin;
     _basis *= t._basis;
     return *this;
 }
 
-const Matrix3x3& Transform::getBasis() const {
+template<typename Scalar>
+const Matrix3x3<Scalar>& Transform<Scalar>::getBasis() const {
     return _basis;
 }
 
-const Vector3& Transform::getOrigin() const {
+template<typename Scalar>
+const Vector3<Scalar>& Transform<Scalar>::getOrigin() const {
     return _origin;
 }
 
-Vector3 Transform::getAxis(int axis) const {
+template<typename Scalar>
+void Transform<Scalar>::setBasis(const Matrix3x3<Scalar>& basis) {
+    _basis = basis;
+}
+
+template<typename Scalar>
+void Transform<Scalar>::setOrigin(const Vector3<Scalar>& origin) {
+    _origin = origin;
+}
+
+template<typename Scalar>
+Vector3<Scalar> Transform<Scalar>::getAxis(int axis) const {
     return {_basis[0][axis], _basis[1][axis], _basis[2][axis]};
 }
 
-void Transform::setRotation(const Vector3& axis, PEReal angle) {
+template<typename Scalar>
+void Transform<Scalar>::setRotation(const Vector3<Scalar>& axis, Scalar angle) {
     _basis.setRotation(axis, angle);
 }
 
-void Transform::setEulerRotation(PEReal x, PEReal y, PEReal z, RotType type) {
-    Matrix3x3 mat_y, mat_z;
-    _basis.setRotation(Vector3::right(), x);
-    mat_y.setRotation(Vector3::up(), y);
-    mat_z.setRotation(Vector3::forward(), z);
+template<typename Scalar>
+void Transform<Scalar>::setEulerRotation(Scalar x, Scalar y, Scalar z, RotType type) {
+    Matrix3x3<Scalar> mat_y, mat_z;
+    _basis.setRotation(Vector3<Scalar>::right(), x);
+    mat_y.setRotation(Vector3<Scalar>::up(), y);
+    mat_z.setRotation(Vector3<Scalar>::forward(), z);
     switch (type) {
         case RotType::S_XYZ: case RotType::ZYX:
             _basis = mat_z * mat_y * _basis;
@@ -55,30 +73,36 @@ void Transform::setEulerRotation(PEReal x, PEReal y, PEReal z, RotType type) {
     }
 }
 
-void Transform::setTranslation(const Vector3& translation) {
+template<typename Scalar>
+void Transform<Scalar>::setTranslation(const Vector3<Scalar>& translation) {
     _origin = translation;
 }
 
-void Transform::invert() {
+template<typename Scalar>
+void Transform<Scalar>::invert() {
     _basis.transpose();
     _origin = -_basis * _origin;
 }
 
-Transform Transform::inverse() const {
+template<typename Scalar>
+Transform<Scalar> Transform<Scalar>::inverse() const {
     auto new_basis = _basis.transposed();
     return {new_basis, -new_basis * _origin};
 }
 
-Vector3 Transform::inverseTransform(const Vector3& v) const {
+template<typename Scalar>
+Vector3<Scalar> Transform<Scalar>::inverseTransform(const Vector3<Scalar>& v) const {
     return _basis.transposed() * (v - _origin);
 }
 
-const Transform& Transform::identity() {
-    static Transform identity;
+template<typename Scalar>
+const Transform<Scalar>& Transform<Scalar>::identity() {
+    static Transform<Scalar> identity;
     return identity;
 }
 
-std::ostream &operator<<(std::ostream& os, const Transform& t) {
-    os << "[" << t._basis << std::endl << t._origin << "]";
+template<typename Scalar>
+std::ostream &operator<<(std::ostream& os, const Transform<Scalar>& t) {
+    os << "[" << t.getBasis() << std::endl << t.getOrigin() << "]";
     return os;
 }

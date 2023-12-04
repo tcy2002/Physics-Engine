@@ -1,6 +1,6 @@
 #pragma once
 
-#include "public_include.h"
+#include "def.h"
 
 namespace simple_viewer {
 
@@ -22,8 +22,8 @@ public:
     void setBool(const char* name, bool value) const;
     void setInt(const char* name, int value) const;
     void setFloat(const char* name, float value) const;
-    void setVec3(const char* name, const SV_Vector3& value) const;
-    void setMat3(const char* name, const SV_Matrix3& value) const;
+    void setVec3(const char* name, const Vector3& value) const;
+    void setMat3(const char* name, const Matrix3& value) const;
 };
 
 } // namespace simple_viewer

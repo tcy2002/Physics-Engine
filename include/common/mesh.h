@@ -1,19 +1,20 @@
 #pragma once
 
-#include "def.h"
+#include "phys/def.h"
 #include "vector3.h"
 
-namespace pe_common {
+namespace common {
 
+template <typename Scalar>
 class Mesh {
 public:
     struct Vertex {
-        Vector3 position;
-        Vector3 normal;
+        Vector3<Scalar> position;
+        Vector3<Scalar> normal;
     };
     struct Face {
         pe::Array<uint32_t> indices;
-        Vector3 normal;
+        Vector3<Scalar> normal;
     };
 
     pe::Array<Vertex> vertices;
@@ -24,4 +25,4 @@ public:
         vertices(std::move(vs)), faces(std::move(fs)) {}
 };
 
-} // namespace pe_common
+} // namespace common

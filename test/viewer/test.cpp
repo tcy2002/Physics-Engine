@@ -32,14 +32,14 @@ int main() {
                 p.position *= 0.999;
             }
             OpenglViewer::updateObj({ObjUpdateType::OBJ_UPDATE_MESH, id, ObjType::OBJ_MESH, box_mesh});
-            PE_Sleep(5);
+            COMMON_Sleep(5);
         }
         OpenglViewer::close();
     });
     render_thread.join();
     log_thread.join();
 
-    pe_common::Transform transform;
+    Transform transform;
     transform.setEulerRotation(0, 0, 1);
     int mesh_id = OpenglViewer::addObj({ObjType::OBJ_MESH, false, box_mesh});
     transform.setTranslation({1, 0, 0});
@@ -55,5 +55,6 @@ int main() {
 
     OpenglViewer::open("PhysicsEngine", 800, 600);
     OpenglViewer::close();
+
     return 0;
 }

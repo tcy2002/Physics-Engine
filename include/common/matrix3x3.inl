@@ -1,12 +1,15 @@
-PEReal* Matrix3x3::operator[](int i) {
+template <typename Scalar>
+Scalar* Matrix3x3<Scalar>::operator[](int i) {
     return _m[i];
 }
 
-const PEReal* Matrix3x3::operator[](int i) const {
+template <typename Scalar>
+const Scalar* Matrix3x3<Scalar>::operator[](int i) const {
     return _m[i];
 }
 
-Matrix3x3 Matrix3x3::operator-() const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator-() const {
     Matrix3x3 res;
     res._m[0][0] = -_m[0][0]; res._m[0][1] = -_m[0][1]; res._m[0][2] = -_m[0][2];
     res._m[1][0] = -_m[1][0]; res._m[1][1] = -_m[1][1]; res._m[1][2] = -_m[1][2];
@@ -14,7 +17,8 @@ Matrix3x3 Matrix3x3::operator-() const {
     return res;
 }
 
-Matrix3x3 Matrix3x3::operator+(const Matrix3x3& mat) const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator+(const Matrix3x3& mat) const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0] + mat._m[0][0];
     res._m[0][1] = _m[0][1] + mat._m[0][1];
@@ -28,7 +32,8 @@ Matrix3x3 Matrix3x3::operator+(const Matrix3x3& mat) const {
     return res;
 }
 
-Matrix3x3 Matrix3x3::operator-(const Matrix3x3& mat) const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator-(const Matrix3x3& mat) const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0] - mat._m[0][0];
     res._m[0][1] = _m[0][1] - mat._m[0][1];
@@ -42,7 +47,8 @@ Matrix3x3 Matrix3x3::operator-(const Matrix3x3& mat) const {
     return res;
 }
 
-Matrix3x3 Matrix3x3::operator*(PEReal k) const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator*(Scalar k) const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0] * k; res._m[0][1] = _m[0][1] * k; res._m[0][2] = _m[0][2] * k;
     res._m[1][0] = _m[1][0] * k; res._m[1][1] = _m[1][1] * k; res._m[1][2] = _m[1][2] * k;
@@ -50,7 +56,8 @@ Matrix3x3 Matrix3x3::operator*(PEReal k) const {
     return res;
 }
 
-Matrix3x3 Matrix3x3::operator/(PEReal k) const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator/(Scalar k) const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0] / k;
     res._m[0][1] = _m[0][1] / k;
@@ -64,7 +71,8 @@ Matrix3x3 Matrix3x3::operator/(PEReal k) const {
     return res;
 }
 
-Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
+template <typename Scalar>
+Matrix3x3<Scalar>& Matrix3x3<Scalar>::operator+=(const Matrix3x3& mat) {
     _m[0][0] += mat._m[0][0];
     _m[0][1] += mat._m[0][1];
     _m[0][2] += mat._m[0][2];
@@ -77,7 +85,8 @@ Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
     return *this;
 }
 
-Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& mat) {
+template <typename Scalar>
+Matrix3x3<Scalar>& Matrix3x3<Scalar>::operator-=(const Matrix3x3& mat) {
     _m[0][0] -= mat._m[0][0];
     _m[0][1] -= mat._m[0][1];
     _m[0][2] -= mat._m[0][2];
@@ -90,21 +99,24 @@ Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& mat) {
     return *this;
 }
 
-Matrix3x3& Matrix3x3::operator*=(PEReal k) {
+template <typename Scalar>
+Matrix3x3<Scalar>& Matrix3x3<Scalar>::operator*=(Scalar k) {
     _m[0][0] *= k; _m[0][1] *= k; _m[0][2] *= k;
     _m[1][0] *= k; _m[1][1] *= k; _m[1][2] *= k;
     _m[2][0] *= k; _m[2][1] *= k; _m[2][2] *= k;
     return *this;
 }
 
-Matrix3x3& Matrix3x3::operator/=(PEReal k) {
+template <typename Scalar>
+Matrix3x3<Scalar>& Matrix3x3<Scalar>::operator/=(Scalar k) {
     _m[0][0] /= k; _m[0][1] /= k; _m[0][2] /= k;
     _m[1][0] /= k; _m[1][1] /= k; _m[1][2] /= k;
     _m[2][0] /= k; _m[2][1] /= k; _m[2][2] /= k;
     return *this;
 }
 
-Matrix3x3 Matrix3x3::operator*(const Matrix3x3& mat) const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::operator*(const Matrix3x3& mat) const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0] * mat._m[0][0] + _m[0][1] * mat._m[1][0] + _m[0][2] * mat._m[2][0];
     res._m[0][1] = _m[0][0] * mat._m[0][1] + _m[0][1] * mat._m[1][1] + _m[0][2] * mat._m[2][1];
@@ -118,8 +130,9 @@ Matrix3x3 Matrix3x3::operator*(const Matrix3x3& mat) const {
     return res;
 }
 
-Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& mat) {
-    PEReal tmp[3][3];
+template <typename Scalar>
+Matrix3x3<Scalar>& Matrix3x3<Scalar>::operator*=(const Matrix3x3& mat) {
+    Scalar tmp[3][3];
     tmp[0][0] = _m[0][0] * mat._m[0][0] + _m[0][1] * mat._m[1][0] + _m[0][2] * mat._m[2][0];
     tmp[0][1] = _m[0][0] * mat._m[0][1] + _m[0][1] * mat._m[1][1] + _m[0][2] * mat._m[2][1];
     tmp[0][2] = _m[0][0] * mat._m[0][2] + _m[0][1] * mat._m[1][2] + _m[0][2] * mat._m[2][2];
@@ -135,25 +148,29 @@ Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& mat) {
     return *this;
 }
 
-Vector3 Matrix3x3::operator*(const Vector3& vec) const {
-    Vector3 res;
+template <typename Scalar>
+Vector3<Scalar> Matrix3x3<Scalar>::operator*(const Vector3<Scalar>& vec) const {
+    Vector3<Scalar> res;
     res.x = _m[0][0] * vec.x + _m[0][1] * vec.y + _m[0][2] * vec.z;
     res.y = _m[1][0] * vec.x + _m[1][1] * vec.y + _m[1][2] * vec.z;
     res.z = _m[2][0] * vec.x + _m[2][1] * vec.y + _m[2][2] * vec.z;
     return res;
 }
 
-PEReal Matrix3x3::determinant() const {
+template <typename Scalar>
+Scalar Matrix3x3<Scalar>::determinant() const {
     return _m[0][0] * (_m[1][1] * _m[2][2] - _m[2][1] * _m[1][2])
            + _m[0][1] * (_m[2][0] * _m[1][2] - _m[1][0] * _m[2][2])
            + _m[0][2] * (_m[1][0] * _m[2][1] - _m[2][0] * _m[1][1]);
 }
 
-PEReal Matrix3x3::trace() const {
+template <typename Scalar>
+Scalar Matrix3x3<Scalar>::trace() const {
     return _m[0][0] + _m[1][1] + _m[2][2];
 }
 
-Matrix3x3 Matrix3x3::transposed() const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::transposed() const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0]; res._m[1][0] = _m[0][1]; res._m[2][0] = _m[0][2];
     res._m[0][1] = _m[1][0]; res._m[1][1] = _m[1][1]; res._m[2][1] = _m[1][2];
@@ -161,16 +178,18 @@ Matrix3x3 Matrix3x3::transposed() const {
     return res;
 }
 
-void Matrix3x3::transpose() {
-    PEReal tmp;
+template <typename Scalar>
+void Matrix3x3<Scalar>::transpose() {
+    Scalar tmp;
     tmp = _m[0][1]; _m[0][1] = _m[1][0]; _m[1][0] = tmp;
     tmp = _m[0][2]; _m[0][2] = _m[2][0]; _m[2][0] = tmp;
     tmp = _m[1][2]; _m[1][2] = _m[2][1]; _m[2][1] = tmp;
 }
 
-Matrix3x3 Matrix3x3::inverse() const {
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::inverse() const {
     Matrix3x3 res;
-    PEReal det = determinant();
+    Scalar det = determinant();
     if (det == 0) return res;
     res._m[0][0] = (_m[1][1] * _m[2][2] - _m[2][1] * _m[1][2]) / det;
     res._m[0][1] = (_m[2][1] * _m[0][2] - _m[0][1] * _m[2][2]) / det;
@@ -184,10 +203,11 @@ Matrix3x3 Matrix3x3::inverse() const {
     return res;
 }
 
-void Matrix3x3::invert() {
-    PEReal det = determinant();
+template <typename Scalar>
+void Matrix3x3<Scalar>::invert() {
+    Scalar det = determinant();
     if (det == 0) return;
-    PEReal tmp[3][3];
+    Scalar tmp[3][3];
     tmp[0][0] = (_m[1][1] * _m[2][2] - _m[2][1] * _m[1][2]) / det;
     tmp[0][1] = (_m[2][1] * _m[0][2] - _m[0][1] * _m[2][2]) / det;
     tmp[0][2] = (_m[0][1] * _m[1][2] - _m[1][1] * _m[0][2]) / det;
@@ -202,10 +222,11 @@ void Matrix3x3::invert() {
     _m[2][0] = tmp[2][0]; _m[2][1] = tmp[2][1]; _m[2][2] = tmp[2][2];
 }
 
-void Matrix3x3::setRotation(const Vector3 &axis, PEReal angle) {
-    PEReal c = cos(angle), s = sin(angle);
+template <typename Scalar>
+void Matrix3x3<Scalar>::setRotation(const Vector3<Scalar> &axis, Scalar angle) {
+    Scalar c = cos(angle), s = sin(angle);
     auto n = axis.normalized();
-    PEReal x = n.x, y = n.y, z = n.z;
+    Scalar x = n.x, y = n.y, z = n.z;
     _m[0][0] = c + (1 - c) * x * x;
     _m[0][1] = (1 - c) * x * y - s * z;
     _m[0][2] = (1 - c) * x * z + s * y;
@@ -217,22 +238,26 @@ void Matrix3x3::setRotation(const Vector3 &axis, PEReal angle) {
     _m[2][2] = c + (1 - c) * z * z;
 }
 
-const Matrix3x3& Matrix3x3::identity() {
+template <typename Scalar>
+const Matrix3x3<Scalar>& Matrix3x3<Scalar>::identity() {
     static Matrix3x3 identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
     return identity;
 }
 
-const Matrix3x3& Matrix3x3::zeros() {
+template <typename Scalar>
+const Matrix3x3<Scalar>& Matrix3x3<Scalar>::zeros() {
     static Matrix3x3 zeros;
     return zeros;
 }
 
-const Matrix3x3& Matrix3x3::ones() {
+template <typename Scalar>
+const Matrix3x3<Scalar>& Matrix3x3<Scalar>::ones() {
     static Matrix3x3 ones(1, 1, 1, 1, 1, 1, 1, 1, 1);
     return ones;
 }
 
-std::ostream& operator<<(std::ostream& os, const Matrix3x3& mat) {
+template <typename Scalar>
+std::ostream& operator<<(std::ostream& os, const Matrix3x3<Scalar>& mat) {
     os << "[" << mat[0][0] << " " << mat[0][1] << " " << mat[0][2] << std::endl;
     os << " " << mat[1][0] << " " << mat[1][1] << " " << mat[1][2] << std::endl;
     os << " " << mat[2][0] << " " << mat[2][1] << " " << mat[2][2] << "]";

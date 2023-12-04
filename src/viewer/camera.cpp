@@ -4,9 +4,9 @@ using namespace simple_viewer;
 
 Camera::Camera() :
     _yaw(0.), _pitch(0.),
-    _position(SV_Vector3::zeros()),
+    _position(Vector3::zeros()),
     _fov(M_PI / 2.),
-    _transform(SV_Transform::identity()),
+    _transform(Transform::identity()),
     _proj{1., 1., -1.0002, -0.20002} {}
 
 void Camera::mouse(int button, int state, int, int) {
@@ -47,13 +47,13 @@ void Camera::motion(int x, int y) {
         _yaw -= dx * _rotate_speed;
         if (_yaw > M_PI) _yaw -= 2 * M_PI;
         else if (_yaw < -M_PI) _yaw += 2 * M_PI;
-        SV_Vector3 front(std::sin(_yaw), 0., std::cos(_yaw));
+        Vector3 front(std::sin(_yaw), 0., std::cos(_yaw));
         _position += front * (dy * _move_speed);
     } else if ((_state_left == 1 && _state_middle == 0) || (_state_left == 0 && _state_right == 0)) {
         float right_yaw = (float)(_yaw + M_PI / 2);
-        SV_Vector3 right(std::sin(right_yaw), 0., std::cos(right_yaw));
+        Vector3 right(std::sin(right_yaw), 0., std::cos(right_yaw));
         _position += right * (dx * _move_speed);
-        _position -= SV_Vector3::up() * (dy * _move_speed);
+        _position -= Vector3::up() * (dy * _move_speed);
     } else if (_state_left == 1 && _state_middle == 1 && _state_right == 0) {
         _yaw -= dx * _rotate_speed;
         if (_yaw > M_PI) _yaw -= 2 * M_PI;
@@ -84,7 +84,7 @@ void Camera::reshape(int width, int height) {
     _proj[0] = _proj[1] / _aspect;
 }
 
-void Camera::setPosition(const SV_Vector3& position) {
+void Camera::setPosition(const Vector3& position) {
     std::unique_lock<std::mutex> lock(_mutex_trans);
     _position = position;
 }
@@ -111,8 +111,7 @@ void Camera::setProj(float fov_degree, float aspect, float near_, float far_) {
     _proj[3] = -2.0f * _far * _near / (_far - _near);
 }
 
-const SV_Transform& Camera::getTransform(int64_t time) {
-    static int64_t _last_time = time;
+const Transform& Camera::getTransform(int64_t time) {
     float dt = (float)(time - _last_time) / 1000;
     _last_time = time;
 
@@ -124,12 +123,18 @@ const SV_Transform& Camera::getTransform(int64_t time) {
         _position += forward * ((float)(_state_w - _state_s) * _move_speed * KeyStep * dt);
         _position -= right * ((float)(_state_d - _state_a) * _move_speed * KeyStep * dt);
         _position += up * ((float)(_state_e - _state_q) * _move_speed * KeyStep * dt);
+        std::cout << "key state: " << _state_w << " " << _state_s << std::endl;
+        std::cout << "position: " << _position << std::endl;
     }
-    _transform.setEulerRotation(-_pitch, _yaw, 0., pe_common::RotType::S_ZXY);
+    _transform.setEulerRotation(-_pitch, _yaw, 0., Transform::RotType::S_ZXY);
     _transform.setTranslation(_position);
     return _transform;
 }
 
 float Camera::getProj(int i) const {
     return _proj[i];
+}
+
+void Camera::reset(long long time) {
+    _last_time = time;
 }

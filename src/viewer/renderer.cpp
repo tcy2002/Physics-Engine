@@ -9,7 +9,7 @@ Renderer::Renderer():
     _vertex_count(0), _vertices(nullptr),
     _triangle_count(0), _indices(nullptr),
     _inited(false), _dynamic(false),
-    _transform(SV_Transform::identity()),
+    _transform(Transform::identity()),
     _color({1, 1, 1}) {}
 
 Renderer::~Renderer() {
@@ -26,7 +26,7 @@ void Renderer::deinit() {
     _inited = false;
 }
 
-void MeshRenderer::loadMesh(const SV_Mesh& mesh) {
+void MeshRenderer::loadMesh(const Mesh& mesh) {
     // load vertex data
     _vertex_count = mesh.vertices.size();
     _vertices = new float[_vertex_count * 6];
@@ -59,7 +59,7 @@ void MeshRenderer::loadMesh(const SV_Mesh& mesh) {
     }
 }
 
-MeshRenderer::MeshRenderer(const SV_Mesh& mesh, bool dynamic):
+MeshRenderer::MeshRenderer(const Mesh& mesh, bool dynamic):
     Renderer() {
     loadMesh(mesh);
     _dynamic = dynamic;
@@ -91,14 +91,14 @@ void MeshRenderer::render() const {
     glBindVertexArray(0);
 }
 
-bool MeshRenderer::updateMesh(const SV_Mesh& mesh) {
+bool MeshRenderer::updateMesh(const Mesh& mesh) {
     if (!_dynamic) return false;
     loadMesh(mesh);
     _inited = false;
     return true;
 }
 
-void LineRenderer::loadLine(const std::vector<SV_Vector3>& points) {
+void LineRenderer::loadLine(const std::vector<Vector3>& points) {
     _vertex_count = (points.size() - 1) * 2;
     _vertices = new float[_vertex_count * 3];
     size_t i = 0;
@@ -118,7 +118,7 @@ void LineRenderer::loadLine(const std::vector<SV_Vector3>& points) {
     _vertices[i] = (float)points.back().z;
 }
 
-LineRenderer::LineRenderer(const std::vector<SV_Vector3>& points, bool dynamic):
+LineRenderer::LineRenderer(const std::vector<Vector3>& points, bool dynamic):
     Renderer(), _width(1) {
     loadLine(points);
     _dynamic = dynamic;
@@ -147,7 +147,7 @@ void LineRenderer::render() const {
     glBindVertexArray(0);
 }
 
-bool LineRenderer::updateLine(const std::vector<SV_Vector3>& points) {
+bool LineRenderer::updateLine(const std::vector<Vector3>& points) {
     if (!_dynamic) return false;
     loadLine(points);
     _inited = false;

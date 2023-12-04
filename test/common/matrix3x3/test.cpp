@@ -3,16 +3,14 @@
 #include "eigen_std.h"
 #include "test_def.h"
 
-using namespace pe_common;
-
 void testConstruct() {
-    PEReal n[] = {randR(), randR(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR()};
-    Matrix3x3 a,
-              b(n[0], n[1], n[2],
-                n[3], n[4], n[5],
-                n[6], n[7], n[8]);
+    Real n[] = {randR(), randR(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR()};
+    Matrix3Test a,
+                b(n[0], n[1], n[2],
+                  n[3], n[4], n[5],
+                  n[6], n[7], n[8]);
     Matrix3x3Std ae, be;
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
@@ -20,31 +18,31 @@ void testConstruct() {
     ASSERT_MATRIX3_EIGEN_EQUAL(a, ae)
     ASSERT_MATRIX3_EIGEN_EQUAL(b, be)
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3x3::identity(), Matrix3x3Std::Identity())
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3x3::zeros(), Matrix3x3Std::Zero())
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3x3::ones(), Matrix3x3Std::Ones())
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::identity(), Matrix3x3Std::Identity())
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::zeros(), Matrix3x3Std::Zero())
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::ones(), Matrix3x3Std::Ones())
 }
 
 void testOperator() {
-    PEReal n[] = {randPos(), randNeg(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR()};
-    Matrix3x3 a,
-              b(n[0], n[1], n[2],
-                n[3], n[4], n[5],
-                n[6], n[7], n[8]),
-              c(n[9], n[10], n[11],
-                n[12], n[13], n[14],
-                n[15], n[16], n[17]);
+    Real n[] = {randPos(), randNeg(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR()};
+    Matrix3Test a,
+                b(n[0], n[1], n[2],
+                  n[3], n[4], n[5],
+                  n[6], n[7], n[8]),
+                c(n[9], n[10], n[11],
+                  n[12], n[13], n[14],
+                  n[15], n[16], n[17]);
     Matrix3x3Std ae, be, ce;
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
     ce << n[9], n[10], n[11], n[12], n[13], n[14], n[15], n[16], n[17];
-    Vector3 v(n[18], n[19], n[20]);
+    Vector3Test v(n[18], n[19], n[20]);
     Vector3Std ve(n[18], n[19], n[20]);
 
     ASSERT_MATRIX3_EIGEN_EQUAL(a + b, ae + be)
@@ -90,13 +88,13 @@ void testOperator() {
 }
 
 void testMathGeometry() {
-    PEReal n[] = {randPos(), randNeg(), randR(),
-                  randR(), randR(), randR(),
-                  randR(), randR(), randR()};
-    Matrix3x3 a,
-              b(n[0], n[1], n[2],
-              n[3], n[4], n[5],
-              n[6], n[7], n[8]);
+    Real n[] = {randPos(), randNeg(), randR(),
+                randR(), randR(), randR(),
+                randR(), randR(), randR()};
+    Matrix3Test a,
+                b(n[0], n[1], n[2],
+                  n[3], n[4], n[5],
+                  n[6], n[7], n[8]);
     Matrix3x3Std ae, be;
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];

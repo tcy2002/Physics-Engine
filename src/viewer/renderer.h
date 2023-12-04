@@ -1,6 +1,6 @@
 #pragma once
 
-#include "public_include.h"
+#include "def.h"
 
 namespace simple_viewer {
 
@@ -24,10 +24,10 @@ protected:
     unsigned long long _triangle_count;
     unsigned int *_indices;
 
-    PE_BOOL_GET(inited, Inited)
-    PE_BOOL_GET(dynamic, Dynamic)
-    PE_MEMBER_SET_GET(SV_Transform, transform, Transform)
-    PE_MEMBER_SET_GET(SV_Vector3, color, Color)
+    COMMON_BOOL_GET(inited, Inited)
+    COMMON_BOOL_GET(dynamic, Dynamic)
+    COMMON_MEMBER_SET_GET(Transform, transform, Transform)
+    COMMON_MEMBER_SET_GET(Vector3, color, Color)
 
 public:
     Renderer();
@@ -45,16 +45,16 @@ public:
  */
 class MeshRenderer : public Renderer {
 private:
-    void loadMesh(const SV_Mesh& mesh);
+    void loadMesh(const Mesh& mesh);
 
 public:
-    explicit MeshRenderer(const SV_Mesh& mesh, bool dynamic = false);
+    explicit MeshRenderer(const Mesh& mesh, bool dynamic = false);
 
     int type() const override { return RenderType::R_MESH; }
     void init(int VAP_position, int VAP_normal) override;
     void render() const override;
 
-    bool updateMesh(const SV_Mesh& mesh);
+    bool updateMesh(const Mesh& mesh);
 };
 
 /**
@@ -62,18 +62,18 @@ public:
  */
 class LineRenderer : public Renderer {
 private:
-    PE_MEMBER_SET_GET(float, width, Width)
+    COMMON_MEMBER_SET_GET(float, width, Width)
 
-    void loadLine(const std::vector<SV_Vector3>& points);
+    void loadLine(const std::vector<Vector3>& points);
 
 public:
-    explicit LineRenderer(const std::vector<SV_Vector3>& points, bool dynamic = false);
+    explicit LineRenderer(const std::vector<Vector3>& points, bool dynamic = false);
 
     int type() const override { return RenderType::R_LINE; }
     void init(int VAP_position, int VAP_normal) override;
     void render() const override;
 
-    bool updateLine(const std::vector<SV_Vector3>& points);
+    bool updateLine(const std::vector<Vector3>& points);
 };
 
 } // namespace simple_viewer

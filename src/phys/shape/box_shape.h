@@ -6,16 +6,16 @@ namespace pe_phys_shape {
 
 class BoxShape: public Shape {
 private:
-    pe_common::Vector3 _half_size;
+    pe::Vector3 _half_size;
 
 public:
-    explicit BoxShape(const pe_common::Vector3& size);
+    explicit BoxShape(const pe::Vector3& size);
     ~BoxShape() override = default;
     ShapeType getType() const override;
     bool isConvex() const override;
-    void getAABB(const pe_common::Transform& transform, pe_common::Vector3& min, pe_common::Vector3& max) const override;
-    bool isInside(const pe_common::Transform& transform, const pe_common::Vector3& point) const override;
-    void project(const pe_common::Transform& transform, const pe_common::Vector3& axis, PEReal& min, PEReal& max) const override;
+    void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
+    bool isInside(const pe::Transform& transform, const pe::Vector3& point) const override;
+    void project(const pe::Transform& transform, const pe::Vector3& axis, pe::Real& min, pe::Real& max) const override;
 };
 
 } // namespace pe_phys_shape

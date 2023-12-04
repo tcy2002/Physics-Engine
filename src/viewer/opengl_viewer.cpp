@@ -93,6 +93,11 @@ static void reshape(int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+// some unknown bug in glut: when key is pressed, and the window
+// is shutdown before key is released, the next time open the
+// window, glut will assume the key is still pressed whatever
+// the real state is. no solution found yet.
+
 static void keyboard(unsigned char key, int, int) {
     if (camera.load() == nullptr) return;
     camera.load()->keyboard(key, 0);
@@ -125,6 +130,8 @@ static void close() {
     for (auto& obj: objs) {
         obj.second->deinit();
     }
+    // reset glut state
+    glutSetKeyRepeat(1);
 }
 
 void OpenglViewer::open(const std::string &name, int width, int height) {
@@ -152,7 +159,11 @@ void OpenglViewer::open(const std::string &name, int width, int height) {
 
     shader = new ShaderProgram(shader_vert, shader_frag);
     shader->use();
-    shader->setVec3("gLightDirection", SV_Vector3(1, -2, -3).normalized());
+    shader->setVec3("gLightDirection", Vector3(1, -2, -3).normalized());
+
+    if (camera.load() != nullptr) {
+        camera.load()->reset(glutGet(GLUT_ELAPSED_TIME));
+    }
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.6, 0.85, 0.918, 1.);
@@ -167,7 +178,7 @@ void OpenglViewer::close() {
     }
 }
 
-void OpenglViewer::setCamera(const SV_Vector3& position, float yaw, float pitch) {
+void OpenglViewer::setCamera(const Vector3& position, float yaw, float pitch) {
     if (camera.load() == nullptr) {
         camera.store(new Camera);
         float aspect = 1.0;

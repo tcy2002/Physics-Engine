@@ -3,9 +3,11 @@
 #include <condition_variable>
 #include <functional>
 #include <atomic>
+#include <vector>
+#include <queue>
 #include "def.h"
 
-namespace pe_common {
+namespace common {
 
 /**
  * @brief A simple singleton thread pool.
@@ -44,9 +46,9 @@ private:
     ~ThreadPool() { deinit(); }
 
     uint32_t _size;
-    pe::Array<std::thread*> _pool;
+    std::vector<std::thread*> _pool;
     using Task = std::function<void()>;
-    pe::Queue<Task> _tasks;
+    std::queue<Task> _tasks;
     int _task_num;
     std::mutex _mtx;
     std::condition_variable _cv;
@@ -56,4 +58,4 @@ private:
     static ThreadPool& getInstance();
 };
 
-} // namespace pe_common
+} // namespace common

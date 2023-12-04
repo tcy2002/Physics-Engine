@@ -1,5 +1,7 @@
 include_directories(${ENGINE_INCLUDE_DIR} .)
 
+set(TEST_EXT_LIBS PECommon)
+
 add_subdirectory(viewer)
 add_subdirectory(phys)
 add_subdirectory(core)

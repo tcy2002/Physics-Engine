@@ -1,9 +1,6 @@
 #include <iostream>
 #include <random>
 #include "common/thread_pool.h"
-#include "def.h"
-
-using namespace pe_common;
 
 void exec(uint64_t& t) {
     std::default_random_engine e(t);
@@ -45,20 +42,20 @@ int main() {
     for (int n = 1; n <= max_pool_size; n++) {
         time1 = time2 = 0;
         for (int i = 0; i < avg_time; i++) {
-            ThreadPool::init(n);
+            common::ThreadPool::init(n);
 
             // parallel test
-            start = PE_GetTickCount();
-            ThreadPool::forEach(vec, vec + thread_num, exec);
-            ThreadPool::join();
-            time1 += PE_GetTickCount() - start;
+            start = COMMON_GetTickCount();
+            common::ThreadPool::forEach(vec + 0, vec + thread_num, exec);
+            common::ThreadPool::join();
+            time1 += COMMON_GetTickCount() - start;
 
             // sequential test
-            start = PE_GetTickCount();
+            start = COMMON_GetTickCount();
             for (int j = 0; j < thread_num; j++) {
                 exec(vec_seq[j]);
             }
-            time2 += PE_GetTickCount() - start;
+            time2 += COMMON_GetTickCount() - start;
 
             // check equalities of two vectors
             for (int j = 0; j < thread_num; j++) {
@@ -68,7 +65,7 @@ int main() {
                 }
             }
 
-            ThreadPool::deinit();
+            common::ThreadPool::deinit();
         }
         std::cout << "pool size: " << n <<
                   " sequential: " << (double)time2 / avg_time <<

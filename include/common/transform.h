@@ -3,41 +3,46 @@
 #include "vector3.h"
 #include "matrix3x3.h"
 
-namespace pe_common {
+namespace common {
 
-enum RotType {
-    S_XYZ, S_YZX, S_ZXY, S_XZY, S_ZYX, S_YXZ,
-      XYZ,   YZX,   ZXY,   XZY,   ZYX,   YXZ
-};
-
+template<typename Scalar>
 class Transform {
 protected:
-    Matrix3x3 _basis;
-    Vector3 _origin;
+    Matrix3x3<Scalar> _basis;
+    Vector3<Scalar> _origin;
 
 public:
-    Transform(): _basis(Matrix3x3::identity()), _origin(Vector3::zeros()) {}
-    Transform(const Matrix3x3& basis, const Vector3& origin): _basis(basis), _origin(origin) {}
+    Transform(): _basis(Matrix3x3<Scalar>::identity()), _origin(Vector3<Scalar>::zeros()) {}
+    Transform(const Matrix3x3<Scalar>& basis, const Vector3<Scalar>& origin): _basis(basis), _origin(origin) {}
 
-    PE_FORCE_INLINE Vector3 operator*(const Vector3&) const;
-    PE_FORCE_INLINE Transform operator*(const Transform&) const;
-    PE_FORCE_INLINE Transform& operator*=(const Transform&);
+    enum RotType {
+        S_XYZ, S_YZX, S_ZXY, S_XZY, S_ZYX, S_YXZ,
+        XYZ,   YZX,   ZXY,   XZY,   ZYX,   YXZ
+    };
 
-    PE_FORCE_INLINE const Matrix3x3& getBasis() const;
-    PE_FORCE_INLINE const Vector3& getOrigin() const;
-    PE_FORCE_INLINE Vector3 getAxis(int axis) const;
-    PE_FORCE_INLINE void setRotation(const Vector3& axis, PEReal angle);
-    PE_FORCE_INLINE void setEulerRotation(PEReal x, PEReal y, PEReal z, RotType type = RotType::S_YZX);
-    PE_FORCE_INLINE void setTranslation(const Vector3& translation);
-    PE_FORCE_INLINE void invert();
-    PE_FORCE_INLINE Transform inverse() const;
-    PE_FORCE_INLINE Vector3 inverseTransform(const Vector3& v) const;
+    COMMON_FORCE_INLINE Vector3<Scalar> operator*(const Vector3<Scalar>&) const;
+    COMMON_FORCE_INLINE Transform operator*(const Transform&) const;
+    COMMON_FORCE_INLINE Transform& operator*=(const Transform&);
 
-    PE_FORCE_INLINE static Transform const& identity();
+    COMMON_FORCE_INLINE const Matrix3x3<Scalar>& getBasis() const;
+    COMMON_FORCE_INLINE const Vector3<Scalar>& getOrigin() const;
+    COMMON_FORCE_INLINE void setBasis(const Matrix3x3<Scalar>&);
+    COMMON_FORCE_INLINE void setOrigin(const Vector3<Scalar>&);
+    COMMON_FORCE_INLINE Vector3<Scalar> getAxis(int axis) const;
+    COMMON_FORCE_INLINE void setRotation(const Vector3<Scalar>& axis, Scalar angle);
+    COMMON_FORCE_INLINE void setEulerRotation(Scalar x, Scalar y, Scalar z, RotType type = RotType::S_YZX);
+    COMMON_FORCE_INLINE void setTranslation(const Vector3<Scalar>& translation);
+    COMMON_FORCE_INLINE void invert();
+    COMMON_FORCE_INLINE Transform inverse() const;
+    COMMON_FORCE_INLINE Vector3<Scalar> inverseTransform(const Vector3<Scalar>& v) const;
 
-    PE_FORCE_INLINE friend std::ostream &operator<<(std::ostream& os, const Transform& t);
+    COMMON_FORCE_INLINE static Transform const& identity();
+
 };
+
+template<typename Scalar>
+COMMON_FORCE_INLINE std::ostream &operator<<(std::ostream& os, const Transform<Scalar>& t);
 
 #include "transform.inl"
 
-} // namespace pe_common
+} // namespace common

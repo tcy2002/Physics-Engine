@@ -1,6 +1,6 @@
 #include "thread_pool.h"
 
-using namespace pe_common;
+using namespace common;
 
 ThreadPool& ThreadPool::getInstance() {
     static ThreadPool instance;

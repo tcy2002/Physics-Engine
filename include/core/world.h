@@ -1,6 +1,6 @@
 #pragma once
 
-#include "def.h"
+#include "phys/def.h"
 #include "common/vector3.h"
 #include "phys/object/rigidbody.h"
 
