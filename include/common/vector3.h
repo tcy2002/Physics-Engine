@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "def.h"
+#include "general.h"
 
 namespace common {
 

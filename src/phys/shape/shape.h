@@ -1,6 +1,6 @@
 #pragma once
 
-#include "phys/def.h"
+#include "phys/public_include.h"
 
 namespace pe_phys_shape {
 

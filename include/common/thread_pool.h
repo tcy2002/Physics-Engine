@@ -5,7 +5,7 @@
 #include <atomic>
 #include <vector>
 #include <queue>
-#include "def.h"
+#include "general.h"
 
 namespace common {
 

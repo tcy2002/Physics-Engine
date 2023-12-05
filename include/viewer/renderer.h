@@ -1,6 +1,6 @@
 #pragma once
 
-#include "public_def.h"
+#include "public_include.h"
 
 namespace simple_viewer {
 
@@ -10,7 +10,9 @@ namespace simple_viewer {
 // must be consistent with the ObjType in opengl_viewer.h
 enum RenderType {
     R_MESH = 1,
-    R_LINE = 2
+    R_CUBE = 2,
+    R_CYLINDER = 3,
+    R_LINE = 4
 };
 
 /**
@@ -24,10 +26,10 @@ protected:
     unsigned long long _triangle_count;
     unsigned int *_indices;
 
-    PE_BOOL_GET(inited, Inited)
-    PE_BOOL_GET(dynamic, Dynamic)
-    PE_MEMBER_SET_GET(SV_Transform, transform, Transform)
-    PE_MEMBER_SET_GET(SV_Vector3, color, Color)
+    COMMON_BOOL_GET(inited, Inited)
+    COMMON_BOOL_GET(dynamic, Dynamic)
+    COMMON_MEMBER_SET_GET(Transform, transform, Transform)
+    COMMON_MEMBER_SET_GET(Vector3, color, Color)
 
 public:
     Renderer();
@@ -35,45 +37,79 @@ public:
     virtual ~Renderer();
 
     virtual int type() const = 0;
-    virtual void init(int VAP_position, int VAP_normal) = 0;
+    void init(int VAP_position, int VAP_normal);
     void deinit();
-    virtual void render() const = 0;
+    virtual void render() = 0;
 };
 
 /**
  * @brief Mesh renderer
  */
 class MeshRenderer : public Renderer {
-private:
-    void loadMesh(const SV_Mesh& mesh);
+protected:
+    MeshRenderer() {}
+    void loadMesh(const Mesh& mesh);
 
 public:
-    explicit MeshRenderer(const SV_Mesh& mesh, bool dynamic = false);
+    explicit MeshRenderer(const Mesh& mesh, bool dynamic = false);
 
     int type() const override { return RenderType::R_MESH; }
-    void init(int VAP_position, int VAP_normal) override;
-    void render() const override;
+    void render() override;
 
-    bool updateMesh(const SV_Mesh& mesh);
+    bool updateMesh(const Mesh& mesh);
+};
+
+/**
+ * @brief Cube renderer
+ */
+class CubeRenderer : public Renderer {
+protected:
+    void loadCube(const Vector3& size);
+
+public:
+    explicit CubeRenderer(const Vector3& size, bool dynamic = false);
+
+    int type() const override { return RenderType::R_CUBE; }
+    void render() override;
+
+    bool updateCube(const Vector3& size);
+};
+
+class CylinderRenderer : public Renderer {
+protected:
+    void loadCylinder(float radius, float height);
+
+public:
+    explicit CylinderRenderer(float radius, float height, bool dynamic = false);
+
+    int type() const override { return RenderType::R_CYLINDER; }
+    void render() override;
+
+    bool updateCylinder(float radius, float height);
 };
 
 /**
  * @brief Line renderer
  */
 class LineRenderer : public Renderer {
-private:
-    PE_MEMBER_SET_GET(float, width, Width)
+protected:
+    COMMON_MEMBER_SET_GET(float, width, Width)
 
-    void loadLine(const std::vector<SV_Vector3>& points);
+    void loadLine(const std::vector<Vector3>& points);
 
 public:
-    explicit LineRenderer(const std::vector<SV_Vector3>& points, bool dynamic = false);
+    explicit LineRenderer(const std::vector<Vector3>& points, bool dynamic = false);
 
     int type() const override { return RenderType::R_LINE; }
-    void init(int VAP_position, int VAP_normal) override;
-    void render() const override;
+    void render() override;
 
-    bool updateLine(const std::vector<SV_Vector3>& points);
+    bool updateLine(const std::vector<Vector3>& points);
+};
+
+// TODO
+class CharRenderer : public Renderer {
+protected:
+    static std::vector<std::vector<Mesh>> _char_vertices;
 };
 
 } // namespace simple_viewer

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "phys/def.h"
 #include "vector3.h"
 
 namespace common {
@@ -13,15 +12,15 @@ public:
         Vector3<Scalar> normal;
     };
     struct Face {
-        pe::Array<uint32_t> indices;
+        std::vector<uint32_t> indices;
         Vector3<Scalar> normal;
     };
 
-    pe::Array<Vertex> vertices;
-    pe::Array<Face> faces;
+    std::vector<Vertex> vertices;
+    std::vector<Face> faces;
 
     Mesh() = default;
-    Mesh(pe::Array<Vertex> vs, pe::Array<Face> fs):
+    Mesh(std::vector<Vertex> vs, std::vector<Face> fs):
         vertices(std::move(vs)), faces(std::move(fs)) {}
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "phys/def.h"
+#include "phys/public_include.h"
 #include "world.h"
 #include "phys/object/collision_body.h"
 

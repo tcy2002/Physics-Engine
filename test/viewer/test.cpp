@@ -1,16 +1,12 @@
 #include "viewer/opengl_viewer.h"
-#include "phys/shape/box_shape.h"
+#include "viewer/default_mesh.h"
 #include <thread>
 
-using namespace simple_viewer;
-
 int main() {
-    auto box_mesh = pe_phys_shape::BoxShape({0.5, 0.5, 0.5}).getMesh();
-
+    auto mesh = simple_viewer::_cube_mesh;
     auto render_thread = std::thread([&]{
-        OpenglViewer::open("UITest", 800, 600);
+        simple_viewer::open("UITest", 800, 600);
     });
-
     auto log_thread = std::thread([&]{
         int num = 0, id = -1;
         while (++num < 600) {
@@ -18,43 +14,43 @@ int main() {
                 std::cout << num / 10 << std::endl;
             }
             if (num == 100) {
-                OpenglViewer::setCamera({0, 0, 3}, 0, 0);
+                simple_viewer::setCamera({0, 0, 3}, 0, 0);
             }
             if (num == 200) {
-                id = OpenglViewer::addObj({ObjType::OBJ_MESH, true, box_mesh});
+                id = simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_MESH, true, mesh));
                 std::cout << "add mesh: " << id << std::endl;
+                simple_viewer::showAxis();
             }
             if (num == 500) {
                 std::cout << "del mesh: " << id << std::endl;
-                OpenglViewer::updateObj({ObjUpdateType::OBJ_CLEAR_ALL_TYPE, id, ObjType::OBJ_MESH});
+                simple_viewer::updateObj(simple_viewer::ObjUpdateParam(simple_viewer::ObjUpdateType::OBJ_CLEAR_ALL));
             }
-            for (auto& p : box_mesh.vertices) {
+            for (auto& p : mesh.vertices) {
                 p.position *= 0.999;
             }
-            OpenglViewer::updateObj({ObjUpdateType::OBJ_UPDATE_MESH, id, ObjType::OBJ_MESH, box_mesh});
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(simple_viewer::ObjUpdateType::OBJ_UPDATE_MESH, id, simple_viewer::ObjType::OBJ_MESH, mesh));
             COMMON_Sleep(5);
         }
-        OpenglViewer::close();
+        simple_viewer::close();
     });
     render_thread.join();
     log_thread.join();
 
-    Transform transform;
+    simple_viewer::setCamera({0, 0, 3}, 0, 0);
+
+    simple_viewer::Transform transform;
     transform.setEulerRotation(0, 0, 1);
-    int mesh_id = OpenglViewer::addObj({ObjType::OBJ_MESH, false, box_mesh});
+    int id = simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_CYLINDER, false, std::pair<float, float>(0.4, 1)));
     transform.setTranslation({1, 0, 0});
-    OpenglViewer::updateObj({ObjUpdateType::OBJ_UPDATE_TRANSFORM, mesh_id, ObjType::OBJ_MESH, transform});
-    mesh_id = OpenglViewer::addObj({ObjType::OBJ_MESH, false, box_mesh});
+    simple_viewer::updateObj({simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM, id, simple_viewer::ObjType::OBJ_CYLINDER, transform});
+    id = simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_CUBE, false, simple_viewer::Vector3(0.8, 0.9, 1)));
     transform.setTranslation({-1, 0, 0});
-    OpenglViewer::updateObj({ObjUpdateType::OBJ_UPDATE_TRANSFORM, mesh_id, ObjType::OBJ_MESH, transform});
+    simple_viewer::updateObj(simple_viewer::ObjUpdateParam(simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM, id, simple_viewer::ObjType::OBJ_CUBE, transform));
 
-    OpenglViewer::addObj({ObjType::OBJ_LINE, false,
-                          {{0, -1.414, 0}, {1, 0, 1}, {0, 1.414, 0}}});
-    OpenglViewer::addObj({ObjType::OBJ_LINE, false,
-                          {{0,  -1.414, 0}, {-1, 0, -1}, {0, 1.414, 0}}});
+    simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_LINE, false, {{0, -1.414, 0}, {1, 0, 1}, {0, 1.414, 0}}));
+    simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_LINE, false, {{0, -1.414, 0}, {-1, 0, -1}, {0, 1.414, 0}}));
 
-    OpenglViewer::open("PhysicsEngine", 800, 600);
-    OpenglViewer::close();
+    simple_viewer::open("UITest", 800, 600);
 
     return 0;
 }

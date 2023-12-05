@@ -1,6 +1,6 @@
 #pragma once
 
-#include "def.h"
+#include "public_include.h"
 
 namespace simple_viewer {
 
@@ -17,7 +17,6 @@ public:
     ~ShaderProgram();
 
     void use() const;
-    void unuse() const;
 
     void setBool(const char* name, bool value) const;
     void setInt(const char* name, int value) const;

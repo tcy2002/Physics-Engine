@@ -57,10 +57,6 @@ void ShaderProgram::use() const {
     glUseProgram(_program_id);
 }
 
-void ShaderProgram::unuse() const {
-    glUseProgram(0);
-}
-
 void ShaderProgram::setBool(const char* name, bool value) const {
     glUniform1i(glGetUniformLocation(_program_id, name), (int)value);
 }
