@@ -1,7 +1,7 @@
 #include <cassert>
 #include "common/transform.h"
 #include "eigen_std.h"
-#include "test_def.h"
+#include "test_general.h"
 
 void testConstruct() {
     Real n[] = {randR(), randR(), randR(),
@@ -16,17 +16,17 @@ void testConstruct() {
     Matrix3x3Std m;
     m << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), Matrix3x3Std::Identity())
-    ASSERT_VECTOR3_EIGEN_EQUAL(a.getOrigin(), Vector3Std::Zero())
-    ASSERT_MATRIX3_EIGEN_EQUAL(b.getBasis(), m)
-    ASSERT_VECTOR3_EIGEN_EQUAL(b.getOrigin(), Vector3Std(n[9], n[10], n[11]))
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), Matrix3x3Std::Identity());
+    ASSERT_VECTOR3_EIGEN_EQUAL(a.getOrigin(), Vector3Std::Zero());
+    ASSERT_MATRIX3_EIGEN_EQUAL(b.getBasis(), m);
+    ASSERT_VECTOR3_EIGEN_EQUAL(b.getOrigin(), Vector3Std(n[9], n[10], n[11]));
 
-    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(0), Vector3Std(n[0], n[3], n[6]))
-    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(1), Vector3Std(n[1], n[4], n[7]))
-    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(2), Vector3Std(n[2], n[5], n[8]))
+    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(0), Vector3Std(n[0], n[3], n[6]));
+    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(1), Vector3Std(n[1], n[4], n[7]));
+    ASSERT_VECTOR3_EIGEN_EQUAL(b.getAxis(2), Vector3Std(n[2], n[5], n[8]));
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(TransformTest::identity().getBasis(), Matrix3x3Std::Identity())
-    ASSERT_VECTOR3_EIGEN_EQUAL(TransformTest::identity().getOrigin(), Vector3Std::Zero())
+    ASSERT_MATRIX3_EIGEN_EQUAL(TransformTest::identity().getBasis(), Matrix3x3Std::Identity());
+    ASSERT_VECTOR3_EIGEN_EQUAL(TransformTest::identity().getOrigin(), Vector3Std::Zero());
 }
 
 void testOperator() {
@@ -50,15 +50,15 @@ void testOperator() {
                     {n[21], n[22], n[23]});
     Vector3Test v(n[24], n[25], n[26]);
 
-    ASSERT_VECTOR3_EQUAL(a * v, v)
-    ASSERT_VECTOR3_EQUAL(c * v, c.getBasis() * v + c.getOrigin())
+    ASSERT_VECTOR3_EQUAL(a * v, v);
+    ASSERT_VECTOR3_EQUAL(c * v, c.getBasis() * v + c.getOrigin());
 
-    ASSERT_TRANSFORM_EQUAL(a * b, b.getBasis(), b.getOrigin())
-    ASSERT_TRANSFORM_EQUAL(a *= b, b.getBasis(), b.getOrigin())
+    ASSERT_TRANSFORM_EQUAL(a * b, b.getBasis(), b.getOrigin());
+    ASSERT_TRANSFORM_EQUAL(a *= b, b.getBasis(), b.getOrigin());
     auto m_basis = c.getBasis() * b.getBasis();
     auto m_origin = c.getBasis() * b.getOrigin() + c.getOrigin();
-    ASSERT_TRANSFORM_EQUAL(c * b, m_basis, m_origin)
-    ASSERT_TRANSFORM_EQUAL(c *= b, m_basis, m_origin)
+    ASSERT_TRANSFORM_EQUAL(c * b, m_basis, m_origin);
+    ASSERT_TRANSFORM_EQUAL(c *= b, m_basis, m_origin);
 }
 
 void testGeometry() {
@@ -66,27 +66,27 @@ void testGeometry() {
                   randR(), randR(), randR()};
     TransformTest a;
     a.setTranslation({n[4], n[5], n[6]});
-    ASSERT_VECTOR3_EQUAL(a.getOrigin(), Vector3Test(n[4], n[5], n[6]))
+    ASSERT_VECTOR3_EQUAL(a.getOrigin(), Vector3Test(n[4], n[5], n[6]));
 
     a.setRotation({n[0], n[1], n[2]}, n[3]);
     auto rot = AngleAxisStd(n[3], Eigen::Vector3d(n[0], n[1], n[2]).normalized());
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot.toRotationMatrix())
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot.toRotationMatrix());
 
     auto rot_x = AngleAxisStd(n[0], Eigen::Vector3d::UnitX()).toRotationMatrix();
     auto rot_y = AngleAxisStd(n[1], Eigen::Vector3d::UnitY()).toRotationMatrix();
     auto rot_z = AngleAxisStd(n[2], Eigen::Vector3d::UnitZ()).toRotationMatrix();
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_XYZ);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_z * rot_y * rot_x)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_z * rot_y * rot_x);
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_YZX);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_x * rot_z * rot_y)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_x * rot_z * rot_y);
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_ZXY);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_y * rot_x * rot_z)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_y * rot_x * rot_z);
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_XZY);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_y * rot_z * rot_x)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_y * rot_z * rot_x);
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_ZYX);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_x * rot_y * rot_z)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_x * rot_y * rot_z);
     a.setEulerRotation(n[0], n[1], n[2], TransformTest::RotType::S_YXZ);
-    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_z * rot_x * rot_y)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a.getBasis(), rot_z * rot_x * rot_y);
 }
 
 void testMath() {
@@ -101,11 +101,10 @@ void testMath() {
     Vector3Test v(n[7], n[8], n[9]);
     Vector3Std ve(n[7], n[8], n[9]);
 
-    ASSERT_VECTOR3_EIGEN_EQUAL(a.inverseTransform(v),
-                               m_basis.transpose() * (ve - m_origin))
-    ASSERT_TRANSFORM_EIGEN_EQUAL(a.inverse(), m_basis.transpose(), -m_basis.transpose() * m_origin)
+    ASSERT_VECTOR3_EIGEN_EQUAL(a.inverseTransform(v), m_basis.transpose() * (ve - m_origin));
+    ASSERT_TRANSFORM_EIGEN_EQUAL(a.inverse(), m_basis.transpose(), -m_basis.transpose() * m_origin);
     a.invert();
-    ASSERT_TRANSFORM_EIGEN_EQUAL(a, m_basis.transpose(), -m_basis.transpose() * m_origin)
+    ASSERT_TRANSFORM_EIGEN_EQUAL(a, m_basis.transpose(), -m_basis.transpose() * m_origin);
 }
 
 int main() {

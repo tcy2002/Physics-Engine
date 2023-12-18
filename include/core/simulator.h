@@ -1,27 +1,27 @@
 #pragma once
 
 #include <iostream>
-#include "phys/public_include.h"
-#include "world.h"
+#include "phys/phys_general.h"
 #include "phys/object/collision_body.h"
+#include "world.h"
 
 namespace pe_core {
 
-class Simulator {
-    PE_MEMBER_SET_GET(PEReal, phys_dt, PhysDt);
+    class Simulator {
+        COMMON_MEMBER_SET_GET(pe::Real, phys_dt, PhysDt);
 
-protected:
-    World _world;
+    protected:
+        World _world;
 
-public:
-    void init(const pe::Array<pe_phys_object::CollisionBody*>& objs);
-};
+    public:
+        void init(const pe::Array<pe_phys_object::CollisionBody*>& objs);
+    };
 
-class SimulatorWithUi : public Simulator {
-    PE_MEMBER_SET_GET(PEReal, render_dt, RenderDt);
+    class SimulatorWithUi : public Simulator {
+        COMMON_MEMBER_SET_GET(pe::Real, render_dt, RenderDt);
 
-public:
-    explicit SimulatorWithUi(const std::string& name);
-};
+    public:
+        explicit SimulatorWithUi(const std::string& name);
+    };
 
 } // namespace pe_core

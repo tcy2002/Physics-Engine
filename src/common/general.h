@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <queue>
-#include <unordered_map>
-
 //// includes for different OS
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -102,4 +98,17 @@ protected: \
 std::atomic<bool> _##name; \
 public: \
 bool is##Name() const { return _##name; } \
+private:
+#define COMMON_MEMBER_SET_GET_ATOMIC(T, name, Name) \
+protected: \
+T _##name; \
+public: \
+void set##Name(const T& t){ _##name.store(t); } \
+T get##Name() const { return _##name.load(); } \
+private:
+#define COMMON_MEMBER_GET_ATOMIC(T, name, Name) \
+protected: \
+std::atomic<T> _##name; \
+public: \
+T get##Name() const { return _##name.load(); } \
 private:

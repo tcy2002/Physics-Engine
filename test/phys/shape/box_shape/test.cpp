@@ -1,6 +1,6 @@
 #include "phys/shape/box_shape.h"
-#include "test_def.h"
-#include "mesh_to_obj.h"
+#include "common/eigen_std.h"
+#include "test_general.h"
 
 using namespace pe_phys_shape;
 
@@ -9,11 +9,7 @@ void testConstruct() {
 
     ASSERT_EQUAL_INT(box.getType(), ShapeType::BOX)
     ASSERT_EQUAL_INT(box.isConvex(), true)
-
-    auto& mesh = box.getMesh();
-    ASSERT_EQUAL_INT(mesh.vertices.size(), 24)
-    ASSERT_EQUAL_INT(mesh.faces.size(), 6)
-    meshToObj(mesh, SHAPE_TEST_SOURCE_DIR "/box_shape/box.obj");
+    ASSERT_VECTOR3_EQUAL(box.getSize(), pe::Vector3(1., 2., 3.));
 }
 
 void testAABB() {

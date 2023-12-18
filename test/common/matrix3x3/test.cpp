@@ -1,7 +1,7 @@
 #include <cassert>
 #include "common/matrix3x3.h"
 #include "eigen_std.h"
-#include "test_def.h"
+#include "test_general.h"
 
 void testConstruct() {
     Real n[] = {randR(), randR(), randR(),
@@ -15,12 +15,12 @@ void testConstruct() {
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a, ae)
-    ASSERT_MATRIX3_EIGEN_EQUAL(b, be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a, ae);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b, be);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::identity(), Matrix3x3Std::Identity())
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::zeros(), Matrix3x3Std::Zero())
-    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::ones(), Matrix3x3Std::Ones())
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::identity(), Matrix3x3Std::Identity());
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::zeros(), Matrix3x3Std::Zero());
+    ASSERT_MATRIX3_EIGEN_EQUAL(Matrix3Test::ones(), Matrix3x3Std::Ones());
 }
 
 void testOperator() {
@@ -45,46 +45,46 @@ void testOperator() {
     Vector3Test v(n[18], n[19], n[20]);
     Vector3Std ve(n[18], n[19], n[20]);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a + b, ae + be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(a - b, ae - be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c + b, ce + be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c - b, ce - be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a + b, ae + be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a - b, ae - be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c + b, ce + be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c - b, ce - be);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a * n[0], ae * n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b * n[0], be * n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(a * n[1], ae * n[1])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b * n[1], be * n[1])
+    ASSERT_MATRIX3_EIGEN_EQUAL(a * n[0], ae * n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b * n[0], be * n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a * n[1], ae * n[1]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b * n[1], be * n[1]);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a / n[0], ae / n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b / n[0], be / n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(a / n[1], ae / n[1])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b / n[1], be / n[1])
+    ASSERT_MATRIX3_EIGEN_EQUAL(a / n[0], ae / n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b / n[0], be / n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a / n[1], ae / n[1]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b / n[1], be / n[1]);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a += b, ae += be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(a -= b, ae -= be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c += b, ce += be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c -= b, ce -= be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a += b, ae += be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a -= b, ae -= be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c += b, ce += be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c -= b, ce -= be);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a *= n[0], ae *= n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b *= n[0], be *= n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(a *= n[1], ae *= n[1])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b *= n[1], be *= n[1])
+    ASSERT_MATRIX3_EIGEN_EQUAL(a *= n[0], ae *= n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b *= n[0], be *= n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a *= n[1], ae *= n[1]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b *= n[1], be *= n[1]);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a /= n[0], ae /= n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b /= n[0], be /= n[0])
-    ASSERT_MATRIX3_EIGEN_EQUAL(a /= n[1], ae /= n[1])
-    ASSERT_MATRIX3_EIGEN_EQUAL(b /= n[1], be /= n[1])
+    ASSERT_MATRIX3_EIGEN_EQUAL(a /= n[0], ae /= n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b /= n[0], be /= n[0]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a /= n[1], ae /= n[1]);
+    ASSERT_MATRIX3_EIGEN_EQUAL(b /= n[1], be /= n[1]);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(-a, -ae)
-    ASSERT_MATRIX3_EIGEN_EQUAL(-b, -be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(-a, -ae);
+    ASSERT_MATRIX3_EIGEN_EQUAL(-b, -be);
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(a * b, ae * be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c * b, ce * be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(a *= b, ae *= be)
-    ASSERT_MATRIX3_EIGEN_EQUAL(c *= b, ce *= be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a * b, ae * be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c * b, ce * be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(a *= b, ae *= be);
+    ASSERT_MATRIX3_EIGEN_EQUAL(c *= b, ce *= be);
 
-    ASSERT_VECTOR3_EIGEN_EQUAL(a * v, ae * ve)
-    ASSERT_VECTOR3_EIGEN_EQUAL(b * v, be * ve)
+    ASSERT_VECTOR3_EIGEN_EQUAL(a * v, ae * ve);
+    ASSERT_VECTOR3_EIGEN_EQUAL(b * v, be * ve);
 }
 
 void testMathGeometry() {
@@ -99,25 +99,25 @@ void testMathGeometry() {
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
 
-    ASSERT_EQUAL(a.trace(), ae.trace())
-    ASSERT_EQUAL(b.trace(), be.trace())
+    ASSERT_EQUAL(a.trace(), ae.trace());
+    ASSERT_EQUAL(b.trace(), be.trace());
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(b.transposed(), be.transpose())
+    ASSERT_MATRIX3_EIGEN_EQUAL(b.transposed(), be.transpose());
     b.transpose();
     be << be.transpose().eval();
-    ASSERT_MATRIX3_EIGEN_EQUAL(b, be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(b, be);
 
-    ASSERT_EQUAL(a.determinant(), ae.determinant())
-    ASSERT_EQUAL(b.determinant(), be.determinant())
+    ASSERT_EQUAL(a.determinant(), ae.determinant());
+    ASSERT_EQUAL(b.determinant(), be.determinant());
 
-    ASSERT_MATRIX3_EIGEN_EQUAL(b.inverse(), be.inverse())
+    ASSERT_MATRIX3_EIGEN_EQUAL(b.inverse(), be.inverse());
     b.invert();
     be << be.inverse().eval();
-    ASSERT_MATRIX3_EIGEN_EQUAL(b, be)
+    ASSERT_MATRIX3_EIGEN_EQUAL(b, be);
 
     a.setRotation({n[0], n[1], n[2]}, n[3]);
     ae = AngleAxisStd(n[3], Eigen::Vector3d(n[0], n[1], n[2]).normalized()).toRotationMatrix();
-    ASSERT_MATRIX3_EIGEN_EQUAL(a, ae)
+    ASSERT_MATRIX3_EIGEN_EQUAL(a, ae);
 }
 
 int main() {

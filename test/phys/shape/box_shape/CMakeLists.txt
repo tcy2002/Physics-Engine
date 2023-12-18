@@ -1,3 +1,3 @@
-add_executable(PETestBoxShape test.cpp)
+add_executable(PETestBoxShape test.cpp ${ENGINE_INCLUDE_DIR}/phys/shape/box_shape.cpp)
 
-target_link_libraries(PETestBoxShape PEPhys ${TEST_EXT_LIBS})
+target_link_libraries(PETestBoxShape ${TEST_EXT_LIBS})

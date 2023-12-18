@@ -3,17 +3,8 @@
 
 using namespace pe_phys_shape;
 
-ConvexMeshShape::ConvexMeshShape(pe::Mesh mesh) {
-    _mesh = std::move(mesh);
-}
-
-ShapeType ConvexMeshShape::getType() const {
-    return ShapeType::MESH;
-}
-
-bool ConvexMeshShape::isConvex() const {
-    return true;
-}
+ConvexMeshShape::ConvexMeshShape(pe::Mesh mesh):
+    _mesh(std::move(mesh)) {}
 
 void ConvexMeshShape::getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const {
     min = PE_VEC_MAX;

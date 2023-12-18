@@ -1,6 +1,6 @@
 #pragma once
 
-#include "phys/public_include.h"
+#include "phys/phys_general.h"
 
 namespace pe_phys_shape {
 
@@ -9,8 +9,6 @@ enum ShapeType {
 };
 
 class Shape {
-protected:
-    pe::Mesh _mesh;
 public:
     Shape() = default;
     virtual ~Shape() = default;
@@ -19,7 +17,6 @@ public:
     virtual void getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const = 0;
     virtual bool isInside(const pe::Transform &transform, const pe::Vector3 &point) const = 0;
     virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &min, pe::Real &max) const = 0;
-    virtual const pe::Mesh& getMesh() const { return _mesh; }
 };
 
 #define PE_MAX_VEC(a, b) pe::Vector3(std::max((a).x, (b).x), std::max((a).y, (b).y), std::max((a).z, (b).z))

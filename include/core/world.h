@@ -1,13 +1,13 @@
 #pragma once
 
-#include "phys/public_include.h"
+#include "phys/phys_general.h"
 #include "common/vector3.h"
 #include "phys/object/rigidbody.h"
 
 namespace pe_core {
 
 class World {
-    PE_MEMBER_SET_GET(pe_common::Vector3, gravity, Gravity);
+    PE_MEMBER_SET_GET(common::Vector3, gravity, Gravity);
     PE_MEMBER_SET_GET(PEReal, time_step, TimeStep);
 
 protected:

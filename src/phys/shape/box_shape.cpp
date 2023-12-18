@@ -3,53 +3,7 @@
 using namespace pe_phys_shape;
 
 BoxShape::BoxShape(const pe::Vector3& size):
-    _half_size(size / 2) {
-    pe::Real x = _half_size.x, y = _half_size.y, z = _half_size.z;
-    _mesh = {
-            {
-                    {{-x,  y, -z}, {0, 1, 0}},
-                    {{-x,  y,  z}, {0, 1, 0}},
-                    {{ x,  y,  z}, {0, 1, 0}},
-                    {{ x,  y, -z}, {0, 1, 0}},
-                    {{-x, -y,  z}, {0, -1, 0}},
-                    {{-x, -y, -z}, {0, -1, 0}},
-                    {{ x, -y, -z}, {0, -1, 0}},
-                    {{ x, -y,  z}, {0, -1, 0}},
-                    {{-x,  y,  z}, {0, 0, 1}},
-                    {{-x, -y,  z}, {0, 0, 1}},
-                    {{ x, -y,  z}, {0, 0, 1}},
-                    {{ x,  y,  z}, {0, 0, 1}},
-                    {{ x,  y, -z}, {0, 0, -1}},
-                    {{ x, -y, -z}, {0, 0, -1}},
-                    {{-x, -y, -z}, {0, 0, -1}},
-                    {{-x,  y, -z}, {0, 0, -1}},
-                    {{-x,  y, -z}, {-1, 0, 0}},
-                    {{-x, -y, -z}, {-1, 0, 0}},
-                    {{-x, -y,  z}, {-1, 0, 0}},
-                    {{-x,  y,  z}, {-1, 0, 0}},
-                    {{ x,  y,  z}, {1, 0, 0}},
-                    {{ x, -y,  z}, {1, 0, 0}},
-                    {{ x, -y, -z}, {1, 0, 0}},
-                    {{ x,  y, -z}, {1, 0, 0}}
-            },
-            {
-                    {{0, 1, 2, 3}, {0, 1, 0}},
-                    {{4, 5, 6, 7 }, {0, -1, 0}},
-                    {{8, 9, 10, 11 }, {0, 0, 1}},
-                    {{12, 13, 14, 15 }, {0, 0, -1}},
-                    {{16, 17, 18, 19 }, {-1, 0, 0}},
-                    {{20, 21, 22, 23 }, {1, 0, 0}}
-            }
-    };
-}
-
-ShapeType BoxShape::getType() const {
-    return ShapeType::BOX;
-}
-
-bool BoxShape::isConvex() const {
-    return true;
-}
+    _size(size), _half_size(size / 2) {}
 
 void BoxShape::getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const {
     min = PE_VEC_MAX;

@@ -1,3 +1,0 @@
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-
-add_library(PEPhys STATIC ${SOURCES})

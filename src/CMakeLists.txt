@@ -1,12 +1,9 @@
-include_directories(${ENGINE_INCLUDE_DIR})
+include_directories(.)
 
-add_subdirectory(phys)   # physics module
-add_subdirectory(viewer) # opengl ui module
-add_subdirectory(common) # common auxiliary module
+add_subdirectory(common)
 
-add_library(PEngine SHARED core/world.h core/world.cpp core/simulator.h core/simulator.cpp)
-add_library(PEViewer SHARED core/viewer.h core/viewer.cpp)
+add_library(PEngine SHARED core/world.h core/world.cpp)
+add_library(PESim STATIC core/simulator.h core/simulator.cpp)
 
-target_link_libraries(PEngine PECommon PEPhys)
-target_link_libraries(PEViewer PECommon PEOpenglViewer)
+target_link_libraries(PEngine PECommon)
 

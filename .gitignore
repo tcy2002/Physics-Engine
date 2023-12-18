@@ -44,3 +44,5 @@ lib/
 
 !opengl/
 !opengl/**
+!SimpleViewer/
+!SimpleViewer/**

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fstream>
-#include "phys/public_include.h"
+#include "phys/phys_general.h"
 
 void meshToObj(const pe::Mesh &mesh, const std::string &filename) {
     std::ofstream file(filename);
