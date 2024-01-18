@@ -13,7 +13,7 @@ namespace common {
         inst._task_num = 0;
         inst._size = pool_size > 0 ? pool_size : std::thread::hardware_concurrency();
 
-        for (int i = 0; i < inst._size; i++) {
+        for (uint32_t i = 0; i < inst._size; i++) {
             inst._pool.push_back(new std::thread([]{
                 auto& inst = getInstance();
                 while(true) {
@@ -38,6 +38,7 @@ namespace common {
     }
 
     void ThreadPool::deinit() {
+        if (getInstance()._size == -1) return; // not initialized
         auto& inst = getInstance();
         join();
         inst._stop.store(true);
@@ -51,6 +52,7 @@ namespace common {
     }
 
     void ThreadPool::join() {
+        if (getInstance()._size == -1) return; // not initialized
         auto& inst = getInstance();
         std::unique_lock<std::mutex> lock(inst._mtx);
         if (inst._task_num == 0) return;

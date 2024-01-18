@@ -4,7 +4,7 @@ Scalar& Vector3<Scalar>::operator[](int i) {
 }
 
 template <typename Scalar>
-Scalar Vector3<Scalar>::operator[](int i) const {
+const Scalar& Vector3<Scalar>::operator[](int i) const {
     return (&x)[i];
 }
 
@@ -66,6 +66,11 @@ Vector3<Scalar>& Vector3<Scalar>::operator/=(Scalar r) {
 }
 
 template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::operator*(const Vector3<Scalar>& v) const {
+    return {x * v.x, y * v.y, z * v.z};
+}
+
+template <typename Scalar>
 Scalar Vector3<Scalar>::norm() const {
     return sqrt(x * x + y * y + z * z);
 }
@@ -78,6 +83,11 @@ Vector3<Scalar> Vector3<Scalar>::normalized() const {
 template <typename Scalar>
 void Vector3<Scalar>::normalize() {
     *this /= norm();
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::mult(const Vector3<Scalar>& v) const {
+    return {x * v.x, y * v.y, z * v.z};
 }
 
 template <typename Scalar>
@@ -140,6 +150,11 @@ template <typename Scalar>
 const Vector3<Scalar>& Vector3<Scalar>::right() {
     static Vector3<Scalar> left(1., 0., 0.);
     return left;
+}
+
+template <typename Scalar>
+Vector3<Scalar> operator*(Scalar r, const Vector3<Scalar>& v) {
+    return v * r;
 }
 
 template <typename Scalar>

@@ -1,5 +1,5 @@
-#include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
+#include "common/eigen_std.h"
 #include "test_general.h"
 #include "mesh_to_obj.h"
 
@@ -200,33 +200,46 @@ void testIsInside() {
 void testProject() {
     ConvexMeshShape meshShape(_cylinder_mesh);
     pe::Real min, max;
+    pe::Vector3 minPoint, maxPoint;
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::up(), min, max);
+    meshShape.project(pe::Transform::identity(), pe::Vector3::up(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, -0.5, 0));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 0.5, 0));
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::right(), min, max);
+    meshShape.project(pe::Transform::identity(), pe::Vector3::right(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(-0.5, 0, 0));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0.5, 0, 0));
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::forward(), min, max);
+    meshShape.project(pe::Transform::identity(), pe::Vector3::forward(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, 0, -0.5));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 0, 0.5));
 
     pe::Transform transform;
     transform.setRotation({0, 1, 0}, M_PI / 4);
     transform.setTranslation({2, 2, 2});
-    meshShape.project(transform, pe::Vector3::up(), min, max);
+    meshShape.project(transform, pe::Vector3::up(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, 1.5, 0));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 2.5, 0));
 
-    meshShape.project(transform, pe::Vector3::right(), min, max);
+    meshShape.project(transform, pe::Vector3::right(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(1.5, 0, 0));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(2.5, 0, 0));
 
-    meshShape.project(transform, pe::Vector3::forward(), min, max);
+    meshShape.project(transform, pe::Vector3::forward(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
+    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, 0, 1.5));
+    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 0, 2.5));
 }
 
 int main() {

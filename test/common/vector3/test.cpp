@@ -28,6 +28,8 @@ void testOperator() {
     ASSERT_VECTOR3_EIGEN_EQUAL(c + b, ce + be);
     ASSERT_VECTOR3_EIGEN_EQUAL(c - b, ce - be);
 
+    ASSERT_VECTOR3_EIGEN_EQUAL(n[0] * a, n[0] * ae);
+    ASSERT_VECTOR3_EIGEN_EQUAL(n[0] * b, n[0] * be);
     ASSERT_VECTOR3_EIGEN_EQUAL(a * n[0], ae * n[0]);
     ASSERT_VECTOR3_EIGEN_EQUAL(b * n[0], be * n[0]);
     ASSERT_VECTOR3_EIGEN_EQUAL(a * n[1], ae * n[1]);
@@ -62,8 +64,11 @@ void testMath() {
     Vector3Test a, b(n[0], n[1], n[2]), c(n[3], n[4], n[5]);
     Vector3Std ae(0, 0 ,0), be(n[0], n[1], n[2]), ce(n[3], n[4], n[5]);
 
-    ASSERT_EQUAL(a.norm(), ae.norm());
-    ASSERT_EQUAL(b.norm(), be.norm());
+    ASSERT_EQUAL(a.norm(), ae.norm())
+    ASSERT_EQUAL(b.norm(), be.norm())
+
+    ASSERT_VECTOR3_EQUAL(a.mult(b), Vector3Test(0, 0, 0));
+    ASSERT_VECTOR3_EQUAL(b.mult(c), Vector3Test(n[0] * n[3], n[1] * n[4], n[2] * n[5]));
 
     ASSERT_VECTOR3_EIGEN_EQUAL(b.normalized(), be.normalized());
     c.normalize(), ce.normalize();

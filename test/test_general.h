@@ -17,8 +17,8 @@ if (!(exp)) { \
     COMMON_LOG_ERROR << (msg) << std::endl; \
     exit(-1); \
 }
-#define ASSERT_EQUAL(a, b) ASSERT(EQUAL(a, b), "real not equal");
-#define ASSERT_EQUAL_INT(a, b) ASSERT(EQUAL_INT(a, b), "int not equal");
+#define ASSERT_EQUAL(a, b) ASSERT(EQUAL(a, b), "real not equal")
+#define ASSERT_EQUAL_INT(a, b) ASSERT(EQUAL_INT(a, b), "int not equal")
 
 #ifdef PE_USE_DOUBLE
 typedef double Real;

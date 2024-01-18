@@ -39,13 +39,13 @@ extern const char* COMMON_LOG_COLOR_RESET;
 #define COMMON_LOG_(type) \
     std::cout << COMMON_LOG_COLORS[(int)(type)] << \
     "[" << COMMON_GetTimeString() << "]" \
-    "[" << COMMON_FILENAME_STR << ":" << __LINE__ << "] " << \
+    "[" << COMMON_FILENAME_STR << ":" << __LINE__ << "]" << \
     COMMON_LOG_COLOR_RESET
-#define COMMON_LOG_DEBUG COMMON_LOG_(common::LogType::Debug)
-#define COMMON_LOG_INFO COMMON_LOG_(common::LogType::Info)
-#define COMMON_LOG_WARN COMMON_LOG_(common::LogType::Warn)
-#define COMMON_LOG_ERROR COMMON_LOG_(common::LogType::Error)
-#define COMMON_LOG_FATAL COMMON_LOG_(common::LogType::Fatal)
+#define COMMON_LOG_DEBUG COMMON_LOG_(common::LogType::Debug) << " DEBUG: "
+#define COMMON_LOG_INFO COMMON_LOG_(common::LogType::Info) << " INFO: "
+#define COMMON_LOG_WARN COMMON_LOG_(common::LogType::Warn) << " WARN: "
+#define COMMON_LOG_ERROR COMMON_LOG_(common::LogType::Error) << " ERROR: "
+#define COMMON_LOG_FATAL COMMON_LOG_(common::LogType::Fatal) << " FATAL: "
 
 namespace common {
     enum LogType { Debug = 0, Info, Warn, Error, Fatal };

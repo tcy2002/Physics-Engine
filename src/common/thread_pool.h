@@ -20,6 +20,7 @@ namespace common {
 
         template<typename Function, typename... Args>
         static void addTask(Function&& fn, Args&&... args) {
+            if (getInstance()._size == -1) return; // not initialized
             auto& inst = getInstance();
             std::unique_lock<std::mutex> lock(inst._mtx);
             inst._tasks.emplace([&]{ fn(args...); });
@@ -29,6 +30,7 @@ namespace common {
 
         template <typename Iterator, typename Function>
         static void forEach(Iterator&& first, Iterator&& last, Function&& fn) {
+            if (getInstance()._size == -1) return; // not initialized
             auto& inst = getInstance();
             std::unique_lock<std::mutex> lock(inst._mtx);
             while (first != last) {
@@ -45,7 +47,7 @@ namespace common {
         ThreadPool& operator=(const ThreadPool&) = delete;
         ~ThreadPool() { deinit(); }
 
-        uint32_t _size;
+        uint32_t _size = -1;
         std::vector<std::thread*> _pool;
         using Task = std::function<void()>;
         std::queue<Task> _tasks;

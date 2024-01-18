@@ -9,7 +9,7 @@ namespace pe_core {
     }
 
     SimulatorWithUi::SimulatorWithUi(const std::string& name) {
-        simple_viewer::OpenglViewer::open(name);
+
     }
 
 } // namespace pe_core

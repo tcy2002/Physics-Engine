@@ -1,50 +1,46 @@
 #pragma once
 
+#include <atomic>
 #include "phys/shape/shape.h"
 
 namespace pe_phys_object {
 
 class CollisionBody {
-    static uint32_t _globalIdCounter;
-
+protected:
     COMMON_MEMBER_GET(uint32_t, global_id, GlobalId)
     COMMON_BOOL_SET_GET(kinematic, Kinematic)
-    COMMON_BOOL_SET_GET(active, Active)
-    COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, shape, Shape)
+    COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
 
-    COMMON_MEMBER_GET(pe::Real, mass, Mass)
-    COMMON_MEMBER_GET(pe::Real, inv_mass, InvMass)
-public:
-    void setMass(pe::Real mass) { _mass = mass; _inv_mass = 1. / mass; }
+    COMMON_MEMBER_SET_GET(pe::Real, mass, Mass)
+    COMMON_MEMBER_SET_GET(pe::Matrix3, inertia, Inertia)
+    COMMON_MEMBER_SET_GET(pe::Matrix3, inv_inertia, InvInertia)
 
     COMMON_MEMBER_SET_GET(pe::Real, friction_coeff, FrictionCoeff)
     COMMON_MEMBER_SET_GET(pe::Real, restitution_coeff, RestitutionCoeff)
-    COMMON_MEMBER_GET(pe::Real, linear_damping, LinearDamping)
-    COMMON_MEMBER_GET(pe::Real, angular_damping, AngularDamping)
+    COMMON_MEMBER_SET_GET(pe::Real, linear_damping, LinearDamping)
+    COMMON_MEMBER_SET_GET(pe::Real, angular_damping, AngularDamping)
 
     COMMON_MEMBER_SET_GET(pe::Transform, transform, Transform)
-    COMMON_MEMBER_SET_GET(pe::Vector3, velocity, Velocity)
+    COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)
     COMMON_MEMBER_SET_GET(pe::Vector3, angular_velocity, AngularVelocity)
 
+    COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
+    COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
+
+private:
+    static std::atomic<uint32_t> _globalIdCounter;
+    pe::Array<uint32_t> _ignore_collision_ids;
+
 public:
-    CollisionBody():
-        _global_id(++_globalIdCounter),
-        _kinematic(false),
-        _active(true),
-        _mass(1.),
-        _inv_mass(1.),
-        _shape(nullptr),
-        _transform(pe::Transform::identity()),
-        _velocity(pe::Vector3::zeros()),
-        _friction_coeff(0.5),
-        _restitution_coeff(0.5),
-        _linear_damping(0.),
-        _angular_damping(0.) {}
-    ~CollisionBody() { setShape(0); }
+    CollisionBody();
+    virtual ~CollisionBody() { setCollisionShape(0); }
 
     virtual bool isDeformable() const = 0;
-    void applyForce(const pe::Vector3& force, const pe::Vector3& point, pe::Real dt);
-    void updateTransform(pe::Real dt);
+    void computeAABB();
+    pe::Real getAABBScale() const;
+    void addIgnoreCollisionId(uint32_t id) { _ignore_collision_ids.push_back(id); }
+    void removeIgnoreCollisionId(uint32_t id);
+    bool isIgnoreCollisionId(uint32_t id) const;
 };
 
 } // namespace pe_phys_object

@@ -170,6 +170,21 @@ Scalar Matrix3x3<Scalar>::trace() const {
 }
 
 template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::mult(const Matrix3x3& mat) const {
+    Matrix3x3<Scalar> res;
+    res._m[0][0] = _m[0][0] * mat._m[0][0];
+    res._m[0][1] = _m[0][1] * mat._m[0][1];
+    res._m[0][2] = _m[0][2] * mat._m[0][2];
+    res._m[1][0] = _m[1][0] * mat._m[1][0];
+    res._m[1][1] = _m[1][1] * mat._m[1][1];
+    res._m[1][2] = _m[1][2] * mat._m[1][2];
+    res._m[2][0] = _m[2][0] * mat._m[2][0];
+    res._m[2][1] = _m[2][1] * mat._m[2][1];
+    res._m[2][2] = _m[2][2] * mat._m[2][2];
+    return res;
+}
+
+template <typename Scalar>
 Matrix3x3<Scalar> Matrix3x3<Scalar>::transposed() const {
     Matrix3x3 res;
     res._m[0][0] = _m[0][0]; res._m[1][0] = _m[0][1]; res._m[2][0] = _m[0][2];
@@ -254,6 +269,19 @@ template <typename Scalar>
 const Matrix3x3<Scalar>& Matrix3x3<Scalar>::ones() {
     static Matrix3x3 ones(1, 1, 1, 1, 1, 1, 1, 1, 1);
     return ones;
+}
+
+template <typename Scalar>
+Matrix3x3<Scalar> operator*(Scalar k, const Matrix3x3<Scalar>& mat) {
+    return mat * k;
+}
+
+template <typename Scalar>
+Vector3<Scalar> operator*(const Vector3<Scalar>& vec, const Matrix3x3<Scalar>& mat) {
+    Scalar x = mat[0][0] * vec.x + mat[1][0] * vec.y + mat[2][0] * vec.z;
+    Scalar y = mat[0][1] * vec.x + mat[1][1] * vec.y + mat[2][1] * vec.z;
+    Scalar z = mat[0][2] * vec.x + mat[1][2] * vec.y + mat[2][2] * vec.z;
+    return {x, y, z};
 }
 
 template <typename Scalar>

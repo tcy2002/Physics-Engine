@@ -33,14 +33,22 @@ namespace pe {
     using Transform = common::Transform<Real>;
 } // namespace pe
 
-//// error tolerance
-#define PE_EPS 1e-5
+//// vector macros
+#define PE_MAX_VEC(a, b) pe::Vector3(std::max((a).x, (b).x), std::max((a).y, (b).y), std::max((a).z, (b).z))
+#define PE_MIN_VEC(a, b) pe::Vector3(std::min((a).x, (b).x), std::min((a).y, (b).y), std::min((a).z, (b).z))
+#define PE_VEC_MAX pe::Vector3(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX)
+#define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
+
+//// math
+#define PE_EPS 1e-4
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
+#define PE_PI 3.14159265358979323846
 
 //// other date types
 namespace pe {
     template <typename T> using Array = std::vector<T>;
     template <typename T> using Queue = std::queue<T>;
-    template <typename K, typename V> using KVStore = std::unordered_map<K, V>;
+    template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
+    template <typename K, typename V> using MultiMap = std::unordered_multimap<K, V>;
     template <typename T1, typename T2> using Pair = std::pair<T1, T2>;
 } // namespace pe

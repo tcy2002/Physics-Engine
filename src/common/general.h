@@ -1,6 +1,6 @@
 #pragma once
 
-//// includes for different OS
+//// includes
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-//// inline: depends on OS
+//// inline
 #ifdef _WIN32
 #define COMMON_FORCE_INLINE __forceinline
 #elif defined LINUX
@@ -18,7 +18,7 @@
 #define COMMON_FORCE_INLINE inline
 #endif
 
-//// timer: depends on OS
+//// timer
 COMMON_FORCE_INLINE unsigned long long COMMON_GetTickCount() {
 #ifdef _WIN32
     LARGE_INTEGER t, f;

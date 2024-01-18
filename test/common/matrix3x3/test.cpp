@@ -50,6 +50,8 @@ void testOperator() {
     ASSERT_MATRIX3_EIGEN_EQUAL(c + b, ce + be);
     ASSERT_MATRIX3_EIGEN_EQUAL(c - b, ce - be);
 
+    ASSERT_MATRIX3_EIGEN_EQUAL(n[0] * a, n[0] * ae);
+    ASSERT_MATRIX3_EIGEN_EQUAL(n[0] * b, n[0] * be);
     ASSERT_MATRIX3_EIGEN_EQUAL(a * n[0], ae * n[0]);
     ASSERT_MATRIX3_EIGEN_EQUAL(b * n[0], be * n[0]);
     ASSERT_MATRIX3_EIGEN_EQUAL(a * n[1], ae * n[1]);
@@ -85,6 +87,8 @@ void testOperator() {
 
     ASSERT_VECTOR3_EIGEN_EQUAL(a * v, ae * ve);
     ASSERT_VECTOR3_EIGEN_EQUAL(b * v, be * ve);
+    ASSERT_VECTOR3_EIGEN_EQUAL(v * a, ve.transpose() * ae);
+    ASSERT_VECTOR3_EIGEN_EQUAL(v * b, ve.transpose() * be);
 }
 
 void testMathGeometry() {
@@ -99,16 +103,22 @@ void testMathGeometry() {
     ae.setZero();
     be << n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8];
 
-    ASSERT_EQUAL(a.trace(), ae.trace());
-    ASSERT_EQUAL(b.trace(), be.trace());
+    ASSERT_MATRIX3_EQUAL(a.mult(b), Matrix3Test::zeros());
+    Matrix3Test b_mult_b = Matrix3Test(n[0] * n[0], n[1] * n[1], n[2] * n[2],
+                                       n[3] * n[3], n[4] * n[4], n[5] * n[5],
+                                       n[6] * n[6], n[7] * n[7], n[8] * n[8]);
+    ASSERT_MATRIX3_EQUAL(b.mult(b), b_mult_b);
+
+    ASSERT_EQUAL(a.trace(), ae.trace())
+    ASSERT_EQUAL(b.trace(), be.trace())
 
     ASSERT_MATRIX3_EIGEN_EQUAL(b.transposed(), be.transpose());
     b.transpose();
     be << be.transpose().eval();
     ASSERT_MATRIX3_EIGEN_EQUAL(b, be);
 
-    ASSERT_EQUAL(a.determinant(), ae.determinant());
-    ASSERT_EQUAL(b.determinant(), be.determinant());
+    ASSERT_EQUAL(a.determinant(), ae.determinant())
+    ASSERT_EQUAL(b.determinant(), be.determinant())
 
     ASSERT_MATRIX3_EIGEN_EQUAL(b.inverse(), be.inverse());
     b.invert();

@@ -16,26 +16,6 @@ Transform<Scalar>& Transform<Scalar>::operator*=(const Transform<Scalar>& t) {
 }
 
 template<typename Scalar>
-const Matrix3x3<Scalar>& Transform<Scalar>::getBasis() const {
-    return _basis;
-}
-
-template<typename Scalar>
-const Vector3<Scalar>& Transform<Scalar>::getOrigin() const {
-    return _origin;
-}
-
-template<typename Scalar>
-void Transform<Scalar>::setBasis(const Matrix3x3<Scalar>& basis) {
-    _basis = basis;
-}
-
-template<typename Scalar>
-void Transform<Scalar>::setOrigin(const Vector3<Scalar>& origin) {
-    _origin = origin;
-}
-
-template<typename Scalar>
 Vector3<Scalar> Transform<Scalar>::getAxis(int axis) const {
     return {_basis[0][axis], _basis[1][axis], _basis[2][axis]};
 }
