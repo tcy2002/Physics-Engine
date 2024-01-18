@@ -3,7 +3,7 @@
 namespace pe_phys_collision {
 
     void SimpleNarrowPhase::calcContactResults() {
-        clearContactResults();
+//        clearContactResults();
     }
 
     void SimpleNarrowPhase::clearContactResults() {
