@@ -27,9 +27,9 @@ namespace pe_phys_object {
 
         pe::Vector3 getLinearMomentum() const { return _linear_velocity * _mass; }
         pe::Vector3 getAngularMomentum() const { return _inertia * _angular_velocity; }
-        pe::Vector3 getLinearVelocity(const pe::Vector3& point) const;
+        pe::Vector3 getLinearVelocityAt(const pe::Vector3& world_point) const;
         pe::Real getKineticEnergy();
-        pe::Real getImpulseDenominator(const pe::Vector3& point, const pe::Vector3& normal) const;
+        pe::Real getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const;
 
         void syncTempVelocity();
         void clearTempVelocity();

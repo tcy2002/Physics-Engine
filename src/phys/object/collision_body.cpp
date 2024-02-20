@@ -9,6 +9,7 @@ namespace pe_phys_object {
         _kinematic(false),
         _collision_shape(nullptr),
         _mass(1.),
+        _inv_mass(1.),
         _inertia(pe::Matrix3::identity()),
         _inv_inertia(pe::Matrix3::identity()),
         _friction_coeff(0.5),

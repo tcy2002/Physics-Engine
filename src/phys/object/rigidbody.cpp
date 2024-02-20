@@ -17,8 +17,8 @@ namespace pe_phys_object {
         updateWorldInvInertia();
     }
 
-    pe::Vector3 RigidBody::getLinearVelocity(const pe::Vector3& point) const {
-        return _linear_velocity + _angular_velocity.cross(point - _transform.getOrigin());
+    pe::Vector3 RigidBody::getLinearVelocityAt(const pe::Vector3& world_point) const {
+        return _linear_velocity + _angular_velocity.cross(world_point - _transform.getOrigin());
     }
 
     pe::Real RigidBody::getKineticEnergy() {
@@ -26,11 +26,11 @@ namespace pe_phys_object {
             0.5 * _angular_velocity.dot(_inertia * _angular_velocity);
     }
 
-    pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& point, const pe::Vector3& normal) const {
-        pe::Vector3 r = point - _transform.getOrigin();
-        pe::Vector3 c = r.cross(normal);
+    pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
+        pe::Vector3 r = world_point - _transform.getOrigin();
+        pe::Vector3 c = r.cross(world_normal);
         pe::Vector3 vec = (_world_inv_inertia * c).cross(r);
-        return 1.0 / _mass + normal.dot(vec);
+        return 1.0 / _mass + world_normal.dot(vec);
     }
 
     void RigidBody::syncTempVelocity() {
@@ -52,6 +52,7 @@ namespace pe_phys_object {
     }
 
     void RigidBody::applyImpulse(const pe::Vector3& point, const pe::Vector3& impulse) {
+        // TODO: use lock?
         if (isKinematic()) return;
         _linear_velocity += impulse / _mass;
         _angular_velocity += _world_inv_inertia * (point - _transform.getOrigin()).cross(impulse);

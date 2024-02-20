@@ -2,7 +2,7 @@
 
 #include "phys/object/collision_body.h"
 #include "phys/shape/shape.h"
-#include "../contact_result.h"
+#include "phys/collision/narrow_phase/contact_result.h"
 
 namespace pe_phys_collision {
 

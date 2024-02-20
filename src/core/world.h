@@ -6,6 +6,8 @@
 #include "phys/object/rigidbody.h"
 #include "phys/collision/broad_phase/broad_phase.h"
 #include "phys/collision/narrow_phase/narrow_phase.h"
+#include "phys/constraint/constraint/constraint.h"
+#include "phys/constraint/constraint_solver.h"
 
 namespace pe_core {
 
@@ -15,18 +17,18 @@ namespace pe_core {
 
     protected:
         pe::Array<pe_phys_object::CollisionBody*> _cbs;
+        pe::Array<pe_phys_constraint::Constraint*> _constraints;
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
+        pe_phys_constraint::ConstraintSolver* _constraint_solver;
 
         void updateAABBs();
         void updateCollisionBodies();
         void applyExternalForce();
 
     public:
-        World():
-            _gravity(0, -9.8, 0), _time_step(0.01),
-            _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
-            _narrow_phase(new pe_phys_collision::SimpleNarrowPhase) {}
+        World();
+        ~World();
 
         void addCollisionBody(pe_phys_object::CollisionBody* cb);
         void step();

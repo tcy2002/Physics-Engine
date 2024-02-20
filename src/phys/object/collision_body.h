@@ -12,6 +12,7 @@ protected:
     COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
 
     COMMON_MEMBER_SET_GET(pe::Real, mass, Mass)
+    COMMON_MEMBER_SET_GET(pe::Real, inv_mass, InvMass)
     COMMON_MEMBER_SET_GET(pe::Matrix3, inertia, Inertia)
     COMMON_MEMBER_SET_GET(pe::Matrix3, inv_inertia, InvInertia)
 

@@ -21,6 +21,7 @@ namespace pe_phys_collision {
         pe::Array<pe::Vector3> _tangents;
     public:
         const pe::Array<pe::Vector3>& getTangents() const { return _tangents; }
+        const pe::Vector3& getTangent(int index) const { return _tangents[index]; }
 
     private:
         static void getOrthoUnits(pe::Vector3 normal, pe::Vector3& tangent1, pe::Vector3& tangent2);
@@ -57,7 +58,7 @@ namespace pe_phys_collision {
         void moveContactPointFlag(int index) { _points[index].invalidate(); }
 
         void addContactPoint(pe::Vector3 world_normal, pe::Vector3 world_pos, pe::Real depth);
-        const ContactPoint& getContactPoint(int index) const { return _points[index]; }
+        ContactPoint& getContactPoint(int index) { return _points[index]; }
         void editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real depth);
         void sortContactPoints();
 
