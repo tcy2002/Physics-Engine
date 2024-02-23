@@ -51,6 +51,6 @@ namespace common {
     template <typename Scalar>
     std::ostream& operator<<(std::ostream& os, const Vector3<Scalar>& v);
 
-    #include "vector3.inl"
+    #include "vector3.cpp"
 
 } // namespace common

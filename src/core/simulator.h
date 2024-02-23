@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "phys/phys_general.h"
-#include "phys/object/collision_body.h"
+#include "phys/object/collision_object.h"
 #include "world.h"
 
 namespace pe_core {
@@ -14,7 +14,7 @@ namespace pe_core {
         World _world;
 
     public:
-        void init(const pe::Array<pe_phys_object::CollisionBody*>& objs);
+        void init(const pe::Array<pe_phys_object::CollisionObject*>& objs);
     };
 
     class SimulatorWithUi : public Simulator {

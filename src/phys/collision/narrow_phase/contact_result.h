@@ -1,7 +1,7 @@
 #pragma once
 
 #include "phys/phys_general.h"
-#include "phys/object/collision_body.h"
+#include "phys/object/collision_object.h"
 
 #define PE_CONTACT_MAX_POINTS 4
 
@@ -37,8 +37,8 @@ namespace pe_phys_collision {
 
     class ContactResult {
     protected:
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionBody, body_a, BodyA)
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionBody, body_b, BodyB)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, body_a, BodyA)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, body_b, BodyB)
 
         COMMON_MEMBER_SET_GET(pe::Real, friction_coeff, FrictionCoeff)
         COMMON_MEMBER_SET_GET(pe::Real, restitution_coeff, RestitutionCoeff)
@@ -51,7 +51,7 @@ namespace pe_phys_collision {
     public:
         ContactResult();
 
-        void setBodies(pe_phys_object::CollisionBody* body_a, pe_phys_object::CollisionBody* body_b);
+        void setBodies(pe_phys_object::CollisionObject* body_a, pe_phys_object::CollisionObject* body_b);
         void swapBodies() { auto tmp = _body_a; _body_a = _body_b; _body_b = tmp; }
 
         void cleanContactPointFlag();

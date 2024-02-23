@@ -2,35 +2,31 @@
 
 namespace pe_phys_object {
 
-    void RigidBody::updateWorldInvInertia() {
-        _world_inv_inertia = _transform.getBasis() * _inv_inertia * _transform.getBasis().transposed();
-    }
-
     RigidBody::RigidBody():
-        _force(pe::Vector3::zeros()),
-        _torque(pe::Vector3::zeros()),
-        _gravity(pe::Vector3::zeros()),
-        _temp_linear_velocity(pe::Vector3::zeros()),
-        _temp_angular_velocity(pe::Vector3::zeros()),
-        _penetration_linear_velocity(pe::Vector3::zeros()),
-        _penetration_angular_velocity(pe::Vector3::zeros()) {
-        updateWorldInvInertia();
+            CollisionObject(),
+            _force(pe::Vector3::zeros()),
+            _torque(pe::Vector3::zeros()),
+            _temp_linear_velocity(pe::Vector3::zeros()),
+            _temp_angular_velocity(pe::Vector3::zeros()),
+            _penetration_linear_velocity(pe::Vector3::zeros()),
+            _penetration_angular_velocity(pe::Vector3::zeros()) {
+        updateWorldInertia();
     }
 
-    pe::Vector3 RigidBody::getLinearVelocityAt(const pe::Vector3& world_point) const {
+    pe::Vector3 RigidBody::getWorldLinearVelocityAt(const pe::Vector3& world_point) const {
         return _linear_velocity + _angular_velocity.cross(world_point - _transform.getOrigin());
     }
 
     pe::Real RigidBody::getKineticEnergy() {
-        return 0.5 * _mass * _linear_velocity.dot(_linear_velocity) +
-            0.5 * _angular_velocity.dot(_inertia * _angular_velocity);
+        return (_linear_velocity.dot(_mass * _linear_velocity) +
+            _angular_velocity.dot(_local_inertia * _angular_velocity)) * 0.5;
     }
 
     pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
         pe::Vector3 r = world_point - _transform.getOrigin();
         pe::Vector3 c = r.cross(world_normal);
         pe::Vector3 vec = (_world_inv_inertia * c).cross(r);
-        return 1.0 / _mass + world_normal.dot(vec);
+        return _inv_mass + world_normal.dot(vec);
     }
 
     void RigidBody::syncTempVelocity() {
@@ -45,28 +41,36 @@ namespace pe_phys_object {
         _penetration_angular_velocity = pe::Vector3::zeros();
     }
 
-    void RigidBody::applyTempImpulse(const pe::Vector3& point, const pe::Vector3& impulse) {
+    void RigidBody::applyTempImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
         if (isKinematic()) return;
-        _temp_linear_velocity += impulse / _mass;
-        _temp_angular_velocity += _world_inv_inertia * (point - _transform.getOrigin()).cross(impulse);
+        _temp_linear_velocity += impulse * _inv_mass;
+        _temp_angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
     }
 
-    void RigidBody::applyImpulse(const pe::Vector3& point, const pe::Vector3& impulse) {
+    void RigidBody::applyImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
         // TODO: use lock?
         if (isKinematic()) return;
-        _linear_velocity += impulse / _mass;
-        _angular_velocity += _world_inv_inertia * (point - _transform.getOrigin()).cross(impulse);
+        _linear_velocity += impulse * _inv_mass;
+        _angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
     }
 
-    void RigidBody::applyPenetrationImpulse(const pe::Vector3 &point, const pe::Vector3 &impulse) {
+    void RigidBody::applyPenetrationImpulse(const pe::Vector3 &world_point, const pe::Vector3 &impulse) {
         if (isKinematic()) return;
-        _penetration_linear_velocity += impulse / _mass;
-        _penetration_angular_velocity += _world_inv_inertia * (point - _transform.getOrigin()).cross(impulse);
+        _penetration_linear_velocity += impulse * _inv_mass;
+        _penetration_angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
     }
 
-    void RigidBody::addForce(const pe::Vector3 &point, const pe::Vector3 &force) {
+    void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &force) {
         _force += force;
-        _torque += (point - _transform.getOrigin()).cross(force);
+        _torque += (world_point - _transform.getOrigin()).cross(force);
+    }
+
+    void RigidBody::applyForce(pe::Real dt) {
+        if (isKinematic()) return;
+        _linear_velocity += _force * _inv_mass * dt;
+        _angular_velocity += _world_inv_inertia * (_torque * dt);
+        _force = pe::Vector3::zeros();
+        _torque = pe::Vector3::zeros();
     }
 
     void RigidBody::applyDamping(pe::Real dt) {
@@ -75,6 +79,7 @@ namespace pe_phys_object {
     }
 
     void RigidBody::penetrationStep(pe::Real dt) {
+        if (isKinematic()) return;
         _transform.setOrigin(_transform.getOrigin() + _penetration_linear_velocity * dt);
         pe::Matrix3 rot;
         rot.setRotation(_penetration_angular_velocity.normalized(),
@@ -82,15 +87,17 @@ namespace pe_phys_object {
         _transform.setBasis(_transform.getBasis() * rot);
         _penetration_linear_velocity = pe::Vector3::zeros();
         _penetration_angular_velocity = pe::Vector3::zeros();
-        updateWorldInvInertia();
+        updateWorldInertia();
     }
 
     void RigidBody::step(pe::Real dt) {
+        if (isKinematic()) return;
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
         pe::Matrix3 rot;
         rot.setRotation(_angular_velocity.normalized(), _angular_velocity.norm() * dt);
-        _transform.setBasis(_transform.getBasis() * rot);
-        updateWorldInvInertia();
+        // TODO: check if the multiplication order is correct
+        _transform.setBasis(rot * _transform.getBasis());
+        updateWorldInertia();
     }
 
 } // namespace pe_phys_object

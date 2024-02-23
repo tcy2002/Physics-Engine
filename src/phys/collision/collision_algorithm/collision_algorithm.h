@@ -1,6 +1,6 @@
 #pragma once
 
-#include "phys/object/collision_body.h"
+#include "phys/object/collision_object.h"
 #include "phys/shape/shape.h"
 #include "phys/collision/narrow_phase/contact_result.h"
 

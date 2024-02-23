@@ -1,6 +1,6 @@
 #include <cassert>
 #include "common/transform.h"
-#include "eigen_std.h"
+#include "../eigen_std.h"
 #include "test_general.h"
 
 void testConstruct() {

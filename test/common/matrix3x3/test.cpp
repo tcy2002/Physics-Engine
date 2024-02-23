@@ -1,6 +1,6 @@
 #include <cassert>
 #include "common/matrix3x3.h"
-#include "eigen_std.h"
+#include "../eigen_std.h"
 #include "test_general.h"
 
 void testConstruct() {

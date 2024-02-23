@@ -2,9 +2,9 @@
 
 namespace pe_core {
 
-    void Simulator::init(const pe::Array<pe_phys_object::CollisionBody*>& objs) {
+    void Simulator::init(const pe::Array<pe_phys_object::CollisionObject*>& objs) {
         for (auto& obj : objs) {
-            _world.addCollisionBody(obj);
+            _world.addCollisionObject(obj);
         }
     }
 

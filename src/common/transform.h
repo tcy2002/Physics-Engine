@@ -39,6 +39,6 @@ namespace common {
     template<typename Scalar>
     COMMON_FORCE_INLINE std::ostream &operator<<(std::ostream& os, const Transform<Scalar>& t);
 
-    #include "transform.inl"
+    #include "transform.cpp"
 
 } // namespace common

@@ -13,7 +13,7 @@ namespace pe_phys_constraint {
     public:
         ConstraintSolver(): _param(ConstraintParam()), _iteration(1) {}
         virtual ~ConstraintSolver() {}
-        virtual void setupSolver(const pe::Array<pe_phys_object::CollisionBody*>& collision_bodies,
+        virtual void setupSolver(const pe::Array<pe_phys_object::CollisionObject*>& collision_bodies,
                                  const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                                  const pe::Array<Constraint*>& constraints) {}
         virtual void solve() {}
@@ -21,14 +21,14 @@ namespace pe_phys_constraint {
 
     class SequentialImpulseConstraintSolver : public ConstraintSolver {
     private:
-        pe::Array<pe_phys_object::CollisionBody*> _cbs;
+        pe::Array<pe_phys_object::CollisionObject*> _cbs;
         pe::Array<Constraint*> _constraints;
 
     public:
         SequentialImpulseConstraintSolver();
         virtual ~SequentialImpulseConstraintSolver() {};
 
-        void setupSolver(const pe::Array<pe_phys_object::CollisionBody*>& collision_bodies,
+        void setupSolver(const pe::Array<pe_phys_object::CollisionObject*>& collision_bodies,
                          const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                          const pe::Array<Constraint*>& constraints) override;
         void solve() override;

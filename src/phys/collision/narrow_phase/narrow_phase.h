@@ -1,7 +1,7 @@
 #pragma once
 
 #include "phys/phys_general.h"
-#include "phys/object/collision_body.h"
+#include "phys/object/collision_object.h"
 #include "phys/collision/broad_phase/broad_phase.h"
 #include "contact_result.h"
 
