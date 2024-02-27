@@ -38,7 +38,7 @@ namespace common {
     }
 
     void ThreadPool::deinit() {
-        if (getInstance()._size == -1) return; // not initialized
+        if (getInstance()._size == 0) return; // not initialized
         auto& inst = getInstance();
         join();
         inst._stop.store(true);
@@ -52,7 +52,7 @@ namespace common {
     }
 
     void ThreadPool::join() {
-        if (getInstance()._size == -1) return; // not initialized
+        if (getInstance()._size == 0) return; // not initialized
         auto& inst = getInstance();
         std::unique_lock<std::mutex> lock(inst._mtx);
         if (inst._task_num == 0) return;

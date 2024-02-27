@@ -1,4 +1,4 @@
-#include "narrow_phase.h"
+#include "simple_narrow_phase.h"
 #include "phys/collision/collision_algorithm/box_box_collision_algorithm.h"
 
 namespace pe_phys_collision {

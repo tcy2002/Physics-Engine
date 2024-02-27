@@ -32,13 +32,13 @@ namespace pe_phys_collision {
                      const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b);
 
         COMMON_FORCE_INLINE void invalidate() { _world_pos = PE_VEC_MAX; }
-        COMMON_FORCE_INLINE bool isValid() const { return _world_pos.x == PE_REAL_MAX; }
+        COMMON_FORCE_INLINE bool isValid() const { return _world_pos.x != PE_REAL_MAX; }
     };
 
     class ContactResult {
     protected:
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, body_a, BodyA)
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, body_b, BodyB)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, object_a, ObjectA)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::CollisionObject, object_b, ObjectB)
 
         COMMON_MEMBER_SET_GET(pe::Real, friction_coeff, FrictionCoeff)
         COMMON_MEMBER_SET_GET(pe::Real, restitution_coeff, RestitutionCoeff)
@@ -51,8 +51,8 @@ namespace pe_phys_collision {
     public:
         ContactResult();
 
-        void setBodies(pe_phys_object::CollisionObject* body_a, pe_phys_object::CollisionObject* body_b);
-        void swapBodies() { auto tmp = _body_a; _body_a = _body_b; _body_b = tmp; }
+        void setObjects(pe_phys_object::CollisionObject* object_a, pe_phys_object::CollisionObject* object_b);
+        void swapObjects() { auto tmp = _object_a; _object_a = _object_b; _object_b = tmp; }
 
         void cleanContactPointFlag();
         void moveContactPointFlag(int index) { _points[index].invalidate(); }

@@ -47,7 +47,7 @@ namespace common {
         ThreadPool& operator=(const ThreadPool&) = delete;
         ~ThreadPool() { deinit(); }
 
-        uint32_t _size = -1;
+        uint32_t _size = 0;
         std::vector<std::thread*> _pool;
         using Task = std::function<void()>;
         std::queue<Task> _tasks;

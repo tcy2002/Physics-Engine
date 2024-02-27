@@ -1,9 +1,31 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "common/eigen_std.h"
 #include "test_general.h"
-#include "mesh_to_obj.h"
 
 using namespace pe_phys_shape;
+
+void meshToObj(const pe::Mesh &mesh, const std::string &filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << filename << std::endl;
+        return;
+    }
+
+    for (auto& point : mesh.vertices) {
+        auto& p = point.position;
+        auto& n = point.normal;
+        file << "v " << p.x << " " << p.y << " " << p.z << std::endl;
+        file << "vn " << n.x << " " << n.y << " " << n.z << std::endl;
+    }
+    for (auto& face: mesh.faces) {
+        file << "f";
+        for (auto& index : face.indices) {
+            file << " " << index + 1 << "//" << index + 1;
+        }
+        file << std::endl;
+    }
+    file.close();
+}
 
 const pe::Mesh _cylinder_mesh = { //NOLINT
         {

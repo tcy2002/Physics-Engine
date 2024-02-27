@@ -23,14 +23,4 @@ namespace pe_phys_collision {
         bool testCollisionPair(pe_phys_object::CollisionObject*, pe_phys_object::CollisionObject*) const;
     };
 
-    class BroadPhaseSweepAndPrune : public BroadPhaseBase {
-    protected:
-        int _target_axis;
-
-    public:
-        BroadPhaseSweepAndPrune(): BroadPhaseBase(), _target_axis(0) {}
-        ~BroadPhaseSweepAndPrune() {}
-        void calcCollisionPairs(pe::Array<pe_phys_object::CollisionObject*> collision_objects) override;
-    };
-
 } // namespace pe_phys_collision

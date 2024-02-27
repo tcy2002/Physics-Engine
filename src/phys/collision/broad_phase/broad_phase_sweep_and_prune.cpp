@@ -1,4 +1,4 @@
-#include "broad_phase.h"
+#include "broad_phase_sweep_and_prune.h"
 #include <algorithm>
 
 namespace pe_phys_collision {
@@ -23,7 +23,6 @@ namespace pe_phys_collision {
     }
 
     void BroadPhaseSweepAndPrune::calcCollisionPairs(pe::Array<pe_phys_object::CollisionObject*> collision_objects) {
-        clearCollisionPairs();
         if (collision_objects.size() < 2) return;
 
         // sort collision objects by their min x value
@@ -34,8 +33,7 @@ namespace pe_phys_collision {
 
         // sweep the sorted array and find collision pairs
         pe::Vector3 s = pe::Vector3::zeros(), s2 = pe::Vector3::zeros();
-        uint32_t size = collision_objects.size();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < (int)collision_objects.size(); i++) {
             // update sum and sum of squares to calculate mean and variance
             pe_phys_object::CollisionObject* cb1 = collision_objects[i];
             pe::Vector3 center = (cb1->getAABBMin() + cb1->getAABBMax()) * 0.5;
@@ -43,7 +41,7 @@ namespace pe_phys_collision {
             s2 += center * center;
 
             // test collision pairs
-            for (int j = i + 1; j < size; j++) {
+            for (int j = i + 1; j < (int)collision_objects.size(); j++) {
                 pe_phys_object::CollisionObject* cb2 = collision_objects[j];
                 if (cb2->getAABBMin()[_target_axis] > cb1->getAABBMax()[_target_axis]) break;
                 if (validateCollisionPair(cb1, cb2) && testCollisionPair(cb1, cb2)) {
@@ -53,7 +51,7 @@ namespace pe_phys_collision {
         }
 
         // update axis sorted to be the one with the largest variance
-        pe::Vector3 v = s2 - s * s / size;
+        pe::Vector3 v = s2 - s * s / (int)collision_objects.size();
         if (v.y > v.x) _target_axis = 1;
         if (v.z > v[_target_axis]) _target_axis = 2;
     }

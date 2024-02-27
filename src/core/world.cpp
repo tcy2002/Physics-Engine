@@ -1,5 +1,8 @@
 #include "world.h"
 #include "common/thread_pool.h"
+#include "phys/constraint/solver/sequential_impulse_solver.h"
+#include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
+#include "phys/collision/narrow_phase/simple_narrow_phase.h"
 
 namespace pe_core {
 
@@ -7,7 +10,7 @@ namespace pe_core {
         _gravity(0, -9.8, 0), _dt(0.01),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
-        _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver) {}
+        _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver) {}
 
     World::~World() {
         delete _broad_phase;
@@ -16,33 +19,31 @@ namespace pe_core {
     }
 
     void World::updateAABBs() {
-        common::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(), [](auto& cb) {
-            cb->computeAABB();
-        });
-        common::ThreadPool::join();
+        for (auto& co : _collision_objects) {
+            co->computeAABB();
+        }
     }
 
-    void World::updateCollisionObjects() {
-        common::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(), [this](auto& cb) {
-            if (!cb->isDeformable()) {
-                static_cast<pe_phys_object::RigidBody*>(cb)->step(_dt);
+    void World::updateObjectStatus() {
+        for (auto& co : _collision_objects) {
+            if (!co->isKinematic() && !co->isDeformable()) {
+                ((pe_phys_object::RigidBody*)co)->step(_dt);
             }
-        });
-        common::ThreadPool::join();
+        }
     }
 
     void World::applyExternalForce() {
-        common::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(), [this](auto& cb) {
-            // gravity
-            if (!cb->isDeformable()) {
-                static_cast<pe_phys_object::RigidBody*>(cb)->addForce(pe::Vector3::zeros(), _gravity);
+        for (auto& co : _collision_objects) {
+            if (!co->isKinematic() && !co->isDeformable()) {
+                auto rb = (pe_phys_object::RigidBody*)co;
+                rb->addCentralForce(_gravity * rb->getMass());
+                rb->applyForce(_dt);
             }
-        });
-        common::ThreadPool::join();
+        }
     }
 
-    void World::addCollisionObject(pe_phys_object::CollisionObject* cb) {
-        _collision_objects.push_back(cb);
+    void World::addCollisionObject(pe_phys_object::CollisionObject* collision_object) {
+        _collision_objects.push_back(collision_object);
     }
 
     void World::step() {
@@ -51,16 +52,19 @@ namespace pe_core {
 
         // collision detection
         updateAABBs();
+        _broad_phase->clearCollisionPairs();
         _broad_phase->calcCollisionPairs(_collision_objects);
         _narrow_phase->clearContactResults();
         _narrow_phase->calcContactResults(_broad_phase->getCollisionPairs());
 
         // constraints
-        _constraint_solver->setupSolver(_collision_objects, _narrow_phase->getContactResults(), _constraints);
+        _constraint_solver->setupSolver(_collision_objects,
+                                        _narrow_phase->getContactResults(),
+                                        _constraints);
         _constraint_solver->solve();
 
         // update status
-        updateCollisionObjects();
+        updateObjectStatus();
     }
 
 } // namespace pe_core

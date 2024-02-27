@@ -51,18 +51,18 @@ namespace pe_phys_collision {
     }
 
     ContactResult::ContactResult():
-        _body_a(nullptr),
-        _body_b(nullptr),
+        _object_a(nullptr),
+        _object_b(nullptr),
         _friction_coeff(0),
         _restitution_coeff(0),
         _point_size(0),
         _swap_flag(false) {}
 
-    void ContactResult::setBodies(pe_phys_object::CollisionBody *body_a, pe_phys_object::CollisionBody *body_b) {
-        _body_a = body_a;
-        _body_b = body_b;
-        _friction_coeff = std::sqrt(body_a->getFrictionCoeff() * body_b->getFrictionCoeff());
-        _restitution_coeff = body_a->getRestitutionCoeff() * body_b->getRestitutionCoeff();
+    void ContactResult::setObjects(pe_phys_object::CollisionObject *object_a, pe_phys_object::CollisionObject *object_b) {
+        _object_a = object_a;
+        _object_b = object_b;
+        _friction_coeff = std::sqrt(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
+        _restitution_coeff = object_a->getRestitutionCoeff() * object_b->getRestitutionCoeff();
     }
 
     void ContactResult::cleanContactPointFlag() {
@@ -85,10 +85,23 @@ namespace pe_phys_collision {
             point_a = world_pos + world_normal * depth;
         }
 
-        pe::Vector3 local_pos_a = _body_a->getTransform().inverseTransform(point_a);
-        pe::Vector3 local_pos_b = _body_b->getTransform().inverseTransform(point_b);
+        pe::Vector3 local_pos_a = _object_a->getTransform().inverseTransform(point_a);
+        pe::Vector3 local_pos_b = _object_b->getTransform().inverseTransform(point_b);
 
-        // TODO
+        // find the same closest point
+        int cp_idx = getExistingClosestPoint(local_pos_b);
+        if (cp_idx >= 0) {
+            // if found, update the contact point info
+            _points[cp_idx] = ContactPoint(world_pos, world_normal, local_pos_a, local_pos_b);
+        } else {
+            // otherwise, find an empty slot and replace it
+            for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
+                if (!_points[i].isValid()) {
+                    _points[i] = ContactPoint(world_pos, world_normal, local_pos_a, local_pos_b);
+                    break;
+                }
+            }
+        }
     }
 
     void ContactResult::editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real depth) {
@@ -96,8 +109,8 @@ namespace pe_phys_collision {
         _points[index].setDistance(depth);
         _points[index].setWorldPos(world_pos);
 
-        _points[index].setLocalPosA(_body_a->getTransform().inverseTransform(world_pos));
-        _points[index].setLocalPosB(_body_b->getTransform().inverseTransform(world_pos));
+        _points[index].setLocalPosA(_object_a->getTransform().inverseTransform(world_pos));
+        _points[index].setLocalPosB(_object_b->getTransform().inverseTransform(world_pos));
     }
 
     void ContactResult::sortContactPoints() {
@@ -131,8 +144,8 @@ namespace pe_phys_collision {
     }
 
     pe::Real ContactResult::getSameContactPointDistanceThreshold() const {
-        pe::Real a_scale = _body_a->getAABBScale();
-        pe::Real b_scale = _body_b->getAABBScale();
+        pe::Real a_scale = _object_a->getAABBScale();
+        pe::Real b_scale = _object_b->getAABBScale();
         return std::min(a_scale, b_scale) * 0.02;
     }
 

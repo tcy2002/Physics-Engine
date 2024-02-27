@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     class CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::CollisionBody* body_a, pe_phys_object::CollisionBody* body_b,
+        virtual bool processCollision(pe_phys_object::CollisionObject* body_a, pe_phys_object::CollisionObject* body_b,
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) = 0;
 
         static bool isInsideTriangle(const pe::Array<pe::Vector3>& triangle, const pe::Vector3& normal,

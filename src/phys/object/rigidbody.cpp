@@ -74,6 +74,7 @@ namespace pe_phys_object {
     }
 
     void RigidBody::applyDamping(pe::Real dt) {
+        if (isKinematic()) return;
         _linear_velocity *= std::pow(1.0 - _linear_damping, dt);
         _angular_velocity *= std::pow(1.0 - _angular_damping, dt);
     }
@@ -82,9 +83,12 @@ namespace pe_phys_object {
         if (isKinematic()) return;
         _transform.setOrigin(_transform.getOrigin() + _penetration_linear_velocity * dt);
         pe::Matrix3 rot;
-        rot.setRotation(_penetration_angular_velocity.normalized(),
-                        _penetration_angular_velocity.norm() * dt);
-        _transform.setBasis(_transform.getBasis() * rot);
+        pe::Real angle_speed = _penetration_angular_velocity.norm();
+        if (angle_speed > PE_EPS) {
+            rot.setRotation(_penetration_angular_velocity.normalized(),
+                            _penetration_angular_velocity.norm() * dt);
+            _transform.setBasis(rot * _transform.getBasis());
+        }
         _penetration_linear_velocity = pe::Vector3::zeros();
         _penetration_angular_velocity = pe::Vector3::zeros();
         updateWorldInertia();
@@ -94,9 +98,11 @@ namespace pe_phys_object {
         if (isKinematic()) return;
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
         pe::Matrix3 rot;
-        rot.setRotation(_angular_velocity.normalized(), _angular_velocity.norm() * dt);
-        // TODO: check if the multiplication order is correct
-        _transform.setBasis(rot * _transform.getBasis());
+        pe::Real angle_speed = _angular_velocity.norm();
+        if (angle_speed > PE_EPS) {
+            rot.setRotation(_angular_velocity.normalized(), angle_speed * dt);
+            _transform.setBasis(rot * _transform.getBasis());
+        }
         updateWorldInertia();
     }
 

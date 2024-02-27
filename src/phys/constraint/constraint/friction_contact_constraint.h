@@ -11,26 +11,26 @@ namespace pe_phys_constraint {
         COMMON_MEMBER_SET_GET(pe_phys_collision::ContactResult, contact_result, ContactResult)
 
         struct ConstraintInfo {
-            pe::Vector3 rA;
-            pe::Vector3 rB;
+            pe::Vector3 r_a;
+            pe::Vector3 r_b;
             pe::Vector3 n;
             pe::Vector3 t0;
             pe::Vector3 t1;
-            pe::Real nRhs = 0;
-            pe::Real nPenetrationRhs = 0;
-            pe::Real nDenomInv = 0;
-            pe::Real t0DenomInv = 0;
-            pe::Real t1DenomInv = 0;
-            pe::Real nAppliedImpulse = 0;
-            pe::Real nAppliedPenetrationImpulse = 0;
-            pe::Real t0AppliedImpulse = 0;
-            pe::Real t1AppliedImpulse = 0;
-            pe::Real frictionCoeff = 0;
+            pe::Real n_rhs = 0;
+            pe::Real n_penetration_rhs = 0;
+            pe::Real n_denom_inv = 0;
+            pe::Real t0_denom_inv = 0;
+            pe::Real t1_denom_inv = 0;
+            pe::Real n_applied_impulse = 0;
+            pe::Real n_applied_penetration_impulse = 0;
+            pe::Real t0_applied_impulse = 0;
+            pe::Real t1_applied_impulse = 0;
+            pe::Real friction_coeff = 0;
         };
         pe::Array<ConstraintInfo> _cis;
 
     public:
-        FrictionContactConstraint();
+        FrictionContactConstraint() {}
         virtual ~FrictionContactConstraint() {};
 
         void initSequentialImpulse(const ConstraintParam& param) override;

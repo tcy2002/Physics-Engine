@@ -14,6 +14,7 @@ namespace pe_phys_constraint {
     };
 
     class Constraint {
+        // TODO: why not use CollisionObject?
         COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, body_a, BodyA)
         COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, body_b, BodyB)
 

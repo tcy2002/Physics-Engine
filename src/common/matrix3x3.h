@@ -57,6 +57,6 @@ namespace common {
     template <typename Scalar>
     COMMON_FORCE_INLINE std::ostream& operator<<(std::ostream& os, const Matrix3x3<Scalar>& mat);
 
-#include "matrix3x3.cpp"
+#include "matrix3x3.inl"
 
 } // namespace common

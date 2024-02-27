@@ -3,174 +3,175 @@
 namespace pe_phys_constraint {
     
     void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& param) {
-        const int psize = _contact_result.getPointSize();
-        _cis.resize(psize);
+        int p_size = _contact_result.getPointSize();
+        _cis.resize(p_size);
 
-        _body_a = (pe_phys_object::RigidBody*)(_contact_result.getBodyA());
-        _body_b = (pe_phys_object::RigidBody*)(_contact_result.getBodyB());
-        const pe::Transform& transformA = _body_a->getTransform();
-        const pe::Transform& transformB = _body_b->getTransform();
+        _body_a = (pe_phys_object::RigidBody*)(_contact_result.getObjectA());
+        _body_b = (pe_phys_object::RigidBody*)(_contact_result.getObjectB());
+        const pe::Transform& transform_a = _body_a->getTransform();
+        const pe::Transform& transform_b = _body_b->getTransform();
 
         for(int i = 0; i < _contact_result.getPointSize(); i++){
             const pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
 
-            const pe::Vector3 rA = transformA.getBasis() * cp.getLocalPosA();
-            const pe::Vector3 rB = transformB.getBasis() * cp.getLocalPosB();
+            const pe::Vector3 r_a = transform_a.getBasis() * cp.getLocalPosA();
+            const pe::Vector3 r_b = transform_b.getBasis() * cp.getLocalPosB();
 
             //// setup ci
-            ci.rA = rA;
-            ci.rB = rB;
+            ci.r_a = r_a;
+            ci.r_b = r_b;
             ci.n = cp.getWorldNormal();
             ci.t0 = cp.getTangent(0);
             ci.t1 = cp.getTangent(1);
 
-            const pe::Real invMassSum = _body_a->getInvMass() + _body_b->getInvMass();
-            const pe::Matrix3 worldInvInertiaA = _body_a->getInvInertia();
-            const pe::Matrix3 worldInvInertiaB = _body_b->getInvInertia();
+            const pe::Real inv_mass_sum = _body_a->getInvMass() + _body_b->getInvMass();
+            const pe::Matrix3 world_inv_inertia_a = _body_a->getWorldInvInertia();
+            const pe::Matrix3 world_inv_inertia_b = _body_b->getWorldInvInertia();
+
             //// normal denom
             {
-                pe::Vector3 rxnA = rA.cross(ci.n);
-                pe::Vector3 rxnB = rB.cross(ci.n);
-                ci.nDenomInv = 1.0/(invMassSum + (worldInvInertiaA*rxnA).dot(rxnA) + (worldInvInertiaB*rxnB).dot(rxnB));
+                pe::Vector3 rxn_a = r_a.cross(ci.n);
+                pe::Vector3 rxn_b = r_b.cross(ci.n);
+                ci.n_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
+                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             //// tangent denom 
             {
-                pe::Vector3 rxnA = rA.cross(ci.t0);
-                pe::Vector3 rxnB = rB.cross(ci.t0);
-                ci.t0DenomInv = 1.0/(invMassSum + (worldInvInertiaA*rxnA).dot(rxnA) + (worldInvInertiaB*rxnB).dot(rxnB));
+                pe::Vector3 rxn_a = r_a.cross(ci.t0);
+                pe::Vector3 rxn_b = r_b.cross(ci.t0);
+                ci.t0_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
+                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             {
-                pe::Vector3 rxnA = rA.cross(ci.t1);
-                pe::Vector3 rxnB = rB.cross(ci.t1);
-                ci.t1DenomInv = 1.0/(invMassSum + (worldInvInertiaA*rxnA).dot(rxnA) + (worldInvInertiaB*rxnB).dot(rxnB));
+                pe::Vector3 rxn_a = r_a.cross(ci.t1);
+                pe::Vector3 rxn_b = r_b.cross(ci.t1);
+                ci.t1_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
+                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
             }
 
-
-            const pe::Vector3 velA = _body_a->getLinearVelocity() + _body_a->getAngularVelocity().cross(rA);
-            const pe::Vector3 velB = _body_b->getLinearVelocity() + _body_b->getAngularVelocity().cross(rB);
+            const pe::Vector3 vel_a = _body_a->getLinearVelocity() + _body_a->getAngularVelocity().cross(r_a);
+            const pe::Vector3 vel_b = _body_b->getLinearVelocity() + _body_b->getAngularVelocity().cross(r_b);
 
             //// normal rhs
             {
-                pe::Real revVelR = -ci.n.dot(velA-velB);
-                // if(velR > - param.restitutionVelocityThreshold)
-                if(std::abs(revVelR) < param.restitutionVelocityThreshold)
-                    revVelR = 0;
-                revVelR *= _contact_result.getRestitutionCoeff();
+                pe::Real rev_vel_r = -ci.n.dot(vel_a - vel_b);
+                if (std::abs(rev_vel_r) < param.restitutionVelocityThreshold) {
+                    rev_vel_r = 0;
+                }
+                rev_vel_r *= _contact_result.getRestitutionCoeff();
 
                 pe::Real penetration = cp.getDistance();
-                if(penetration < -param.penetrationThreshold)
-                    penetration = -param.penetrationThreshold;
-                if(param.splitPenetrationConstraintFlag){
-                    ci.nRhs = revVelR * ci.nDenomInv;
-                    ci.nPenetrationRhs = - param.kerp * penetration / param.dt * ci.nDenomInv;
-                }else{
-                    ci.nRhs = (revVelR - param.kerp * penetration / param.dt) * ci.nDenomInv;
-                    ci.nPenetrationRhs = 0;
+                penetration = std::max(penetration, -param.penetrationThreshold);
+                if (param.splitPenetrationConstraintFlag) {
+                    ci.n_rhs = rev_vel_r * ci.n_denom_inv;
+                    ci.n_penetration_rhs = - param.kerp * penetration / param.dt * ci.n_denom_inv;
+                } else {
+                    ci.n_rhs = (rev_vel_r - param.kerp * penetration / param.dt) * ci.n_denom_inv;
+                    ci.n_penetration_rhs = 0;
                 }
             }
 
-            ci.nAppliedImpulse = 0;
-            ci.nAppliedPenetrationImpulse = 0;
-            ci.t0AppliedImpulse = 0;
-            ci.t1AppliedImpulse = 0;
-            ci.frictionCoeff = _contact_result.getFrictionCoeff();
+            ci.n_applied_impulse = 0;
+            ci.n_applied_penetration_impulse = 0;
+            ci.t0_applied_impulse = 0;
+            ci.t1_applied_impulse = 0;
+            ci.friction_coeff = _contact_result.getFrictionCoeff();
         }
     }
 
     void FrictionContactConstraint::afterSequentialImpulse() {
-        for(int i = 0; i < _cis.size(); i++){
+        for(int i = 0; i < (int)_cis.size(); i++){
             const ConstraintInfo& ci = _cis[i];
-            _contact_result.getContactPoint(i).setImpulse(ci.nAppliedImpulse * ci.n);
+            _contact_result.getContactPoint(i).setImpulse(ci.n_applied_impulse * ci.n);
         }
     }
 
     void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
-        const int size = _cis.size();
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < (int)_cis.size(); i++) {
             ConstraintInfo& ci = _cis[i];
-            const pe::Vector3& rA = ci.rA;
-            const pe::Vector3& rB = ci.rB;
+            const pe::Vector3& r_a = ci.r_a;
+            const pe::Vector3& r_b = ci.r_b;
             const pe::Vector3& n = ci.n;
             const pe::Vector3& t0 = ci.t0;
             const pe::Vector3& t1 = ci.t1;
-            const pe::Vector3 velR = (_body_a->getTempLinearVelocity() + _body_a->getTempAngularVelocity().cross(rA))
-                    - (_body_b->getTempLinearVelocity() + _body_b->getTempAngularVelocity().cross(rB));
+            const pe::Vector3 vel_r = (_body_a->getTempLinearVelocity() +
+                    _body_a->getTempAngularVelocity().cross(r_a))
+                    - (_body_b->getTempLinearVelocity()
+                    + _body_b->getTempAngularVelocity().cross(r_b));
 
             //// compute impulse
-            pe::Real nImpulse = ci.nRhs - n.dot(velR) * ci.nDenomInv;
-            // nImpulse = std::max(nImpulse, -ci.nAppliedImpulse);
-            if(nImpulse < -ci.nAppliedImpulse){
-                nImpulse = -ci.nAppliedImpulse;
-            }
+            pe::Real n_impulse = ci.n_rhs - n.dot(vel_r) * ci.n_denom_inv;
+            n_impulse = std::max(n_impulse, -ci.n_applied_impulse);
+            ci.n_applied_impulse += n_impulse;
 
-            ci.nAppliedImpulse += nImpulse;
-
-            //// TODO: fix me: incorrect coulomb cone(2 direction)
+            // TODO: fix it: incorrect coulomb cone(2 direction)
 #           define PE_USE_COULOMB_CONE true
 #           if PE_USE_COULOMB_CONE
                 //// compute impulse
-                pe::Real t0TotalImpulse = ci.t0AppliedImpulse -t0.dot(velR) * ci.t0DenomInv;
-                const pe::Real maxFriction = ci.frictionCoeff * ci.nAppliedImpulse;
-                pe::Real t1TotalImpulse = ci.t1AppliedImpulse -t1.dot(velR) * ci.t1DenomInv;
+                pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
+                pe::Real max_friction = ci.friction_coeff * ci.n_applied_impulse;
+                pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
 
-                // const Real maxFriction = ci.frictionCoeff * ci.nAppliedImpulse;
-                t0TotalImpulse = std::min(t0TotalImpulse, maxFriction);
-                t1TotalImpulse = std::min(t1TotalImpulse, maxFriction);
-                t0TotalImpulse = std::max(t0TotalImpulse, -maxFriction);
-                t1TotalImpulse = std::max(t1TotalImpulse, -maxFriction);
+                t0_total_impulse = std::min(t0_total_impulse, max_friction);
+                t1_total_impulse = std::min(t1_total_impulse, max_friction);
+                t0_total_impulse = std::max(t0_total_impulse, -max_friction);
+                t1_total_impulse = std::max(t1_total_impulse, -max_friction);
 #           else
-                Real t0TotalImpulse = ci.t0AppliedImpulse -t0.dot(velR) * ci.t0DenomInv;
-                Real t1TotalImpulse = ci.t1AppliedImpulse -t1.dot(velR) * ci.t1DenomInv;
-                const Real scale = ci.frictionCoeff * ci.nAppliedImpulse / sqrtr(t0TotalImpulse * t0TotalImpulse + t1TotalImpulse * t1TotalImpulse);
+                pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
+                pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
+                pe::Real scale = ci.friction_coeff * ci.n_applied_impulse / std::sqrt(t0_total_impulse * t0_total_impulse + t1_total_impulse * t1_total_impulse);
                 if(scale < 1) {
-                    t0TotalImpulse *= scale;
-                    t1TotalImpulse *= scale;
+                    t0_total_impulse *= scale;
+                    t1_total_impulse *= scale;
                 }
 #           endif
 
-            const pe::Vector3 impulseVector = nImpulse*n + (t0TotalImpulse - ci.t0AppliedImpulse)*t0 + (t1TotalImpulse - ci.t1AppliedImpulse)*t1;
+            const pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
+                    (t1_total_impulse - ci.t1_applied_impulse) * t1;
 
-            ci.t0AppliedImpulse = t0TotalImpulse;
-            ci.t1AppliedImpulse = t1TotalImpulse;
+            ci.t0_applied_impulse = t0_total_impulse;
+            ci.t1_applied_impulse = t1_total_impulse;
 
-            _body_a->applyTempImpulse(rA, impulseVector);
-            _body_b->applyTempImpulse(rB, -impulseVector);
+            _body_a->applyTempImpulse(r_a, impulse_vector);
+            _body_b->applyTempImpulse(r_b, -impulse_vector);
+            std::cout << "impulse_vector: " << iter << impulse_vector << std::endl; //TODO: find the bug upwind
         }
     }
 
     void FrictionContactConstraint::iterateSequentialImpulseForPenetration(int iter) {
-        int size = _cis.size();
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < (int)_cis.size(); i++){
             ConstraintInfo& ci = _cis[i];
             const pe::Vector3& n = ci.n;
-            const pe::Vector3 velR = (_body_a->getPenetrationLinearVelocity() + _body_a->getPenetrationAngularVelocity().cross(ci.rA))
-                    - (_body_b->getPenetrationLinearVelocity() + _body_b->getPenetrationAngularVelocity().cross(ci.rB));
+            const pe::Vector3 vel_r = (_body_a->getPenetrationLinearVelocity() +
+                    _body_a->getPenetrationAngularVelocity().cross(ci.r_a))
+                    - (_body_b->getPenetrationLinearVelocity() +
+                    _body_b->getPenetrationAngularVelocity().cross(ci.r_b));
 
             //// compute impulse
-            pe::Real tempImpulse = (ci.nPenetrationRhs - n.dot(velR) * ci.nDenomInv);
+            pe::Real temp_impulse = (ci.n_penetration_rhs - n.dot(vel_r) * ci.n_denom_inv);
 
             //// clamp impulse, if it causes negative total impulse
-            if(tempImpulse < -ci.nAppliedPenetrationImpulse){
-                tempImpulse = -ci.nAppliedPenetrationImpulse;
+            if(temp_impulse < -ci.n_applied_penetration_impulse){
+                temp_impulse = -ci.n_applied_penetration_impulse;
             }
 
             // apply impulse
-            ci.nAppliedPenetrationImpulse += tempImpulse;
-            const pe::Vector3 impulseVector = tempImpulse * n;
+            ci.n_applied_penetration_impulse += temp_impulse;
+            const pe::Vector3 impulse_vector = temp_impulse * n;
 
-            _body_a->applyPenetrationImpulse(ci.rA, impulseVector);
-            _body_b->applyPenetrationImpulse(ci.rB, -impulseVector);
+            _body_a->applyPenetrationImpulse(ci.r_a, impulse_vector);
+            _body_b->applyPenetrationImpulse(ci.r_b, -impulse_vector);
         }
     }
 
     void FrictionContactConstraint::warmStart() {
-        for(int i = 0; i < _cis.size(); i++){
+        for(int i = 0; i < (int)_cis.size(); i++) {
             pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
-            ci.nAppliedImpulse = cp.getImpulse().dot(ci.n) * 0.9;
-            _body_a->applyTempImpulse(ci.rA, ci.nAppliedImpulse * ci.n);
-            _body_b->applyTempImpulse(ci.rB, -ci.nAppliedImpulse * ci.n);
+            ci.n_applied_impulse = cp.getImpulse().dot(ci.n) * 0.9;
+            _body_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
+            _body_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
         }
     }
     

@@ -20,10 +20,10 @@ namespace pe_phys_collision {
 
     class BoxBoxCollisionAlgorithm : public CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::CollisionBody* body_a, pe_phys_object::CollisionBody* body_b,
+        virtual bool processCollision(pe_phys_object::CollisionObject* object_a, pe_phys_object::CollisionObject* object_b,
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;
 
-        static void getClosestPoints(pe_phys_object::CollisionBody* body_a, pe_phys_object::CollisionBody* body_b,
+        static void getClosestPoints(pe_phys_object::CollisionObject* object_a, pe_phys_object::CollisionObject* object_b,
                                      ContactResult& result);
 
         static void dLineClosestApproach(const pe::Vector3& pa, const pe::Vector3& ua,

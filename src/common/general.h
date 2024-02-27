@@ -34,9 +34,9 @@ COMMON_FORCE_INLINE unsigned long long COMMON_GetTickCount() {
 #endif
 }
 #ifdef _WIN32
-#define COMMON_Sleep(t) Sleep(t)
+#define COMMON_Sleep(t) Sleep((t) > 0 ? (t) : 0)
 #elif defined LINUX
-#define COMMON_Sleep(t) usleep(t * 1000)
+#define COMMON_Sleep(t) usleep((t) > 0 ? (t) * 1000 : 0)
 #else
 #define COMMON_Sleep(t)
 #endif

@@ -3,11 +3,10 @@
 #include "phys/phys_general.h"
 #include "common/vector3.h"
 #include "phys/object/collision_object.h"
-#include "phys/object/rigidbody.h"
-#include "phys/collision/broad_phase/broad_phase.h"
-#include "phys/collision/narrow_phase/narrow_phase.h"
+#include "phys/collision/broad_phase/broad_phase_base.h"
+#include "phys/collision/narrow_phase/narrow_phase_base.h"
 #include "phys/constraint/constraint/constraint.h"
-#include "phys/constraint/constraint_solver.h"
+#include "phys/constraint/solver/solver.h"
 
 namespace pe_core {
 
@@ -20,17 +19,18 @@ namespace pe_core {
         pe::Array<pe_phys_constraint::Constraint*> _constraints;
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
-        pe_phys_constraint::ConstraintSolver* _constraint_solver;
+        pe_phys_constraint::Solver* _constraint_solver;
 
         void updateAABBs();
-        void updateCollisionObjects();
+        void updateObjectStatus();
         void applyExternalForce();
 
     public:
         World();
         ~World();
 
-        void addCollisionObject(pe_phys_object::CollisionObject* cb);
+        const std::vector<pe_phys_object::CollisionObject*>& getCollisionObjects() const { return _collision_objects; }
+        void addCollisionObject(pe_phys_object::CollisionObject* collision_object);
         void step();
     };
 
