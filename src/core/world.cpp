@@ -1,5 +1,4 @@
 #include "world.h"
-#include "common/thread_pool.h"
 #include "phys/constraint/solver/sequential_impulse_solver.h"
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"

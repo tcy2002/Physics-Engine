@@ -10,9 +10,9 @@ namespace pe_core {
     protected:
         pe::HashMap<int, simple_viewer::ObjType> _obj_map;
 
-        static simple_viewer::Vector3 convertVector3(pe::Vector3 vector);
-        static simple_viewer::Matrix3 convertMatrix3(pe::Matrix3 matrix);
-        static simple_viewer::Transform convertTransform(pe::Transform transform);
+        static common::Vector3<float> convertVector3(pe::Vector3 vector);
+        static common::Matrix3x3<float> convertMatrix3(pe::Matrix3 matrix);
+        static common::Transform<float> convertTransform(pe::Transform transform);
 
     public:
         static void open();

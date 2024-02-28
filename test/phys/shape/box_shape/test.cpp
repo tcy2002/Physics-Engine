@@ -1,5 +1,4 @@
 #include "phys/shape/box_shape.h"
-#include "common/eigen_std.h"
 #include "test_general.h"
 
 using namespace pe_phys_shape;

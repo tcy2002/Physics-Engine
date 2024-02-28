@@ -1,7 +1,7 @@
 /**
  * @brief A singleton, single-window, reopenable OpenGL viewer
  *
- * Supported objects: Mesh, Cube, Cylinder, Cone, Line(Strips), TODO: Text(Ascii)
+ * Supported objects: common::Mesh<float>, Cube, Cylinder, Cone, Line(Strips), TODO: Text(Ascii)
  *
  * @axis
  * - Consistent with OpenGL, i.e. x is right, y is up, z is backward.
@@ -35,8 +35,17 @@
 
 #pragma once
 
-#include "public_include.h"
 #include <vector>
+#include "common/mesh.h"
+#include "common/vector3.h"
+#include "common/matrix3x3.h"
+#include "common/transform.h"
+
+#ifdef _MSC_VER
+#define SV_API _declspec(dllexport)
+#else
+#define SV_API
+#endif
 
 namespace simple_viewer {
 
@@ -71,17 +80,17 @@ namespace simple_viewer {
         ObjType type = ObjType::OBJ_NONE;
         bool dynamic = false;
         union {
-            Mesh mesh;
-            Vector3 size;
-            std::vector<Vector3> line;
+            common::Mesh<float> mesh;
+            common::Vector3<float> size;
+            std::vector<float> line;
         };
-        ObjInitParam(ObjType _type, bool _dynamic, Mesh _mesh):                 // NOLINT
+        ObjInitParam(ObjType _type, bool _dynamic, common::Mesh<float> _mesh):  // NOLINT
                 type(_type), dynamic(_dynamic), mesh(std::move(_mesh)) {}
         ObjInitParam(ObjType _type, bool _dynamic, float x, float y, float z):  // NOLINT
                 type(_type), dynamic(_dynamic), size({ x, y, z }) {}
         ObjInitParam(ObjType _type, bool _dynamic, float radius, float height): // NOLINT
                 type(_type), dynamic(_dynamic), size({ radius, height, 0 }) {}
-        ObjInitParam(ObjType _type, bool _dynamic, std::vector<Vector3> _line): // NOLINT
+        ObjInitParam(ObjType _type, bool _dynamic, std::vector<float> _line): // NOLINT
                 type(_type), dynamic(_dynamic), line(std::move(_line)) {}
         ~ObjInitParam() { /* no effect but non-trivial */ }                     // NOLINT
     };
@@ -92,23 +101,23 @@ namespace simple_viewer {
         int obj_id = -1;
         int obj_type = ObjType::OBJ_NONE;
         union {
-            Transform transform;
-            Vector3 vec;
-            Mesh mesh;
-            std::vector<Vector3> line;
+            common::Transform<float> transform;
+            common::Vector3<float> vec;
+            common::Mesh<float> mesh;
+            std::vector<float> line;
             float line_width;
         };
-        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, const Transform& _transform): // NOLINT
+        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, const common::Transform<float>& _transform): // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), transform(_transform) {}
-        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, const Vector3& color):        // NOLINT
+        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, const common::Vector3<float>& color):        // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec(color) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float x, float y, float z):   // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec({ x, y, z }) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float radius, float height):  // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec({ radius, height, 0 }) {}
-        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, Mesh _mesh):                  // NOLINT
+        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, common::Mesh<float> _mesh):   // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), mesh(std::move(_mesh)) {}
-        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, std::vector<Vector3> _line):  // NOLINT
+        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, std::vector<float> _line):    // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), line(std::move(_line)) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float _line_width):           // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), line_width(_line_width) {}
@@ -146,7 +155,7 @@ namespace simple_viewer {
      * @param yaw in radians
      * @param pitch in radians
      */
-    SV_API void setCamera(const Vector3& position, float yaw, float pitch);
+    SV_API void setCamera(const common::Vector3<float>& position, float yaw, float pitch);
     /**
      * @brief Make the camera movable or stationary
      * @param move whether movable or not

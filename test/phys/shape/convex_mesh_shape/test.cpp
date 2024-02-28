@@ -1,5 +1,5 @@
+#include <fstream>
 #include "phys/shape/convex_mesh_shape.h"
-#include "common/eigen_std.h"
 #include "test_general.h"
 
 using namespace pe_phys_shape;
@@ -165,7 +165,7 @@ void testConstruct() {
     auto& mesh = meshShape.getMesh();
     ASSERT_EQUAL_INT(mesh.vertices.size(), 80)
     ASSERT_EQUAL_INT(mesh.faces.size(), 42)
-    meshToObj(mesh, SHAPE_TEST_SOURCE_DIR "/convex_mesh_shape/mesh.obj");
+    meshToObj(mesh, CURRENT_TEST_SOURCE_DIR "/mesh.obj");
 }
 
 void testAABB() {

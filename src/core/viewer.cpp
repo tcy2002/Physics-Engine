@@ -5,22 +5,22 @@ namespace pe_core {
 
     std::thread* viewer_thread = nullptr;
 
-    simple_viewer::Vector3 Viewer::convertVector3(pe::Vector3 vector) {
-        return simple_viewer::Vector3((float)vector.x, (float)vector.y, (float)vector.z);
+    common::Vector3<float> Viewer::convertVector3(pe::Vector3 vector) {
+        return common::Vector3<float>((float)vector.x, (float)vector.y, (float)vector.z);
     }
 
-    simple_viewer::Matrix3 Viewer::convertMatrix3(pe::Matrix3 matrix) {
-        return simple_viewer::Matrix3((float)matrix[0][0], (float)matrix[0][1], (float)matrix[0][2],
-                                      (float)matrix[1][0], (float)matrix[1][1], (float)matrix[1][2],
-                                      (float)matrix[2][0], (float)matrix[2][1], (float)matrix[2][2]);
+    common::Matrix3x3<float> Viewer::convertMatrix3(pe::Matrix3 matrix) {
+        return common::Matrix3x3<float>((float)matrix[0][0], (float)matrix[0][1], (float)matrix[0][2],
+                                        (float)matrix[1][0], (float)matrix[1][1], (float)matrix[1][2],
+                                        (float)matrix[2][0], (float)matrix[2][1], (float)matrix[2][2]);
     }
 
-    simple_viewer::Transform Viewer::convertTransform(pe::Transform transform) {
-        return simple_viewer::Transform(convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin()));
+    common::Transform<float> Viewer::convertTransform(pe::Transform transform) {
+        return common::Transform<float>(convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin()));
     }
 
     void Viewer::open() {
-        simple_viewer::setCamera(simple_viewer::Vector3(0, 0, 10), 0, 0);
+        simple_viewer::setCamera(common::Vector3<float>(0, 0, 10), 0, 0);
         viewer_thread = new std::thread([]{ simple_viewer::open("ViewerTest", 800, 600); });
     }
 
