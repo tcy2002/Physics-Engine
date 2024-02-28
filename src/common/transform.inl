@@ -1,31 +1,31 @@
-template<typename Scalar>
+template <typename Scalar>
 Vector3<Scalar> Transform<Scalar>::operator*(const Vector3<Scalar>& v) const {
     return _basis * v + _origin;
 }
 
-template<typename Scalar>
+template <typename Scalar>
 Transform<Scalar> Transform<Scalar>::operator*(const Transform<Scalar>& t) const {
     return {_basis * t._basis, _basis * t._origin + _origin};
 }
 
-template<typename Scalar>
+template <typename Scalar>
 Transform<Scalar>& Transform<Scalar>::operator*=(const Transform<Scalar>& t) {
     _origin += _basis * t._origin;
     _basis *= t._basis;
     return *this;
 }
 
-template<typename Scalar>
+template <typename Scalar>
 Vector3<Scalar> Transform<Scalar>::getAxis(int axis) const {
     return {_basis[0][axis], _basis[1][axis], _basis[2][axis]};
 }
 
-template<typename Scalar>
+template <typename Scalar>
 void Transform<Scalar>::setRotation(const Vector3<Scalar>& axis, Scalar angle) {
     _basis.setRotation(axis, angle);
 }
 
-template<typename Scalar>
+template <typename Scalar>
 void Transform<Scalar>::setEulerRotation(Scalar x, Scalar y, Scalar z, RotType type) {
     Matrix3x3<Scalar> mat_y, mat_z;
     _basis.setRotation(Vector3<Scalar>::right(), x);
@@ -53,35 +53,35 @@ void Transform<Scalar>::setEulerRotation(Scalar x, Scalar y, Scalar z, RotType t
     }
 }
 
-template<typename Scalar>
+template <typename Scalar>
 void Transform<Scalar>::setTranslation(const Vector3<Scalar>& translation) {
     _origin = translation;
 }
 
-template<typename Scalar>
+template <typename Scalar>
 void Transform<Scalar>::invert() {
     _basis.transpose();
     _origin = -_basis * _origin;
 }
 
-template<typename Scalar>
+template <typename Scalar>
 Transform<Scalar> Transform<Scalar>::inverse() const {
     auto new_basis = _basis.transposed();
     return {new_basis, -new_basis * _origin};
 }
 
-template<typename Scalar>
+template <typename Scalar>
 Vector3<Scalar> Transform<Scalar>::inverseTransform(const Vector3<Scalar>& v) const {
     return _basis.transposed() * (v - _origin);
 }
 
-template<typename Scalar>
+template <typename Scalar>
 const Transform<Scalar>& Transform<Scalar>::identity() {
     static Transform<Scalar> identity;
     return identity;
 }
 
-template<typename Scalar>
+template <typename Scalar>
 std::ostream &operator<<(std::ostream& os, const Transform<Scalar>& t) {
     os << "[" << t.getBasis() << std::endl << t.getOrigin() << "]";
     return os;

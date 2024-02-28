@@ -65,7 +65,7 @@ namespace pe_phys_constraint {
                 penetration = std::max(penetration, -param.penetrationThreshold);
                 if (param.splitPenetrationConstraintFlag) {
                     ci.n_rhs = rev_vel_r * ci.n_denom_inv;
-                    ci.n_penetration_rhs = - param.kerp * penetration / param.dt * ci.n_denom_inv;
+                    ci.n_penetration_rhs = -param.kerp * penetration / param.dt * ci.n_denom_inv;
                 } else {
                     ci.n_rhs = (rev_vel_r - param.kerp * penetration / param.dt) * ci.n_denom_inv;
                     ci.n_penetration_rhs = 0;
@@ -83,7 +83,7 @@ namespace pe_phys_constraint {
     void FrictionContactConstraint::afterSequentialImpulse() {
         for(int i = 0; i < (int)_cis.size(); i++){
             const ConstraintInfo& ci = _cis[i];
-            _contact_result.getContactPoint(i).setImpulse(ci.n_applied_impulse * ci.n);
+            _contact_result.getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
         }
     }
 
@@ -135,7 +135,6 @@ namespace pe_phys_constraint {
 
             _body_a->applyTempImpulse(r_a, impulse_vector);
             _body_b->applyTempImpulse(r_b, -impulse_vector);
-            std::cout << "impulse_vector: " << iter << impulse_vector << std::endl; //TODO: find the bug upwind
         }
     }
 
@@ -169,7 +168,7 @@ namespace pe_phys_constraint {
         for(int i = 0; i < (int)_cis.size(); i++) {
             pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
-            ci.n_applied_impulse = cp.getImpulse().dot(ci.n) * 0.9;
+            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
             _body_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
             _body_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
         }

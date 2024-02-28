@@ -9,7 +9,8 @@ namespace pe_phys_collision {
         for (auto& pair : pairs) {
             ContactResult result;
             pe::Vector3 overlap_min, overlap_max;
-            if (alg->processCollision(pair.first, pair.second, result, overlap_min, overlap_max)) {
+            if (alg->processCollision(pair.first, pair.second, result,
+                                      overlap_min, overlap_max)) {
                 _contact_results.push_back(result);
             }
         }

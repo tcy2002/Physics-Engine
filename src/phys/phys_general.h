@@ -41,7 +41,7 @@ namespace pe {
 #define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
 
 //// math
-#define PE_EPS 1e-4
+#define PE_EPS 1e-5
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
 #define PE_PI 3.14159265358979323846
 

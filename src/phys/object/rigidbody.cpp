@@ -44,20 +44,20 @@ namespace pe_phys_object {
     void RigidBody::applyTempImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
         if (isKinematic()) return;
         _temp_linear_velocity += impulse * _inv_mass;
-        _temp_angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
+        _temp_angular_velocity += _world_inv_inertia * world_point.cross(impulse);
     }
 
     void RigidBody::applyImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
         // TODO: use lock?
         if (isKinematic()) return;
         _linear_velocity += impulse * _inv_mass;
-        _angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
+        _angular_velocity += _world_inv_inertia * world_point.cross(impulse);
     }
 
     void RigidBody::applyPenetrationImpulse(const pe::Vector3 &world_point, const pe::Vector3 &impulse) {
         if (isKinematic()) return;
         _penetration_linear_velocity += impulse * _inv_mass;
-        _penetration_angular_velocity += _world_inv_inertia * (world_point - _transform.getOrigin()).cross(impulse);
+        _penetration_angular_velocity += _world_inv_inertia * world_point.cross(impulse);
     }
 
     void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &force) {

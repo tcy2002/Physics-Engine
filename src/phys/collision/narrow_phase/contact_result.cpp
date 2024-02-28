@@ -34,16 +34,16 @@ namespace pe_phys_collision {
         _local_pos_a(pe::Vector3::zeros()),
         _local_pos_b(pe::Vector3::zeros()),
         _distance(0.),
-        _impulse(pe::Vector3::zeros()) {}
+        _applied_impulse(pe::Vector3::zeros()) {}
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
-                               const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b):
+                               const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance):
         _world_pos(world_pos),
         _world_normal(world_normal),
         _local_pos_a(local_pos_a),
         _local_pos_b(local_pos_b),
-        _distance(0.),
-        _impulse(pe::Vector3::zeros()) {
+        _distance(distance),
+        _applied_impulse(pe::Vector3::zeros()) {
         _tangents.resize(4);
         getOrthoUnits(world_normal, _tangents[0], _tangents[1]);
         _tangents[2] = -_tangents[0];
@@ -58,7 +58,8 @@ namespace pe_phys_collision {
         _point_size(0),
         _swap_flag(false) {}
 
-    void ContactResult::setObjects(pe_phys_object::CollisionObject *object_a, pe_phys_object::CollisionObject *object_b) {
+    void ContactResult::setObjects(pe_phys_object::CollisionObject *object_a,
+                                   pe_phys_object::CollisionObject *object_b) {
         _object_a = object_a;
         _object_b = object_b;
         _friction_coeff = std::sqrt(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
@@ -72,15 +73,17 @@ namespace pe_phys_collision {
         _swap_flag = false;
     }
 
-    void ContactResult::addContactPoint(pe::Vector3 world_normal, pe::Vector3 world_pos, pe::Real depth) {
-        world_normal.normalize();
+    void ContactResult::addContactPoint(const pe::Vector3& world_normal,
+                                        const pe::Vector3& world_pos, pe::Real depth) {
         pe::Vector3 point_a = world_pos;
         pe::Vector3 point_b = world_pos;
+        pe::Vector3 n = world_normal;
         pe::Vector3 point = world_pos;
 
         if (_swap_flag) {
-            world_normal = -world_normal;
+            n = -n;
             point_b = world_pos + world_normal * depth;
+            point = point_b;
         } else {
             point_a = world_pos + world_normal * depth;
         }
@@ -92,29 +95,30 @@ namespace pe_phys_collision {
         int cp_idx = getExistingClosestPoint(local_pos_b);
         if (cp_idx >= 0) {
             // if found, update the contact point info
-            _points[cp_idx] = ContactPoint(world_pos, world_normal, local_pos_a, local_pos_b);
+            _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
         } else {
             // otherwise, find an empty slot and replace it
             for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
                 if (!_points[i].isValid()) {
-                    _points[i] = ContactPoint(world_pos, world_normal, local_pos_a, local_pos_b);
+                    _points[i] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+                    _points[i].setAppliedImpulse(pe::Vector3::zeros());
                     break;
                 }
             }
         }
     }
 
-    void ContactResult::editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real depth) {
+    void ContactResult::editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real distance) {
         _points[index].setWorldNormal(normal);
-        _points[index].setDistance(depth);
+        _points[index].setDistance(distance);
         _points[index].setWorldPos(world_pos);
-
         _points[index].setLocalPosA(_object_a->getTransform().inverseTransform(world_pos));
         _points[index].setLocalPosB(_object_b->getTransform().inverseTransform(world_pos));
     }
 
     void ContactResult::sortContactPoints() {
-        std::sort(_points, _points + PE_CONTACT_MAX_POINTS, [](const ContactPoint& a, const ContactPoint& b) {
+        std::sort(_points, _points + PE_CONTACT_MAX_POINTS,
+                  [](const ContactPoint& a, const ContactPoint& b) {
             return a.getDistance() < b.getDistance();
         });
         for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {

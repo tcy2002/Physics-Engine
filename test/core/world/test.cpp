@@ -24,26 +24,34 @@ void testWorld() {
     pe_core::Viewer viewer;
     pe_core::Viewer::open();
 
-    auto rb1 = createRigidBody(pe::Vector3(0, -3, 0), pe::Vector3(40, 2, 40));
-    auto rb2 = createRigidBody(pe::Vector3(0, 3, 0), pe::Vector3(2, 2, 2));
+    auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(5, 1, 5));
+    auto rb2 = createRigidBody(pe::Vector3(0, 2.5, 0), pe::Vector3(1, 1, 1));
+    auto rb3 = createRigidBody(pe::Vector3(0, 5.5, 0), pe::Vector3(1, 1, 1));
     rb1->setKinematic(true);
-    pe::Matrix3 rot;
-    rot.setRotation(pe::Vector3(1, 0, 0).normalized(), M_PI / 6);
-    rb2->setTransform(pe::Transform(rot, pe::Vector3(0, 3, 0)));
     world->addCollisionObject(rb1);
     world->addCollisionObject(rb2);
+    world->addCollisionObject(rb3);
 
-    int id1 = viewer.addCube(pe::Vector3(40, 2, 40));
-    viewer.updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.7));
+    int id1 = viewer.addCube(pe::Vector3(5, 1, 5));
+    viewer.updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     viewer.updateCubeTransform(id1, rb1->getTransform());
-    int id2 = viewer.addCube(pe::Vector3(2, 2, 2));
-    viewer.updateCubeColor(id2, pe::Vector3(0.7, 0.3, 0.3));
+    int id2 = viewer.addCube(pe::Vector3(1, 1, 1));
+    viewer.updateCubeColor(id2, pe::Vector3(0.8, 0.3, 0.3));
+    viewer.updateCubeTransform(id2, rb2->getTransform());
+    int id3 = viewer.addCube(pe::Vector3(1, 1, 1));
+    viewer.updateCubeColor(id3, pe::Vector3(0.8, 0.3, 0.3));
+    viewer.updateCubeTransform(id3, rb3->getTransform());
 
+    int frame = 0, th = 500;
     while (pe_core::Viewer::getKeyState('q') != 0) {
+        frame++;
+        if (frame > th) while (pe_core::Viewer::getKeyState('e') != 0);
         auto t = COMMON_GetTickCount();
         world->step();
         viewer.updateCubeTransform(id2, rb2->getTransform());
+        viewer.updateCubeTransform(id3, rb3->getTransform());
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
+        if (frame > th) while (pe_core::Viewer::getKeyState('e') == 0);
     }
 
     pe_core::Viewer::close();

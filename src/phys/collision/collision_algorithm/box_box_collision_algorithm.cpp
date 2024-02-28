@@ -3,44 +3,69 @@
 
 namespace pe_phys_collision {
 
+#   define dDOTpq(a, b, p, q) ((a)[0] * (b)[0] + (a)[p] * (b)[q] + (a)[2 * (p)] * (b)[2 * (q)])
+#   define dMULTIPLY0_331(A, B, C) {   \
+		(A)[0] = dDOT41((B), (C));     \
+		(A)[1] = dDOT41((B + 4), (C)); \
+		(A)[2] = dDOT41((B + 8), (C)); \
+	}
+#   define dMULTIPLY1_331(A, B, C) {   \
+		(A)[0] = dDOT41((B), (C));     \
+		(A)[1] = dDOT41((B + 1), (C)); \
+		(A)[2] = dDOT41((B + 2), (C)); \
+	}
+
+    static pe::Real dDOT(const pe::Real* a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 1); }
+    static pe::Real dDOT44(const pe::Real* a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 4); }
+    static pe::Real dDOT14(const pe::Real* a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 4); }
+    static pe::Real dDOT41(const pe::Real* a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 1); }
+    static pe::Real dDOT(const pe::Vector3& a, const pe::Real* b) { return dDOTpq(a, b, 1, 1); }
+    static pe::Real dDOT44(const pe::Vector3& a, const pe::Real* b) { return dDOTpq(a, b, 4, 4); }
+    static pe::Real dDOT14(const pe::Vector3& a, const pe::Real* b) { return dDOTpq(a, b, 1, 4); }
+    static pe::Real dDOT41(const pe::Vector3& a, const pe::Real* b) { return dDOTpq(a, b, 4, 1); }
+    static pe::Real dDOT(const pe::Real* a, const pe::Real* b) { return dDOTpq(a, b, 1, 1); }
+    static pe::Real dDOT44(const pe::Real* a, const pe::Real* b) { return dDOTpq(a, b, 4, 4); }
+    static pe::Real dDOT14(const pe::Real* a, const pe::Real* b) { return dDOTpq(a, b, 1, 4); }
+    static pe::Real dDOT41(const pe::Real* a, const pe::Real* b) { return dDOTpq(a, b, 4, 1); }
+    static pe::Real dDOT(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 1); }
+    static pe::Real dDOT44(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 4); }
+    static pe::Real dDOT14(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 4); }
+    static pe::Real dDOT41(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 1); }
+
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::CollisionObject* object_a,
                                                     pe_phys_object::CollisionObject* object_b, ContactResult& result,
                                                     pe::Vector3 overlapMin, pe::Vector3 overlapMax) {
-        getClosestPoints(object_a, object_b, result);
-        result.sortContactPoints();
-        return result.getPointSize() > 0;
-    }
+        const pe::Transform& transform_a = object_a->getTransform();
+        const pe::Transform& transform_b = object_b->getTransform();
 
-    void BoxBoxCollisionAlgorithm::getClosestPoints(pe_phys_object::CollisionObject* object_a,
-                                                    pe_phys_object::CollisionObject* object_b, ContactResult& result) {
-        const pe::Transform transform_a = object_a->getTransform();
-        const pe::Transform transform_b = object_b->getTransform();
-
-        const pe_phys_shape::BoxShape* box_a = dynamic_cast<const pe_phys_shape::BoxShape*>(object_a->getCollisionShape());
-        const pe_phys_shape::BoxShape* box_b = dynamic_cast<const pe_phys_shape::BoxShape*>(object_b->getCollisionShape());
+        auto box_a = (pe_phys_shape::BoxShape*)(object_a->getCollisionShape());
+        auto box_b = (pe_phys_shape::BoxShape*)(object_b->getCollisionShape());
 
         dMatrix3 R1, R2;
         pe::Vector3 normal;
         pe::Real depth;
         int return_code;
         int max_c = 4;
+        pe::Real margin = 0.005;
 
-        for (int j = 0; j < 3; j++)
-        {
-            // TODO: possible matrix transpose
-            R1[0 + 4 * j] = transform_a.getBasis()[j][0];
-            R2[0 + 4 * j] = transform_b.getBasis()[j][0];
-            R1[1 + 4 * j] = transform_a.getBasis()[j][1];
-            R2[1 + 4 * j] = transform_b.getBasis()[j][1];
-            R1[2 + 4 * j] = transform_a.getBasis()[j][2];
-            R2[2 + 4 * j] = transform_b.getBasis()[j][2];
+        auto basis_a = transform_a.getBasis();
+        auto basis_b = transform_b.getBasis();
+        for (int j = 0; j < 3; j++) {
+            R1[0 + 4 * j] = basis_a[j][0];
+            R2[0 + 4 * j] = basis_b[j][0];
+            R1[1 + 4 * j] = basis_a[j][1];
+            R2[1 + 4 * j] = basis_b[j][1];
+            R1[2 + 4 * j] = basis_a[j][2];
+            R2[2 + 4 * j] = basis_b[j][2];
         }
 
-        // TODO: check whether use margin or not
         result.setObjects(object_a, object_b);
         dBoxBox2(transform_a.getOrigin(), R1, box_a->getSize(),
                  transform_b.getOrigin(), R2, box_b->getSize(),
-                 normal, 0, depth, return_code, max_c, result);
+                 normal, margin, depth, return_code, max_c, result);
+
+        result.sortContactPoints();
+        return result.getPointSize() > 0;
     }
 
     void BoxBoxCollisionAlgorithm::dLineClosestApproach(const pe::Vector3& pa, const pe::Vector3& ua,
@@ -95,7 +120,7 @@ namespace pe_phys_collision {
                     if ((sign * pq[dir] < h[dir]) ^ (sign * next_q[dir] < h[dir])) {
                         // this line crosses the chopping line
                         pr[1 - dir] = pq[1 - dir] + (next_q[1 - dir] - pq[1 - dir]) /
-                                                    (next_q[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
+                                (next_q[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
                         pr[dir] = sign * h[dir];
                         pr += 2;
                         nr++;
@@ -131,13 +156,13 @@ namespace pe_phys_collision {
             cx = 0;
             cy = 0;
             for (i = 0; i < (n - 1); i++) {
-                const pe::Real p0 = p[i * 2], p1 = p[i * 2 + 1], p2 = p[i * 2 + 2], p3 = p[i * 2 + 3];
+                pe::Real p0 = p[i * 2], p1 = p[i * 2 + 1], p2 = p[i * 2 + 2], p3 = p[i * 2 + 3];
                 q = p0 * p3 - p2 * p1;
                 a += q;
                 cx += q * (p0 + p2);
                 cy += q * (p1 + p3);
             }
-            const pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
+            pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
             q = pm2 * p1 - p0 * pm1;
             if (std::abs(a + q) > PE_EPS) {
                 a = 1.f / (3.0 * (a + q));
@@ -185,10 +210,10 @@ namespace pe_phys_collision {
                                            pe::Vector3& normal, pe::Real margin, pe::Real& depth, int& return_code,
                                            int max_c, ContactResult& result) {
         const pe::Real fudge_factor = 1.05;
-        pe::Vector3 p ,pp, normalC{0,0,0};;
+        pe::Vector3 p, pp, normalC{0,0,0};
         const pe::Real* normalR = 0;
         pe::Real A[3], B[3], R11, R12, R13, R21, R22, R23, R31, R32, R33,
-                Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l, l2, lin_v;
+                Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
         int i, j, invert_normal, code;
 
         // get vector from centers of box 1 to box 2, relative to box 1
@@ -261,22 +286,21 @@ namespace pe_phys_collision {
         // note: cross product axes need to be scaled when s is computed.
         // normal (n1,n2,n3) is relative to box 1.
 #       undef TST
-#       define TST(expr1, expr2, n1, n2, n3, cc)                 \
-	        s2 = std::abs(expr1) - (expr2);                      \
-	        if (s2 > PE_EPS) return 0;                           \
-	        l2 = ((n1) * (n1) + (n2) * (n2) + (n3) * (n3));      \
-	        if (l2 > PE_EPS * PE_EPS) {                          \
-		        lin_v = 1.0 / std::sqrt(l2);                     \
-	        	s2 *= lin_v;                                     \
-		        if (s2 * fudge_factor > s) {                     \
-                    s = s2;                                      \
-			        normalR = 0;                                 \
-			        normalC[0] = (n1) * lin_v;                   \
-			        normalC[1] = (n2) * lin_v;                   \
-			        normalC[2] = (n3) * lin_v;                   \
-			        invert_normal = ((expr1) < 0);               \
-			        code = (cc);                                 \
-		        }                                                \
+#       define TST(expr1, expr2, n1, n2, n3, cc)                    \
+	        s2 = std::abs(expr1) - (expr2);                         \
+	        if (s2 > PE_EPS) return 0;                              \
+	        l = std::sqrt((n1) * (n1) + (n2) * (n2) + (n3) * (n3)); \
+	        if (l > PE_EPS) {                                       \
+	        	s2 /= l;                                        \
+		        if (s2 * fudge_factor > s) {                        \
+                    s = s2;                                         \
+			        normalR = 0;                                    \
+			        normalC[0] = (n1) / l;                      \
+			        normalC[1] = (n2) / l;                      \
+			        normalC[2] = (n3) / l;                      \
+			        invert_normal = ((expr1) < 0);                  \
+			        code = (cc);                                    \
+		        }                                                   \
 	        }
 
 #       define fudge2 1.0e-5f
@@ -341,7 +365,7 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = (dDOT14(normal, R1 + j) > 0) ? pe::Real(1.0) : pe::Real(-1.0);
+                sign = (dDOT14(normal, R1 + j) > 0) ? 1.0 : -1.0;
                 pa[0] += sign * A[j] * R1[0 * 4 + j];
                 pa[1] += sign * A[j] * R1[1 * 4 + j];
                 pa[2] += sign * A[j] * R1[2 * 4 + j];
@@ -351,7 +375,7 @@ namespace pe_phys_collision {
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = (dDOT14(normal, R2 + j) > 0) ? pe::Real(-1.0) : pe::Real(1.0);
+                sign = (dDOT14(normal, R2 + j) > 0) ? -1.0 : 1.0;
                 pb[0] += sign * B[j] * R2[0 * 4 + j];
                 pb[1] += sign * B[j] * R2[1 * 4 + j];
                 pb[2] += sign * B[j] * R2[2 * 4 + j];
@@ -387,7 +411,8 @@ namespace pe_phys_collision {
 			    result.addContactPoint(-normal, pointInWorld, -*depth+margin*2);
 #           else
                 const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
-                result.addContactPoint(-normVec, pe::Vector3(pb[0], pb[1], pb[2]) + normVec * margin, -depth + margin * 2);
+                result.addContactPoint(-normVec, pe::Vector3(pb[0], pb[1], pb[2]) +
+                                        normVec * margin, -depth + margin * 2);
 #           endif
                 return_code = code;
             }
@@ -401,6 +426,7 @@ namespace pe_phys_collision {
 
         const pe::Real *Ra, *Rb, *pa, *pb, *Sa, *Sb;
         if (code <= 3) {
+            result.setSwapFlag(false);
             Ra = R1;
             Rb = R2;
             pa = &p1[0];
@@ -408,7 +434,7 @@ namespace pe_phys_collision {
             Sa = A;
             Sb = B;
         } else {
-            // swap A and B in output
+            result.setSwapFlag(true);
             Ra = R2;
             Rb = R1;
             pa = &p2[0];
@@ -573,7 +599,8 @@ namespace pe_phys_collision {
                             point[j * 3 + 0] + pa[0],
                             point[j * 3 + 1] + pa[1],
                             point[j * 3 + 2] + pa[2]);
-                    result.addContactPoint(-normVec, pointInWorld + marginVec, -dep[j] + margin * 2);
+                    result.addContactPoint(-normVec, pointInWorld + marginVec,
+                                           -dep[j] + margin * 2);
                 }
             } else {
                 // we have less contacts than we need, so we use them all
@@ -582,7 +609,8 @@ namespace pe_phys_collision {
                             point[j * 3 + 0] + pa[0],
                             point[j * 3 + 1] + pa[1],
                             point[j * 3 + 2] + pa[2]);
-                    result.addContactPoint(normVec, pointInWorld - marginVec, -dep[j] + margin * 2);//// add inverse normal
+                    result.addContactPoint(normVec, pointInWorld - marginVec,
+                                           -dep[j] + margin * 2);//// add inverse normal
                 }
             }
         } else {
@@ -608,9 +636,11 @@ namespace pe_phys_collision {
                 );
 
                 if (code < 4) {
-                    result.addContactPoint(-normVec, posInWorld + marginVec, -dep[i_ret[j]] + margin * 2);
+                    result.addContactPoint(-normVec, posInWorld + marginVec,
+                                           -dep[i_ret[j]] + margin * 2);
                 } else {
-                    result.addContactPoint(normVec, posInWorld - marginVec, -dep[i_ret[j]] + margin * 2);
+                    result.addContactPoint(normVec, posInWorld - marginVec,
+                                           -dep[i_ret[j]] + margin * 2);
                 }
             }
             cnum = max_c;

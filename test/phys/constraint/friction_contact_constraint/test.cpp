@@ -22,11 +22,10 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
 void testFrictionContactConstraint() {
     auto rb1 = createRigidBody(pe::Vector3(0, -1, 0), pe::Vector3(40, 2, 40));
     auto rb2 = createRigidBody(pe::Vector3(0, 0.999, 0), pe::Vector3(2, 2, 2));
-    rb1->setKinematic(true);
     rb2->setLinearVelocity(pe::Vector3(0, -4, 0));
 
     auto np = pe_phys_collision::SimpleNarrowPhase();
-    pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb1, rb2}};
+    pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb2, rb1}};
     np.calcContactResults(pairs);
     auto results = np.getContactResults();
     ASSERT_EQUAL_INT(results.size(), 1)
@@ -35,6 +34,9 @@ void testFrictionContactConstraint() {
     auto fcc = FrictionContactConstraint();
     fcc.setContactResult(results[0]);
     ConstraintParam param{};
+
+    rb1->clearTempVelocity();
+    rb2->clearTempVelocity();
     fcc.initSequentialImpulse(param);
     fcc.warmStart();
     for (int i = 0; i < 8; i++) {
