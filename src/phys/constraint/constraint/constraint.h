@@ -15,11 +15,11 @@ namespace pe_phys_constraint {
 
     class Constraint {
         // TODO: why not use CollisionObject?
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, body_a, BodyA)
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, body_b, BodyB)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, rigidbody_a, RigidBodyA)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, rigidbody_b, RigidBodyB)
 
     public:
-        Constraint(): _body_a(nullptr), _body_b(nullptr) {}
+        Constraint(): _rigidbody_a(nullptr), _rigidbody_b(nullptr) {}
         virtual ~Constraint() {}
 
         // projected gauss seidel

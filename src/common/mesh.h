@@ -23,6 +23,11 @@ namespace common {
         Mesh() = default;
         Mesh(std::vector<Vertex> vs, std::vector<Face> fs):
             vertices(std::move(vs)), faces(std::move(fs)) {}
+
+        static void perFaceNormal(Mesh<Scalar>& mesh);
+        static void perVertexNormal(Mesh<Scalar>& mesh);
     };
+
+    #include "mesh.cpp"
 
 } // namespace common

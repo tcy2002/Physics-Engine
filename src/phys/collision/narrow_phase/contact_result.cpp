@@ -30,7 +30,7 @@ namespace pe_phys_collision {
 
     ContactPoint::ContactPoint():
         _world_pos(PE_VEC_MAX),
-        _world_normal(pe::Vector3::zeros()),
+        _world_normal(pe::Vector3::up()),
         _local_pos_a(pe::Vector3::zeros()),
         _local_pos_b(pe::Vector3::zeros()),
         _distance(0.),

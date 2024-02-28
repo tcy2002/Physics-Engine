@@ -25,8 +25,8 @@ void testWorld() {
     pe_core::Viewer::open();
 
     auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(5, 1, 5));
-    auto rb2 = createRigidBody(pe::Vector3(0, 2.5, 0), pe::Vector3(1, 1, 1));
-    auto rb3 = createRigidBody(pe::Vector3(0, 5.5, 0), pe::Vector3(1, 1, 1));
+    auto rb2 = createRigidBody(pe::Vector3(-0.1, 2.5, 0.1), pe::Vector3(1, 1, 1));
+    auto rb3 = createRigidBody(pe::Vector3(0.1, 5.5, -0.1), pe::Vector3(1, 1, 1));
     rb1->setKinematic(true);
     world->addCollisionObject(rb1);
     world->addCollisionObject(rb2);

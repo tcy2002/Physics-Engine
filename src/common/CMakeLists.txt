@@ -1,3 +1,4 @@
-file(GLOB_RECURSE PE_COMMON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE PE_COMMON_SOURCES
+        logger.cpp thread_pool.cpp)
 
 add_library(PECommon STATIC ${PE_COMMON_SOURCES})

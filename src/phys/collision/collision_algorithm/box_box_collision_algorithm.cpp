@@ -5,9 +5,9 @@ namespace pe_phys_collision {
 
 #   define dDOTpq(a, b, p, q) ((a)[0] * (b)[0] + (a)[p] * (b)[q] + (a)[2 * (p)] * (b)[2 * (q)])
 #   define dMULTIPLY0_331(A, B, C) {   \
-		(A)[0] = dDOT41((B), (C));     \
-		(A)[1] = dDOT41((B + 4), (C)); \
-		(A)[2] = dDOT41((B + 8), (C)); \
+		(A)[0] = dDOT((B), (C));     \
+		(A)[1] = dDOT((B + 4), (C)); \
+		(A)[2] = dDOT((B + 8), (C)); \
 	}
 #   define dMULTIPLY1_331(A, B, C) {   \
 		(A)[0] = dDOT41((B), (C));     \
@@ -46,7 +46,7 @@ namespace pe_phys_collision {
         pe::Real depth;
         int return_code;
         int max_c = 4;
-        pe::Real margin = 0.005;
+        pe::Real margin = 0;
 
         auto basis_a = transform_a.getBasis();
         auto basis_b = transform_b.getBasis();
@@ -589,7 +589,7 @@ namespace pe_phys_collision {
         max_c = std::max(max_c, 1);
 
         const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
-        const pe::Vector3 marginVec = normVec*margin;
+        const pe::Vector3 marginVec = normVec * margin;
 
         if (cnum <= max_c) {
             if (code < 4) {
