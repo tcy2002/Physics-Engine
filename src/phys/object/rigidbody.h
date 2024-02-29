@@ -30,43 +30,39 @@ namespace pe_phys_object {
         COMMON_MEMBER_SET_GET(pe::Real, linear_damping, LinearDamping)
         COMMON_MEMBER_SET_GET(pe::Real, angular_damping, AngularDamping)
 
-    COMMON_MEMBER_GET(pe::Transform, transform, Transform)
+        COMMON_MEMBER_GET(pe::Transform, transform, Transform)
     public:
         void setTransform(const pe::Transform& transform);
 
         COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, angular_velocity, AngularVelocity)
-
-        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
-        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
-
-    private:
-        static std::atomic<uint32_t> _globalIdCounter;
-        pe::Array<uint32_t> _ignore_collision_ids;
-
-    public:
-
-        void computeAABB();
-        pe::Real getAABBScale() const;
-        void addIgnoreCollisionId(uint32_t id) { _ignore_collision_ids.push_back(id); }
-        void removeIgnoreCollisionId(uint32_t id);
-        bool isIgnoreCollisionId(uint32_t id) const;
-
-    protected:
-        COMMON_MEMBER_SET_GET(pe::Vector3, force, Force)
-        COMMON_MEMBER_SET_GET(pe::Vector3, torque, Torque)
-
         COMMON_MEMBER_SET_GET(pe::Vector3, temp_linear_velocity, TempLinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, temp_angular_velocity, TempAngularVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, penetration_linear_velocity, PenetrationLinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, penetration_angular_velocity, PenetrationAngularVelocity)
 
-    public:
-        bool isDeformable() const { return false; }
-        virtual bool isBreakable() const { return false; }
+        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
+        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
+
+        COMMON_MEMBER_GET(pe::Vector3, force, Force)
+        COMMON_MEMBER_GET(pe::Vector3, torque, Torque)
+
+    private:
+        static std::atomic<uint32_t> _globalIdCounter;
+        pe::Array<uint32_t> _ignore_collision_ids;
 
         RigidBody();
         virtual ~RigidBody() { setCollisionShape(0); }
+
+        virtual bool isDeformable() const { return false; }
+        virtual bool isBreakable() const { return false; }
+
+        void computeAABB();
+        pe::Real getAABBScale() const;
+
+        void addIgnoreCollisionId(uint32_t id) { _ignore_collision_ids.push_back(id); }
+        void removeIgnoreCollisionId(uint32_t id);
+        bool isIgnoreCollisionId(uint32_t id) const;
 
         pe::Vector3 getWorldLinearMomentum() const { return _linear_velocity * _mass; }
         pe::Vector3 getWorldAngularMomentum() const { return _world_inertia * _angular_velocity; }

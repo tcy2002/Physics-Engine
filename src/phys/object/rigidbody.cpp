@@ -25,6 +25,32 @@ namespace pe_phys_object {
         updateWorldInertia();
     }
 
+    RigidBody::RigidBody():
+            _global_id(++_globalIdCounter),
+            _kinematic(false),
+            _collision_shape(nullptr),
+            _mass(1.),
+            _inv_mass(1.),
+            _local_inertia(pe::Matrix3::identity()),
+            _local_inv_inertia(pe::Matrix3::identity()),
+            _world_inertia(pe::Matrix3::identity()),
+            _world_inv_inertia(pe::Matrix3::identity()),
+            _friction_coeff(0.5),
+            _restitution_coeff(0.5),
+            _linear_damping(0.),
+            _angular_damping(0.),
+            _transform(pe::Transform::identity()),
+            _linear_velocity(pe::Vector3::zeros()),
+            _angular_velocity(pe::Vector3::zeros()),
+            _force(pe::Vector3::zeros()),
+            _torque(pe::Vector3::zeros()),
+            _temp_linear_velocity(pe::Vector3::zeros()),
+            _temp_angular_velocity(pe::Vector3::zeros()),
+            _penetration_linear_velocity(pe::Vector3::zeros()),
+            _penetration_angular_velocity(pe::Vector3::zeros()) {
+        updateWorldInertia();
+    }
+
     void RigidBody::computeAABB() {
         if (_collision_shape) {
             _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
@@ -56,32 +82,6 @@ namespace pe_phys_object {
             }
         }
         return false;
-    }
-
-    RigidBody::RigidBody():
-            _global_id(++_globalIdCounter),
-            _kinematic(false),
-            _collision_shape(nullptr),
-            _mass(1.),
-            _inv_mass(1.),
-            _local_inertia(pe::Matrix3::identity()),
-            _local_inv_inertia(pe::Matrix3::identity()),
-            _world_inertia(pe::Matrix3::identity()),
-            _world_inv_inertia(pe::Matrix3::identity()),
-            _friction_coeff(0.5),
-            _restitution_coeff(0.5),
-            _linear_damping(0.),
-            _angular_damping(0.),
-            _transform(pe::Transform::identity()),
-            _linear_velocity(pe::Vector3::zeros()),
-            _angular_velocity(pe::Vector3::zeros()),
-            _force(pe::Vector3::zeros()),
-            _torque(pe::Vector3::zeros()),
-            _temp_linear_velocity(pe::Vector3::zeros()),
-            _temp_angular_velocity(pe::Vector3::zeros()),
-            _penetration_linear_velocity(pe::Vector3::zeros()),
-            _penetration_angular_velocity(pe::Vector3::zeros()) {
-        updateWorldInertia();
     }
 
     pe::Vector3 RigidBody::getWorldLinearVelocityAt(const pe::Vector3& world_point) const {
