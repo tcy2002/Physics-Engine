@@ -51,6 +51,7 @@ namespace pe_phys_object {
         static std::atomic<uint32_t> _globalIdCounter;
         pe::Array<uint32_t> _ignore_collision_ids;
 
+    public:
         RigidBody();
         virtual ~RigidBody() { setCollisionShape(0); }
 
