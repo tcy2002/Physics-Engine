@@ -13,8 +13,8 @@
 #define PE_REAL_MAX 1e100
 #define PE_REAL_MIN -1e100
 #else
-#define PE_REAL_MAX __FLT_MAX__
-#define PE_REAL_MIN __FLT_DENORM_MIN__
+#define PE_REAL_MAX 1e100
+#define PE_REAL_MIN -1e100
 #endif
 
 //// geometry types
