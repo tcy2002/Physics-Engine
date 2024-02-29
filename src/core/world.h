@@ -2,7 +2,7 @@
 
 #include "common/vector3.h"
 #include "phys/phys_general.h"
-#include "phys/object/collision_object.h"
+#include "phys/object/rigidbody.h"
 #include "phys/collision/broad_phase/broad_phase_base.h"
 #include "phys/collision/narrow_phase/narrow_phase_base.h"
 #include "phys/constraint/constraint/constraint.h"
@@ -15,7 +15,7 @@ namespace pe_core {
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);
 
     protected:
-        pe::Array<pe_phys_object::CollisionObject*> _collision_objects;
+        pe::Array<pe_phys_object::RigidBody*> _collision_objects;
         pe::Array<pe_phys_constraint::Constraint*> _constraints;
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
@@ -29,8 +29,8 @@ namespace pe_core {
         World();
         ~World();
 
-        const std::vector<pe_phys_object::CollisionObject*>& getCollisionObjects() const { return _collision_objects; }
-        void addCollisionObject(pe_phys_object::CollisionObject* collision_object);
+        const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
+        void addRigidBody(pe_phys_object::RigidBody* rigidbody);
         void step();
     };
 

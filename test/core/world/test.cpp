@@ -17,6 +17,7 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
 }
 
 void testWorld() {
+    int rb_num = 10;
     auto world = new pe_core::World();
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
@@ -24,32 +25,38 @@ void testWorld() {
     pe_core::Viewer viewer;
     pe_core::Viewer::open();
 
-    auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(5, 1, 5));
-    auto rb2 = createRigidBody(pe::Vector3(-0.1, 2.5, 0.1), pe::Vector3(1, 1, 1));
-    auto rb3 = createRigidBody(pe::Vector3(0.1, 5.5, -0.1), pe::Vector3(1, 1, 1));
+    auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(10, 1, 10));
     rb1->setKinematic(true);
-    world->addCollisionObject(rb1);
-    world->addCollisionObject(rb2);
-    world->addCollisionObject(rb3);
+    world->addRigidBody(rb1);
 
-    int id1 = viewer.addCube(pe::Vector3(5, 1, 5));
+    pe::Array<pe_phys_object::RigidBody*> rbs;
+    for (int i = 0; i < rb_num; i++) {
+        auto rb = createRigidBody(pe::Vector3(0, 1 + i * 2, 0), pe::Vector3(1, 1, 1));
+        rbs.push_back(rb);
+        world->addRigidBody(rb);
+    }
+
+    int id1 = viewer.addCube(pe::Vector3(10, 1, 10));
     viewer.updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     viewer.updateCubeTransform(id1, rb1->getTransform());
-    int id2 = viewer.addCube(pe::Vector3(1, 1, 1));
-    viewer.updateCubeColor(id2, pe::Vector3(0.8, 0.3, 0.3));
-    viewer.updateCubeTransform(id2, rb2->getTransform());
-    int id3 = viewer.addCube(pe::Vector3(1, 1, 1));
-    viewer.updateCubeColor(id3, pe::Vector3(0.8, 0.3, 0.3));
-    viewer.updateCubeTransform(id3, rb3->getTransform());
 
-    int frame = 0, th = 500;
+    pe::Array<int> ids;
+    for (int i = 0; i < rb_num; i++) {
+        int id = viewer.addCube(pe::Vector3(1, 1, 1));
+        viewer.updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
+        viewer.updateCubeTransform(id, rbs[i]->getTransform());
+        ids.push_back(id);
+    }
+
+    int frame = 0, th = 5000;
     while (pe_core::Viewer::getKeyState('q') != 0) {
         frame++;
         if (frame > th) while (pe_core::Viewer::getKeyState('e') != 0);
         auto t = COMMON_GetTickCount();
         world->step();
-        viewer.updateCubeTransform(id2, rb2->getTransform());
-        viewer.updateCubeTransform(id3, rb3->getTransform());
+        for (int i = 0; i < rb_num; i++) {
+            viewer.updateCubeTransform(ids[i], rbs[i]->getTransform());
+        }
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
         if (frame > th) while (pe_core::Viewer::getKeyState('e') == 0);
     }

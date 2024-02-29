@@ -1,6 +1,6 @@
 #pragma once
 
-#include "phys/object/collision_object.h"
+#include "phys/object/rigidbody.h"
 #include "phys/shape/shape.h"
 #include "phys/collision/narrow_phase/contact_result.h"
 
@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     class CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::CollisionObject* body_a, pe_phys_object::CollisionObject* body_b,
+        virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) = 0;
 
         static bool isInsideTriangle(const pe::Array<pe::Vector3>& triangle, const pe::Vector3& normal,

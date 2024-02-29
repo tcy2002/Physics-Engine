@@ -32,8 +32,8 @@ namespace pe_phys_collision {
     static pe::Real dDOT14(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 4); }
     static pe::Real dDOT41(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 1); }
 
-    bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::CollisionObject* object_a,
-                                                    pe_phys_object::CollisionObject* object_b, ContactResult& result,
+    bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
+                                                    pe_phys_object::RigidBody* object_b, ContactResult& result,
                                                     pe::Vector3 overlapMin, pe::Vector3 overlapMax) {
         const pe::Transform& transform_a = object_a->getTransform();
         const pe::Transform& transform_b = object_b->getTransform();
@@ -46,7 +46,7 @@ namespace pe_phys_collision {
         pe::Real depth;
         int return_code;
         int max_c = 4;
-        pe::Real margin = 0;
+        pe::Real margin = 0.005;
 
         auto basis_a = transform_a.getBasis();
         auto basis_b = transform_b.getBasis();

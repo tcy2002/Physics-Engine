@@ -41,8 +41,8 @@ namespace pe_core {
         }
     }
 
-    void World::addCollisionObject(pe_phys_object::CollisionObject* collision_object) {
-        _collision_objects.push_back(collision_object);
+    void World::addRigidBody(pe_phys_object::RigidBody* rigidbody) {
+        _collision_objects.push_back(rigidbody);
     }
 
     void World::step() {

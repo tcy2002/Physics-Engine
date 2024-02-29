@@ -58,8 +58,8 @@ namespace pe_phys_collision {
         _point_size(0),
         _swap_flag(false) {}
 
-    void ContactResult::setObjects(pe_phys_object::CollisionObject *object_a,
-                                   pe_phys_object::CollisionObject *object_b) {
+    void ContactResult::setObjects(pe_phys_object::RigidBody *object_a,
+                                   pe_phys_object::RigidBody *object_b) {
         _object_a = object_a;
         _object_b = object_b;
         _friction_coeff = std::sqrt(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());

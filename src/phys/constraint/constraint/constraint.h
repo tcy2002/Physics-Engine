@@ -7,7 +7,7 @@ namespace pe_phys_constraint {
 
     struct ConstraintParam {
         pe::Real dt = 0.01;
-        pe::Real restitutionVelocityThreshold = 0.1;
+        pe::Real restitutionVelocityThreshold = 0.05;
         pe::Real penetrationThreshold = 0.3;
         pe::Real kerp = 0.2;
         int splitPenetrationConstraintFlag = 0;
@@ -15,11 +15,11 @@ namespace pe_phys_constraint {
 
     class Constraint {
         // TODO: why not use CollisionObject?
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, rigidbody_a, RigidBodyA)
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, rigidbody_b, RigidBodyB)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, object_a, ObjectA)
+        COMMON_MEMBER_PTR_SET_GET(pe_phys_object::RigidBody, object_b, ObjectB)
 
     public:
-        Constraint(): _rigidbody_a(nullptr), _rigidbody_b(nullptr) {}
+        Constraint(): _object_a(nullptr), _object_b(nullptr) {}
         virtual ~Constraint() {}
 
         // projected gauss seidel
