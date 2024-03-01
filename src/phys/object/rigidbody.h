@@ -56,7 +56,7 @@ namespace pe_phys_object {
         virtual ~RigidBody() { setCollisionShape(0); }
 
         virtual bool isDeformable() const { return false; }
-        virtual bool isBreakable() const { return false; }
+        virtual bool isFracturable() const { return false; }
 
         void computeAABB();
         pe::Real getAABBScale() const;

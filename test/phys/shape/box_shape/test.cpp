@@ -6,7 +6,7 @@ using namespace pe_phys_shape;
 void testConstruct() {
     BoxShape box(pe::Vector3(1., 2., 3.));
 
-    ASSERT_EQUAL_INT(box.getType(), ShapeType::BOX)
+    ASSERT_EQUAL_INT(box.getType(), ShapeType::Box)
     ASSERT_EQUAL_INT(box.isConvex(), true)
     ASSERT_VECTOR3_EQUAL(box.getSize(), pe::Vector3(1., 2., 3.));
 }

@@ -28,7 +28,7 @@ ASSERT(EQUAL(ao[0][0], bo[0][0]) && EQUAL(ao[0][1], bo[0][1]) && EQUAL(ao[0][2],
 
 #define ASSERT(exp, msg) \
 if (!(exp)) { \
-    COMMON_LOG_ERROR << (msg) << std::endl; \
+    PE_LOG_ERROR << (msg) << std::endl; \
     exit(-1); \
 }
 #define ASSERT_EQUAL(a, b) ASSERT(EQUAL(a, b), "real not equal")

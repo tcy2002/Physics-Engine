@@ -11,7 +11,7 @@ namespace pe_phys_shape {
     public:
         explicit ConvexMeshShape(pe::Mesh mesh);
         virtual ~ConvexMeshShape() override = default;
-        virtual ShapeType getType() const override { return ShapeType::MESH; }
+        virtual ShapeType getType() const override { return ShapeType::ConvexMesh; }
         virtual bool isConvex() const override { return true; }
         virtual void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
         virtual bool isInside(const pe::Transform& transform, const pe::Vector3& point) const override;

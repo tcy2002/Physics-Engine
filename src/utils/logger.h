@@ -6,15 +6,15 @@
 
 //// filename: depends on platform
 #if defined __GNUC__ || defined LINUX
-#define COMMON_FILENAME_ (strrchr(__FILE__, '/') + 1)
+#define PE_FILENAME_ (strrchr(__FILE__, '/') + 1)
 #else
-#define COMMON_FILENAME_ (strrchr(__FILE__, '\\') + 1)
+#define PE_FILENAME_ (strrchr(__FILE__, '\\') + 1)
 #endif
 // weird: when not found, strrchr returns 0x1 instead of NULL
-#define COMMON_FILENAME_STR ((unsigned long long)COMMON_FILENAME_ < 0x2 ? "" : COMMON_FILENAME_)
+#define PE_FILENAME_STR ((unsigned long long)PE_FILENAME_ < 0x2 ? "" : PE_FILENAME_)
 
 //// time str: depends on OS
-COMMON_FORCE_INLINE char* COMMON_GetTimeString() {
+COMMON_FORCE_INLINE char* PE_GetTimeString() {
     static char str[24];
     static struct tm now_time;
     time_t time_seconds = time(0);
@@ -34,19 +34,17 @@ COMMON_FORCE_INLINE char* COMMON_GetTimeString() {
 }
 
 //// log
-extern const char* COMMON_LOG_COLORS[5];
-extern const char* COMMON_LOG_COLOR_RESET;
-#define COMMON_LOG_(type) \
-    std::cout << COMMON_LOG_COLORS[(int)(type)] << \
-    "[" << COMMON_GetTimeString() << "]" \
-    "[" << COMMON_FILENAME_STR << ":" << __LINE__ << "]" << \
-    COMMON_LOG_COLOR_RESET
-#define COMMON_LOG_DEBUG COMMON_LOG_(common::LogType::Debug) << " DEBUG: "
-#define COMMON_LOG_INFO COMMON_LOG_(common::LogType::Info) << " INFO: "
-#define COMMON_LOG_WARN COMMON_LOG_(common::LogType::Warn) << " WARN: "
-#define COMMON_LOG_ERROR COMMON_LOG_(common::LogType::Error) << " ERROR: "
-#define COMMON_LOG_FATAL COMMON_LOG_(common::LogType::Fatal) << " FATAL: "
+extern const char* PE_LOG_COLORS[5];
+extern const char* PE_LOG_COLOR_RESET;
+#define PE_LOG_(type) \
+    std::cout << PE_LOG_COLORS[(int)(type)] << \
+    "[" << PE_GetTimeString() << "]" \
+    "[" << PE_FILENAME_STR << ":" << __LINE__ << "]" << \
+    PE_LOG_COLOR_RESET
+#define PE_LOG_DEBUG PE_LOG_(PE_LogType::Debug) << " DEBUG: "
+#define PE_LOG_INFO PE_LOG_(PE_LogType::Info) << " INFO: "
+#define PE_LOG_WARN PE_LOG_(PE_LogType::Warn) << " WARN: "
+#define PE_LOG_ERROR PE_LOG_(PE_LogType::Error) << " ERROR: "
+#define PE_LOG_FATAL PE_LOG_(PE_LogType::Fatal) << " FATAL: "
 
-namespace utils {
-    enum LogType { Debug = 0, Info, Warn, Error, Fatal };
-} // namespace common
+enum PE_LogType { Debug = 0, Info, Warn, Error, Fatal };

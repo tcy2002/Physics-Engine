@@ -7,7 +7,7 @@ namespace pe_phys_constraint {
 
     struct ConstraintParam {
         pe::Real dt = 0.01;
-        pe::Real restitutionVelocityThreshold = 0.03;
+        pe::Real restitutionVelocityThreshold = 0.05;
         pe::Real penetrationThreshold = 0.3;
         pe::Real kerp = 0.2;
         int splitPenetrationConstraintFlag = 0;

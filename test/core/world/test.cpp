@@ -17,7 +17,7 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
 }
 
 void testWorld() {
-    int rb_num = 10;
+    int rb_num = 3;
     auto world = new pe_core::World();
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
@@ -31,7 +31,7 @@ void testWorld() {
 
     pe::Array<pe_phys_object::RigidBody*> rbs;
     for (int i = 0; i < rb_num; i++) {
-        auto rb = createRigidBody(pe::Vector3(0, 1 + i * 2, 0), pe::Vector3(1, 1, 1));
+        auto rb = createRigidBody(pe::Vector3(0, 1 + i * 1.01, 0), pe::Vector3(1, 1, 1));
         rbs.push_back(rb);
         world->addRigidBody(rb);
     }

@@ -24,6 +24,8 @@ namespace common {
         Mesh(std::vector<Vertex> vs, std::vector<Face> fs):
             vertices(std::move(vs)), faces(std::move(fs)) {}
 
+        bool empty() const { return vertices.empty() || faces.empty(); }
+
         static void perFaceNormal(Mesh<Scalar>& mesh);
         static void perVertexNormal(Mesh<Scalar>& mesh);
     };

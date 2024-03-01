@@ -5,7 +5,7 @@
 namespace pe_phys_shape {
 
     enum ShapeType {
-        BOX, SPHERE, CYLINDER, MESH
+        Box, Sphere, Cylinder, ConvexMesh
     };
 
     class Shape {
