@@ -1,8 +1,8 @@
-add_subdirectory(utils)
+file(GLOB_RECURSE PHYS_SOURCES phys/*.cpp)
 
-add_library(PEngine SHARED core/world.cpp)
-add_library(PESim STATIC core/simulator.cpp)
+add_library(PEngine SHARED core/world.cpp ${PHYS_SOURCES})
 add_library(PEViewer STATIC core/viewer.cpp)
+add_library(PEUtils STATIC utils/logger.cpp utils/thread_pool.cpp)
 
 target_link_libraries(PEViewer PRIVATE
         ${SV_LIB_DIR}/${CMAKE_BUILD_TYPE}/libSimpleViewer.a

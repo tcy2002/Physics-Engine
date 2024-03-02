@@ -72,14 +72,14 @@ private:
 // member pointer getter and setter
 #define COMMON_MEMBER_PTR_SET_GET(T, name, Name) \
 protected: \
-T *_##name; \
+T* _##name = nullptr; \
 public: \
 void set##Name(T *t) { delete _##name; _##name = t; } \
 T* get##Name() const { return _##name; } \
 private:
 #define COMMON_MEMBER_PTR_GET(T, name, Name) \
 protected: \
-T *_##name; \
+T* _##name = nullptr; \
 public: \
 T* get##Name() const { return _##name; } \
 private:

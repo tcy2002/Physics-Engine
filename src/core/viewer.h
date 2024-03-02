@@ -2,7 +2,7 @@
 
 #include "phys/phys_general.h"
 #include "common/mesh.h"
-#include <opengl_viewer.h>
+#include "opengl_viewer.h"
 
 namespace pe_core {
 

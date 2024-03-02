@@ -1,7 +1,4 @@
-#pragma once
-
-#include <vector>
-#include "phys/phys_general.h"
+#include "fracture_utils.h"
 
 namespace pe_phys_fracture {
 
@@ -21,8 +18,8 @@ namespace pe_phys_fracture {
         return pe::Vector3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
     }
 
-    pe::Vector3 average(const std::vector<pe::Vector3>& vecs) {
-        pe::Vector3 sum;
+    pe::Vector3 average(const pe::Array<pe::Vector3>& vecs) {
+        pe::Vector3 sum = pe::Vector3::zeros();
         for (const auto& v : vecs) {
             sum += v;
         }
@@ -47,20 +44,20 @@ namespace pe_phys_fracture {
         pe::Real volume = 0;
         for (size_t i = 0; i < mesh.faces.size(); i++) {
             const pe::Vector3& v0 = mesh.vertices[mesh.faces[i].indices[0]].position;
-            const pe::Vector3& v1 = mesh.vertices[mesh.faces[i].indices[0]].position;
-            const pe::Vector3& v2 = mesh.vertices[mesh.faces[i].indices[1]].position;
+            const pe::Vector3& v1 = mesh.vertices[mesh.faces[i].indices[1]].position;
+            const pe::Vector3& v2 = mesh.vertices[mesh.faces[i].indices[2]].position;
             volume += v0.dot(v1.cross(v2));
         }
         return volume / 6;
     }
 
-    pe::Vector3 calc_approx_mesh_centroid(const std::vector<pe::Vector3>& verts, const std::vector<uint32_t>& indices) {
+    pe::Vector3 calc_approx_mesh_centroid(const pe::Mesh& mesh) {
         pe::Vector3 centroid = pe::Vector3::zeros();
         pe::Real total_area = 0;
-        for (size_t i = 0; i < indices.size(); i += 3) {
-            const pe::Vector3& v0 = verts[indices[i]];
-            const pe::Vector3& v1 = verts[indices[i + 1]];
-            const pe::Vector3& v2 = verts[indices[i + 2]];
+        for (size_t i = 0; i < mesh.faces.size(); i++) {
+            const pe::Vector3& v0 = mesh.vertices[mesh.faces[i].indices[0]].position;
+            const pe::Vector3& v1 = mesh.vertices[mesh.faces[i].indices[1]].position;
+            const pe::Vector3& v2 = mesh.vertices[mesh.faces[i].indices[2]].position;
             pe::Vector3 face_center = (v0 + v1 + v2) / 3;
             pe::Real face_area = v0.cross(v1).dot(v2);
             centroid += face_center * face_area;
@@ -69,8 +66,8 @@ namespace pe_phys_fracture {
         return centroid / total_area;
     }
 
-    void calc_tet_bounding_sphere(const pe::Vector3 v1, const pe::Vector3 v2,
-                                  const pe::Vector3 v3, const pe::Vector3 v4,
+    void calc_tet_bounding_sphere(const pe::Vector3& v1, const pe::Vector3& v2,
+                                  const pe::Vector3& v3, const pe::Vector3& v4,
                                   pe::Vector3& center, pe::Real& radius) {
         pe::Vector3 v1v2 = v2 - v1, v1v3 = v3 - v1, v1v4 = v4 - v1;
         pe::Vector3 v1v2m = (v1 + v2) / 2, v1v3m = (v1 + v3) / 2, v1v4m = (v1 + v4) / 2;
@@ -120,20 +117,7 @@ namespace pe_phys_fracture {
     }
 
     bool are_points_collinear(const pe::Vector3& p1, const pe::Vector3& p2, const pe::Vector3& p3) {
-        return approx_equal((p2 - p1).cross(p3 - p1).norm(), 0);
-    }
-
-    template <typename T>
-    void sort3(T& a, T& b, T& c) {
-        if (a > b) {
-            std::swap(a, b);
-        }
-        if (b > c) {
-            std::swap(b, c);
-        }
-        if (a > b) {
-            std::swap(a, b);
-        }
+        return approx_equal((p1 - p2).cross(p3 - p2).norm(), 0);
     }
 
 } // namespace pe_phys_fracture

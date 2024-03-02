@@ -18,17 +18,20 @@ namespace pe_phys_fracture {
     }
 
     void FractureDataManager::remove_vertex(uint32_t idx) {
-        // TODO: ???
         _vertices.erase_at(idx);
-        for (auto& tri : _triangles) {
+        utils::hash_vector<triangle> new_triangles(FRAC_TRI_INIT(997));
+        for (auto tri : _triangles) {
             for (auto& vert_id : tri.vert_ids) {
                 if (vert_id == idx) {
                     vert_id = -1;
-                } else if (vert_id > idx) {
+                }
+                else if (vert_id > idx) {
                     vert_id--;
                 }
             }
+            new_triangles.push_back(tri);
         }
+        _triangles = new_triangles;
     }
 
     uint32_t FractureDataManager::add_triangle(uint32_t v1, uint32_t v2, uint32_t v3) {
@@ -62,6 +65,7 @@ namespace pe_phys_fracture {
                                          _vertices[v3].pos, _vertices[v4].pos,
                                          center, radius);
         _tetrahedrons.emplace_back(t1, t2, t3, t4, center, radius);
+        return _tetrahedrons.size() - 1;
     }
 
     void FractureDataManager::faces_to_triangles() {
@@ -135,22 +139,21 @@ namespace pe_phys_fracture {
 
         // add vertices
         uint32_t vert_count = mesh.vertices.size();
-        std::vector<uint32_t> vert_ids(vert_count);
+        pe::Array<uint32_t> vert_ids(vert_count);
         for (uint32_t i = 0; i < vert_count; i++) {
             vert_ids[i] = add_vertex(mesh.vertices[i].position, mesh.vertices[i].normal);
         }
 
         // add faces: need to re-add until all triangles are added to face
         uint32_t tri_count = mesh.faces.size();
-        std::vector<bool> tri_added(tri_count, false);
+        pe::Array<bool> tri_added(tri_count, false);
         int num = 0;
         while (num != tri_count) {
             for (uint32_t i = 0; i < tri_count; i++) {
-                !tri_added[i] && (tri_added[i] = add_triangle_to_face(
-                        mesh.faces[i].indices[0],
-                        mesh.faces[i].indices[1],
-                        mesh.faces[i].indices[2]))
-                        && ++num;
+                !tri_added[i] &&
+                (tri_added[i] = add_triangle_to_face(
+                        mesh.faces[i].indices[0], mesh.faces[i].indices[1], mesh.faces[i].indices[2])) &&
+                ++num;
             }
         }
     }
@@ -171,9 +174,9 @@ namespace pe_phys_fracture {
 
         // export triangles
         for (uint32_t i = 0; i < tri_size; i++) {
-            mesh.faces[i].indices[0] = _triangles[i].vert_ids[0];
-            mesh.faces[i].indices[1] = _triangles[i].vert_ids[1];
-            mesh.faces[i].indices[2] = _triangles[i].vert_ids[2];
+            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[0]);
+            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[1]);
+            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[2]);
         }
     }
 

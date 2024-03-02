@@ -4,6 +4,7 @@ hash_vector<T>::hash_vector(uint32_t capacity,
                             std::function<bool(const T&, const T&)> equal) {
     this->capacity = capacity;
     this->hash_func = hash_func;
+    this->equal = equal;
     list.reserve(capacity);
     index_table.resize(capacity);
     for (uint32_t i = 0; i < capacity; ++i) {
@@ -15,6 +16,8 @@ template <typename T>
 hash_vector<T>& hash_vector<T>::operator=(const hash_vector<T>& other) {
     list = other.list;
     capacity = other.capacity;
+    hash_func = other.hash_func;
+    equal = other.equal;
     for (auto p : index_table) {
         while (p != nullptr) {
             auto tmp = p;
@@ -149,7 +152,7 @@ bool hash_vector<T>::erase(const T &item) {
     if (idx == -1) {
         return false;
     }
-    erase(idx);
+    erase_at(idx);
     return true;
 }
 
@@ -187,7 +190,7 @@ bool hash_vector<T>::replace(const T& old_item, const T& new_item) {
     if (idx == -1) {
         return false;
     }
-    return replace(idx, new_item);
+    return replace_at(idx, new_item);
 }
 
 template <typename T>

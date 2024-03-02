@@ -2,7 +2,7 @@
 
 namespace pe_phys_fracture {
 
-    void VoronoiCalculator::add_bounding_box(const std::vector<pe::Vector3>& points) {
+    void VoronoiCalculator::add_bounding_box(const pe::Array<pe::Vector3>& points) {
         // find aabb bounds
         pe::Vector3 min(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX);
         pe::Vector3 max(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN);
@@ -51,11 +51,11 @@ namespace pe_phys_fracture {
         }
     }
 
-    void VoronoiCalculator::generate(const std::vector<pe::Vector3>& points) {
+    void VoronoiCalculator::generate(const pe::Array<pe::Vector3>& points) {
         // generate triangle mesh for all points, using Bowyer-Watson algorithm
         for (auto& point : points) {
             // find all tetrahedrons that don't cater to the Delaunay condition
-            std::vector<uint32_t> bad_tetrahedrons;
+            pe::Array<uint32_t> bad_tetrahedrons;
             uint32_t tet_count = _manager.tetrahedron_count();
             for (uint32_t i = 0; i < tet_count; i++) {
                 auto tet = _manager.get_tetrahedron(i);
@@ -67,12 +67,12 @@ namespace pe_phys_fracture {
             // find all triangles that are part of the boundary of the cavity
             // or should be removed
             utils::hash_vector<uint32_t> good_triangles(FRAC_UINT_INIT(_manager.triangle_count() * 2));
-            std::vector<uint32_t> bad_triangles;
+            pe::Array<uint32_t> bad_triangles;
             for (auto tet_id : bad_tetrahedrons) {
                 auto tet = _manager.get_tetrahedron(tet_id);
                 for (auto tri_id : tet.tri_ids) {
                     if (good_triangles.contains(tri_id)) {
-                        good_triangles.erase_at(tri_id);
+                        good_triangles.erase(tri_id);
                         bad_triangles.push_back(tri_id);
                     } else {
                         good_triangles.push_back(tri_id);
@@ -128,7 +128,7 @@ namespace pe_phys_fracture {
         }
     }
 
-    void VoronoiCalculator::triangulate(const std::vector<pe::Vector3>& points) {
+    void VoronoiCalculator::triangulate(const pe::Array<pe::Vector3>& points) {
         _manager.clear();
         add_bounding_box(points);
         generate(points);
