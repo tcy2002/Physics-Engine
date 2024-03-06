@@ -1,5 +1,5 @@
 #include "world.h"
-#include "phys/constraint/solver/sequential_impulse_solver.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 
@@ -9,7 +9,7 @@ namespace pe_core {
         _gravity(0, -9.8, 0), _dt(0.01),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
-        _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver) {}
+        _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver) {}
 
     World::~World() {
         delete _broad_phase;

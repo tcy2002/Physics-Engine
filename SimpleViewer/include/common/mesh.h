@@ -15,6 +15,7 @@ namespace common {
         struct Face {
             std::vector<uint32_t> indices;
             Vector3<Scalar> normal;
+            Scalar eq;
         };
 
         std::vector<Vertex> vertices;

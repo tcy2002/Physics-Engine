@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fracture_utils/fracture_data_manager.h"
+#include "phys/fracture/fracture_utils/fracture_data_manager.h"
 #include "phys/phys_general.h"
 #include "utils/hash_vector.h"
-#include "fracture_utils/fracture_utils.h"
+#include "phys/fracture/fracture_utils/fracture_utils.h"
 #include <algorithm>
 
 namespace pe_phys_fracture  {

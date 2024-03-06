@@ -2,7 +2,7 @@
 
 #include "voronoi_calculator.h"
 #include "phys/phys_general.h"
-#include "fracture_utils/fracture_utils.h"
+#include "phys/fracture/fracture_utils/fracture_utils.h"
 #include "utils/hash_vector.h"
 
 namespace pe_phys_fracture {

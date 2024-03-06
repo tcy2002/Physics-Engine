@@ -1,4 +1,4 @@
-#include "phys/fracture/fracture_solver.h"
+#include "phys/fracture/fracture_solver/fracture_solver.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 
@@ -6,9 +6,12 @@ using namespace pe_phys_fracture;
 
 void testFracture() {
     FractureSource src;
-    src.type = FractureType::Sphere;
-    src.position = pe::Vector3(3.5, 3.5, 2.5);
-    src.intensity = pe::Vector3(0.5, 0.5, 0.5);
+//    src.type = FractureType::Sphere;
+//    src.position = pe::Vector3(3.5, 3.5, 2.5);
+//    src.intensity = pe::Vector3(0.5, 0.5, 0.5);
+    src.type = FractureType::Cylinder;
+    src.position = pe::Vector3(2, 2, 0);
+    src.intensity = pe::Vector3(0, 0, 1.5);
 
     auto fo = new pe_phys_object::FracturableObject();
     fo->setThreshold(1.0);

@@ -19,6 +19,21 @@ namespace pe_core {
         return common::Transform<float>(convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin()));
     }
 
+    common::Mesh<float> Viewer::convertMesh(const pe::Mesh& mesh) {
+        common::Mesh<float> result;
+        result.vertices.resize(mesh.vertices.size());
+        result.faces.resize(mesh.faces.size());
+        for (int i = 0; i < mesh.vertices.size(); i++) {
+            result.vertices[i].position = convertVector3(mesh.vertices[i].position);
+            result.vertices[i].normal = convertVector3(mesh.vertices[i].normal);
+        }
+        for (int i = 0; i < result.faces.size(); i++) {
+            result.faces[i].indices = mesh.faces[i].indices;
+            result.faces[i].normal = convertVector3(mesh.faces[i].normal);
+        }
+        return result;
+    }
+
     void Viewer::open() {
         simple_viewer::setCamera(common::Vector3<float>(0, 0, 10), 0, 0);
         viewer_thread = new std::thread([]{ simple_viewer::open("ViewerTest", 800, 600); });
@@ -38,14 +53,15 @@ namespace pe_core {
         return simple_viewer::getMouseState(button);
     }
 
-    int Viewer::addCube(pe::Vector3 size) {
-        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(simple_viewer::ObjType::OBJ_CUBE, true,
-                                                          (float)size.x, (float)size.y, (float)size.z));
+    int Viewer::addCube(const pe::Vector3& size) {
+        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+                simple_viewer::ObjType::OBJ_CUBE, true,
+                (float)size.x, (float)size.y, (float)size.z));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CUBE;
         return id;
     }
 
-    void Viewer::updateCubeTransform(int id, pe::Transform transform) {
+    void Viewer::updateCubeTransform(int id, const pe::Transform& transform) {
         if (_obj_map[id] == simple_viewer::ObjType::OBJ_CUBE) {
             simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
@@ -54,7 +70,7 @@ namespace pe_core {
         }
     }
 
-    void Viewer::updateCubeColor(int id, pe::Vector3 color) {
+    void Viewer::updateCubeColor(int id, const pe::Vector3& color) {
         if (_obj_map[id] == simple_viewer::ObjType::OBJ_CUBE) {
             simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
@@ -68,6 +84,41 @@ namespace pe_core {
             simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_DEL,
                     id, simple_viewer::ObjType::OBJ_CUBE));
+            _obj_map.erase(id);
+        }
+    }
+
+    int Viewer::addMesh(const pe::Mesh& mesh) {
+        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+                simple_viewer::ObjType::OBJ_MESH, true,
+                convertMesh(mesh)));
+        _obj_map[id] = simple_viewer::ObjType::OBJ_MESH;
+        return id;
+    }
+
+    void Viewer::updateMeshTransform(int id, const pe::Transform& transform) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
+                    id, simple_viewer::ObjType::OBJ_MESH,
+                    convertTransform(transform)));
+        }
+    }
+
+    void Viewer::updateMeshColor(int id, const pe::Vector3& color) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
+                    id, simple_viewer::ObjType::OBJ_MESH,
+                    convertVector3(color)));
+        }
+    }
+
+    void Viewer::removeMesh(int id) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_DEL,
+                    id, simple_viewer::ObjType::OBJ_MESH));
             _obj_map.erase(id);
         }
     }

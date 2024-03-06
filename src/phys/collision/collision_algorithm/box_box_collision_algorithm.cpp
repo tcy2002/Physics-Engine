@@ -6,13 +6,13 @@ namespace pe_phys_collision {
 #   define dDOTpq(a, b, p, q) ((a)[0] * (b)[0] + (a)[p] * (b)[q] + (a)[2 * (p)] * (b)[2 * (q)])
 #   define dMULTIPLY0_331(A, B, C) {   \
 		(A)[0] = dDOT((B), (C));     \
-		(A)[1] = dDOT((B + 4), (C)); \
-		(A)[2] = dDOT((B + 8), (C)); \
+		(A)[1] = dDOT(((B) + 4), (C)); \
+		(A)[2] = dDOT(((B) + 8), (C)); \
 	}
 #   define dMULTIPLY1_331(A, B, C) {   \
 		(A)[0] = dDOT41((B), (C));     \
-		(A)[1] = dDOT41((B + 1), (C)); \
-		(A)[2] = dDOT41((B + 2), (C)); \
+		(A)[1] = dDOT41(((B) + 1), (C)); \
+		(A)[2] = dDOT41(((B) + 2), (C)); \
 	}
 
     static pe::Real dDOT(const pe::Real* a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 1); }
@@ -35,6 +35,17 @@ namespace pe_phys_collision {
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
                                                     pe_phys_object::RigidBody* object_b, ContactResult& result,
                                                     pe::Vector3 overlapMin, pe::Vector3 overlapMax) {
+        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box ||
+            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
+            return false;
+        }
+        getClosestPoint(object_a, object_b, result);
+        result.sortContactPoints();
+        return result.getPointSize() > 0;
+    }
+
+    void BoxBoxCollisionAlgorithm::getClosestPoint(pe_phys_object::RigidBody* object_a,
+                                                   pe_phys_object::RigidBody* object_b, ContactResult& result) {
         const pe::Transform& transform_a = object_a->getTransform();
         const pe::Transform& transform_b = object_b->getTransform();
 
@@ -63,9 +74,6 @@ namespace pe_phys_collision {
         dBoxBox2(transform_a.getOrigin(), R1, box_a->getSize(),
                  transform_b.getOrigin(), R2, box_b->getSize(),
                  normal, margin, depth, return_code, max_c, result);
-
-        result.sortContactPoints();
-        return result.getPointSize() > 0;
     }
 
     void BoxBoxCollisionAlgorithm::dLineClosestApproach(const pe::Vector3& pa, const pe::Vector3& ua,
@@ -259,15 +267,15 @@ namespace pe_phys_collision {
         // set to a vector relative to body 1. invert_normal is 1 if the sign of
         // the normal should be flipped.
 
-#       define TST(expr1, expr2, norm, cc)      \
-	        s2 = std::abs(expr1) - (expr2);     \
-	        if (s2 > 0) return 0;               \
-	        if (s2 > s) {                       \
-		        s = s2;                         \
-		        normalR = norm;                 \
-		        invert_normal = ((expr1) < 0);  \
-                code = (cc);                    \
-	        }
+#   define TST(expr1, expr2, norm, cc)      \
+        s2 = std::abs(expr1) - (expr2);     \
+        if (s2 > 0) return 0;               \
+        if (s2 > s) {                       \
+            s = s2;                         \
+            normalR = norm;                 \
+            invert_normal = ((expr1) < 0);  \
+            code = (cc);                    \
+        }
 
         s = PE_REAL_MIN;
         invert_normal = 0;
@@ -285,25 +293,25 @@ namespace pe_phys_collision {
 
         // note: cross product axes need to be scaled when s is computed.
         // normal (n1,n2,n3) is relative to box 1.
-#       undef TST
-#       define TST(expr1, expr2, n1, n2, n3, cc)                    \
-	        s2 = std::abs(expr1) - (expr2);                         \
-	        if (s2 > PE_EPS) return 0;                              \
-	        l = std::sqrt((n1) * (n1) + (n2) * (n2) + (n3) * (n3)); \
-	        if (l > PE_EPS) {                                       \
-	        	s2 /= l;                                        \
-		        if (s2 * fudge_factor > s) {                        \
-                    s = s2;                                         \
-			        normalR = 0;                                    \
-			        normalC[0] = (n1) / l;                      \
-			        normalC[1] = (n2) / l;                      \
-			        normalC[2] = (n3) / l;                      \
-			        invert_normal = ((expr1) < 0);                  \
-			        code = (cc);                                    \
-		        }                                                   \
-	        }
+#   undef TST
+#   define TST(expr1, expr2, n1, n2, n3, cc)                    \
+        s2 = std::abs(expr1) - (expr2);                         \
+        if (s2 > PE_EPS) return 0;                              \
+        l = std::sqrt((n1) * (n1) + (n2) * (n2) + (n3) * (n3)); \
+        if (l > PE_EPS) {                                       \
+            s2 /= l;                                            \
+            if (s2 * fudge_factor > s) {                        \
+                s = s2;                                         \
+                normalR = 0;                                    \
+                normalC[0] = (n1) / l;                          \
+                normalC[1] = (n2) / l;                          \
+                normalC[2] = (n3) / l;                          \
+                invert_normal = ((expr1) < 0);                  \
+                code = (cc);                                    \
+            }                                                   \
+        }
 
-#       define fudge2 1.0e-5f
+#   define fudge2 1.0e-5f
 
         Q11 += fudge2;
         Q12 += fudge2;
@@ -317,7 +325,7 @@ namespace pe_phys_collision {
         Q32 += fudge2;
         Q33 += fudge2;
 
-#       undef fudge2
+#   undef fudge2
 
         // separating axis = u1 x (v1,v2,v3)
         TST(pp[2] * R21 - pp[1] * R31, (A[1] * Q31 + A[2] * Q21 + B[1] * Q13 + B[2] * Q12), 0, -R31, R21, 7)
@@ -334,7 +342,7 @@ namespace pe_phys_collision {
         TST(pp[1] * R12 - pp[0] * R22, (A[0] * Q22 + A[1] * Q12 + B[0] * Q33 + B[2] * Q31), -R22, R12, 0, 14)
         TST(pp[1] * R13 - pp[0] * R23, (A[0] * Q23 + A[1] * Q13 + B[0] * Q32 + B[1] * Q31), -R23, R13, 0, 15)
 
-#       undef TST
+#   undef TST
 
         if (!code) return 0;
 

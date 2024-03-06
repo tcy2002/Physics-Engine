@@ -1,17 +1,17 @@
 #pragma once
 
-#include "solver.h"
+#include "constraint_solver.h"
 
 namespace pe_phys_constraint {
 
-    class SequentialImpulseSolver : public Solver {
+    class SequentialImpulseConstraintSolver : public ConstraintSolver {
     private:
         pe::Array<pe_phys_object::RigidBody*> _collision_objects;
         pe::Array<Constraint*> _constraints;
 
     public:
-        SequentialImpulseSolver();
-        virtual ~SequentialImpulseSolver() {};
+        SequentialImpulseConstraintSolver();
+        virtual ~SequentialImpulseConstraintSolver() {};
 
         void setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
                          const pe::Array<pe_phys_collision::ContactResult>& contact_results,

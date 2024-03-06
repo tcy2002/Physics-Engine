@@ -76,6 +76,11 @@ Scalar Vector3<Scalar>::norm() const {
 }
 
 template <typename Scalar>
+Scalar Vector3<Scalar>::norm2() const {
+    return x * x + y * y + z * z;
+}
+
+template <typename Scalar>
 Vector3<Scalar> Vector3<Scalar>::normalized() const {
     return *this / norm();
 }
@@ -98,6 +103,11 @@ Scalar Vector3<Scalar>::dot(const Vector3<Scalar>& v) const {
 template <typename Scalar>
 Vector3<Scalar> Vector3<Scalar>::cross(const Vector3<Scalar>& v) const {
     return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::lerp(const Vector3<Scalar>& v, Scalar t) const {
+    return *this + (v - *this) * t;
 }
 
 template <typename Scalar>

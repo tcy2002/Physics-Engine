@@ -11,6 +11,8 @@ namespace pe_phys_collision {
         virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;
 
+        void getClosestPoint(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
+                                    ContactResult& result);
         static void dLineClosestApproach(const pe::Vector3& pa, const pe::Vector3& ua,
                                          const pe::Vector3& pb, const pe::Vector3& ub,
                                          pe::Real& alpha, pe::Real& beta);

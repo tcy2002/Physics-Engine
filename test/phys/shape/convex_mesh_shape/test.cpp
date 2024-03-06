@@ -159,8 +159,11 @@ const pe::Mesh _cylinder_mesh = { //NOLINT
 void testConstruct() {
     ConvexMeshShape meshShape(_cylinder_mesh);
 
-    ASSERT_EQUAL_INT(meshShape.getType(), ShapeType::MESH)
+    ASSERT_EQUAL_INT(meshShape.getType(), ShapeType::ConvexMesh)
     ASSERT_EQUAL_INT(meshShape.isConvex(), true)
+
+    auto& edges = meshShape.getUniqueEdges();
+    ASSERT_EQUAL_INT(edges.size(), 160)
 
     auto& mesh = meshShape.getMesh();
     ASSERT_EQUAL_INT(mesh.vertices.size(), 80)
@@ -195,27 +198,11 @@ void testAABB() {
 void testIsInside() {
     ConvexMeshShape meshShape(_cylinder_mesh);
 
-    ASSERT_EQUAL(meshShape.isInside(pe::Transform::identity(),
-                                    pe::Vector3(0., 0., 0.)),
+    ASSERT_EQUAL(meshShape.localIsInside(pe::Vector3(0., 0., 0.)),
                  true)
-    ASSERT_EQUAL(meshShape.isInside(pe::Transform::identity(),
-                                    pe::Vector3(0.34, 0.499, 0.34)),
+    ASSERT_EQUAL(meshShape.localIsInside(pe::Vector3(0.34, 0.499, 0.34)),
                  true)
-    ASSERT_EQUAL(meshShape.isInside(pe::Transform::identity(),
-                                    pe::Vector3(0.36, 0.501, 0.36)),
-                 false)
-
-    pe::Transform transform;
-    transform.setRotation({0, 1, 0}, M_PI / 4);
-    transform.setTranslation({2, 2, 2});
-    ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe::Vector3(2., 2., 2.)),
-                 true)
-    ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe::Vector3(2.34, 2.499, 2.34)),
-                 true)
-    ASSERT_EQUAL(meshShape.isInside(transform,
-                                    pe::Vector3(2.36, 2.501, 2.36)),
+    ASSERT_EQUAL(meshShape.localIsInside(pe::Vector3(0.36, 0.501, 0.36)),
                  false)
 }
 

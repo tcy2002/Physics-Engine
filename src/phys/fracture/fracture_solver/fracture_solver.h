@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fracture_calculator.h"
+#include "phys/fracture/fracture_calculator/fracture_calculator.h"
 #include "phys/object/rigidbody.h"
 #include "phys/object/fracturable_object.h"
 

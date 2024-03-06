@@ -6,7 +6,7 @@
 #include "phys/collision/broad_phase/broad_phase_base.h"
 #include "phys/collision/narrow_phase/narrow_phase_base.h"
 #include "phys/constraint/constraint/constraint.h"
-#include "phys/constraint/solver/solver.h"
+#include "phys/constraint/constraint_solver/constraint_solver.h"
 
 namespace pe_core {
 
@@ -19,7 +19,7 @@ namespace pe_core {
         pe::Array<pe_phys_constraint::Constraint*> _constraints;
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
-        pe_phys_constraint::Solver* _constraint_solver;
+        pe_phys_constraint::ConstraintSolver* _constraint_solver;
 
         void updateAABBs();
         void updateObjectStatus();

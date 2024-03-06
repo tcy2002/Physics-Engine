@@ -26,7 +26,7 @@ void testCollisionPair() {
     rb4->computeAABB();
 
     auto bp = new BroadPhaseSweepAndPrune();
-    pe::Array<pe_phys_object::CollisionObject*> collision_objects = {rb1, rb2, rb3, rb4};
+    pe::Array<pe_phys_object::RigidBody*> collision_objects = {rb1, rb2, rb3, rb4};
     bp->calcCollisionPairs(collision_objects);
     auto collision_pairs = bp->getCollisionPairs();
 

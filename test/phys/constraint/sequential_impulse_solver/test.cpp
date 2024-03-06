@@ -1,5 +1,5 @@
 #include "test_general.h"
-#include "phys/constraint/solver/sequential_impulse_solver.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "phys/shape/box_shape.h"
 
@@ -30,7 +30,7 @@ void testFrictionContactConstraint() {
     auto np = pe_phys_collision::SimpleNarrowPhase();
     pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb1, rb2}};
     np.calcContactResults(pairs);
-    auto solver = new SequentialImpulseSolver();
+    auto solver = new SequentialImpulseConstraintSolver();
     solver->setupSolver({rb1, rb2}, np.getContactResults(), {});
     solver->solve();
 

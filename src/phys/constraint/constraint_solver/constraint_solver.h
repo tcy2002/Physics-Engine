@@ -6,13 +6,13 @@
 
 namespace pe_phys_constraint {
 
-    class Solver {
+    class ConstraintSolver {
         COMMON_MEMBER_SET_GET(ConstraintParam, param, Param);
         COMMON_MEMBER_SET_GET(int, iteration, Iteration);
 
     public:
-        Solver(): _param(ConstraintParam()), _iteration(1) {}
-        virtual ~Solver() {}
+        ConstraintSolver(): _param(ConstraintParam()), _iteration(1) {}
+        virtual ~ConstraintSolver() {}
         virtual void setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
                                  const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                                  const pe::Array<Constraint*>& constraints) = 0;

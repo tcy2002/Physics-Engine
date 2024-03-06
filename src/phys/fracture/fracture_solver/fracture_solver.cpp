@@ -51,8 +51,8 @@ namespace pe_phys_fracture {
     }
 
 #define EXPLOSION_RATE 0.125
-#define SPHERE_DENSITY 20
-#define CYLINDER_DENSITY 10
+#define SPHERE_DENSITY 50
+#define CYLINDER_DENSITY 20
 
     void FractureSolver::solve(const pe::Array<FractureSource>& sources) {
         if (_fracturable_object == 0 || sources.empty()) return;
@@ -87,7 +87,7 @@ namespace pe_phys_fracture {
                 int point_count = (int)(impact_radius * SPHERE_DENSITY);
                 for (int i = 0; i < point_count; i++) {
                     auto point = randomSpherePoints(impact_radius) + local_impact_pos;
-                    if (shape->isInside(world_trans, point)) {
+                    if (shape->localIsInside(pe::Transform::identity(), point)) {
                         points.push_back(point);
                     }
                 }
@@ -96,20 +96,20 @@ namespace pe_phys_fracture {
                 pe::Matrix3 rot = from_two_vectors(pe::Vector3(0, 0, 1), direction);
                 int point_count = (int)(impact_radius * CYLINDER_DENSITY);
                 for (int i = 0; i < point_count; i++) {
-                    auto point = rot * randomCylinderPoints(impact_radius / 5, impact_radius * 5) + local_impact_pos;
-                    if (shape->isInside(world_trans, point)) points.push_back(point);
+                    auto point = rot * randomCylinderPoints(impact_radius / 5,
+                                                            impact_radius * 5) + local_impact_pos;
+                    if (shape->localIsInside(pe::Transform::identity(), point)) {
+                        points.push_back(point);
+                    }
                 }
-            } else {
-                return;
-            }
+            } else return;
         }
         if (points.size() <= 2) return;
 
         // calculate intensity for each point
-        auto size = points.size();
         pe::Array<pe::Vector3> forces;
-        forces.assign(size, pe::Vector3::zeros());
-        for (int i = 0; i < size; i++) {
+        forces.assign(points.size(), pe::Vector3::zeros());
+        for (int i = 0; i < points.size(); i++) {
             pe::Vector3 pos = world_trans * points[i];
             for (auto& src : sources) {
                 pe::Real expForce = src.intensity.norm();
@@ -123,9 +123,7 @@ namespace pe_phys_fracture {
         pe::Array<pe::Mesh> fragments;
         _calculator.triangulate(points);
         _calculator.fracture(mesh, fragments);
-        size = fragments.size();
-
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < fragments.size(); i++) {
             if (!fragments[i].empty()) {
                 auto rb = addMesh(fragments[i], world_trans);
                 pe::Vector3 vel = rb->getLinearVelocity();

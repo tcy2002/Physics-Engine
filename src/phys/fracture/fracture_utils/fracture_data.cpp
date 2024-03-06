@@ -15,9 +15,9 @@ namespace pe_phys_fracture {
     }
 
     uint32_t vector3_hash_func(const pe::Vector3& v) {
-        auto x = (uint32_t)std::round(v.x / PE_EPS);
-        auto y = (uint32_t)std::round(v.y / PE_EPS);
-        auto z = (uint32_t)std::round(v.z / PE_EPS);
+        auto x = (uint32_t)(std::round(v.x / PE_EPS));
+        auto y = (uint32_t)(std::round(v.y / PE_EPS));
+        auto z = (uint32_t)(std::round(v.z / PE_EPS));
         return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
     }
 

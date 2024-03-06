@@ -1,15 +1,15 @@
-#include "sequential_impulse_solver.h"
+#include "sequential_impulse_constraint_solver.h"
 #include "phys/constraint/constraint/friction_contact_constraint.h"
 
 namespace pe_phys_constraint {
 
-    SequentialImpulseSolver::SequentialImpulseSolver(): Solver() {
+    SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver(): ConstraintSolver() {
         _iteration = 8;
     }
 
-    void SequentialImpulseSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                              const pe::Array<pe_phys_collision::ContactResult>& contact_results,
-                                              const pe::Array<Constraint*>& constraints) {
+    void SequentialImpulseConstraintSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
+                                                        const pe::Array<pe_phys_collision::ContactResult>& contact_results,
+                                                        const pe::Array<Constraint*>& constraints) {
         _collision_objects = objects;
         for (auto cb : _collision_objects) {
             ((pe_phys_object::RigidBody*)cb)->clearTempVelocity();
@@ -28,7 +28,7 @@ namespace pe_phys_constraint {
         _constraints = contact_constraints;
     }
 
-    void SequentialImpulseSolver::solve() {
+    void SequentialImpulseConstraintSolver::solve() {
         //// solve contact constraints
         for (int i = 0; i < _iteration; i++) {
             for (auto constraint : _constraints) {

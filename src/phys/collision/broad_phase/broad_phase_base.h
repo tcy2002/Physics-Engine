@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     class BroadPhaseBase {
     protected:
-        pe::Array<CollisionPair> _collision_pairs; // TODO
+        pe::Array<CollisionPair> _collision_pairs; // TODO: use pool allocator
 
     public:
         BroadPhaseBase() {}
@@ -20,7 +20,6 @@ namespace pe_phys_collision {
 
     protected:
         virtual bool validateCollisionPair(pe_phys_object::RigidBody*, pe_phys_object::RigidBody*) const;
-        bool testCollisionPair(pe_phys_object::RigidBody*, pe_phys_object::RigidBody*) const;
     };
 
 } // namespace pe_phys_collision

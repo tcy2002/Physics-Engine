@@ -47,27 +47,27 @@ void testAABB() {
 void testIsInside() {
     BoxShape box(pe::Vector3(1., 2., 3.));
 
-    ASSERT_EQUAL(box.isInside(pe::Transform::identity(),
-                              pe::Vector3(0., 0., 0.)),
+    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
+                                   pe::Vector3(0., 0., 0.)),
                  true)
-    ASSERT_EQUAL(box.isInside(pe::Transform::identity(),
-                              pe::Vector3(0.499, 0.999, 1.499)),
+    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
+                                   pe::Vector3(0.499, 0.999, 1.499)),
                  true)
-    ASSERT_EQUAL(box.isInside(pe::Transform::identity(),
-                              pe::Vector3(0.501, 1.001, 1.501)),
+    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
+                                   pe::Vector3(0.501, 1.001, 1.501)),
                  false)
 
     pe::Transform transform;
     transform.setRotation({0, 1, 0}, M_PI / 4);
     transform.setTranslation({2, 2, 2});
-    ASSERT_EQUAL(box.isInside(transform,
-                              pe::Vector3(2., 2., 2.)),
+    ASSERT_EQUAL(box.localIsInside(transform,
+                                   pe::Vector3(2., 2., 2.)),
                  true)
-    ASSERT_EQUAL(box.isInside(transform,
-                              pe::Vector3(1.999 + sqrt(1.999), 2.999, 1.999 + sqrt(1.999) / 2)),
+    ASSERT_EQUAL(box.localIsInside(transform,
+                                   pe::Vector3(1.999 + sqrt(1.999), 2.999, 1.999 + sqrt(1.999) / 2)),
                  true)
-    ASSERT_EQUAL(box.isInside(transform,
-                              pe::Vector3(2.001 + sqrt(2.001), 3.001, 2.001 + sqrt(2.001) / 2)),
+    ASSERT_EQUAL(box.localIsInside(transform,
+                                   pe::Vector3(2.001 + sqrt(2.001), 3.001, 2.001 + sqrt(2.001) / 2)),
                  false)
 }
 
