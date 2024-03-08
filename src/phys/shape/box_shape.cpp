@@ -56,4 +56,19 @@ namespace pe_phys_shape {
         maxPoint = axis * maxProj;
     }
 
+    pe::Matrix3 BoxShape::calcLocalInertia(pe::Real mass) const {
+        pe::Real x2 = _size.x * _size.x;
+        pe::Real y2 = _size.y * _size.y;
+        pe::Real z2 = _size.z * _size.z;
+        return {
+                mass * (y2 + z2) / 12.0, 0, 0,
+                0, mass * (x2 + z2) / 12.0, 0,
+                0, 0, (x2 + y2) / 12.0
+        };
+    }
+
+    pe::Vector3 BoxShape::getLocalCenter() const {
+        return pe::Vector3::zeros();
+    }
+
 }

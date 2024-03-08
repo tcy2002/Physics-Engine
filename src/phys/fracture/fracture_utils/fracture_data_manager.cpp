@@ -133,8 +133,8 @@ namespace pe_phys_fracture {
     }
 
     void FractureDataManager::import_from_mesh(const pe::Mesh &mesh) {
-        // import data from a new mesh, automatically generate faces, simplify
-        // the mesh structure and merge into current mesh.
+        // import data from a new triangle or polygonal mesh,
+        // and automatically merge triangles into polygonal faces
         clear();
 
         // add vertices
@@ -145,15 +145,23 @@ namespace pe_phys_fracture {
         }
 
         // add faces: need to re-add until all triangles are added to face
-        uint32_t tri_count = mesh.faces.size();
+        uint32_t tri_count = 0;
+        for (auto& face : mesh.faces) {
+            tri_count += face.indices.size() - 2;
+        }
         pe::Array<bool> tri_added(tri_count, false);
         int num = 0;
         while (num != tri_count) {
-            for (uint32_t i = 0; i < tri_count; i++) {
-                !tri_added[i] &&
-                (tri_added[i] = add_triangle_to_face(
-                        mesh.faces[i].indices[0], mesh.faces[i].indices[1], mesh.faces[i].indices[2])) &&
-                ++num;
+            int k = 0;
+            for (auto& face : mesh.faces) {
+                for (uint32_t i = 0; i < face.indices.size() - 2; i++) {
+                    !tri_added[k] &&
+                    (tri_added[k++] = add_triangle_to_face(
+                            face.indices[0],
+                            face.indices[i + 1],
+                            face.indices[i + 2])) &&
+                    ++num;
+                }
             }
         }
     }
@@ -161,10 +169,10 @@ namespace pe_phys_fracture {
     void FractureDataManager::export_to_mesh(pe::Mesh &mesh) {
         // export the mesh data into a mesh
         faces_to_triangles();
-        uint32_t vert_size = _vertices.size(), tri_size = _triangles.size();
+        uint32_t vert_size = _vertices.size(), face_size = _faces.size();
 
         mesh.vertices.resize(vert_size);
-        mesh.faces.resize(tri_size);
+        mesh.faces.resize(face_size);
 
         // export vertices
         for (uint32_t i = 0; i < vert_size; i++) {
@@ -173,10 +181,9 @@ namespace pe_phys_fracture {
         }
 
         // export triangles
-        for (uint32_t i = 0; i < tri_size; i++) {
-            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[0]);
-            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[1]);
-            mesh.faces[i].indices.push_back(_triangles[i].vert_ids[2]);
+        for (uint32_t i = 0; i < face_size; i++) {
+            mesh.faces[i].indices = _faces[i].vert_ids;
+            mesh.faces[i].normal = _faces[i].nor;
         }
     }
 

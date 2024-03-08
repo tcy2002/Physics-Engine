@@ -13,15 +13,18 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
 }
 
 void testBoxBox() {
-    auto rb1 = createRigidBody(pe::Vector3(0, 0, 0), pe::Vector3(1, 1, 1));
-    auto rb2 = createRigidBody(pe::Vector3(0, 0.99, 0), pe::Vector3(1, 1, 1));
+    auto rb1 = createRigidBody(pe::Vector3(0, 0.49, 0), pe::Vector3(1, 1, 1));
+    auto rb2 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20));
     auto alg = new BoxBoxCollisionAlgorithm();
     ContactResult result;
     pe::Vector3 overlap_min, overlap_max;
     alg->processCollision(rb1, rb2, result, overlap_min, overlap_max);
+
     std::cout << result.getPointSize() << std::endl;
     for (int i = 0; i < result.getPointSize(); i++) {
         auto& p = result.getContactPoint(i);
+        std::cout << p.getDistance() << " ";
+        std::cout << p.getAppliedImpulse();
         std::cout << p.getWorldPos();
         std::cout << p.getWorldNormal();
         std::cout << p.getLocalPosA();

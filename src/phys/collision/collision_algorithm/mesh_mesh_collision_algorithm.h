@@ -17,21 +17,24 @@ namespace pe_phys_collision {
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;
 
         static void clipHullAgainstHull(const pe::Vector3& separatingNormal1,
-                                        const pe::Mesh& hullA, const pe::Mesh& hullB,
+                                        const pe_phys_shape::ConvexMeshShape* object_a,
+                                        const pe_phys_shape::ConvexMeshShape* object_b,
                                         const pe::Transform& transA, const pe::Transform& transB,
                                         pe::Real minDist, pe::Real maxDist,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
-                                        ContactResult& resultOut);
+                                        pe::Real margin, ContactResult& resultOut);
         static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,
-                                        const pe::Mesh& hullA, const pe::Transform& transA,
+                                        const pe_phys_shape::ConvexMeshShape* object_a,
+                                        const pe::Transform& transA,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
-                                        pe::Real minDist, pe::Real maxDist, ContactResult& resultOut);
+                                        pe::Real minDist, pe::Real maxDist,
+                                        pe::Real margin, ContactResult& resultOut);
         static void clipFace(const VertexArray& pVtxIn, VertexArray& ppVtxOut,
                              const pe::Vector3& planeNormalWS, pe::Real planeEqWS);
         static bool findSeparatingAxis(const pe_phys_shape::ConvexMeshShape* object_a,
                                        const pe_phys_shape::ConvexMeshShape* object_b,
                                        const pe::Transform& transA, const pe::Transform& transB,
-                                       pe::Vector3& sep, ContactResult& resultOut);
+                                       pe::Vector3& sep, pe::Real margin, ContactResult& resultOut);
     };
 
 } // pe_phys_collision

@@ -19,6 +19,8 @@ namespace pe_phys_shape {
         virtual bool localIsInside(const pe::Vector3 &point) const = 0;
         virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                              pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const = 0;
+        virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const = 0;
+        virtual pe::Vector3 getLocalCenter() const = 0;
     };
 
 } // namespace pe_phys_shape

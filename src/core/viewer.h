@@ -8,7 +8,7 @@ namespace pe_core {
 
     class Viewer {
     protected:
-        pe::HashMap<int, simple_viewer::ObjType> _obj_map;
+        static pe::HashMap<int, simple_viewer::ObjType> _obj_map;
 
         static common::Vector3<float> convertVector3(pe::Vector3 vector);
         static common::Matrix3x3<float> convertMatrix3(pe::Matrix3 matrix);
@@ -22,15 +22,15 @@ namespace pe_core {
         static int getKeyState(char key);
         static int getMouseButtonState(int button);
 
-        int addCube(const pe::Vector3& size);
-        void updateCubeTransform(int id, const pe::Transform& transform);
-        void updateCubeColor(int id, const pe::Vector3& color);
-        void removeCube(int id);
+        static int addCube(const pe::Vector3& size);
+        static void updateCubeTransform(int id, const pe::Transform& transform);
+        static void updateCubeColor(int id, const pe::Vector3& color);
+        static void removeCube(int id);
 
-        int addMesh(const pe::Mesh& mesh);
-        void updateMeshTransform(int id, const pe::Transform& transform);
-        void updateMeshColor(int id, const pe::Vector3& color);
-        void removeMesh(int id);
+        static int addMesh(const pe::Mesh& mesh);
+        static void updateMeshTransform(int id, const pe::Transform& transform);
+        static void updateMeshColor(int id, const pe::Vector3& color);
+        static void removeMesh(int id);
     };
 
 } // namespace pe_core

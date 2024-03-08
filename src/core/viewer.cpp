@@ -4,6 +4,7 @@
 namespace pe_core {
 
     std::thread* viewer_thread = nullptr;
+    pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map;
 
     common::Vector3<float> Viewer::convertVector3(pe::Vector3 vector) {
         return common::Vector3<float>((float)vector.x, (float)vector.y, (float)vector.z);
@@ -35,7 +36,7 @@ namespace pe_core {
     }
 
     void Viewer::open() {
-        simple_viewer::setCamera(common::Vector3<float>(0, 0, 10), 0, 0);
+        simple_viewer::setCamera(common::Vector3<float>(0, 10, 20), 0, 3.1415 / 6);
         viewer_thread = new std::thread([]{ simple_viewer::open("ViewerTest", 800, 600); });
     }
 

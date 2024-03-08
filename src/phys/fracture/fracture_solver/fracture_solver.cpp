@@ -12,11 +12,10 @@ namespace pe_phys_fracture {
         for (auto& vert : mesh.vertices) {
             ofs << "v " << vert.position.x << " " << vert.position.y << " " << vert.position.z << "\n";
         }
-        auto size = mesh.faces.size();
-        for (int i = 0; i < size; i++) {
+        for (auto& face: mesh.faces) {
             ofs << "f ";
-            for (int j = 0; j < 3; j++) {
-                ofs << mesh.faces[i].indices[j] + 1 << " ";
+            for (auto i : face.indices) {
+                ofs << i + 1 << " ";
             }
             ofs << "\n";
         }
@@ -45,14 +44,15 @@ namespace pe_phys_fracture {
         rb->setCollisionShape(convexMesh);
         rb->setTransform(trans);
         rb->setMass(calc_mesh_volume(mesh));
+        rb->setLocalInertia(convexMesh->calcLocalInertia(rb->getMass()));
         rb->setFrictionCoeff(0.3);
-        rb->setRestitutionCoeff(0);
+        rb->setRestitutionCoeff(0.8);
         return rb;
     }
 
-#define EXPLOSION_RATE 0.125
-#define SPHERE_DENSITY 50
-#define CYLINDER_DENSITY 20
+#   define EXPLOSION_RATE 0.125
+#   define SPHERE_DENSITY 50
+#   define CYLINDER_DENSITY 20
 
     void FractureSolver::solve(const pe::Array<FractureSource>& sources) {
         if (_fracturable_object == 0 || sources.empty()) return;
@@ -63,7 +63,7 @@ namespace pe_phys_fracture {
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
             mesh = ((pe_phys_shape::ConvexMeshShape*)(shape))->getMesh();
         } else if (shape->getType() == pe_phys_shape::ShapeType::Box) {
-            mesh = _cube_mesh;
+            mesh = _box_mesh;
             auto size = ((pe_phys_shape::BoxShape*)(shape))->getSize();
             for (auto& vert : mesh.vertices) {
                 vert.position.x *= size.x;
@@ -87,7 +87,7 @@ namespace pe_phys_fracture {
                 int point_count = (int)(impact_radius * SPHERE_DENSITY);
                 for (int i = 0; i < point_count; i++) {
                     auto point = randomSpherePoints(impact_radius) + local_impact_pos;
-                    if (shape->localIsInside(pe::Transform::identity(), point)) {
+                    if (shape->localIsInside(point)) {
                         points.push_back(point);
                     }
                 }
@@ -98,7 +98,7 @@ namespace pe_phys_fracture {
                 for (int i = 0; i < point_count; i++) {
                     auto point = rot * randomCylinderPoints(impact_radius / 5,
                                                             impact_radius * 5) + local_impact_pos;
-                    if (shape->localIsInside(pe::Transform::identity(), point)) {
+                    if (shape->localIsInside(point)) {
                         points.push_back(point);
                     }
                 }

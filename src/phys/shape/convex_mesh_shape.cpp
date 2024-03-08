@@ -4,9 +4,12 @@
 #include "utils/hash_vector.h"
 
 namespace pe_phys_shape {
+    // the mesh must be convex, and contains all needed properties of a mesh (vertices, faces, normals, etc.)
     void ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
 
+        // calculate unique edges: each edge is represented by two vertices,
+        // and each edge does not appear more than once in the list
         _unique_edges.clear();
         utils::hash_vector<pe::Vector3> vert_map(_mesh.vertices.size(),
                                                  pe_phys_fracture::vector3_hash_func,
@@ -23,17 +26,17 @@ namespace pe_phys_shape {
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;
-                    _unique_edges.push_back(_mesh.vertices[v0].position);
-                    _unique_edges.push_back(_mesh.vertices[v1].position);
+                    _unique_edges.push_back(_mesh.vertices[v0].position - _mesh.vertices[v1].position);
                 }
             }
         }
 
+        // calculate local center
         _local_center = pe::Vector3::zeros();
-        for (auto& v : vert_map) {
-            _local_center += v;
+        for (auto& v : _mesh.vertices) {
+            _local_center += v.position;
         }
-        _local_center /= (pe::Real)vert_map.size();
+        _local_center /= (pe::Real)_mesh.vertices.size();
     }
 
     pe::Vector3 ConvexMeshShape::localGetSupportVertex(const pe::Vector3 &dir) const {
@@ -90,6 +93,16 @@ namespace pe_phys_shape {
         maxProj += offset;
         minPoint = axis * minProj;
         maxPoint = axis * maxProj;
+    }
+
+    pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {
+        // approximate the mesh as a box
+        pe::Vector3 min = PE_VEC_MAX, max = PE_VEC_MIN;
+        getAABB(pe::Transform(pe::Matrix3::identity(), pe::Vector3::zeros()), min, max);
+        pe::Vector3 size = max - min;
+        pe::Vector3 center = (min + max) * 0.5;
+        // TODO: calculate the inertia of the translated aabb box
+        return pe::Matrix3::identity();
     }
 
 }

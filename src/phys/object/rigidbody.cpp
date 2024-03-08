@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "rigidbody.h"
 
 namespace pe_phys_object {
@@ -16,8 +17,8 @@ namespace pe_phys_object {
     }
 
     void RigidBody::updateWorldInertia() {
-        _world_inertia = _transform.getBasis() * _local_inertia * _transform.getBasis().transposed();
-        _world_inv_inertia = _transform.getBasis() * _local_inv_inertia * _transform.getBasis().transposed();
+        _rot_inertia = _transform.getBasis() * _local_inertia * _transform.getBasis().transposed();
+        _rot_inv_inertia = _transform.getBasis() * _local_inv_inertia * _transform.getBasis().transposed();
     }
 
     void RigidBody::setTransform(const pe::Transform &transform) {
@@ -33,8 +34,8 @@ namespace pe_phys_object {
             _inv_mass(1.),
             _local_inertia(pe::Matrix3::identity()),
             _local_inv_inertia(pe::Matrix3::identity()),
-            _world_inertia(pe::Matrix3::identity()),
-            _world_inv_inertia(pe::Matrix3::identity()),
+            _rot_inertia(pe::Matrix3::identity()),
+            _rot_inv_inertia(pe::Matrix3::identity()),
             _friction_coeff(0.5),
             _restitution_coeff(0.5),
             _linear_damping(0.),
@@ -76,12 +77,9 @@ namespace pe_phys_object {
     }
 
     bool RigidBody::isIgnoreCollisionId(uint32_t id) const {
-        for (auto i : _ignore_collision_ids) {
-            if (i == id) {
-                return true;
-            }
-        }
-        return false;
+        return std::any_of(_ignore_collision_ids.begin(), _ignore_collision_ids.end(), [id](uint32_t i) {
+            return i == id;
+        });
     }
 
     pe::Vector3 RigidBody::getWorldLinearVelocityAt(const pe::Vector3& world_point) const {
@@ -96,7 +94,7 @@ namespace pe_phys_object {
     pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
         pe::Vector3 r = world_point - _transform.getOrigin();
         pe::Vector3 c = r.cross(world_normal);
-        pe::Vector3 vec = (_world_inv_inertia * c).cross(r);
+        pe::Vector3 vec = (_rot_inv_inertia * c).cross(r);
         return _inv_mass + world_normal.dot(vec);
     }
 
@@ -112,23 +110,23 @@ namespace pe_phys_object {
         _penetration_angular_velocity = pe::Vector3::zeros();
     }
 
-    void RigidBody::applyTempImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
+    void RigidBody::applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse) {
         if (isKinematic()) return;
         _temp_linear_velocity += impulse * _inv_mass;
-        _temp_angular_velocity += _world_inv_inertia * world_point.cross(impulse);
+        _temp_angular_velocity += _rot_inv_inertia * world_rel_vec.cross(impulse);
     }
 
-    void RigidBody::applyImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse) {
+    void RigidBody::applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse) {
         // TODO: use lock?
         if (isKinematic()) return;
         _linear_velocity += impulse * _inv_mass;
-        _angular_velocity += _world_inv_inertia * world_point.cross(impulse);
+        _angular_velocity += _rot_inv_inertia * world_rel_vec.cross(impulse);
     }
 
-    void RigidBody::applyPenetrationImpulse(const pe::Vector3 &world_point, const pe::Vector3 &impulse) {
+    void RigidBody::applyPenetrationImpulse(const pe::Vector3 &world_rel_vec, const pe::Vector3 &impulse) {
         if (isKinematic()) return;
         _penetration_linear_velocity += impulse * _inv_mass;
-        _penetration_angular_velocity += _world_inv_inertia * world_point.cross(impulse);
+        _penetration_angular_velocity += _rot_inv_inertia * world_rel_vec.cross(impulse);
     }
 
     void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &force) {
@@ -139,7 +137,7 @@ namespace pe_phys_object {
     void RigidBody::applyForce(pe::Real dt) {
         if (isKinematic()) return;
         _linear_velocity += _force * _inv_mass * dt;
-        _angular_velocity += _world_inv_inertia * (_torque * dt);
+        _angular_velocity += _rot_inv_inertia * (_torque * dt);
         _force = pe::Vector3::zeros();
         _torque = pe::Vector3::zeros();
     }

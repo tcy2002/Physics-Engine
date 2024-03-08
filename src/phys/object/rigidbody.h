@@ -20,8 +20,8 @@ namespace pe_phys_object {
     public:
         void setLocalInertia(const pe::Matrix3& local_inertia);
 
-        COMMON_MEMBER_GET(pe::Matrix3, world_inertia, WorldInertia)
-        COMMON_MEMBER_GET(pe::Matrix3, world_inv_inertia, WorldInvInertia)
+        COMMON_MEMBER_GET(pe::Matrix3, rot_inertia, RotInertia)
+        COMMON_MEMBER_GET(pe::Matrix3, rot_inv_inertia, RotInvInertia)
     protected:
         void updateWorldInertia();
 
@@ -66,7 +66,7 @@ namespace pe_phys_object {
         bool isIgnoreCollisionId(uint32_t id) const;
 
         pe::Vector3 getWorldLinearMomentum() const { return _linear_velocity * _mass; }
-        pe::Vector3 getWorldAngularMomentum() const { return _world_inertia * _angular_velocity; }
+        pe::Vector3 getWorldAngularMomentum() const { return _rot_inertia * _angular_velocity; }
         pe::Vector3 getWorldLinearVelocityAt(const pe::Vector3& world_point) const;
         pe::Real getKineticEnergy();
         pe::Real getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const;
@@ -74,9 +74,9 @@ namespace pe_phys_object {
         void syncTempVelocity();
         void clearTempVelocity();
 
-        void applyTempImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse);
-        void applyImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse);
-        void applyPenetrationImpulse(const pe::Vector3& world_point, const pe::Vector3& impulse);
+        void applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
+        void applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
+        void applyPenetrationImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
 
         void addForce(const pe::Vector3& world_point, const pe::Vector3& force);
         void addCentralForce(const pe::Vector3& force) { _force += force; }

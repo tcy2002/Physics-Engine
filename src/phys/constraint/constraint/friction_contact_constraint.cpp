@@ -26,28 +26,28 @@ namespace pe_phys_constraint {
             ci.t1 = cp.getTangent(1);
 
             const pe::Real inv_mass_sum = _object_a->getInvMass() + _object_b->getInvMass();
-            const pe::Matrix3 world_inv_inertia_a = _object_a->getWorldInvInertia();
-            const pe::Matrix3 world_inv_inertia_b = _object_b->getWorldInvInertia();
+            const pe::Matrix3 rot_inv_inertia_a = _object_a->getRotInvInertia();
+            const pe::Matrix3 rot_inv_inertia_b = _object_b->getRotInvInertia();
 
             //// normal denom
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.n);
                 pe::Vector3 rxn_b = r_b.cross(ci.n);
-                ci.n_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
-                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
+                ci.n_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                                        (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             //// tangent denom
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t0);
                 pe::Vector3 rxn_b = r_b.cross(ci.t0);
-                ci.t0_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
-                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
+                ci.t0_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                                         (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t1);
                 pe::Vector3 rxn_b = r_b.cross(ci.t1);
-                ci.t1_denom_inv = 1.0 / (inv_mass_sum + (world_inv_inertia_a * rxn_a).dot(rxn_a) +
-                        (world_inv_inertia_b * rxn_b).dot(rxn_b));
+                ci.t1_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                                         (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
 
             const pe::Vector3 vel_a = _object_a->getLinearVelocity() + _object_a->getAngularVelocity().cross(r_a);

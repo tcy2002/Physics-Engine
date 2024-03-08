@@ -413,15 +413,9 @@ namespace pe_phys_collision {
 
             {
                 pe::Vector3 pointInWorld;
-#           ifdef USE_CENTER_POINT
-                for (i = 0; i < 3; i++)
-				pointInWorld[i] = (pa[i] + pb[i]) * 0.5;
-			    result.addContactPoint(-normal, pointInWorld, -*depth+margin*2);
-#           else
                 const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
                 result.addContactPoint(-normVec, pe::Vector3(pb[0], pb[1], pb[2]) +
                                         normVec * margin, -depth + margin * 2);
-#           endif
                 return_code = code;
             }
             return 1;
@@ -502,10 +496,10 @@ namespace pe_phys_collision {
             center[1] = pb[1] - pa[1] + sb_lan_r * Rb[1 * 4 + lan_r];
             center[2] = pb[2] - pa[2] + sb_lan_r * Rb[2 * 4 + lan_r];
         } else {
-            const pe::Real sblanr = Sb[lan_r];
-            center[0] = pb[0] - pa[0] - sblanr * Rb[0 * 4 + lan_r];
-            center[1] = pb[1] - pa[1] - sblanr * Rb[1 * 4 + lan_r];
-            center[2] = pb[2] - pa[2] - sblanr * Rb[2 * 4 + lan_r];
+            const pe::Real sb_lan_r = Sb[lan_r];
+            center[0] = pb[0] - pa[0] - sb_lan_r * Rb[0 * 4 + lan_r];
+            center[1] = pb[1] - pa[1] - sb_lan_r * Rb[1 * 4 + lan_r];
+            center[2] = pb[2] - pa[2] - sb_lan_r * Rb[2 * 4 + lan_r];
         }
 
         // find the normal and non-normal axis numbers of the reference box

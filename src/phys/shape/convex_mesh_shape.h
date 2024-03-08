@@ -10,8 +10,8 @@ namespace pe_phys_shape {
     class ConvexMeshShape: public Shape {
     protected:
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
-        COMMON_MEMBER_GET(pe::Vector3, local_center, LocalCenter)
         pe::Array<pe::Vector3> _unique_edges;
+        pe::Vector3 _local_center;
 
     public:
         void setMesh(pe::Mesh mesh);
@@ -26,6 +26,8 @@ namespace pe_phys_shape {
         virtual bool localIsInside(const pe::Vector3& point) const override;
         virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                              pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
+        virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const override;
+        virtual pe::Vector3 getLocalCenter() const override { return _local_center; }
     };
 
 } // namespace pe_phys_shape
