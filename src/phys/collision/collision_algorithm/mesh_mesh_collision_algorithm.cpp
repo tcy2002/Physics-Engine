@@ -23,7 +23,7 @@ namespace pe_phys_collision {
         pe::Real margin = 0.005;
         result.setObjects(object_a, object_b);
 
-        if (!findSeparatingAxis(shape_a, shape_b, transA, transB, sep, margin, result)) {
+        if (!findSeparatingAxis(object_a, object_b, transA, transB, sep, margin, result)) {
             return false;
         }
 
@@ -265,14 +265,16 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool MeshMeshCollisionAlgorithm::findSeparatingAxis(const pe_phys_shape::ConvexMeshShape* object_a,
-                                                        const pe_phys_shape::ConvexMeshShape* object_b,
+    bool MeshMeshCollisionAlgorithm::findSeparatingAxis(const pe_phys_object::RigidBody* object_a,
+                                                        const pe_phys_object::RigidBody* object_b,
                                                         const pe::Transform &transA, const pe::Transform &transB,
                                                         pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
-        auto& mesh_a = object_a->getMesh();
-        auto& mesh_b = object_b->getMesh();
-        const pe::Vector3 c0 = transA * object_a->getLocalCenter();
-        const pe::Vector3 c1 = transB * object_b->getLocalCenter();
+        auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
+        auto shape_b = (pe_phys_shape::ConvexMeshShape*)object_b->getCollisionShape();
+        auto& mesh_a = shape_a->getMesh();
+        auto& mesh_b = shape_b->getMesh();
+        const pe::Vector3 c0 = transA.getOrigin();
+        const pe::Vector3 c1 = transB.getOrigin();
         const pe::Vector3 DeltaC2 = c0 - c1;
 
         pe::Real dMin = PE_REAL_MAX;
@@ -287,7 +289,7 @@ namespace pe_phys_collision {
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(object_a, object_b, transA, transB, faceANormalWS, d, wA, wB)) {
+            if (!testSepAxis(shape_a, shape_b, transA, transB, faceANormalWS, d, wA, wB)) {
                 return false;
             }
 
@@ -308,7 +310,7 @@ namespace pe_phys_collision {
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(object_a, object_b, transA, transB, WorldNormal, d, wA, wB)) {
+            if (!testSepAxis(shape_a, shape_b, transA, transB, WorldNormal, d, wA, wB)) {
                 return false;
             }
 
@@ -325,8 +327,8 @@ namespace pe_phys_collision {
         pe::Vector3 witnessPointA(0, 0, 0), witnessPointB(0, 0, 0);
 
         // Test edges
-        auto& unique_edges_a = object_a->getUniqueEdges();
-        auto& unique_edges_b = object_b->getUniqueEdges();
+        auto& unique_edges_a = shape_a->getUniqueEdges();
+        auto& unique_edges_b = shape_b->getUniqueEdges();
         for (int e0 = 0; e0 < unique_edges_a.size(); e0++) {
             const pe::Vector3 edge0 = unique_edges_a[e0];
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
@@ -343,7 +345,8 @@ namespace pe_phys_collision {
 
                     pe::Real dist;
                     pe::Vector3 wA, wB;
-                    if (!testSepAxis(object_a, object_b, transA, transB, Cross, dist, wA, wB)) {
+                    if (!testSepAxis(shape_a, shape_b, transA, transB,
+                                     Cross, dist, wA, wB)) {
                         return false;
                     }
 

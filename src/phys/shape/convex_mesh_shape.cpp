@@ -1,12 +1,19 @@
 #include "convex_mesh_shape.h"
 #include <algorithm>
 #include "phys/fracture/fracture_utils/fracture_data.h"
+#include "phys/fracture/fracture_utils/fracture_utils.h"
 #include "utils/hash_vector.h"
 
 namespace pe_phys_shape {
-    // the mesh must be convex, and contains all needed properties of a mesh (vertices, faces, normals, etc.)
-    void ConvexMeshShape::setMesh(pe::Mesh mesh) {
+    // the mesh must be convex, and has complete properties (vertices, faces, normals, etc.).
+    // the mesh will be relocated to the centroid of the mesh
+    // returns the relocation vector
+    pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
+        pe::Vector3 centroid = pe_phys_fracture::calc_mesh_centroid(_mesh);
+        for (auto &v: _mesh.vertices) {
+            v.position -= centroid;
+        }
 
         // calculate unique edges: each edge is represented by two vertices,
         // and each edge does not appear more than once in the list
@@ -30,13 +37,9 @@ namespace pe_phys_shape {
                 }
             }
         }
+        _unique_verts = std::move(vert_map.to_vector());
 
-        // calculate local center
-        _local_center = pe::Vector3::zeros();
-        for (auto& v : _mesh.vertices) {
-            _local_center += v.position;
-        }
-        _local_center /= (pe::Real)_mesh.vertices.size();
+        return centroid;
     }
 
     pe::Vector3 ConvexMeshShape::localGetSupportVertex(const pe::Vector3 &dir) const {
@@ -95,14 +98,40 @@ namespace pe_phys_shape {
         maxPoint = axis * maxProj;
     }
 
-    pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {
-        // approximate the mesh as a box
-        pe::Vector3 min = PE_VEC_MAX, max = PE_VEC_MIN;
-        getAABB(pe::Transform(pe::Matrix3::identity(), pe::Vector3::zeros()), min, max);
-        pe::Vector3 size = max - min;
-        pe::Vector3 center = (min + max) * 0.5;
-        // TODO: calculate the inertia of the translated aabb box
-        return pe::Matrix3::identity();
-    }
+#   define INERTIA_ITER 4
 
+    pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {
+        pe::Array<pe::KV<pe::Vector3, pe::Real>> elements;
+        elements.reserve(_unique_verts.size() * INERTIA_ITER + 1);
+
+        pe::Real sum = 0;
+        for (int i = 1; i <= INERTIA_ITER; i++) {
+            pe::Real m = i * i;
+            for (auto& v : _unique_verts) {
+                sum += m;
+                elements.push_back({v * ((pe::Real)i / INERTIA_ITER), m});
+            }
+        }
+
+        pe::Matrix3 inertia = pe::Matrix3::zeros();
+        for (auto& e : elements) {
+            pe::Real x2 = e.first.x * e.first.x;
+            pe::Real y2 = e.first.y * e.first.y;
+            pe::Real z2 = e.first.z * e.first.z;
+            pe::Real xy = e.first.x * e.first.y;
+            pe::Real xz = e.first.x * e.first.z;
+            pe::Real yz = e.first.y * e.first.z;
+            pe::Real m = e.second;
+            inertia[0][0] += m * (y2 + z2);
+            inertia[1][1] += m * (x2 + z2);
+            inertia[2][2] += m * (x2 + y2);
+            inertia[0][1] -= m * xy;
+            inertia[0][2] -= m * xz;
+            inertia[1][2] -= m * yz;
+        }
+        inertia[1][0] = inertia[0][1];
+        inertia[2][0] = inertia[0][2];
+        inertia[2][1] = inertia[1][2];
+        return inertia * (mass / (2 * sum));
+    }
 }

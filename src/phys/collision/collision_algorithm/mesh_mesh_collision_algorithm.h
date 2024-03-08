@@ -31,8 +31,8 @@ namespace pe_phys_collision {
                                         pe::Real margin, ContactResult& resultOut);
         static void clipFace(const VertexArray& pVtxIn, VertexArray& ppVtxOut,
                              const pe::Vector3& planeNormalWS, pe::Real planeEqWS);
-        static bool findSeparatingAxis(const pe_phys_shape::ConvexMeshShape* object_a,
-                                       const pe_phys_shape::ConvexMeshShape* object_b,
+        static bool findSeparatingAxis(const pe_phys_object::RigidBody* object_a,
+                                       const pe_phys_object::RigidBody* object_b,
                                        const pe::Transform& transA, const pe::Transform& transB,
                                        pe::Vector3& sep, pe::Real margin, ContactResult& resultOut);
     };

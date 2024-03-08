@@ -67,8 +67,4 @@ namespace pe_phys_shape {
         };
     }
 
-    pe::Vector3 BoxShape::getLocalCenter() const {
-        return pe::Vector3::zeros();
-    }
-
 }

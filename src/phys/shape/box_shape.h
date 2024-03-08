@@ -21,7 +21,6 @@ namespace pe_phys_shape {
         virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                              pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
         virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const override;
-        virtual pe::Vector3 getLocalCenter() const override;
     };
 
 } // namespace pe_phys_shape

@@ -26,8 +26,8 @@ namespace pe_phys_constraint {
             ci.t1 = cp.getTangent(1);
 
             const pe::Real inv_mass_sum = _object_a->getInvMass() + _object_b->getInvMass();
-            const pe::Matrix3 rot_inv_inertia_a = _object_a->getRotInvInertia();
-            const pe::Matrix3 rot_inv_inertia_b = _object_b->getRotInvInertia();
+            const pe::Matrix3 rot_inv_inertia_a = _object_a->getWorldInvInertia();
+            const pe::Matrix3 rot_inv_inertia_b = _object_b->getWorldInvInertia();
 
             //// normal denom
             {

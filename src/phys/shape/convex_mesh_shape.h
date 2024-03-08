@@ -11,13 +11,13 @@ namespace pe_phys_shape {
     protected:
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
         pe::Array<pe::Vector3> _unique_edges;
-        pe::Vector3 _local_center;
+        pe::Array<pe::Vector3> _unique_verts;
 
     public:
-        void setMesh(pe::Mesh mesh);
+        pe::Vector3 setMesh(pe::Mesh mesh);
         const pe::Array<pe::Vector3>& getUniqueEdges() const { return _unique_edges; }
 
-        explicit ConvexMeshShape(pe::Mesh mesh) { setMesh(std::move(mesh)); }
+        ConvexMeshShape() {}
         virtual ~ConvexMeshShape() override = default;
         virtual ShapeType getType() const override { return ShapeType::ConvexMesh; }
         virtual bool isConvex() const override { return true; }
@@ -27,7 +27,6 @@ namespace pe_phys_shape {
         virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                              pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
         virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const override;
-        virtual pe::Vector3 getLocalCenter() const override { return _local_center; }
     };
 
 } // namespace pe_phys_shape

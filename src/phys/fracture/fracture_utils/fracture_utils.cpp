@@ -42,28 +42,34 @@ namespace pe_phys_fracture {
 
     pe::Real calc_mesh_volume(const pe::Mesh& mesh) {
         pe::Real volume = 0;
-        for (size_t i = 0; i < mesh.faces.size(); i++) {
-            const pe::Vector3& v0 = mesh.vertices[mesh.faces[i].indices[0]].position;
-            const pe::Vector3& v1 = mesh.vertices[mesh.faces[i].indices[1]].position;
-            const pe::Vector3& v2 = mesh.vertices[mesh.faces[i].indices[2]].position;
-            volume += v0.dot(v1.cross(v2));
+        for (auto& face : mesh.faces) {
+            for (int i = 0; i < face.indices.size() - 2; i++) {
+                const pe::Vector3 &v0 = mesh.vertices[face.indices[0]].position;
+                const pe::Vector3 &v1 = mesh.vertices[face.indices[i + 1]].position;
+                const pe::Vector3 &v2 = mesh.vertices[face.indices[i + 2]].position;
+                volume += v0.dot(v1.cross(v2));
+            }
         }
         return volume / 6;
     }
 
-    pe::Vector3 calc_approx_mesh_centroid(const pe::Mesh& mesh) {
+    pe::Vector3 calc_mesh_centroid(const pe::Mesh& mesh) {
         pe::Vector3 centroid = pe::Vector3::zeros();
-        pe::Real total_area = 0;
-        for (size_t i = 0; i < mesh.faces.size(); i++) {
-            const pe::Vector3& v0 = mesh.vertices[mesh.faces[i].indices[0]].position;
-            const pe::Vector3& v1 = mesh.vertices[mesh.faces[i].indices[1]].position;
-            const pe::Vector3& v2 = mesh.vertices[mesh.faces[i].indices[2]].position;
-            pe::Vector3 face_center = (v0 + v1 + v2) / 3;
-            pe::Real face_area = v0.cross(v1).dot(v2);
-            centroid += face_center * face_area;
-            total_area += face_area;
+        pe::Real surface_area = 0;
+        for (auto &f: mesh.faces) {
+            pe::Vector3 face_centroid = pe::Vector3::zeros();
+            pe::Vector3 face_area = pe::Vector3::zeros();
+            for (int i = 0; i < f.indices.size(); i++) {
+                auto &p0 = mesh.vertices[f.indices[i]].position;
+                auto &p1 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
+                face_area += p0.cross(p1);
+                face_centroid += p0;
+            }
+            pe::Real face_area_ = face_area.norm();
+            surface_area += face_area_;
+            centroid += face_centroid / (pe::Real) f.indices.size() * face_area_;
         }
-        return centroid / total_area;
+        return centroid / surface_area;
     }
 
     void calc_tet_bounding_sphere(const pe::Vector3& v1, const pe::Vector3& v2,
