@@ -173,9 +173,11 @@ void testWorld() {
 
     // main loop
     int frame = 0, th = 5000;
-    while (pe_core::Viewer::getKeyState('q') != 0) {
+    while (true) {
         frame++;
-        while (pe_core::Viewer::getKeyState('r') != 0);
+        while (pe_core::Viewer::getKeyState('r') != 0) {
+            if (pe_core::Viewer::getKeyState('q') == 0) goto ret;
+        }
         auto t = COMMON_GetTickCount();
 
 #   ifdef TEST_SINGLE
@@ -191,7 +193,9 @@ void testWorld() {
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
     }
 
+    ret:
     pe_core::Viewer::close();
+    delete world;
 }
 
 int main() {

@@ -3,8 +3,6 @@
 #include "phys/phys_general.h"
 #include "shape.h"
 
-#include <utility>
-
 namespace pe_phys_shape {
 
     class ConvexMeshShape: public Shape {
@@ -12,6 +10,7 @@ namespace pe_phys_shape {
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
         pe::Array<pe::Vector3> _unique_edges;
         pe::Array<pe::Vector3> _unique_verts;
+        pe::Array<pe::Array<uint32_t>> _faces;
 
     public:
         pe::Vector3 setMesh(pe::Mesh mesh);

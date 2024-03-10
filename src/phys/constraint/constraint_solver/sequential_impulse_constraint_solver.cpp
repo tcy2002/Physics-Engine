@@ -1,5 +1,6 @@
 #include "sequential_impulse_constraint_solver.h"
 #include "phys/constraint/constraint/friction_contact_constraint.h"
+#include "utils/thread_pool.h"
 
 namespace pe_phys_constraint {
 
@@ -16,14 +17,27 @@ namespace pe_phys_constraint {
         }
 
         // init contact constraints
-        pe::Array<Constraint*> contact_constraints;
-        for (auto& cr : contact_results) {
+        pe::Array<Constraint*> contact_constraints(contact_results.size());
+#   ifdef PE_MULTI_THREAD
+        utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
+                                   [this, &contact_constraints](const pe_phys_collision::ContactResult& cr,
+                                           int idx){
+                                       auto fcc = new FrictionContactConstraint();
+                                       fcc->setContactResult(cr);
+                                       fcc->initSequentialImpulse(_param);
+                                       fcc->warmStart();
+                                       contact_constraints[idx] = fcc;
+                                   });
+        utils::ThreadPool::join();
+#   else
+        for (int i = 0; i < contact_results.size(); i++) {
             auto fcc = new FrictionContactConstraint();
-            fcc->setContactResult(cr);
+            fcc->setContactResult(contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
-            contact_constraints.push_back(fcc);
+            contact_constraints[i] = fcc;
         }
+#   endif
 
         _constraints = contact_constraints;
     }

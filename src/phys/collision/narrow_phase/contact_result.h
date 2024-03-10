@@ -3,7 +3,7 @@
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
 
-#define PE_CONTACT_MAX_POINTS 4
+#define PE_CONTACT_CACHE_SIZE 16
 
 namespace pe_phys_collision {
 
@@ -46,7 +46,7 @@ namespace pe_phys_collision {
         COMMON_MEMBER_GET(int, point_size, PointSize)
         COMMON_MEMBER_SET_GET(bool, swap_flag, SwapFlag)
 
-        ContactPoint _points[PE_CONTACT_MAX_POINTS];
+        ContactPoint _points[PE_CONTACT_CACHE_SIZE];
 
     public:
         ContactResult();

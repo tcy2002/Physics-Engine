@@ -4,10 +4,12 @@
 #include "phys/fracture/fracture_utils/fracture_utils.h"
 #include "utils/hash_vector.h"
 
+//#define INERTIA_USE_AABB
+
 namespace pe_phys_shape {
-    // the mesh must be convex, and has complete properties (vertices, faces, normals, etc.).
-    // the mesh will be relocated to the centroid of the mesh
-    // returns the relocation vector
+    // The mesh must be convex, and has complete properties (vertices, faces, normals).
+    // The mesh will be relocated to the centroid of the mesh.
+    // Returns the relocation vector.
     pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
         pe::Vector3 centroid = pe_phys_fracture::calc_mesh_centroid(_mesh);
@@ -23,6 +25,7 @@ namespace pe_phys_shape {
                                                  pe_phys_fracture::vector3_equal);
         pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
+            _faces.push_back({});
             for (int i = 0; i < f.indices.size(); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
@@ -30,6 +33,8 @@ namespace pe_phys_shape {
                 uint32_t id1 = vert_map.index_of(_mesh.vertices[v1].position);
                 if (id0 == -1) { vert_map.push_back(_mesh.vertices[v0].position); id0 = vert_map.size() - 1; }
                 if (id1 == -1) { vert_map.push_back(_mesh.vertices[v1].position); id1 = vert_map.size() - 1; }
+                if (i == 0) _faces.back().push_back(id0);
+                if (i != f.indices.size() - 1) _faces.back().push_back(id1);
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;
@@ -98,18 +103,50 @@ namespace pe_phys_shape {
         maxPoint = axis * maxProj;
     }
 
-#   define INERTIA_ITER 4
-
     pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {
+#   ifdef INERTIA_USE_AABB
+        pe::Vector3 aabb_min, aabb_max;
+        getAABB(pe::Transform::identity(), aabb_min, aabb_max);
+        pe::Vector3 size = aabb_max - aabb_min;
+        pe::Real x2 = size.x * size.x, y2 = size.y * size.y, z2 = size.z * size.z;
+        pe::Real mass_12 = mass / 12.0;
+        return {
+                mass_12 * (y2 + z2), 0, 0,
+                0, mass_12 * (x2 + z2), 0,
+                0, 0, mass_12 * (x2 + y2)
+        };
+#   else
+#   define INERTIA_INTERNAL_ITER 4
+#   define INERTIA_SURFACE_ITER 4
+
         pe::Array<pe::KV<pe::Vector3, pe::Real>> elements;
-        elements.reserve(_unique_verts.size() * INERTIA_ITER + 1);
+        elements.reserve(_unique_edges.size() * INERTIA_SURFACE_ITER * 2 *
+                         _unique_verts.size() * INERTIA_SURFACE_ITER);
 
         pe::Real sum = 0;
-        for (int i = 1; i <= INERTIA_ITER; i++) {
-            pe::Real m = i * i;
+        for (auto& face : _faces) {
+            pe::Vector3 center_face = pe::Vector3::zeros();
+            for (auto& v : face) {
+                center_face += _unique_verts[v];
+            }
+            center_face /= (pe::Real)face.size();
+
+            for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
+                pe::Real m = i * i;
+                for (int j = 1; j < INERTIA_SURFACE_ITER; j++) {
+                    for (auto& v : face) {
+                        sum += m * j;
+                        elements.push_back({center_face.lerp(_unique_verts[v],
+                                                             (pe::Real)j / INERTIA_SURFACE_ITER), m * j});
+                    }
+                }
+            }
+        }
+        for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
+            pe::Real m = i * i * INERTIA_SURFACE_ITER;
             for (auto& v : _unique_verts) {
                 sum += m;
-                elements.push_back({v * ((pe::Real)i / INERTIA_ITER), m});
+                elements.push_back({v * ((pe::Real)i / INERTIA_INTERNAL_ITER), m});
             }
         }
 
@@ -133,5 +170,6 @@ namespace pe_phys_shape {
         inertia[2][0] = inertia[0][2];
         inertia[2][1] = inertia[1][2];
         return inertia * (mass / (2 * sum));
+#   endif
     }
 }

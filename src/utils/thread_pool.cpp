@@ -7,7 +7,7 @@ namespace utils {
         return instance;
     }
 
-    void ThreadPool::init(int pool_size) {
+    void ThreadPool::init(uint32_t pool_size) {
         auto& inst = getInstance();
         inst._stop.store(false);
         inst._task_num = 0;

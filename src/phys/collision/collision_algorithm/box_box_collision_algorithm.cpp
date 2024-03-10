@@ -32,6 +32,7 @@ namespace pe_phys_collision {
     static pe::Real dDOT14(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 1, 4); }
     static pe::Real dDOT41(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 1); }
 
+    // box-box collision (bullet)
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
                                                     pe_phys_object::RigidBody* object_b, ContactResult& result,
                                                     pe::Vector3 overlapMin, pe::Vector3 overlapMax) {
@@ -39,6 +40,7 @@ namespace pe_phys_collision {
             object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
             return false;
         }
+        result.cleanContactPointFlag();
         getClosestPoint(object_a, object_b, result);
         result.sortContactPoints();
         return result.getPointSize() > 0;

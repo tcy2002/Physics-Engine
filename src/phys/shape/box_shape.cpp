@@ -60,10 +60,11 @@ namespace pe_phys_shape {
         pe::Real x2 = _size.x * _size.x;
         pe::Real y2 = _size.y * _size.y;
         pe::Real z2 = _size.z * _size.z;
+        pe::Real mass_12 = mass / 12.0;
         return {
-                mass * (y2 + z2) / 12.0, 0, 0,
-                0, mass * (x2 + z2) / 12.0, 0,
-                0, 0, (x2 + y2) / 12.0
+                mass_12 * (y2 + z2), 0, 0,
+                0, mass_12 * (x2 + z2), 0,
+                0, 0, mass_12 * (x2 + y2)
         };
     }
 

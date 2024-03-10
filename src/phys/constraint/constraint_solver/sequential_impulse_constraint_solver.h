@@ -4,6 +4,7 @@
 
 namespace pe_phys_constraint {
 
+    // matrix-free Gauss-Seidel-styled sequential impulse solver
     class SequentialImpulseConstraintSolver : public ConstraintSolver {
     private:
         pe::Array<pe_phys_object::RigidBody*> _collision_objects;

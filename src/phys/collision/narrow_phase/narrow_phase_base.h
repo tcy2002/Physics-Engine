@@ -15,7 +15,7 @@ namespace pe_phys_collision {
 
     public:
         NarrowPhaseBase() {
-            _algos = {new BoxBoxCollisionAlgorithm(), new MeshMeshCollisionAlgorithm() };
+            _algos = { new BoxBoxCollisionAlgorithm(), new MeshMeshCollisionAlgorithm() };
         }
         virtual ~NarrowPhaseBase() {
             for (auto algo : _algos) {

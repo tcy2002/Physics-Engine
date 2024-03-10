@@ -3,15 +3,15 @@
 namespace pe_phys_constraint {
     
     void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& param) {
-        int p_size = _contact_result.getPointSize();
-        _cis.resize(p_size);
+        int point_size = std::min(PE_MAX_CONTACT_POINT, _contact_result.getPointSize());
+        _cis.resize(point_size);
 
-        _object_a = (pe_phys_object::RigidBody*)(_contact_result.getObjectA());
-        _object_b = (pe_phys_object::RigidBody*)(_contact_result.getObjectB());
+        _object_a = _contact_result.getObjectA();
+        _object_b = _contact_result.getObjectB();
         const pe::Transform& transform_a = _object_a->getTransform();
         const pe::Transform& transform_b = _object_b->getTransform();
 
-        for(int i = 0; i < _contact_result.getPointSize(); i++){
+        for (int i = 0; i < point_size; i++) {
             const pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
 

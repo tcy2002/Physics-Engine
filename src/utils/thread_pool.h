@@ -14,13 +14,13 @@ namespace utils {
      */
     class ThreadPool {
     public:
-        static void init(int pool_size = 0);
+        static void init(uint32_t pool_size = 0);
         static void deinit();
         static void join();
 
         template<typename Function, typename... Args>
         static void addTask(Function&& fn, Args&&... args) {
-            if (getInstance()._size == -1) return; // not initialized
+            if (getInstance()._size == -1) return;
             auto& inst = getInstance();
             std::unique_lock<std::mutex> lock(inst._mtx);
             inst._tasks.emplace([&]{ fn(args...); });
@@ -30,13 +30,14 @@ namespace utils {
 
         template <typename Iterator, typename Function>
         static void forEach(Iterator&& first, Iterator&& last, Function&& fn) {
-            if (getInstance()._size == -1) return; // not initialized
+            if (getInstance()._size == -1) return;
             auto& inst = getInstance();
             std::unique_lock<std::mutex> lock(inst._mtx);
-            while (first != last) {
-                inst._tasks.emplace([&fn, first]{ fn(*first); });
+            auto p = first;
+            while (p != last) {
+                inst._tasks.emplace([&fn, p, first]{ fn(*p, p - first); });
                 inst._task_num++;
-                ++first;
+                ++p;
             }
             inst._cv.notify_all();
         }

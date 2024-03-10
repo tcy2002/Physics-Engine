@@ -67,7 +67,7 @@ namespace pe_phys_collision {
     }
 
     void ContactResult::cleanContactPointFlag() {
-        for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
+        for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
             _points[i].invalidate();
         }
         _swap_flag = false;
@@ -98,7 +98,7 @@ namespace pe_phys_collision {
             _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
         } else {
             // otherwise, find an empty slot and replace it
-            for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
+            for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                 if (!_points[i].isValid()) {
                     _points[i] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
                     _points[i].setAppliedImpulse(pe::Vector3::zeros());
@@ -117,17 +117,17 @@ namespace pe_phys_collision {
     }
 
     void ContactResult::sortContactPoints() {
-        std::sort(_points, _points + PE_CONTACT_MAX_POINTS,
+        std::sort(_points, _points + PE_CONTACT_CACHE_SIZE,
                   [](const ContactPoint& a, const ContactPoint& b) {
             return a.getDistance() < b.getDistance();
         });
-        for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
+        for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
             if (!_points[i].isValid()) {
                 _point_size = i;
                 return;
             }
         }
-        _point_size = PE_CONTACT_MAX_POINTS;
+        _point_size = PE_CONTACT_CACHE_SIZE;
     }
 
     int ContactResult::getExistingClosestPoint(const pe::Vector3 &local_pos_b) const {
@@ -135,7 +135,7 @@ namespace pe_phys_collision {
         min_dist *= min_dist;
 
         int nearest = -1;
-        for (int i = 0; i < PE_CONTACT_MAX_POINTS; i++) {
+        for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
             if (!_points[i].isValid()) continue;
             pe::Vector3 diff = _points[i].getLocalPosB() - local_pos_b;
             pe::Real dist = diff.dot(diff);

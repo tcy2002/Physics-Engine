@@ -8,10 +8,6 @@ namespace pe_phys_collision {
     typedef pe::Array<pe::Vector3> VertexArray;
 
     class MeshMeshCollisionAlgorithm : public CollisionAlgorithm {
-    private:
-        VertexArray _world_verts_b1;
-        VertexArray _world_verts_b2;
-
     public:
         virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
                                       ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;

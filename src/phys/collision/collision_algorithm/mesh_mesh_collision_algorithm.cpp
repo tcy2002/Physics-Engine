@@ -3,6 +3,7 @@
 
 namespace pe_phys_collision {
 
+    // sat convex collision (bullet)
     bool MeshMeshCollisionAlgorithm::processCollision(pe_phys_object::RigidBody *object_a,
                                                       pe_phys_object::RigidBody *object_b,
                                                       ContactResult &result,
@@ -23,12 +24,15 @@ namespace pe_phys_collision {
         pe::Real margin = 0.005;
         result.setObjects(object_a, object_b);
 
+        VertexArray world_verts_b1;
+        VertexArray world_verts_b2;
+
+        result.cleanContactPointFlag();
         if (!findSeparatingAxis(object_a, object_b, transA, transB, sep, margin, result)) {
             return false;
         }
-
         clipHullAgainstHull(sep, shape_a, shape_b, transA, transB,
-                            PE_REAL_MIN, 0, _world_verts_b1, _world_verts_b2,
+                            PE_REAL_MIN, 0, world_verts_b1, world_verts_b2,
                             margin, result);
         result.sortContactPoints();
         return result.getPointSize() > 0;
@@ -129,7 +133,6 @@ namespace pe_phys_collision {
         }
 
         // only keep points that are behind the witness face
-        // TODO: fix the bug here
         {
             pe::Vector3 planeV = mesh_a.vertices[polyA.indices[0]].position;
             pe::Vector3 localPlaneNormal = polyA.normal;
@@ -392,7 +395,6 @@ namespace pe_phys_collision {
                 }
                 pe::Vector3 ptOnB = witnessPointB + offsetB;
                 pe::Real distance = nl;
-//                std::cout << "bomb" << std::endl;
                 result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
                                        -distance + margin * 2);
             }
