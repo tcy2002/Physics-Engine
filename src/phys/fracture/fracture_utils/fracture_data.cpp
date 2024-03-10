@@ -18,7 +18,11 @@ namespace pe_phys_fracture {
         auto x = (uint32_t)(std::round(v.x / PE_EPS));
         auto y = (uint32_t)(std::round(v.y / PE_EPS));
         auto z = (uint32_t)(std::round(v.z / PE_EPS));
-        return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
+        uint32_t h = 0;
+        h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= z + 0x9e3779b9 + (h << 6) + (h >> 2);
+        return h;
     }
 
     bool vertex::equal(const vertex& a, const vertex& b) {
@@ -26,7 +30,12 @@ namespace pe_phys_fracture {
     }
 
     uint32_t vertex::hash_func(const vertex& v) {
-        return vector3_hash_func(v.pos) ^ vector3_hash_func(v.nor) * 73856093;
+        auto x = vector3_hash_func(v.pos);
+        auto y = vector3_hash_func(v.nor);
+        uint32_t h = 0;
+        h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);
+        return h;
     }
 
     bool triangle::equal(const triangle& a, const triangle& b) {
@@ -38,7 +47,11 @@ namespace pe_phys_fracture {
     uint32_t triangle::hash_func(const triangle& t) {
         auto id1 = t.vert_ids[0], id2 = t.vert_ids[1], id3 = t.vert_ids[2];
         sort3(id1, id2, id3);
-        return (id1 * 73856093) ^ (id2 * 19349663) ^ (id3 * 83492791);
+        uint32_t h = 0;
+        h ^= (id1 + 0x9e3779b9) + (h << 6) + (h >> 2);
+        h ^= (id2 + 0x9e3779b9) + (h << 6) + (h >> 2);
+        h ^= (id3 + 0x9e3779b9) + (h << 6) + (h >> 2);
+        return h;
     }
 
     bool polygon::equal(const polygon& a, const polygon& b) {
