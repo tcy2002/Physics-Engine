@@ -18,19 +18,19 @@ namespace pe_phys_collision {
                                         const pe::Transform& transA, const pe::Transform& transB,
                                         pe::Real minDist, pe::Real maxDist,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
-                                        pe::Real margin, ContactResult& resultOut);
+                                        pe::Vector3 margin, ContactResult& resultOut);
         static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,
                                         const pe_phys_shape::ConvexMeshShape* object_a,
                                         const pe::Transform& transA,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
                                         pe::Real minDist, pe::Real maxDist,
-                                        pe::Real margin, ContactResult& resultOut);
+                                        pe::Vector3 margin, ContactResult& resultOut);
         static void clipFace(const VertexArray& pVtxIn, VertexArray& ppVtxOut,
                              const pe::Vector3& planeNormalWS, pe::Real planeEqWS);
         static bool findSeparatingAxis(const pe_phys_object::RigidBody* object_a,
                                        const pe_phys_object::RigidBody* object_b,
                                        const pe::Transform& transA, const pe::Transform& transB,
-                                       pe::Vector3& sep, pe::Real margin, ContactResult& resultOut);
+                                       pe::Vector3& sep, pe::Vector3 margin, ContactResult& resultOut);
     };
 
 } // pe_phys_collision

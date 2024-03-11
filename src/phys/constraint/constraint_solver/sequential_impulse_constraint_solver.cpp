@@ -5,7 +5,7 @@
 namespace pe_phys_constraint {
 
     SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver(): ConstraintSolver() {
-        _iteration = 8;
+        _iteration = 16;
     }
 
     void SequentialImpulseConstraintSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
@@ -22,12 +22,12 @@ namespace pe_phys_constraint {
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
                                    [this, &contact_constraints](const pe_phys_collision::ContactResult& cr,
                                            int idx){
-                                       auto fcc = new FrictionContactConstraint();
-                                       fcc->setContactResult(cr);
-                                       fcc->initSequentialImpulse(_param);
-                                       fcc->warmStart();
-                                       contact_constraints[idx] = fcc;
-                                   });
+           auto fcc = new FrictionContactConstraint();
+           fcc->setContactResult(cr);
+           fcc->initSequentialImpulse(_param);
+           fcc->warmStart();
+           contact_constraints[idx] = fcc;
+        });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < contact_results.size(); i++) {
@@ -45,11 +45,11 @@ namespace pe_phys_constraint {
     void SequentialImpulseConstraintSolver::solve() {
         //// solve contact constraints
         for (int i = 0; i < _iteration; i++) {
-#       ifdef PE_MULTI_THREAD1
+#       ifdef PE_MULTI_THREAD
             utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
                                        [i](Constraint* constraint, int idx){
-                                           constraint->iterateSequentialImpulse(i);
-                                       });
+                constraint->iterateSequentialImpulse(i);
+            });
             utils::ThreadPool::join();
 #       else
             for (auto constraint : _constraints) {
@@ -57,22 +57,10 @@ namespace pe_phys_constraint {
             }
 #       endif
         }
-        if (_param.splitPenetrationConstraintFlag) {
-            for (int i = 0; i < _iteration; i++) {
-                for (auto constraint : _constraints) {
-                    constraint->iterateSequentialImpulseForPenetration(i);
-                }
-            }
-        }
 
         //// sync velocity
         for (auto co : _collision_objects) {
             co->syncTempVelocity();
-        }
-        if (_param.splitPenetrationConstraintFlag) {
-            for (auto co : _collision_objects) {
-                co->penetrationStep(_param.dt);
-            }
         }
 
         // after solving

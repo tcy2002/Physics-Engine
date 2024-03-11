@@ -2,9 +2,8 @@
 
 /*
  * TODO:
- * 1. time consistency
- * 2. adjacent face detection
- * 3. does temp vel really need to be protected by lock
+ * 1. add velocity sleeping threshold for world
+ * 2. complete the anisotropic margin for box-box collision
  */
 
 #include "common/vector3.h"

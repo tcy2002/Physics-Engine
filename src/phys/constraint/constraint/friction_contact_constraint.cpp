@@ -140,31 +140,6 @@ namespace pe_phys_constraint {
         }
     }
 
-    void FrictionContactConstraint::iterateSequentialImpulseForPenetration(int iter) {
-        for (auto& ci : _cis) {
-            const pe::Vector3& n = ci.n;
-            const pe::Vector3 vel_r = (_object_a->getPenetrationLinearVelocity() +
-                    _object_a->getPenetrationAngularVelocity().cross(ci.r_a))
-                    - (_object_b->getPenetrationLinearVelocity() +
-                    _object_b->getPenetrationAngularVelocity().cross(ci.r_b));
-
-            //// compute impulse
-            pe::Real temp_impulse = (ci.n_penetration_rhs - n.dot(vel_r) * ci.n_denom_inv);
-
-            //// clamp impulse, if it causes negative total impulse
-            if(temp_impulse < -ci.n_applied_penetration_impulse){
-                temp_impulse = -ci.n_applied_penetration_impulse;
-            }
-
-            // apply impulse
-            ci.n_applied_penetration_impulse += temp_impulse;
-            pe::Vector3 impulse_vector = temp_impulse * n;
-
-            _object_a->applyPenetrationImpulse(ci.r_a, impulse_vector);
-            _object_b->applyPenetrationImpulse(ci.r_b, -impulse_vector);
-        }
-    }
-
     void FrictionContactConstraint::afterSequentialImpulse() {
         for (int i = 0; i < (int)_cis.size(); i++) {
             const ConstraintInfo& ci = _cis[i];

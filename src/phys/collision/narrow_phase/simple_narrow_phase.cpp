@@ -5,7 +5,7 @@
 namespace pe_phys_collision {
 
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs) {
-#   ifdef PE_MULTI_THREAD1
+#   ifdef PE_MULTI_THREAD
         _contact_results.resize(pairs.size());
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [this](const CollisionPair& pair, int idx) {

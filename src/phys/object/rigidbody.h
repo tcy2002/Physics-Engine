@@ -36,10 +36,16 @@ namespace pe_phys_object {
 
         COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, angular_velocity, AngularVelocity)
-        COMMON_MEMBER_SET_GET(pe::Vector3, penetration_linear_velocity, PenetrationLinearVelocity)
-        COMMON_MEMBER_SET_GET(pe::Vector3, penetration_angular_velocity, PenetrationAngularVelocity)
 
-        // should be protected by lock
+        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
+        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
+
+        COMMON_MEMBER_GET(pe::Vector3, force, Force)
+        COMMON_MEMBER_GET(pe::Vector3, torque, Torque)
+
+        COMMON_MEMBER_SET_GET(pe::Vector3, margin, Margin)
+
+        // Temp velocity should be protected by lock
     protected:
         pe::Vector3 _temp_linear_velocity;
         pe::Vector3 _temp_angular_velocity;
@@ -50,12 +56,6 @@ namespace pe_phys_object {
         pe::Vector3 getTempAngularVelocity();
         void setTempLinearVelocity(const pe::Vector3& v);
         void setTempAngularVelocity(const pe::Vector3& v);
-
-        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
-        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
-
-        COMMON_MEMBER_GET(pe::Vector3, force, Force)
-        COMMON_MEMBER_GET(pe::Vector3, torque, Torque)
 
     private:
         static std::atomic<uint32_t> _globalIdCounter;
@@ -86,7 +86,6 @@ namespace pe_phys_object {
 
         void applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
         void applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
-        void applyPenetrationImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
 
         void addForce(const pe::Vector3& world_point, const pe::Vector3& force);
         void addCentralForce(const pe::Vector3& force) { _force += force; }
@@ -95,7 +94,6 @@ namespace pe_phys_object {
         void applyForce(pe::Real dt);
         void applyDamping(pe::Real dt);
 
-        void penetrationStep(pe::Real dt);
         void step(pe::Real dt);
     };
 

@@ -66,9 +66,7 @@ namespace pe_phys_object {
             _force(pe::Vector3::zeros()),
             _torque(pe::Vector3::zeros()),
             _temp_linear_velocity(pe::Vector3::zeros()),
-            _temp_angular_velocity(pe::Vector3::zeros()),
-            _penetration_linear_velocity(pe::Vector3::zeros()),
-            _penetration_angular_velocity(pe::Vector3::zeros()) {
+            _temp_angular_velocity(pe::Vector3::zeros()) {
         updateWorldInertia();
     }
 
@@ -126,8 +124,6 @@ namespace pe_phys_object {
     void RigidBody::clearTempVelocity() {
         _temp_linear_velocity = _linear_velocity;
         _temp_angular_velocity = _angular_velocity;
-        _penetration_linear_velocity = pe::Vector3::zeros();
-        _penetration_angular_velocity = pe::Vector3::zeros();
     }
 
     void RigidBody::applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse) {
@@ -144,12 +140,6 @@ namespace pe_phys_object {
         if (isKinematic()) return;
         _linear_velocity += impulse * _inv_mass;
         _angular_velocity += _world_inv_inertia * world_rel_vec.cross(impulse);
-    }
-
-    void RigidBody::applyPenetrationImpulse(const pe::Vector3 &world_rel_vec, const pe::Vector3 &impulse) {
-        if (isKinematic()) return;
-        _penetration_linear_velocity += impulse * _inv_mass;
-        _penetration_angular_velocity += _world_inv_inertia * world_rel_vec.cross(impulse);
     }
 
     void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &force) {
@@ -169,21 +159,6 @@ namespace pe_phys_object {
         if (isKinematic()) return;
         _linear_velocity *= std::pow(1.0 - _linear_damping, dt);
         _angular_velocity *= std::pow(1.0 - _angular_damping, dt);
-    }
-
-    void RigidBody::penetrationStep(pe::Real dt) {
-        if (isKinematic()) return;
-        _transform.setOrigin(_transform.getOrigin() + _penetration_linear_velocity * dt);
-        pe::Matrix3 rot;
-        pe::Real angle_speed = _penetration_angular_velocity.norm();
-        if (angle_speed > PE_EPS) {
-            rot.setRotation(_penetration_angular_velocity.normalized(),
-                            _penetration_angular_velocity.norm() * dt);
-            _transform.setBasis(rot * _transform.getBasis());
-        }
-        _penetration_linear_velocity = pe::Vector3::zeros();
-        _penetration_angular_velocity = pe::Vector3::zeros();
-        updateWorldInertia();
     }
 
     void RigidBody::step(pe::Real dt) {

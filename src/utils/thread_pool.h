@@ -29,23 +29,25 @@ namespace utils {
         }
 
         template <typename Iterator, typename Function>
-        static void forEach(Iterator&& first, Iterator&& last, Function&& fn) {
+        static void forEach(Iterator first, Iterator last, Function&& fn) {
             if (getInstance()._size == -1) return;
             auto& inst = getInstance();
             std::unique_lock<std::mutex> lock(inst._mtx);
             auto p = first;
             while (p != last) {
-                inst._tasks.emplace([&fn, p, first]{ fn(*p, p - first); });
+                inst._tasks.emplace([&fn, p, first]{ fn(*p, (int)(p - first)); });
                 inst._task_num++;
                 ++p;
             }
             inst._cv.notify_all();
         }
 
-    private:
-        ThreadPool() = default;
+    public:
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
+
+    private:
+        ThreadPool() = default;
         ~ThreadPool() { deinit(); }
 
         uint32_t _size = 0;

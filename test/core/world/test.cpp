@@ -49,10 +49,10 @@ pe::Mesh resizeBox(const pe::Vector3& size) {
     return std::move(result);
 }
 
-pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe::Vector3& size,
+pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass,
                                                const std::string& filename = "") {
     auto rb = new pe_phys_object::RigidBody();
-    rb->setMass(1.0);
+    rb->setMass(mass);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.8);
@@ -61,6 +61,7 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
         shape->setMesh(resizeBox(size));
         rb->setCollisionShape(shape);
         rb->setLocalInertia(shape->calcLocalInertia(1.0));
+        rb->setMargin(size * 0.005);
     } else {
         pe::Mesh mesh;
         objToMesh(mesh, filename);
@@ -68,6 +69,9 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
         shape->setMesh(mesh);
         rb->setCollisionShape(shape);
         rb->setLocalInertia(shape->calcLocalInertia(1.0));
+        pe::Vector3 aabb_min, aabb_max;
+        shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
+        rb->setMargin((aabb_max - aabb_min) * 0.005);
     }
     return rb;
 }
@@ -81,6 +85,7 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
     rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.8);
+    rb->setMargin(size * 0.005);
     return rb;
 }
 
@@ -94,11 +99,13 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.8);
     rb->setThreshold(th);
+    rb->setMargin(size * 0.001);
     return rb;
 }
 
-#define TEST_SINGLE
+//#define TEST_SINGLE
 #define TEST_FRAC
+#define TEST_SECOND_GROUND
 
 void testWorld() {
     int rb_num = 0;
@@ -111,9 +118,11 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20));
+    auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 400);
     rb1->setKinematic(true);
-    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(10, 1, 10));
+#ifdef TEST_SECOND_GROUND
+    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(10, 1, 10), 100);
+#endif
 #ifdef TEST_SINGLE
     auto rb2 = createMeshRigidBody(pe::Vector3(0, 10, 0), pe::Vector3(1, 1, 1), filename);
     pe::Transform trans, trans2;
@@ -136,13 +145,15 @@ void testWorld() {
 
     // add to world
     world->addRigidBody(rb1);
+#ifdef TEST_SECOND_GROUND
     world->addRigidBody(rb4);
+#endif
 #ifdef TEST_SINGLE
     world->addRigidBody(rb2);
 #endif
     pe::Array<pe_phys_object::RigidBody*> rbs;
     for (int i = 0; i < rb_num; i++) {
-        auto rb = createRigidBody(pe::Vector3(0, 1 + i * 1.1, 0), pe::Vector3(1, 1, 1));
+        auto rb = createRigidBody(pe::Vector3(0, 5 + i * 1.1, 0), pe::Vector3(1, 1, 1));
         rbs.push_back(rb);
         world->addRigidBody(rb);
     }
@@ -157,9 +168,11 @@ void testWorld() {
     int id1 = pe_core::Viewer::addCube(pe::Vector3(20, 1, 20));
     pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
+#ifdef TEST_SECOND_GROUND
     int id4 = pe_core::Viewer::addCube(pe::Vector3(10, 1, 10));
     pe_core::Viewer::updateCubeColor(id4, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
+#endif
 #ifdef TEST_SINGLE
     int id2 = pe_core::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)(rb2->getCollisionShape()))->getMesh());
     pe_core::Viewer::updateMeshColor(id2, pe::Vector3(0.3, 0.8, 0.3));
@@ -194,7 +207,9 @@ void testWorld() {
         pe_core::Viewer::updateCubeTransform(id2, rb2->getTransform());
         pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
 #   endif
+#   ifdef TEST_SECOND_GROUND
         pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
+#   endif
         for (int i = 0; i < ids.size(); i++) {
             pe_core::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
             pe_core::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());

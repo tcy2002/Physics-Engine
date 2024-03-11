@@ -40,7 +40,6 @@ namespace pe_phys_constraint {
         virtual void initSequentialImpulse(const ConstraintParam& param) override;
         virtual void warmStart() override;
         virtual void iterateSequentialImpulse(int iter) override;
-        virtual void iterateSequentialImpulseForPenetration(int iter) override;
         virtual void afterSequentialImpulse() override;
     };
 

@@ -28,9 +28,9 @@ namespace pe_core {
     void World::updateAABBs() {
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [](pe_phys_object::RigidBody* rb, int _) {
-                                       rb->computeAABB();
-                                   });
+                                   [](pe_phys_object::RigidBody* rb, int idx) {
+            rb->computeAABB();
+        });
         utils::ThreadPool::join();
 #   else
         for (auto& co : _collision_objects) {
@@ -41,12 +41,13 @@ namespace pe_core {
 
     void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
+        pe::Real dt = _dt;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [this](pe_phys_object::RigidBody* rb, int idx){
-                                       if (!rb->isKinematic()) {
-                                           rb->step(_dt);
-                                       }
-                                   });
+                                   [&](pe_phys_object::RigidBody* rb, int idx){
+            if (!rb->isKinematic()) {
+                rb->step(dt);
+            }
+        });
         utils::ThreadPool::join();
 #   else
         for (auto& co : _collision_objects) {
@@ -59,13 +60,15 @@ namespace pe_core {
 
     void World::applyExternalForce() {
 #   ifdef PE_MULTI_THREAD
+        pe::Vector3 gravity = _gravity;
+        pe::Real dt = _dt;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [this](pe_phys_object::RigidBody* rb, int idx){
-                                       if (!rb->isKinematic()) {
-                                           rb->addCentralForce(_gravity * rb->getMass());
-                                           rb->applyForce(_dt);
-                                       }
-                                   });
+                                   [&](pe_phys_object::RigidBody* rb, int idx){
+            if (!rb->isKinematic()) {
+                rb->addCentralForce(gravity * rb->getMass());
+                rb->applyForce(dt);
+            }
+        });
         utils::ThreadPool::join();
 #   else
         for (auto& co : _collision_objects) {
