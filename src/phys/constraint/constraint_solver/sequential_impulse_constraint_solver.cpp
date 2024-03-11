@@ -12,8 +12,8 @@ namespace pe_phys_constraint {
                                                         const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                                                         const pe::Array<Constraint*>& constraints) {
         _collision_objects = objects;
-        for (auto cb : _collision_objects) {
-            ((pe_phys_object::RigidBody*)cb)->clearTempVelocity();
+        for (auto co : _collision_objects) {
+            co->clearTempVelocity();
         }
 
         // init contact constraints
@@ -45,29 +45,35 @@ namespace pe_phys_constraint {
     void SequentialImpulseConstraintSolver::solve() {
         //// solve contact constraints
         for (int i = 0; i < _iteration; i++) {
+#       ifdef PE_MULTI_THREAD1
+            utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
+                                       [i](Constraint* constraint, int idx){
+                                           constraint->iterateSequentialImpulse(i);
+                                       });
+            utils::ThreadPool::join();
+#       else
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
+#       endif
         }
-        // TODO: why?
-//        if (_param.splitPenetrationConstraintFlag) {
-//            for (int i = 0; i < _iteration; i++) {
-//                for (auto constraint : _constraints) {
-//                    constraint->iterateSequentialImpulseForPenetration(i);
-//                }
-//            }
-//        }
+        if (_param.splitPenetrationConstraintFlag) {
+            for (int i = 0; i < _iteration; i++) {
+                for (auto constraint : _constraints) {
+                    constraint->iterateSequentialImpulseForPenetration(i);
+                }
+            }
+        }
 
         //// sync velocity
-        for (auto cb : _collision_objects) {
-            ((pe_phys_object::RigidBody*)cb)->syncTempVelocity();
+        for (auto co : _collision_objects) {
+            co->syncTempVelocity();
         }
-        // TODO: why?
-//        if (_param.splitPenetrationConstraintFlag) {
-//            for (auto cb : _cbs) {
-//                ((pe_phys_object::RigidBody*)cb)->penetrationStep(_param.dt);
-//            }
-//        }
+        if (_param.splitPenetrationConstraintFlag) {
+            for (auto co : _collision_objects) {
+                co->penetrationStep(_param.dt);
+            }
+        }
 
         // after solving
         for (auto constraint : _constraints) {

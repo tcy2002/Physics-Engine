@@ -97,12 +97,12 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     return rb;
 }
 
-//#define TEST_SINGLE
+#define TEST_SINGLE
 #define TEST_FRAC
 
 void testWorld() {
     int rb_num = 0;
-    const auto filename = CURRENT_TEST_SOURCE_DIR "/test0.obj";
+    const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
     auto world = new pe_core::World();
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
@@ -113,8 +113,15 @@ void testWorld() {
     // create rigid bodies
     auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20));
     rb1->setKinematic(true);
+    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(10, 1, 10));
 #ifdef TEST_SINGLE
-    auto rb2 = createMeshRigidBody(pe::Vector3(0, 5, 0), pe::Vector3(1, 1, 1), filename);
+    auto rb2 = createMeshRigidBody(pe::Vector3(0, 10, 0), pe::Vector3(1, 1, 1), filename);
+    pe::Transform trans, trans2;
+    trans.setOrigin(rb2->getTransform().getOrigin());
+    trans.setRotation({0, 0, 1}, -0.90);
+    trans2.setRotation({1, 0, 0}, 0.05);
+    trans.setBasis(trans2.getBasis() * trans.getBasis());
+    rb2->setTransform(trans);
 #endif
 #ifdef TEST_FRAC
     auto rb3 = createFracturableObject(pe::Vector3(0, 5, 0), pe::Vector3(4, 4, 4), 1);
@@ -129,6 +136,7 @@ void testWorld() {
 
     // add to world
     world->addRigidBody(rb1);
+    world->addRigidBody(rb4);
 #ifdef TEST_SINGLE
     world->addRigidBody(rb2);
 #endif
@@ -149,6 +157,9 @@ void testWorld() {
     int id1 = pe_core::Viewer::addCube(pe::Vector3(20, 1, 20));
     pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
+    int id4 = pe_core::Viewer::addCube(pe::Vector3(10, 1, 10));
+    pe_core::Viewer::updateCubeColor(id4, pe::Vector3(0.3, 0.3, 0.8));
+    pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
 #ifdef TEST_SINGLE
     int id2 = pe_core::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)(rb2->getCollisionShape()))->getMesh());
     pe_core::Viewer::updateMeshColor(id2, pe::Vector3(0.3, 0.8, 0.3));
@@ -172,18 +183,18 @@ void testWorld() {
 #endif
 
     // main loop
-    int frame = 0, th = 5000;
+    int frame = 0, th = 50000;
     while (true) {
         frame++;
         while (pe_core::Viewer::getKeyState('r') != 0) {
             if (pe_core::Viewer::getKeyState('q') == 0) goto ret;
         }
         auto t = COMMON_GetTickCount();
-
 #   ifdef TEST_SINGLE
         pe_core::Viewer::updateCubeTransform(id2, rb2->getTransform());
         pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
 #   endif
+        pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
         for (int i = 0; i < ids.size(); i++) {
             pe_core::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
             pe_core::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());

@@ -80,16 +80,19 @@ namespace pe_phys_constraint {
         }
     }
 
-    void FrictionContactConstraint::afterSequentialImpulse() {
-        for(int i = 0; i < (int)_cis.size(); i++){
-            const ConstraintInfo& ci = _cis[i];
-            _contact_result.getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
+    void FrictionContactConstraint::warmStart() {
+        for (int i = 0; i < (int)_cis.size(); i++) {
+            pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
+            ConstraintInfo& ci = _cis[i];
+            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
+
+            _object_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
+            _object_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
         }
     }
 
     void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
-        for (int i = 0; i < (int)_cis.size(); i++) {
-            ConstraintInfo& ci = _cis[i];
+        for (auto& ci : _cis) {
             const pe::Vector3& r_a = ci.r_a;
             const pe::Vector3& r_b = ci.r_b;
             const pe::Vector3& n = ci.n;
@@ -100,7 +103,7 @@ namespace pe_phys_constraint {
                     - (_object_b->getTempLinearVelocity()
                     + _object_b->getTempAngularVelocity().cross(r_b));
 
-            //// compute impulse
+            // compute impulse
             pe::Real n_impulse = ci.n_rhs - n.dot(vel_r) * ci.n_denom_inv;
             n_impulse = std::max(n_impulse, -ci.n_applied_impulse);
             ci.n_applied_impulse += n_impulse;
@@ -126,7 +129,7 @@ namespace pe_phys_constraint {
                 }
 #           endif
 
-            const pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
+            pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
                     (t1_total_impulse - ci.t1_applied_impulse) * t1;
 
             ci.t0_applied_impulse = t0_total_impulse;
@@ -138,8 +141,7 @@ namespace pe_phys_constraint {
     }
 
     void FrictionContactConstraint::iterateSequentialImpulseForPenetration(int iter) {
-        for(int i = 0; i < (int)_cis.size(); i++){
-            ConstraintInfo& ci = _cis[i];
+        for (auto& ci : _cis) {
             const pe::Vector3& n = ci.n;
             const pe::Vector3 vel_r = (_object_a->getPenetrationLinearVelocity() +
                     _object_a->getPenetrationAngularVelocity().cross(ci.r_a))
@@ -156,20 +158,17 @@ namespace pe_phys_constraint {
 
             // apply impulse
             ci.n_applied_penetration_impulse += temp_impulse;
-            const pe::Vector3 impulse_vector = temp_impulse * n;
+            pe::Vector3 impulse_vector = temp_impulse * n;
 
             _object_a->applyPenetrationImpulse(ci.r_a, impulse_vector);
             _object_b->applyPenetrationImpulse(ci.r_b, -impulse_vector);
         }
     }
 
-    void FrictionContactConstraint::warmStart() {
-        for(int i = 0; i < (int)_cis.size(); i++) {
-            pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
-            ConstraintInfo& ci = _cis[i];
-            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
-            _object_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
-            _object_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
+    void FrictionContactConstraint::afterSequentialImpulse() {
+        for (int i = 0; i < (int)_cis.size(); i++) {
+            const ConstraintInfo& ci = _cis[i];
+            _contact_result.getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
         }
     }
     

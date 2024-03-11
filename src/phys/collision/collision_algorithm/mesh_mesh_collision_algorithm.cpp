@@ -1,5 +1,4 @@
 #include "mesh_mesh_collision_algorithm.h"
-#include "core/viewer.h"
 
 namespace pe_phys_collision {
 
@@ -115,12 +114,12 @@ namespace pe_phys_collision {
 
         // clip polygon to back of planes of all faces of hull A that are adjacent to witness face
         int numVerticesA = (int)polyA.indices.size();
+        pe::Vector3 worldPlaneANormal1 = transA.getBasis() * polyA.normal;
         for (int e0 = 0; e0 < numVerticesA; e0++) {
             pe::Vector3 a = mesh_a.vertices[polyA.indices[e0]].position;
             pe::Vector3 b = mesh_a.vertices[polyA.indices[(e0 + 1) % numVerticesA]].position;
             const pe::Vector3 edge0 = a - b;
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
-            pe::Vector3 worldPlaneANormal1 = transA.getBasis() * polyA.normal;
 
             pe::Vector3 planeNormalWS1 = -WorldEdge0.cross(worldPlaneANormal1);  //.cross(WorldEdge0);
             pe::Vector3 worldA1 = transA * a;
@@ -281,10 +280,11 @@ namespace pe_phys_collision {
         const pe::Vector3 DeltaC2 = c0 - c1;
 
         pe::Real dMin = PE_REAL_MAX;
+        pe::Vector3 dMinPt;
+        bool ptOnA = false;
 
-        int numFacesA = (int)mesh_a.faces.size();
         // Test normals from hullA
-        for (int i = 0; i < numFacesA; i++) {
+        for (int i = 0; i < (int)mesh_a.faces.size(); i++) {
             const pe::Vector3 Normal = mesh_a.faces[i].normal;
             pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
             if (DeltaC2.dot(faceANormalWS) < 0)
@@ -298,13 +298,14 @@ namespace pe_phys_collision {
 
             if (d < dMin) {
                 dMin = d;
+                dMinPt = wB;
+                ptOnA = false;
                 sep = faceANormalWS;
             }
         }
 
-        int numFacesB = (int)mesh_b.faces.size();
         // Test normals from hullB
-        for (int i = 0; i < numFacesB; i++) {
+        for (int i = 0; i < (int)mesh_b.faces.size(); i++) {
             const pe::Vector3 Normal = mesh_b.faces[i].normal;
             pe::Vector3 WorldNormal = transB.getBasis() * Normal;
             if (DeltaC2.dot(WorldNormal) < 0) {
@@ -313,14 +314,22 @@ namespace pe_phys_collision {
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(shape_a, shape_b, transA, transB, WorldNormal, d, wA, wB)) {
+            if (!testSepAxis(shape_a, shape_b, transA, transB,
+                             WorldNormal, d, wA, wB)) {
                 return false;
             }
 
             if (d < dMin) {
                 dMin = d;
+                dMinPt = wA;
+                ptOnA = true;
                 sep = WorldNormal;
             }
+        }
+
+        if ((ptOnA && object_b->getCollisionShape()->localIsInside(transB.inverseTransform(dMinPt))) ||
+            (!ptOnA && object_a->getCollisionShape()->localIsInside(transA.inverseTransform(dMinPt)))) {
+            result.addContactPoint(sep, dMinPt - sep * margin, -dMin + margin * 2);
         }
 
         int edgeA = -1;
@@ -340,7 +349,7 @@ namespace pe_phys_collision {
                 const pe::Vector3 WorldEdge1 = transB.getBasis() * edge1;
 
                 pe::Vector3 Cross = WorldEdge0.cross(WorldEdge1);
-                if (!PE_APPROX_EQUAL(Cross.norm2(), PE_EPS * PE_EPS)) {
+                if (!PE_APPROX_EQUAL(Cross.norm(), 0)) {
                     Cross = Cross.normalized();
                     if (DeltaC2.dot(Cross) < 0) {
                         Cross *= -1.f;
@@ -395,6 +404,7 @@ namespace pe_phys_collision {
                 }
                 pe::Vector3 ptOnB = witnessPointB + offsetB;
                 pe::Real distance = nl;
+
                 result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
                                        -distance + margin * 2);
             }

@@ -101,7 +101,7 @@ bool is##Name() const { return _##name.load(); } \
 private:
 #define COMMON_MEMBER_SET_GET_ATOMIC(T, name, Name) \
 protected: \
-T _##name; \
+std::atomic<T> _##name; \
 public: \
 void set##Name(const T& t){ _##name.store(t); } \
 T get##Name() const { return _##name.load(); } \

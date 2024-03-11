@@ -1,6 +1,6 @@
 #pragma once
 
-#include <atomic>
+#include <mutex>
 #include "phys/shape/shape.h"
 
 namespace pe_phys_object {
@@ -36,10 +36,20 @@ namespace pe_phys_object {
 
         COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, angular_velocity, AngularVelocity)
-        COMMON_MEMBER_SET_GET(pe::Vector3, temp_linear_velocity, TempLinearVelocity)
-        COMMON_MEMBER_SET_GET(pe::Vector3, temp_angular_velocity, TempAngularVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, penetration_linear_velocity, PenetrationLinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, penetration_angular_velocity, PenetrationAngularVelocity)
+
+        // should be protected by lock
+    protected:
+        pe::Vector3 _temp_linear_velocity;
+        pe::Vector3 _temp_angular_velocity;
+        std::mutex _temp_linear_velocity_mutex;
+        std::mutex _temp_angular_velocity_mutex;
+    public:
+        pe::Vector3 getTempLinearVelocity();
+        pe::Vector3 getTempAngularVelocity();
+        void setTempLinearVelocity(const pe::Vector3& v);
+        void setTempAngularVelocity(const pe::Vector3& v);
 
         COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
         COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)

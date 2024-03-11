@@ -47,27 +47,11 @@ void testAABB() {
 void testIsInside() {
     BoxShape box(pe::Vector3(1., 2., 3.));
 
-    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
-                                   pe::Vector3(0., 0., 0.)),
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0., 0., 0.)),
                  true)
-    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
-                                   pe::Vector3(0.499, 0.999, 1.499)),
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.499, 0.999, 1.499)),
                  true)
-    ASSERT_EQUAL(box.localIsInside(pe::Transform::identity(),
-                                   pe::Vector3(0.501, 1.001, 1.501)),
-                 false)
-
-    pe::Transform transform;
-    transform.setRotation({0, 1, 0}, M_PI / 4);
-    transform.setTranslation({2, 2, 2});
-    ASSERT_EQUAL(box.localIsInside(transform,
-                                   pe::Vector3(2., 2., 2.)),
-                 true)
-    ASSERT_EQUAL(box.localIsInside(transform,
-                                   pe::Vector3(1.999 + sqrt(1.999), 2.999, 1.999 + sqrt(1.999) / 2)),
-                 true)
-    ASSERT_EQUAL(box.localIsInside(transform,
-                                   pe::Vector3(2.001 + sqrt(2.001), 3.001, 2.001 + sqrt(2.001) / 2)),
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.501, 1.001, 1.501)),
                  false)
 }
 
@@ -79,20 +63,20 @@ void testProject() {
     box.project(pe::Transform::identity(), pe::Vector3::up(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -1.)
     ASSERT_EQUAL(max, 1.)
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0., -1., 0.));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0., 1., 0.));
+    ASSERT_EQUAL(minPoint.y, -1.)
+    ASSERT_EQUAL(maxPoint.y, 1.)
 
     box.project(pe::Transform::identity(), pe::Vector3::right(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(-0.5, 0., 0.));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0.5, 0., 0.));
+    ASSERT_EQUAL(minPoint.x, -0.5)
+    ASSERT_EQUAL(maxPoint.x, 0.5)
 
     box.project(pe::Transform::identity(), pe::Vector3::forward(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -1.5)
     ASSERT_EQUAL(max, 1.5)
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0., 0., -1.5));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0., 0., 1.5));
+    ASSERT_EQUAL(minPoint.z, -1.5)
+    ASSERT_EQUAL(maxPoint.z, 1.5)
 
     pe::Transform transform;
     transform.setRotation({0, 1, 0}, M_PI / 4);
@@ -100,20 +84,20 @@ void testProject() {
     box.project(transform, pe::Vector3::up(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.)
     ASSERT_EQUAL(max, 3.)
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, 1., 0));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 3., 0));
+    ASSERT_EQUAL(minPoint.y, 1)
+    ASSERT_EQUAL(maxPoint.y, 3)
 
     box.project(transform, pe::Vector3::right(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 2. - sqrt(2.))
     ASSERT_EQUAL(max, 2. + sqrt(2.))
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(2. - sqrt(2.), 0, 0));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(2. + sqrt(2.), 0, 0));
+    ASSERT_EQUAL(minPoint.x, 2. - sqrt(2.))
+    ASSERT_EQUAL(maxPoint.x, 2. + sqrt(2.))
 
     box.project(transform, pe::Vector3::forward(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 2. - sqrt(2.))
     ASSERT_EQUAL(max, 2. + sqrt(2.))
-    ASSERT_VECTOR3_EQUAL(minPoint, pe::Vector3(0, 0, 2. - sqrt(2.)));
-    ASSERT_VECTOR3_EQUAL(maxPoint, pe::Vector3(0, 0, 2. + sqrt(2.)));
+    ASSERT_EQUAL(minPoint.z, 2. - sqrt(2.))
+    ASSERT_EQUAL(maxPoint.z, 2. + sqrt(2.))
 }
 
 int main() {

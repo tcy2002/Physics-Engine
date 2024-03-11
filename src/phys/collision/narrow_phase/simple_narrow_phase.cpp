@@ -5,7 +5,7 @@
 namespace pe_phys_collision {
 
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs) {
-#   ifdef PE_MULTI_THREAD
+#   ifdef PE_MULTI_THREAD1
         _contact_results.resize(pairs.size());
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [this](const CollisionPair& pair, int idx) {
@@ -54,6 +54,19 @@ namespace pe_phys_collision {
             }
             if (ret) {
                 _contact_results.push_back(result);
+
+//                static pe::Array<int> debug_points;
+//                for (auto id : debug_points) {
+//                    pe_core::Viewer::removeCube(id);
+//                }
+//                debug_points.clear();
+//                for (int i = 0; i < result.getPointSize(); i++) {
+//                    auto point = result.getContactPoint(i).getWorldPos();
+//                    int id = pe_core::Viewer::addCube({0.2, 0.2, 0.2});
+//                    pe_core::Viewer::updateCubeColor(id, {1, 0, 0});
+//                    pe_core::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
+//                    debug_points.push_back(id);
+//                }
             }
         }
 #   endif

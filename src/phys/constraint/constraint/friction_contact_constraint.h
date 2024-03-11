@@ -18,6 +18,8 @@ namespace pe_phys_constraint {
             pe::Vector3 n;
             pe::Vector3 t0;
             pe::Vector3 t1;
+            pe::Vector3 impulse_vector;
+            pe::Vector3 impulse_vector_penetration;
             pe::Real n_rhs = 0;
             pe::Real n_penetration_rhs = 0;
             pe::Real n_denom_inv = 0;
@@ -35,11 +37,11 @@ namespace pe_phys_constraint {
         FrictionContactConstraint() {}
         virtual ~FrictionContactConstraint() {};
 
-        void initSequentialImpulse(const ConstraintParam& param) override;
-        void iterateSequentialImpulse(int iter) override;
-        void iterateSequentialImpulseForPenetration(int iter) override;
-        void afterSequentialImpulse() override;
-        void warmStart() override;
+        virtual void initSequentialImpulse(const ConstraintParam& param) override;
+        virtual void warmStart() override;
+        virtual void iterateSequentialImpulse(int iter) override;
+        virtual void iterateSequentialImpulseForPenetration(int iter) override;
+        virtual void afterSequentialImpulse() override;
     };
 
 } // namespace pe_phys_constraint

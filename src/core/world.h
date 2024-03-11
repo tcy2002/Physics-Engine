@@ -1,5 +1,12 @@
 #pragma once
 
+/*
+ * TODO:
+ * 1. time consistency
+ * 2. adjacent face detection
+ * 3. does temp vel really need to be protected by lock
+ */
+
 #include "common/vector3.h"
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"

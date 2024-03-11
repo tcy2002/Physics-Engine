@@ -38,7 +38,7 @@ namespace pe_phys_shape {
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;
-                    _unique_edges.push_back(_mesh.vertices[v0].position - _mesh.vertices[v1].position);
+                    _unique_edges.push_back((_mesh.vertices[v0].position - _mesh.vertices[v1].position).normalized());
                 }
             }
         }
@@ -93,14 +93,19 @@ namespace pe_phys_shape {
         maxProj = PE_REAL_MIN;
         for (auto &p: _mesh.vertices) {
             auto v = p.position.dot(local_axis);
-            minProj = std::min(minProj, v);
-            maxProj = std::max(maxProj, v);
+            if (v < minProj) {
+                minProj = v;
+                minPoint = p.position;
+            } else if (v > maxProj) {
+                maxProj = v;
+                maxPoint = p.position;
+            }
         }
 
         minProj += offset;
         maxProj += offset;
-        minPoint = axis * minProj;
-        maxPoint = axis * maxProj;
+        minPoint = transform * minPoint;
+        maxPoint = transform * maxPoint;
     }
 
     pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {

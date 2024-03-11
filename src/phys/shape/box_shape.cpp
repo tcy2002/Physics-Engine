@@ -52,8 +52,8 @@ namespace pe_phys_shape {
 
         minProj = offset - half_ext;
         maxProj = offset + half_ext;
-        minPoint = axis * minProj;
-        maxPoint = axis * maxProj;
+        minPoint = transform * -ext;
+        maxPoint = transform * ext;
     }
 
     pe::Matrix3 BoxShape::calcLocalInertia(pe::Real mass) const {
