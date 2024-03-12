@@ -7,10 +7,10 @@ namespace pe_phys_collision {
 
     typedef pe::Array<pe::Vector3> VertexArray;
 
-    class MeshMeshCollisionAlgorithm : public CollisionAlgorithm {
+    class ConvexConvexCollisionAlgorithm : public CollisionAlgorithm {
     public:
         virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
-                                      ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;
+                                      ContactResult& result) override;
 
         static void clipHullAgainstHull(const pe::Vector3& separatingNormal1,
                                         const pe_phys_shape::ConvexMeshShape* object_a,
@@ -18,19 +18,19 @@ namespace pe_phys_collision {
                                         const pe::Transform& transA, const pe::Transform& transB,
                                         pe::Real minDist, pe::Real maxDist,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
-                                        pe::Vector3 margin, ContactResult& resultOut);
+                                        pe::Real margin, ContactResult& resultOut);
         static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,
                                         const pe_phys_shape::ConvexMeshShape* object_a,
                                         const pe::Transform& transA,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
                                         pe::Real minDist, pe::Real maxDist,
-                                        pe::Vector3 margin, ContactResult& resultOut);
+                                        pe::Real margin, ContactResult& resultOut);
         static void clipFace(const VertexArray& pVtxIn, VertexArray& ppVtxOut,
                              const pe::Vector3& planeNormalWS, pe::Real planeEqWS);
         static bool findSeparatingAxis(const pe_phys_object::RigidBody* object_a,
                                        const pe_phys_object::RigidBody* object_b,
                                        const pe::Transform& transA, const pe::Transform& transB,
-                                       pe::Vector3& sep, pe::Vector3 margin, ContactResult& resultOut);
+                                       pe::Vector3& sep, pe::Real margin, ContactResult& resultOut);
     };
 
 } // pe_phys_collision

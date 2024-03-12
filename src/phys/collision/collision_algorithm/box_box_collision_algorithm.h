@@ -9,7 +9,7 @@ namespace pe_phys_collision {
     class BoxBoxCollisionAlgorithm : public CollisionAlgorithm {
     public:
         virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
-                                      ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) override;
+                                      ContactResult& result) override;
 
         static void getClosestPoint(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
                                     ContactResult& result);

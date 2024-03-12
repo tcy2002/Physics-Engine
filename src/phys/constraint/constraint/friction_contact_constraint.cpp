@@ -65,15 +65,12 @@ namespace pe_phys_constraint {
                 penetration = std::max(penetration, -param.penetrationThreshold);
                 if (param.splitPenetrationConstraintFlag) {
                     ci.n_rhs = rev_vel_r * ci.n_denom_inv;
-                    ci.n_penetration_rhs = -param.kerp * penetration / param.dt * ci.n_denom_inv;
                 } else {
                     ci.n_rhs = (rev_vel_r - param.kerp * penetration / param.dt) * ci.n_denom_inv;
-                    ci.n_penetration_rhs = 0;
                 }
             }
 
             ci.n_applied_impulse = 0;
-            ci.n_applied_penetration_impulse = 0;
             ci.t0_applied_impulse = 0;
             ci.t1_applied_impulse = 0;
             ci.friction_coeff = _contact_result.getFrictionCoeff();

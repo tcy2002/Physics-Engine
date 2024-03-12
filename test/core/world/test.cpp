@@ -7,6 +7,11 @@
 #include "core/viewer.h"
 #include <fstream>
 
+//#define TEST_SINGLE
+#define TEST_FRAC
+#define TEST_SECOND_GROUND
+#define TEST_FRAME_TH 100000
+
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -55,13 +60,12 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
     rb->setMass(mass);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setFrictionCoeff(0.5);
-    rb->setRestitutionCoeff(0.8);
+    rb->setRestitutionCoeff(0.5);
     if (filename.empty()) {
         auto shape = new pe_phys_shape::ConvexMeshShape();
         shape->setMesh(resizeBox(size));
         rb->setCollisionShape(shape);
         rb->setLocalInertia(shape->calcLocalInertia(1.0));
-        rb->setMargin(size * 0.005);
     } else {
         pe::Mesh mesh;
         objToMesh(mesh, filename);
@@ -71,7 +75,6 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
         rb->setLocalInertia(shape->calcLocalInertia(1.0));
         pe::Vector3 aabb_min, aabb_max;
         shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
-        rb->setMargin((aabb_max - aabb_min) * 0.005);
     }
     return rb;
 }
@@ -84,8 +87,7 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
-    rb->setRestitutionCoeff(0.8);
-    rb->setMargin(size * 0.005);
+    rb->setRestitutionCoeff(0.5);
     return rb;
 }
 
@@ -97,19 +99,13 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
-    rb->setRestitutionCoeff(0.8);
+    rb->setRestitutionCoeff(0.5);
     rb->setThreshold(th);
-    rb->setMargin(size * 0.001);
     return rb;
 }
 
-//#define TEST_SINGLE
-#define TEST_FRAC
-#define TEST_SECOND_GROUND
-
 void testWorld() {
     int rb_num = 0;
-    const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
     auto world = new pe_core::World();
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
@@ -118,12 +114,14 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 400);
+    auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 8);
     rb1->setKinematic(true);
 #ifdef TEST_SECOND_GROUND
-    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(10, 1, 10), 100);
+    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(12, 1, 12), 2);
+    std::cout << rb4->getLocalInvInertia() << std::endl;
 #endif
 #ifdef TEST_SINGLE
+    const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
     auto rb2 = createMeshRigidBody(pe::Vector3(0, 10, 0), pe::Vector3(1, 1, 1), filename);
     pe::Transform trans, trans2;
     trans.setOrigin(rb2->getTransform().getOrigin());
@@ -169,7 +167,7 @@ void testWorld() {
     pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
 #ifdef TEST_SECOND_GROUND
-    int id4 = pe_core::Viewer::addCube(pe::Vector3(10, 1, 10));
+    int id4 = pe_core::Viewer::addCube(pe::Vector3(12, 1, 12));
     pe_core::Viewer::updateCubeColor(id4, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
 #endif
@@ -196,7 +194,7 @@ void testWorld() {
 #endif
 
     // main loop
-    int frame = 0, th = 50000;
+    int frame = 0;
     while (true) {
         frame++;
         while (pe_core::Viewer::getKeyState('r') != 0) {
@@ -215,7 +213,7 @@ void testWorld() {
             pe_core::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());
         }
         world->step();
-        if (++frame > th) while (pe_core::Viewer::getKeyState('r') != 1);
+        if (++frame > TEST_FRAME_TH) while (pe_core::Viewer::getKeyState('r') != 1);
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
     }
 

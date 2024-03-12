@@ -16,7 +16,7 @@ namespace pe_phys_constraint {
             co->clearTempVelocity();
         }
 
-        // init contact constraints
+        // init contact constraints: the start order doesn't matter, so we can use multi-thread
         pe::Array<Constraint*> contact_constraints(contact_results.size());
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
@@ -43,22 +43,14 @@ namespace pe_phys_constraint {
     }
 
     void SequentialImpulseConstraintSolver::solve() {
-        //// solve contact constraints
+        // solve contact constraints: the execution order is significant, so we use single-thread
         for (int i = 0; i < _iteration; i++) {
-#       ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
-                                       [i](Constraint* constraint, int idx){
-                constraint->iterateSequentialImpulse(i);
-            });
-            utils::ThreadPool::join();
-#       else
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
-#       endif
         }
 
-        //// sync velocity
+        // sync velocity
         for (auto co : _collision_objects) {
             co->syncTempVelocity();
         }

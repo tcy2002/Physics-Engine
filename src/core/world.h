@@ -3,7 +3,8 @@
 /*
  * TODO:
  * 1. add velocity sleeping threshold for world
- * 2. complete the anisotropic margin for box-box collision
+ * 3. anisotropic margin for box-box collision
+ * 4. make world api multi-thread safe
  */
 
 #include "common/vector3.h"
@@ -19,6 +20,9 @@ namespace pe_core {
     class World {
         COMMON_MEMBER_SET_GET(pe::Vector3, gravity, Gravity);
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);
+        COMMON_MEMBER_SET_GET(pe::Real, sleep_lin_vel2_threshold, SleepLinVel2Threshold);
+        COMMON_MEMBER_SET_GET(pe::Real, sleep_ang_vel2_threshold, SleepAngVel2Threshold);
+        COMMON_MEMBER_SET_GET(pe::Real, sleep_time_threshold, SleepTimeThreshold);
 
     protected:
         pe::Array<pe_phys_object::RigidBody*> _collision_objects;

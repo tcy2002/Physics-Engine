@@ -1,5 +1,5 @@
 #include "test_general.h"
-#include "phys/collision/collision_algorithm/mesh_mesh_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/convex_convex_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/box_box_collision_algorithm.h"
 #include "phys/object/rigidbody.h"
 #include "phys/shape/convex_mesh_shape.h"
@@ -81,7 +81,7 @@ void testMeshMesh() {
 //    rb2->setCollisionShape(new pe_phys_shape::BoxShape({20, 1, 20}));
     rb2->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
 
-    auto alg = new MeshMeshCollisionAlgorithm();
+    auto alg = new ConvexConvexCollisionAlgorithm();
 //    auto alg = new BoxBoxCollisionAlgorithm();
     ContactResult result;
     pe::Vector3 overlap_min, overlap_max;

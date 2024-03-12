@@ -4,7 +4,7 @@
 #include "phys/collision/narrow_phase/contact_result.h"
 #include "constraint.h"
 
-#define PE_MAX_CONTACT_POINT 8
+#define PE_MAX_CONTACT_POINT 16
 
 namespace pe_phys_constraint {
 
@@ -18,15 +18,11 @@ namespace pe_phys_constraint {
             pe::Vector3 n;
             pe::Vector3 t0;
             pe::Vector3 t1;
-            pe::Vector3 impulse_vector;
-            pe::Vector3 impulse_vector_penetration;
             pe::Real n_rhs = 0;
-            pe::Real n_penetration_rhs = 0;
             pe::Real n_denom_inv = 0;
             pe::Real t0_denom_inv = 0;
             pe::Real t1_denom_inv = 0;
             pe::Real n_applied_impulse = 0;
-            pe::Real n_applied_penetration_impulse = 0;
             pe::Real t0_applied_impulse = 0;
             pe::Real t1_applied_impulse = 0;
             pe::Real friction_coeff = 0;

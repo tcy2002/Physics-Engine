@@ -58,15 +58,17 @@ namespace pe_phys_object {
             _world_inv_inertia(pe::Matrix3::identity()),
             _friction_coeff(0.5),
             _restitution_coeff(0.5),
-            _linear_damping(0.),
-            _angular_damping(0.),
+            _linear_damping(0.0),
+            _angular_damping(0.0),
             _transform(pe::Transform::identity()),
             _linear_velocity(pe::Vector3::zeros()),
             _angular_velocity(pe::Vector3::zeros()),
             _force(pe::Vector3::zeros()),
             _torque(pe::Vector3::zeros()),
             _temp_linear_velocity(pe::Vector3::zeros()),
-            _temp_angular_velocity(pe::Vector3::zeros()) {
+            _temp_angular_velocity(pe::Vector3::zeros()),
+            _sleep(false),
+            _sleep_time(0) {
         updateWorldInertia();
     }
 

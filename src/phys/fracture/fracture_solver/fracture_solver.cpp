@@ -23,8 +23,10 @@ namespace pe_phys_fracture {
     }
 
     pe::Vector3 FractureSolver::randomSpherePoints(pe::Real radius) {
-        // 935581478
+        // edge contact and tiny fragment: 1013108201 1013255245
+        // not stable: 1016601555
         static auto seed = COMMON_GetTickCount();
+        std::cout << "seed: " << seed << std::endl;
         static std::default_random_engine e(seed);
         static std::uniform_real_distribution<pe::Real> d(0., 1.);
         pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
@@ -50,9 +52,6 @@ namespace pe_phys_fracture {
         rb->setLocalInertia(convexMesh->calcLocalInertia(rb->getMass()));
         rb->setFrictionCoeff(0.3);
         rb->setRestitutionCoeff(0.8);
-        pe::Vector3 aabb_min, aabb_max;
-        convexMesh->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
-        rb->setMargin((aabb_max - aabb_min) * 0.005);
         return rb;
     }
 

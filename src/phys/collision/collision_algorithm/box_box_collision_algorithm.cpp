@@ -34,8 +34,7 @@ namespace pe_phys_collision {
 
     // box-box collision (bullet)
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                    pe_phys_object::RigidBody* object_b, ContactResult& result,
-                                                    pe::Vector3 overlapMin, pe::Vector3 overlapMax) {
+                                                    pe_phys_object::RigidBody* object_b, ContactResult& result) {
         if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box ||
             object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
             return false;

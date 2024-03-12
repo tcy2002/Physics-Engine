@@ -1,5 +1,4 @@
 #include "simple_narrow_phase.h"
-#include "core/viewer.h"
 #include "utils/thread_pool.h"
 
 namespace pe_phys_collision {
@@ -10,18 +9,15 @@ namespace pe_phys_collision {
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [this](const CollisionPair& pair, int idx) {
             ContactResult result;
-            pe::Vector3 overlap_min, overlap_max;
             auto type_a = pair.first->getCollisionShape()->getType();
             auto type_b = pair.second->getCollisionShape()->getType();
             bool ret = false;
             if (type_a == pe_phys_shape::ShapeType::Box &&
                 type_b == pe_phys_shape::ShapeType::Box) {
-                ret = _algos[0]->processCollision(pair.first, pair.second, result,
-                                                  overlap_min, overlap_max);
+                ret = _algos[0]->processCollision(pair.first, pair.second, result);
             } else if (type_a == pe_phys_shape::ShapeType::ConvexMesh &&
                        type_b == pe_phys_shape::ShapeType::ConvexMesh) {
-                ret = _algos[1]->processCollision(pair.first, pair.second, result,
-                                                  overlap_min, overlap_max);
+                ret = _algos[1]->processCollision(pair.first, pair.second, result);
             }
             if (ret) {
                 _contact_results[idx] = result;
@@ -54,19 +50,6 @@ namespace pe_phys_collision {
             }
             if (ret) {
                 _contact_results.push_back(result);
-
-//                static pe::Array<int> debug_points;
-//                for (auto id : debug_points) {
-//                    pe_core::Viewer::removeCube(id);
-//                }
-//                debug_points.clear();
-//                for (int i = 0; i < result.getPointSize(); i++) {
-//                    auto point = result.getContactPoint(i).getWorldPos();
-//                    int id = pe_core::Viewer::addCube({0.2, 0.2, 0.2});
-//                    pe_core::Viewer::updateCubeColor(id, {1, 0, 0});
-//                    pe_core::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
-//                    debug_points.push_back(id);
-//                }
             }
         }
 #   endif

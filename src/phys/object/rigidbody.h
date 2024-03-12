@@ -6,45 +6,37 @@
 namespace pe_phys_object {
 
     class RigidBody {
+        /* Base properties: id, kinematic, shape, mass, inertia */
         COMMON_MEMBER_GET(uint32_t, global_id, GlobalId)
         COMMON_BOOL_SET_GET(kinematic, Kinematic)
         COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
-
         COMMON_MEMBER_GET(pe::Real, mass, Mass)
         COMMON_MEMBER_GET(pe::Real, inv_mass, InvMass)
     public:
         void setMass(pe::Real mass);
-
         COMMON_MEMBER_GET(pe::Matrix3, local_inertia, LocalInertia)
         COMMON_MEMBER_GET(pe::Matrix3, local_inv_inertia, LocalInvInertia)
     public:
         void setLocalInertia(const pe::Matrix3& local_inertia);
-
         COMMON_MEMBER_GET(pe::Matrix3, world_inertia, WorldInertia)
         COMMON_MEMBER_GET(pe::Matrix3, world_inv_inertia, WorldInvInertia)
     protected:
         void updateWorldInertia();
 
+        /* Physical properties: friction, restitution, damping */
         COMMON_MEMBER_SET_GET(pe::Real, friction_coeff, FrictionCoeff)
         COMMON_MEMBER_SET_GET(pe::Real, restitution_coeff, RestitutionCoeff)
         COMMON_MEMBER_SET_GET(pe::Real, linear_damping, LinearDamping)
         COMMON_MEMBER_SET_GET(pe::Real, angular_damping, AngularDamping)
 
+        /* Dynamic properties: transform, velocity, force, torque */
         COMMON_MEMBER_GET(pe::Transform, transform, Transform)
     public:
         void setTransform(const pe::Transform& transform);
-
         COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)
         COMMON_MEMBER_SET_GET(pe::Vector3, angular_velocity, AngularVelocity)
-
-        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
-        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
-
         COMMON_MEMBER_GET(pe::Vector3, force, Force)
         COMMON_MEMBER_GET(pe::Vector3, torque, Torque)
-
-        COMMON_MEMBER_SET_GET(pe::Vector3, margin, Margin)
-
         // Temp velocity should be protected by lock
     protected:
         pe::Vector3 _temp_linear_velocity;
@@ -57,9 +49,16 @@ namespace pe_phys_object {
         void setTempLinearVelocity(const pe::Vector3& v);
         void setTempAngularVelocity(const pe::Vector3& v);
 
+        /* Geometric properties for collision detection */
+        COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
+        COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
     private:
         static std::atomic<uint32_t> _globalIdCounter;
         pe::Array<uint32_t> _ignore_collision_ids;
+
+        /* Sleep */
+        COMMON_BOOL_SET_GET(sleep, Sleep)
+        COMMON_MEMBER_GET(pe::Real, sleep_time, SleepTime)
 
     public:
         RigidBody();
@@ -67,6 +66,9 @@ namespace pe_phys_object {
 
         virtual bool isDeformable() const { return false; }
         virtual bool isFracturable() const { return false; }
+
+        void updateSleepTime(pe::Real dt) { _sleep_time += dt; }
+        void resetSleepTime() { _sleep_time = 0; }
 
         void computeAABB();
         pe::Real getAABBScale() const;

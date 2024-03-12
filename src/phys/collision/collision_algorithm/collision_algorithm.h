@@ -11,7 +11,7 @@ namespace pe_phys_collision {
         CollisionAlgorithm() {}
         virtual ~CollisionAlgorithm() {}
         virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
-                                      ContactResult& result, pe::Vector3 overlapMin, pe::Vector3 overlapMax) = 0;
+                                      ContactResult& result) = 0;
     };
 
 } // pe_phys_collision

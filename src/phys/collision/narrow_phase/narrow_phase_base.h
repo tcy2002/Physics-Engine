@@ -5,7 +5,7 @@
 #include "phys/collision/broad_phase/broad_phase_base.h"
 #include "contact_result.h"
 #include "phys/collision/collision_algorithm/box_box_collision_algorithm.h"
-#include "phys/collision/collision_algorithm/mesh_mesh_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/convex_convex_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
@@ -15,7 +15,7 @@ namespace pe_phys_collision {
 
     public:
         NarrowPhaseBase() {
-            _algos = { new BoxBoxCollisionAlgorithm(), new MeshMeshCollisionAlgorithm() };
+            _algos = { new BoxBoxCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm() };
         }
         virtual ~NarrowPhaseBase() {
             for (auto algo : _algos) {
