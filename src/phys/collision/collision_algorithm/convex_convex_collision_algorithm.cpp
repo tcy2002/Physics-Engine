@@ -25,10 +25,12 @@ namespace pe_phys_collision {
         VertexArray world_verts_b2;
 
         result.cleanContactPointFlag();
-        if (!findSeparatingAxis(object_a, object_b, transA, transB, sep, margin, result)) {
+        if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
+                                shape_a->getUniqueEdges(), shape_b->getUniqueEdges(),
+                                transA, transB, sep, margin, result)) {
             return false;
         }
-        clipHullAgainstHull(sep, shape_a, shape_b, transA, transB,
+        clipHullAgainstHull(sep, mesh_a, mesh_b, transA, transB,
                             PE_REAL_MIN, 0, world_verts_b1, world_verts_b2,
                             margin, result);
         result.sortContactPoints();
@@ -36,20 +38,18 @@ namespace pe_phys_collision {
     }
 
     void ConvexConvexCollisionAlgorithm::clipHullAgainstHull(const pe::Vector3 &separatingNormal1,
-                                                             const pe_phys_shape::ConvexMeshShape* object_a,
-                                                             const pe_phys_shape::ConvexMeshShape* object_b,
+                                                             const pe::Mesh& meshA, const pe::Mesh& meshB,
                                                              const pe::Transform &transA, const pe::Transform &transB,
                                                              pe::Real minDist, pe::Real maxDist,
                                                              VertexArray &worldVertsB1, VertexArray &worldVertsB2,
                                                              pe::Real margin, ContactResult &result) {
         pe::Vector3 separatingNormal = separatingNormal1.normalized();
-        auto& mesh_b = object_b->getMesh();
 
         int closestFaceB = -1;
         pe::Real dMax = PE_REAL_MIN;
         {
-            for (int face = 0; face < mesh_b.faces.size(); face++) {
-                const pe::Vector3 Normal = mesh_b.faces[face].normal;
+            for (int face = 0; face < meshB.faces.size(); face++) {
+                const pe::Vector3 Normal = meshB.faces[face].normal;
                 const pe::Vector3 WorldNormal = transB.getBasis() * Normal;
                 pe::Real d = WorldNormal.dot(separatingNormal);
                 if (d > dMax) {
@@ -64,23 +64,22 @@ namespace pe_phys_collision {
 
         worldVertsB1.resize(0);
         {
-            const auto& polyB = mesh_b.faces[closestFaceB];
+            const auto& polyB = meshB.faces[closestFaceB];
             const int numVertices = (int)polyB.indices.size();
             for (int e0 = 0; e0 < numVertices; e0++) {
-                pe::Vector3 b = mesh_b.vertices[polyB.indices[e0]].position;
+                pe::Vector3 b = meshB.vertices[polyB.indices[e0]].position;
                 worldVertsB1.push_back(transB * b);
             }
         }
 
         if (closestFaceB >= 0) {
-            clipFaceAgainstHull(separatingNormal, object_a, transA, worldVertsB1, worldVertsB2,
+            clipFaceAgainstHull(separatingNormal, meshA, transA, worldVertsB1, worldVertsB2,
                                 minDist, maxDist, margin, result);
         }
     }
 
     void ConvexConvexCollisionAlgorithm::clipFaceAgainstHull(const pe::Vector3 &separatingNormal,
-                                                             const pe_phys_shape::ConvexMeshShape* object_a,
-                                                             const pe::Transform &transA,
+                                                             const pe::Mesh& meshA, const pe::Transform &transA,
                                                              VertexArray &worldVertsB1, VertexArray &worldVertsB2,
                                                              pe::Real minDist, pe::Real maxDist,
                                                              pe::Real margin, ContactResult &result) {
@@ -88,13 +87,12 @@ namespace pe_phys_collision {
         VertexArray* pVtxIn = &worldVertsB1;
         VertexArray* pVtxOut = &worldVertsB2;
         pVtxOut->reserve(pVtxIn->size());
-        auto& mesh_a = object_a->getMesh();
 
         int closestFaceA = -1;
         {
             pe::Real dMin = PE_REAL_MAX;
-            for (int face = 0; face < mesh_a.faces.size(); face++) {
-                const pe::Vector3 Normal = mesh_a.faces[face].normal;
+            for (int face = 0; face < meshA.faces.size(); face++) {
+                const pe::Vector3 Normal = meshA.faces[face].normal;
                 const pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
 
                 pe::Real d = faceANormalWS.dot(separatingNormal);
@@ -108,14 +106,14 @@ namespace pe_phys_collision {
             return;
         }
 
-        const auto& polyA = mesh_a.faces[closestFaceA];
+        const auto& polyA = meshA.faces[closestFaceA];
 
         // clip polygon to back of planes of all faces of hull A that are adjacent to witness face
         int numVerticesA = (int)polyA.indices.size();
         pe::Vector3 worldPlaneANormal1 = transA.getBasis() * polyA.normal;
         for (int e0 = 0; e0 < numVerticesA; e0++) {
-            pe::Vector3 a = mesh_a.vertices[polyA.indices[e0]].position;
-            pe::Vector3 b = mesh_a.vertices[polyA.indices[(e0 + 1) % numVerticesA]].position;
+            pe::Vector3 a = meshA.vertices[polyA.indices[e0]].position;
+            pe::Vector3 b = meshA.vertices[polyA.indices[(e0 + 1) % numVerticesA]].position;
             const pe::Vector3 edge0 = a - b;
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
 
@@ -131,7 +129,7 @@ namespace pe_phys_collision {
 
         // only keep points that are behind the witness face
         {
-            pe::Vector3 planeV = mesh_a.vertices[polyA.indices[0]].position;
+            pe::Vector3 planeV = meshA.vertices[polyA.indices[0]].position;
             pe::Vector3 localPlaneNormal = polyA.normal;
 
             for (int i = 0; i < pVtxIn->size(); i++) {
@@ -236,8 +234,8 @@ namespace pe_phys_collision {
         ptsVector = translation - offsetA + offsetB;
     }
 
-    static bool testSepAxis(const pe_phys_shape::ConvexMeshShape* object_a,
-                            const pe_phys_shape::ConvexMeshShape* object_b,
+    static bool testSepAxis(const pe_phys_shape::Shape* object_a,
+                            const pe_phys_shape::Shape* object_b,
                             const pe::Transform& transA, const pe::Transform& transB,
                             const pe::Vector3& sep_axis, pe::Real& depth,
                             pe::Vector3& witnessPointA, pe::Vector3& witnessPointB) {
@@ -266,14 +264,13 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(const pe_phys_object::RigidBody* object_a,
-                                                            const pe_phys_object::RigidBody* object_b,
+    bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(const pe_phys_shape::Shape* shapeA,
+                                                            const pe_phys_shape::Shape* shapeB,
+                                                            const pe::Mesh& meshA, const pe::Mesh& meshB,
+                                                            const pe::Array<pe::Vector3>& uniqueEdgesA,
+                                                            const pe::Array<pe::Vector3>& uniqueEdgesB,
                                                             const pe::Transform &transA, const pe::Transform &transB,
                                                             pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
-        auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::ConvexMeshShape*)object_b->getCollisionShape();
-        auto& mesh_a = shape_a->getMesh();
-        auto& mesh_b = shape_b->getMesh();
         const pe::Vector3 c0 = transA.getOrigin();
         const pe::Vector3 c1 = transB.getOrigin();
         const pe::Vector3 DeltaC2 = c0 - c1;
@@ -283,15 +280,15 @@ namespace pe_phys_collision {
         bool ptOnA = false;
 
         // Test normals from hullA
-        for (int i = 0; i < (int)mesh_a.faces.size(); i++) {
-            const pe::Vector3 Normal = mesh_a.faces[i].normal;
+        for (int i = 0; i < (int)meshA.faces.size(); i++) {
+            const pe::Vector3 Normal = meshA.faces[i].normal;
             pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
             if (DeltaC2.dot(faceANormalWS) < 0)
                 faceANormalWS *= -1.f;
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(shape_a, shape_b, transA, transB, faceANormalWS, d, wA, wB)) {
+            if (!testSepAxis(shapeA, shapeB, transA, transB, faceANormalWS, d, wA, wB)) {
                 return false;
             }
 
@@ -304,8 +301,8 @@ namespace pe_phys_collision {
         }
 
         // Test normals from hullB
-        for (int i = 0; i < (int)mesh_b.faces.size(); i++) {
-            const pe::Vector3 Normal = mesh_b.faces[i].normal;
+        for (int i = 0; i < (int)meshB.faces.size(); i++) {
+            const pe::Vector3 Normal = meshB.faces[i].normal;
             pe::Vector3 WorldNormal = transB.getBasis() * Normal;
             if (DeltaC2.dot(WorldNormal) < 0) {
                 WorldNormal *= -1.f;
@@ -313,7 +310,7 @@ namespace pe_phys_collision {
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(shape_a, shape_b, transA, transB,
+            if (!testSepAxis(shapeA, shapeB, transA, transB,
                              WorldNormal, d, wA, wB)) {
                 return false;
             }
@@ -327,8 +324,8 @@ namespace pe_phys_collision {
         }
 
         // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        if ((ptOnA && object_b->getCollisionShape()->localIsInside(transB.inverseTransform(dMinPt))) ||
-            (!ptOnA && object_a->getCollisionShape()->localIsInside(transA.inverseTransform(dMinPt)))) {
+        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt))) ||
+            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt)))) {
             result.addContactPoint(sep, dMinPt - sep * margin,
                                    -dMin + margin * 2);
         }
@@ -340,13 +337,11 @@ namespace pe_phys_collision {
         pe::Vector3 witnessPointA(0, 0, 0), witnessPointB(0, 0, 0);
 
         // Test edges
-        auto& unique_edges_a = shape_a->getUniqueEdges();
-        auto& unique_edges_b = shape_b->getUniqueEdges();
-        for (int e0 = 0; e0 < unique_edges_a.size(); e0++) {
-            const pe::Vector3 edge0 = unique_edges_a[e0];
+        for (int e0 = 0; e0 < uniqueEdgesA.size(); e0++) {
+            const pe::Vector3 edge0 = uniqueEdgesA[e0];
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
-            for (int e1 = 0; e1 < unique_edges_b.size(); e1++) {
-                const pe::Vector3 edge1 = unique_edges_b[e1];
+            for (int e1 = 0; e1 < uniqueEdgesB.size(); e1++) {
+                const pe::Vector3 edge1 = uniqueEdgesB[e1];
                 const pe::Vector3 WorldEdge1 = transB.getBasis() * edge1;
 
                 pe::Vector3 Cross = WorldEdge0.cross(WorldEdge1);
@@ -358,7 +353,7 @@ namespace pe_phys_collision {
 
                     pe::Real dist;
                     pe::Vector3 wA, wB;
-                    if (!testSepAxis(shape_a, shape_b, transA, transB,
+                    if (!testSepAxis(shapeA, shapeB, transA, transB,
                                      Cross, dist, wA, wB)) {
                         return false;
                     }

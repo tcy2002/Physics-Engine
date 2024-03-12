@@ -11,15 +11,7 @@ namespace pe_phys_collision {
             ContactResult result;
             auto type_a = pair.first->getCollisionShape()->getType();
             auto type_b = pair.second->getCollisionShape()->getType();
-            bool ret = false;
-            if (type_a == pe_phys_shape::ShapeType::Box &&
-                type_b == pe_phys_shape::ShapeType::Box) {
-                ret = _algos[0]->processCollision(pair.first, pair.second, result);
-            } else if (type_a == pe_phys_shape::ShapeType::ConvexMesh &&
-                       type_b == pe_phys_shape::ShapeType::ConvexMesh) {
-                ret = _algos[1]->processCollision(pair.first, pair.second, result);
-            }
-            if (ret) {
+            if (_algos[type_a * 4 + type_b]->processCollision(pair.first, pair.second, result)) {
                 _contact_results[idx] = result;
             }
         });

@@ -3,7 +3,6 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 #include "phys/object/fracturable_object.h"
-#include "phys/fracture/fracture_utils/default_mesh.h"
 #include "core/viewer.h"
 #include <fstream>
 
@@ -46,42 +45,27 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
     file.close();
 }
 
-pe::Mesh resizeBox(const pe::Vector3& size) {
-    pe::Mesh result = pe_phys_fracture::_box_mesh;
-    for (auto& v : result.vertices) {
-        v.position = v.position * size;
-    }
-    return std::move(result);
-}
-
 pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass,
-                                               const std::string& filename = "") {
+                                               const std::string& filename) {
     auto rb = new pe_phys_object::RigidBody();
     rb->setMass(mass);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
-    if (filename.empty()) {
-        auto shape = new pe_phys_shape::ConvexMeshShape();
-        shape->setMesh(resizeBox(size));
-        rb->setCollisionShape(shape);
-        rb->setLocalInertia(shape->calcLocalInertia(1.0));
-    } else {
-        pe::Mesh mesh;
-        objToMesh(mesh, filename);
-        auto shape = new pe_phys_shape::ConvexMeshShape();
-        shape->setMesh(mesh);
-        rb->setCollisionShape(shape);
-        rb->setLocalInertia(shape->calcLocalInertia(1.0));
-        pe::Vector3 aabb_min, aabb_max;
-        shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
-    }
+    pe::Mesh mesh;
+    objToMesh(mesh, filename);
+    auto shape = new pe_phys_shape::ConvexMeshShape();
+    shape->setMesh(mesh);
+    rb->setCollisionShape(shape);
+    rb->setLocalInertia(shape->calcLocalInertia(1.0));
+    pe::Vector3 aabb_min, aabb_max;
+    shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
     return rb;
 }
 
-pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vector3& size) {
+pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
     auto rb = new pe_phys_object::RigidBody();
-    rb->setMass(1.0);
+    rb->setMass(mass);
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
@@ -114,10 +98,10 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createMeshRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 8);
+    auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 8);
     rb1->setKinematic(true);
 #ifdef TEST_SECOND_GROUND
-    auto rb4 = createMeshRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(12, 1, 12), 2);
+    auto rb4 = createRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(12, 1, 12), 2);
     std::cout << rb4->getLocalInvInertia() << std::endl;
 #endif
 #ifdef TEST_SINGLE
@@ -151,7 +135,7 @@ void testWorld() {
 #endif
     pe::Array<pe_phys_object::RigidBody*> rbs;
     for (int i = 0; i < rb_num; i++) {
-        auto rb = createRigidBody(pe::Vector3(0, 5 + i * 1.1, 0), pe::Vector3(1, 1, 1));
+        auto rb = createRigidBody(pe::Vector3(0, 5 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
         rbs.push_back(rb);
         world->addRigidBody(rb);
     }
