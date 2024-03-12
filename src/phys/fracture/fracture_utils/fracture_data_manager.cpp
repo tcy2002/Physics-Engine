@@ -157,9 +157,9 @@ namespace pe_phys_fracture {
                 for (uint32_t i = 0; i < face.indices.size() - 2; i++) {
                     !tri_added[k] &&
                     (tri_added[k++] = add_triangle_to_face(
-                            face.indices[0],
-                            face.indices[i + 1],
-                            face.indices[i + 2])) &&
+                            vert_ids[face.indices[0]],
+                            vert_ids[face.indices[i + 1]],
+                            vert_ids[face.indices[i + 2]])) &&
                     ++num;
                 }
             }

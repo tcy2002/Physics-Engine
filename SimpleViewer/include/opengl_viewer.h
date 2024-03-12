@@ -56,7 +56,8 @@ namespace simple_viewer {
         OBJ_CUBE = 2,
         OBJ_CYLINDER = 3,
         OBJ_CONE = 4,
-        OBJ_LINE = 5
+        OBJ_LINE = 5,
+        OBJ_SPHERE = 6
     };
 
     // object update command type
@@ -67,6 +68,7 @@ namespace simple_viewer {
         OBJ_UPDATE_MESH,
         OBJ_UPDATE_CUBE,
         OBJ_UPDATE_CYLINDER,
+        OBJ_UPDATE_SPHERE,
         OBJ_UPDATE_CONE,
         OBJ_UPDATE_LINE,
         OBJ_UPDATE_LINE_WIDTH,
@@ -90,8 +92,10 @@ namespace simple_viewer {
                 type(_type), dynamic(_dynamic), size({ x, y, z }) {}
         ObjInitParam(ObjType _type, bool _dynamic, float radius, float height): // NOLINT
                 type(_type), dynamic(_dynamic), size({ radius, height, 0 }) {}
-        ObjInitParam(ObjType _type, bool _dynamic, std::vector<float> _line): // NOLINT
+        ObjInitParam(ObjType _type, bool _dynamic, std::vector<float> _line):   // NOLINT
                 type(_type), dynamic(_dynamic), line(std::move(_line)) {}
+        ObjInitParam(ObjType _type, bool _dynamic, float radius):               // NOLINT
+                type(_type), dynamic(_dynamic), size({ radius, 0, 0 }) {}
         ~ObjInitParam() { /* no effect but non-trivial */ }                     // NOLINT
     };
 
@@ -105,7 +109,6 @@ namespace simple_viewer {
             common::Vector3<float> vec;
             common::Mesh<float> mesh;
             std::vector<float> line;
-            float line_width;
         };
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, const common::Transform<float>& _transform): // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), transform(_transform) {}
@@ -115,16 +118,16 @@ namespace simple_viewer {
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec({ x, y, z }) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float radius, float height):  // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec({ radius, height, 0 }) {}
+        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float single):                // NOLINT
+                act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), vec({ single, 0, 0 }) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, common::Mesh<float> _mesh):   // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), mesh(std::move(_mesh)) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, std::vector<float> _line):    // NOLINT
             act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), line(std::move(_line)) {}
-        ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type, float _line_width):           // NOLINT
-            act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), line_width(_line_width) {}
         ObjUpdateParam(ObjUpdateType _act_type, int _obj_id, int _obj_type):                              // NOLINT
-            act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type), line_width(0) {}
+            act_type(_act_type), obj_id(_obj_id), obj_type(_obj_type) {}
         ObjUpdateParam(ObjUpdateType _act_type):                                                          // NOLINT
-            act_type(_act_type), obj_id(-1), obj_type(ObjType::OBJ_NONE), line_width(0) {}
+            act_type(_act_type), obj_id(-1), obj_type(ObjType::OBJ_NONE) {}
         ~ObjUpdateParam() { /* no effect but non-trivial */ }                                             // NOLINT
     };
 
