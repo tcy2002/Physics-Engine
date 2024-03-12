@@ -22,13 +22,20 @@ namespace pe_phys_fracture {
         ofs.close();
     }
 
+    uint32_t generate_seed() {
+        static uint32_t seed = -1;
+        if (seed == -1) {
+            seed = COMMON_GetTickCount();
+            std::cout << "fracture seed: " << seed << std::endl;
+        }
+        return seed;
+    }
+
     pe::Vector3 FractureSolver::randomSpherePoints(pe::Real radius) {
         // edge contact and tiny fragment: 1013108201 1013255245
         // not stable: 1016601555
         // seems to pass through: 1019554970
-        static auto seed = 1019554970;
-        std::cout << "seed: " << seed << std::endl;
-        static std::default_random_engine e(seed);
+        static std::default_random_engine e(generate_seed());
         static std::uniform_real_distribution<pe::Real> d(0., 1.);
         pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
         pe::Real cos_t = cos(theta), sin_t = sin(theta), cos_a = cos(alpha), sin_a = sin(alpha);

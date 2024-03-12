@@ -25,7 +25,7 @@ namespace pe_phys_shape {
                                                  pe_phys_fracture::vector3_equal);
         pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
-            _faces.push_back({});
+            _unique_faces.push_back({});
             for (int i = 0; i < f.indices.size(); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
@@ -33,8 +33,8 @@ namespace pe_phys_shape {
                 uint32_t id1 = vert_map.index_of(_mesh.vertices[v1].position);
                 if (id0 == -1) { vert_map.push_back(_mesh.vertices[v0].position); id0 = vert_map.size() - 1; }
                 if (id1 == -1) { vert_map.push_back(_mesh.vertices[v1].position); id1 = vert_map.size() - 1; }
-                if (i == 0) _faces.back().push_back(id0);
-                if (i != f.indices.size() - 1) _faces.back().push_back(id1);
+                if (i == 0) _unique_faces.back().push_back(id0);
+                if (i != f.indices.size() - 1) _unique_faces.back().push_back(id1);
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;
@@ -129,7 +129,7 @@ namespace pe_phys_shape {
                          _unique_verts.size() * INERTIA_SURFACE_ITER);
 
         pe::Real sum = 0;
-        for (auto& face : _faces) {
+        for (auto& face : _unique_faces) {
             pe::Vector3 center_face = pe::Vector3::zeros();
             for (auto& v : face) {
                 center_face += _unique_verts[v];

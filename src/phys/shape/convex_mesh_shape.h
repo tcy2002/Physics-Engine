@@ -10,7 +10,7 @@ namespace pe_phys_shape {
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
         pe::Array<pe::Vector3> _unique_edges;
         pe::Array<pe::Vector3> _unique_verts;
-        pe::Array<pe::Array<uint32_t>> _faces;
+        pe::Array<pe::Array<uint32_t>> _unique_faces;
 
     public:
         pe::Vector3 setMesh(pe::Mesh mesh);
