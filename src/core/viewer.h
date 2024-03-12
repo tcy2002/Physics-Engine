@@ -31,6 +31,11 @@ namespace pe_core {
         static void updateMeshTransform(int id, const pe::Transform& transform);
         static void updateMeshColor(int id, const pe::Vector3& color);
         static void removeMesh(int id);
+
+        static int addSphere(pe::Real radius);
+        static void updateSphereTransform(int id, const pe::Transform& transform);
+        static void updateSphereColor(int id, const pe::Vector3& color);
+        static void removeSphere(int id);
     };
 
 } // namespace pe_core

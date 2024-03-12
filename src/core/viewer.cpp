@@ -124,4 +124,39 @@ namespace pe_core {
         }
     }
 
+    int Viewer::addSphere(pe::Real radius) {
+        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+                simple_viewer::ObjType::OBJ_SPHERE, true,
+                (float)radius));
+        _obj_map[id] = simple_viewer::ObjType::OBJ_SPHERE;
+        return id;
+    }
+
+    void Viewer::updateSphereTransform(int id, const pe::Transform& transform) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
+                    id, simple_viewer::ObjType::OBJ_SPHERE,
+                    convertTransform(transform)));
+        }
+    }
+
+    void Viewer::updateSphereColor(int id, const pe::Vector3& color) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
+                    id, simple_viewer::ObjType::OBJ_SPHERE,
+                    convertVector3(color)));
+        }
+    }
+
+    void Viewer::removeSphere(int id) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_DEL,
+                    id, simple_viewer::ObjType::OBJ_SPHERE));
+            _obj_map.erase(id);
+        }
+    }
+
 } // namespace pe_core
