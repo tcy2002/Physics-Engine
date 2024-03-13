@@ -116,7 +116,7 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 8);
+    auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(50, 1, 50), 8);
     rb1->setKinematic(true);
 #ifdef TEST_SINGLE
     const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
@@ -169,7 +169,7 @@ void testWorld() {
 #endif
 
     // add to viewer
-    int id1 = pe_core::Viewer::addCube(pe::Vector3(20, 1, 20));
+    int id1 = pe_core::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
     pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
 #ifdef TEST_SINGLE
