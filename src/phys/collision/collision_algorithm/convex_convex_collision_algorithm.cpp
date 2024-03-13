@@ -1,4 +1,5 @@
 #include "convex_convex_collision_algorithm.h"
+#include "phys/shape/convex_mesh_shape.h"
 
 namespace pe_phys_collision {
 
@@ -31,7 +32,7 @@ namespace pe_phys_collision {
             return false;
         }
         clipHullAgainstHull(sep, mesh_a, mesh_b, transA, transB,
-                            PE_REAL_MIN, 0, world_verts_b1, world_verts_b2,
+                            PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
                             margin, result);
         result.sortContactPoints();
         return result.getPointSize() > 0;
@@ -324,8 +325,8 @@ namespace pe_phys_collision {
         }
 
         // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt))) ||
-            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt)))) {
+        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt), margin)) ||
+            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt), margin))) {
             result.addContactPoint(sep, dMinPt - sep * margin,
                                    -dMin + margin * 2);
         }

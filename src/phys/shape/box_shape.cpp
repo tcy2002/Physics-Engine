@@ -5,14 +5,6 @@ namespace pe_phys_shape {
     BoxShape::BoxShape(const pe::Vector3 &size):
         _size(size), _half_size(size / 2) {}
 
-    pe::Vector3 BoxShape::localGetSupportVertex(const pe::Vector3 &dir) const {
-        return pe::Vector3(
-                dir.x > 0 ? _half_size.x : -_half_size.x,
-                dir.y > 0 ? _half_size.y : -_half_size.y,
-                dir.z > 0 ? _half_size.z : -_half_size.z
-        );
-    }
-
     void BoxShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
         min = PE_VEC_MAX;
         max = PE_VEC_MIN;
@@ -31,10 +23,10 @@ namespace pe_phys_shape {
         max += pos;
     }
 
-    bool BoxShape::localIsInside(const pe::Vector3 &point) const {
-        return std::abs(point.x) <= _half_size.x &&
-               std::abs(point.y) <= _half_size.y &&
-               std::abs(point.z) <= _half_size.z;
+    bool BoxShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
+        return std::abs(point.x) <= _half_size.x + margin &&
+               std::abs(point.y) <= _half_size.y + margin &&
+               std::abs(point.z) <= _half_size.z + margin;
     }
 
     void BoxShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,

@@ -47,19 +47,6 @@ namespace pe_phys_shape {
         return centroid;
     }
 
-    pe::Vector3 ConvexMeshShape::localGetSupportVertex(const pe::Vector3 &dir) const {
-        pe::Real max_dot = PE_REAL_MIN;
-        pe::Vector3 result;
-        for (auto &p: _mesh.vertices) {
-            auto dot = p.position.dot(dir);
-            if (dot > max_dot) {
-                max_dot = dot;
-                result = p.position;
-            }
-        }
-        return result;
-    }
-
     void ConvexMeshShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
         min = PE_VEC_MAX;
         max = PE_VEC_MIN;
@@ -74,11 +61,11 @@ namespace pe_phys_shape {
         max += pos;
     }
 
-    bool ConvexMeshShape::localIsInside(const pe::Vector3 &point) const {
+    bool ConvexMeshShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
         return !std::any_of(_mesh.faces.begin(), _mesh.faces.end(), [&](auto &f) {
             auto &normal = f.normal;
             auto &p0 = _mesh.vertices[f.indices[0]].position;
-            return normal.dot(point - p0) > 0;
+            return normal.dot(point - p0) >= margin;
         });
     }
 

@@ -100,7 +100,7 @@ namespace pe_phys_fracture {
                 int point_count = (int)(impact_radius * SPHERE_DENSITY);
                 for (int i = 0; i < point_count; i++) {
                     auto point = randomSpherePoints(impact_radius) + local_impact_pos;
-                    if (shape->localIsInside(point)) {
+                    if (shape->localIsInside(point, 0)) {
                         points.push_back(point);
                     }
                 }
@@ -111,7 +111,7 @@ namespace pe_phys_fracture {
                 for (int i = 0; i < point_count; i++) {
                     auto point = rot * randomCylinderPoints(impact_radius / 5,
                                                             impact_radius * 5) + local_impact_pos;
-                    if (shape->localIsInside(point)) {
+                    if (shape->localIsInside(point, 0)) {
                         points.push_back(point);
                     }
                 }

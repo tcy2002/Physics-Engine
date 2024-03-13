@@ -3,7 +3,7 @@
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "utils/thread_pool.h"
-#include "core/viewer.h"
+#include "viewer.h"
 
 namespace pe_core {
 

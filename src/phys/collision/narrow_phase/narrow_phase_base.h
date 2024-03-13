@@ -7,6 +7,8 @@
 #include "phys/collision/collision_algorithm/box_box_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/convex_convex_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/box_convex_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/sphere_sphere_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/box_sphere_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
@@ -16,10 +18,12 @@ namespace pe_phys_collision {
 
     public:
         NarrowPhaseBase() {
-            _algos = { new BoxBoxCollisionAlgorithm(), nullptr, nullptr, new BoxConvexCollisionAlgorithm(),
-                       nullptr, nullptr, nullptr, nullptr,
-                       nullptr, nullptr, nullptr, nullptr,
-                       new BoxConvexCollisionAlgorithm(), nullptr, nullptr, new ConvexConvexCollisionAlgorithm() };
+            _algos = {
+                    new BoxBoxCollisionAlgorithm(), new BoxSphereCollisionAlgorithm(), nullptr, new BoxConvexCollisionAlgorithm(),
+                    new BoxSphereCollisionAlgorithm(), new SphereSphereCollisionAlgorithm(), nullptr, nullptr,
+                    nullptr, nullptr, nullptr, nullptr,
+                    new BoxConvexCollisionAlgorithm(), nullptr, nullptr, new ConvexConvexCollisionAlgorithm()
+            };
         }
         virtual ~NarrowPhaseBase() {
             for (auto algo : _algos) {

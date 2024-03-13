@@ -16,9 +16,9 @@ namespace pe_phys_collision {
                object_b->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box)) {
             return false;
         }
+
         auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
-
         auto& mesh_a = shape_a->getMesh();
         auto mesh_b = pe_phys_fracture::_box_mesh;
         auto& size = shape_b->getSize();

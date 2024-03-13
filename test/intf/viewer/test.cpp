@@ -1,4 +1,4 @@
-#include "core/viewer.h"
+#include "intf/viewer.h"
 
 void testViewer() {
     pe_core::Viewer::open();

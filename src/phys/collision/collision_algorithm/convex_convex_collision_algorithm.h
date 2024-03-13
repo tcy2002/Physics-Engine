@@ -1,7 +1,6 @@
 #pragma once
 
 #include "collision_algorithm.h"
-#include "phys/shape/convex_mesh_shape.h"
 
 namespace pe_phys_collision {
 
