@@ -57,20 +57,16 @@ namespace pe_phys_collision {
 
         //if there is no penetration, we are done
         pe::Real dist2 = normal.norm2();
-        if (dist2 > contactDist * contactDist)
-        {
+        if (dist2 > contactDist * contactDist) {
             return false;
         }
 
         pe::Real distance;
 
         //special case if the sphere center is inside the box
-        if (dist2 <= PE_EPS * PE_EPS)
-        {
+        if (dist2 <= PE_EPS * PE_EPS) {
             distance = -getSpherePenetration(boxHalfExtent, sphereRelPos, closestPoint, normal);
-        }
-        else  //compute the penetration details
-        {
+        } else { //compute the penetration details
             distance = normal.norm();
             normal /= distance;
         }
@@ -97,8 +93,7 @@ namespace pe_phys_collision {
         normal = {1, 0, 0};
 
         faceDist = boxHalfExt.x + sphereRelPos.x;
-        if (faceDist < minDist)
-        {
+        if (faceDist < minDist) {
             minDist = faceDist;
             closestPoint = sphereRelPos;
             closestPoint.x = -boxHalfExt.x;
@@ -106,8 +101,7 @@ namespace pe_phys_collision {
         }
 
         faceDist = boxHalfExt.y - sphereRelPos.y;
-        if (faceDist < minDist)
-        {
+        if (faceDist < minDist) {
             minDist = faceDist;
             closestPoint = sphereRelPos;
             closestPoint.y = boxHalfExt.x;
@@ -115,8 +109,7 @@ namespace pe_phys_collision {
         }
 
         faceDist = boxHalfExt.y + sphereRelPos.y;
-        if (faceDist < minDist)
-        {
+        if (faceDist < minDist) {
             minDist = faceDist;
             closestPoint = sphereRelPos;
             closestPoint.y = -boxHalfExt.y;
@@ -124,8 +117,7 @@ namespace pe_phys_collision {
         }
 
         faceDist = boxHalfExt.z - sphereRelPos.z;
-        if (faceDist < minDist)
-        {
+        if (faceDist < minDist) {
             minDist = faceDist;
             closestPoint = sphereRelPos;
             closestPoint.z = boxHalfExt.z;
@@ -133,8 +125,7 @@ namespace pe_phys_collision {
         }
 
         faceDist = boxHalfExt.z + sphereRelPos.z;
-        if (faceDist < minDist)
-        {
+        if (faceDist < minDist) {
             minDist = faceDist;
             closestPoint = sphereRelPos;
             closestPoint.z = -boxHalfExt.z;

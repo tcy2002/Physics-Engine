@@ -11,7 +11,7 @@
 #define SPHERE 1
 
 //#define TEST_SINGLE
-//#define TEST_FRAC
+#define TEST_FRAC
 //#define TEST_SECOND_GROUND
 #define TEST_NUM 100
 #define TEST_SHAPE SPHERE
@@ -120,7 +120,7 @@ void testWorld() {
     rb1->setKinematic(true);
 #ifdef TEST_SINGLE
     const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
-    auto rb2 = createMeshRigidBody(pe::Vector3(0, 10, 0), pe::Vector3(1, 1, 1), filename);
+    auto rb2 = createMeshRigidBody(pe::Vector3(0, 5, 0), pe::Vector3(1, 1, 1), 1.0, filename);
     pe::Transform trans, trans2;
     trans.setOrigin(rb2->getTransform().getOrigin());
     trans.setRotation({0, 0, 1}, -0.90);
