@@ -34,6 +34,7 @@ namespace common {
         COMMON_FORCE_INLINE Matrix3x3& operator*=(const Matrix3x3&);
         COMMON_FORCE_INLINE Vector3<Scalar> operator*(const Vector3<Scalar>&) const;
 
+        COMMON_FORCE_INLINE Vector3<Scalar> getColumn(int axis) const;
         COMMON_FORCE_INLINE Scalar determinant() const;
         COMMON_FORCE_INLINE Scalar trace() const;
         COMMON_FORCE_INLINE Matrix3x3 mult(const Matrix3x3&) const;
@@ -42,6 +43,7 @@ namespace common {
         COMMON_FORCE_INLINE Matrix3x3 inverse() const;
         COMMON_FORCE_INLINE void invert();
         COMMON_FORCE_INLINE void setRotation(const Vector3<Scalar> &axis, Scalar angle);
+        COMMON_FORCE_INLINE Matrix3x3 getAbsolute() const;
 
         COMMON_FORCE_INLINE static const Matrix3x3& identity();
         COMMON_FORCE_INLINE static const Matrix3x3& zeros();

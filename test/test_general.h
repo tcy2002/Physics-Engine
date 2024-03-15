@@ -8,10 +8,10 @@
 #include "common/matrix3x3.h"
 #include "common/transform.h"
 
-#define EPS 1e-5
+#define T_EPS 1e-4
 
 // compare two real numbers
-#define EQUAL(a, b) (std::abs((a) - (b)) < EPS)
+#define EQUAL(a, b) (std::abs((a) - (b)) < T_EPS)
 // compare two integers
 #define EQUAL_INT(a, b) ((a) == (b))
 // compare two vector

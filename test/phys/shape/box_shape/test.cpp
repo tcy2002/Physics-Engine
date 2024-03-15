@@ -47,12 +47,9 @@ void testAABB() {
 void testIsInside() {
     BoxShape box(pe::Vector3(1., 2., 3.));
 
-    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0., 0., 0.)),
-                 true)
-    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.499, 0.999, 1.499)),
-                 true)
-    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.501, 1.001, 1.501)),
-                 false)
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0., 0., 0.), 0), true)
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.499, 0.999, 1.499), 0), true)
+    ASSERT_EQUAL(box.localIsInside(pe::Vector3(0.501, 1.001, 1.501), 0), false)
 }
 
 void testProject() {

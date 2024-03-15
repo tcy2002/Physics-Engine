@@ -2,9 +2,7 @@
 
 /*
  * TODO:
- * 1. add velocity sleeping threshold for world
- * 3. anisotropic margin for box-box collision
- * 4. make world api multi-thread safe
+ * make world api multi-thread safe
  */
 
 #include "common/vector3.h"

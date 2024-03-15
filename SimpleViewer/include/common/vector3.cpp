@@ -133,6 +133,11 @@ Scalar Vector3<Scalar>::angle(const Vector3<Scalar>& other) const {
 }
 
 template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::getAbsolute() const {
+    return {std::abs(x), std::abs(y), std::abs(z)};
+}
+
+template <typename Scalar>
 const Vector3<Scalar>& Vector3<Scalar>::zeros() {
     static Vector3<Scalar> zeros;
     return zeros;

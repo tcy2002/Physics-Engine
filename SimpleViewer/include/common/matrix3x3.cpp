@@ -158,6 +158,11 @@ Vector3<Scalar> Matrix3x3<Scalar>::operator*(const Vector3<Scalar>& vec) const {
 }
 
 template <typename Scalar>
+Vector3<Scalar> Matrix3x3<Scalar>::getColumn(int axis) const {
+    return {_m[0][axis], _m[1][axis], _m[2][axis]};
+}
+
+template <typename Scalar>
 Scalar Matrix3x3<Scalar>::determinant() const {
     return _m[0][0] * (_m[1][1] * _m[2][2] - _m[2][1] * _m[1][2])
            + _m[0][1] * (_m[2][0] * _m[1][2] - _m[1][0] * _m[2][2])
@@ -251,6 +256,21 @@ void Matrix3x3<Scalar>::setRotation(const Vector3<Scalar> &axis, Scalar angle) {
     _m[2][0] = (1 - c) * z * x - s * y;
     _m[2][1] = (1 - c) * z * y + s * x;
     _m[2][2] = c + (1 - c) * z * z;
+}
+
+template <typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::getAbsolute() const {
+    Matrix3x3 res;
+    res._m[0][0] = std::abs(_m[0][0]);
+    res._m[0][1] = std::abs(_m[0][1]);
+    res._m[0][2] = std::abs(_m[0][2]);
+    res._m[1][0] = std::abs(_m[1][0]);
+    res._m[1][1] = std::abs(_m[1][1]);
+    res._m[1][2] = std::abs(_m[1][2]);
+    res._m[2][0] = std::abs(_m[2][0]);
+    res._m[2][1] = std::abs(_m[2][1]);
+    res._m[2][2] = std::abs(_m[2][2]);
+    return res;
 }
 
 template <typename Scalar>

@@ -14,7 +14,7 @@
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
 #define TEST_NUM 100
-#define TEST_SHAPE SPHERE
+#define TEST_SHAPE BOX
 #define TEST_FRAME_TH 1000000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
