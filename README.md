@@ -77,6 +77,4 @@
 
 ### 效果
 
-
-
-![demo.gif](F:\1CLionProjects\PhysicsEngine\screenshots\demo.gif)
+![demo.gif](./screenshots/demo.gif)
