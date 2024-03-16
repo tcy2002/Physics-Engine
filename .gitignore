@@ -46,3 +46,5 @@ lib/
 !opengl/**
 !SimpleViewer/
 !SimpleViewer/**
+!blob/
+!blob/**
