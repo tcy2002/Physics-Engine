@@ -77,4 +77,6 @@
 
 ### 效果
 
+gif帧率10帧，实际运行帧率为60帧
+
 ![demo.gif](./screenshots/demo.gif)
