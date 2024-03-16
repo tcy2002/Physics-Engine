@@ -1,17 +1,16 @@
-#include "intf/world.h"
+#include "core/world.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/sphere_shape.h"
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 #include "phys/object/fracturable_object.h"
-#include "intf/viewer.h"
+#include "core/viewer.h"
 #include <fstream>
 
 //#define TEST_SINGLE
 #define TEST_FRAC
-//#define TEST_SECOND_GROUND
-#define TEST_NUM 100
-#define TEST_FRAME_TH 1000000
+#define TEST_SECOND_GROUND
+#define TEST_BOX_NUM 100
+#define TEST_FRAME_TH 100000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
     std::ifstream file(filename);
@@ -65,7 +64,7 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
     return rb;
 }
 
-pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
+pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
     auto rb = new pe_phys_object::RigidBody();
     rb->setMass(mass);
     auto shape = new pe_phys_shape::BoxShape(size);
@@ -74,19 +73,6 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
-    return rb;
-}
-
-pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Real radius, pe::Real mass) {
-    auto rb = new pe_phys_object::RigidBody();
-    rb->setMass(mass);
-    auto shape = new pe_phys_shape::SphereShape(radius);
-    rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
-    rb->setFrictionCoeff(0.5);
-    rb->setRestitutionCoeff(0.5);
-    rb->setAngularDamping(0.8);
     return rb;
 }
 
@@ -112,11 +98,11 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(50, 1, 50), 8);
+    auto rb1 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(20, 1, 20), 8);
     rb1->setKinematic(true);
 #ifdef TEST_SINGLE
     const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";
-    auto rb2 = createMeshRigidBody(pe::Vector3(0, 5, 0), pe::Vector3(1, 1, 1), 1.0, filename);
+    auto rb2 = createMeshRigidBody(pe::Vector3(0, 10, 0), pe::Vector3(1, 1, 1), filename);
     pe::Transform trans, trans2;
     trans.setOrigin(rb2->getTransform().getOrigin());
     trans.setRotation({0, 0, 1}, -0.90);
@@ -144,13 +130,8 @@ void testWorld() {
     world->addRigidBody(rb2);
 #endif
     pe::Array<pe_phys_object::RigidBody*> rbs;
-    for (int i = 0; i < TEST_NUM; i++) {
-        pe_phys_object::RigidBody* rb;
-        if (i % 2 == 0) {
-            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
-        } else {
-            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
-        }
+    for (int i = 0; i < TEST_BOX_NUM; i++) {
+        auto rb = createRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
         rbs.push_back(rb);
         world->addRigidBody(rb);
     }
@@ -165,7 +146,7 @@ void testWorld() {
 #endif
 
     // add to viewer
-    int id1 = pe_core::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
+    int id1 = pe_core::Viewer::addCube(pe::Vector3(20, 1, 20));
     pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
 #ifdef TEST_SINGLE
@@ -174,17 +155,10 @@ void testWorld() {
     pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
 #endif
     pe::Array<int> ids;
-    for (int i = 0; i < TEST_NUM; i++) {
-        int id;
-        if (i % 2 == 0) {
-            id = pe_core::Viewer::addCube(pe::Vector3(1, 1, 1));
-            pe_core::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
-        } else {
-            id = pe_core::Viewer::addSphere(0.5);
-            pe_core::Viewer::updateSphereColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateSphereTransform(id, rbs[i]->getTransform());
-        }
+    for (int i = 0; i < TEST_BOX_NUM; i++) {
+        int id = pe_core::Viewer::addCube(pe::Vector3(1, 1, 1));
+        pe_core::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
+        pe_core::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
         ids.push_back(id);
     }
 #ifdef TEST_FRAC
@@ -220,7 +194,6 @@ void testWorld() {
         for (int i = 0; i < ids.size(); i++) {
             pe_core::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
             pe_core::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());
-            pe_core::Viewer::updateSphereTransform(ids[i], rbs[i]->getTransform());
         }
         world->step();
         if (++frame > TEST_FRAME_TH) while (pe_core::Viewer::getKeyState('r') != 1);
