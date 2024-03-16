@@ -159,4 +159,39 @@ namespace pe_core {
         }
     }
 
+    int Viewer::addCylinder(pe::Real radius, pe::Real height) {
+        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+                simple_viewer::ObjType::OBJ_CYLINDER, true,
+                (float)radius, (float)height));
+        _obj_map[id] = simple_viewer::ObjType::OBJ_CYLINDER;
+        return id;
+    }
+
+    void Viewer::updateCylinderTransform(int id, const pe::Transform& transform) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
+                    id, simple_viewer::ObjType::OBJ_CYLINDER,
+                    convertTransform(transform)));
+        }
+    }
+
+    void Viewer::updateCylinderColor(int id, const pe::Vector3& color) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
+                    id, simple_viewer::ObjType::OBJ_CYLINDER,
+                    convertVector3(color)));
+        }
+    }
+
+    void Viewer::removeCylinder(int id) {
+        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
+            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                    simple_viewer::ObjUpdateType::OBJ_DEL,
+                    id, simple_viewer::ObjType::OBJ_CYLINDER));
+            _obj_map.erase(id);
+        }
+    }
+
 } // namespace pe_core
