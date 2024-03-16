@@ -2,9 +2,9 @@
 
 #include "phys/phys_general.h"
 
-namespace pe_phys_fracture {
+namespace pe_phys_shape {
 
-    const common::Mesh<pe::Real> _box_mesh = { //NOLINT
+    const pe::Mesh _box_mesh = { //NOLINT
             {
                     {{-0.5, 0.5, -0.5}, {0, 1, 0}},
                     {{-0.5, 0.5, 0.5}, {0, 1,  0}},
@@ -39,6 +39,10 @@ namespace pe_phys_fracture {
                     {{16, 17, 18, 19}, {-1, 0, 0}},
                     {{20, 21, 22, 23}, {1, 0, 0}}
             }
+    };
+
+    const pe::Array<pe::Vector3> _box_unique_edges = {
+            {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
     };
 
     const pe::Mesh _cylinder_mesh = { //NOLINT
@@ -168,6 +172,10 @@ namespace pe_phys_fracture {
                     {{58, 77, 78}, {0.809002, -0.006156, 0.587774}},
                     {{59, 78, 79}, {0.951038, -0.006156, 0.309011}},
             },
+    };
+
+    const pe::Array<pe::Vector3> _cylinder_unique_edges = { //NOLINT
+            {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
     };
 
 } // namespace pe_phys_fracture

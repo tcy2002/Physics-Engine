@@ -11,6 +11,7 @@
 #include "phys/collision/collision_algorithm/box_sphere_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/sphere_convex_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/sphere_cylinder_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/cylinder_convex_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
@@ -23,8 +24,8 @@ namespace pe_phys_collision {
             _algos = {
                     new BoxBoxCollisionAlgorithm(), new BoxSphereCollisionAlgorithm(), nullptr, new BoxConvexCollisionAlgorithm(),
                     new BoxSphereCollisionAlgorithm(), new SphereSphereCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(),
-                    nullptr, new SphereCylinderCollisionAlgorithm(), nullptr, nullptr,
-                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), nullptr, new ConvexConvexCollisionAlgorithm()
+                    nullptr, new SphereCylinderCollisionAlgorithm(), nullptr, new CylinderConvexCollisionAlgorithm(),
+                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm()
             };
         }
         virtual ~NarrowPhaseBase() {

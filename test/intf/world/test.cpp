@@ -162,7 +162,6 @@ void testWorld() {
         pe_phys_object::RigidBody* rb;
         if (i % 2 == 0) {
             rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 1.0, 1.0, 1.0);
-            rb->setKinematic(true);
             pe::Transform trans;
             trans.setRotation({0, 0, 1}, PE_PI / 2.5);
             trans.setOrigin(rb->getTransform().getOrigin());

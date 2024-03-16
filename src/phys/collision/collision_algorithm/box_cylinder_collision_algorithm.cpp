@@ -1,25 +1,31 @@
-#include "cylinder_convex_collision_algorithm.h"
+#include "box_cylinder_collision_algorithm.h"
 #include "phys/shape/cylinder_shape.h"
-#include "phys/shape/convex_mesh_shape.h"
+#include "phys/shape/box_shape.h"
 #include "phys/shape/default_mesh.h"
 #include "convex_convex_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
-    bool CylinderConvexCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                          pe_phys_object::RigidBody* object_b,
-                                                          ContactResult& result) {
+    bool BoxCylinderCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
+                                                         pe_phys_object::RigidBody* object_b,
+                                                         ContactResult& result) {
         if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Cylinder) {
             std::swap(object_a, object_b);
         }
-        if (!(object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
+        if (!(object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box &&
               object_b->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Cylinder)) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
+        auto shape_a = (pe_phys_shape::BoxShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::CylinderShape*)object_b->getCollisionShape();
-        auto& mesh_a = shape_a->getMesh();
+        auto mesh_a = pe_phys_shape::_box_mesh;
+        auto& size = shape_a->getSize();
+        for (auto& v : mesh_a.vertices) {
+            v.position.x *= size.x;
+            v.position.y *= size.y;
+            v.position.z *= size.z;
+        }
         auto mesh_b = pe_phys_shape::_cylinder_mesh;
         pe::Real radius = shape_b->getRadius();
         pe::Real height = shape_b->getHeight() * 0.5;
@@ -41,7 +47,7 @@ namespace pe_phys_collision {
         result.cleanContactPointFlag();
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                shape_a->getUniqueEdges(),
+                                                                pe_phys_shape::_box_unique_edges,
                                                                 pe_phys_shape::_cylinder_unique_edges,
                                                                 transA, transB, sep, margin, result)) {
             return false;

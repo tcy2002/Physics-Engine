@@ -3,7 +3,7 @@
 #include "phys/shape/box_shape.h"
 #include <fstream>
 #include <random>
-#include "phys/fracture/fracture_utils/default_mesh.h"
+#include "phys/shape/default_mesh.h"
 
 namespace pe_phys_fracture {
 
@@ -76,7 +76,7 @@ namespace pe_phys_fracture {
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
             mesh = ((pe_phys_shape::ConvexMeshShape*)(shape))->getMesh();
         } else if (shape->getType() == pe_phys_shape::ShapeType::Box) {
-            mesh = _box_mesh;
+            mesh = pe_phys_shape::_box_mesh;
             auto size = ((pe_phys_shape::BoxShape*)(shape))->getSize();
             for (auto& vert : mesh.vertices) {
                 vert.position.x *= size.x;

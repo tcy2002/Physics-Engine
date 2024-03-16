@@ -4,7 +4,7 @@
 #include "phys/object/rigidbody.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/box_shape.h"
-#include "phys/fracture/fracture_utils/default_mesh.h"
+#include "phys/shape/default_mesh.h"
 #include <fstream>
 
 using namespace pe_phys_collision;

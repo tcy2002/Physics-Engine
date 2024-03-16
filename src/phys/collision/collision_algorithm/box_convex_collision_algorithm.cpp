@@ -3,7 +3,7 @@
 #include "convex_convex_collision_algorithm.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
-#include "phys/fracture/fracture_utils/default_mesh.h"
+#include "phys/shape/default_mesh.h"
 
 namespace pe_phys_collision {
 
@@ -20,10 +20,12 @@ namespace pe_phys_collision {
         auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
         auto& mesh_a = shape_a->getMesh();
-        auto mesh_b = pe_phys_fracture::_box_mesh;
+        auto mesh_b = pe_phys_shape::_box_mesh;
         auto& size = shape_b->getSize();
         for (auto& v : mesh_b.vertices) {
-            v.position = v.position * size;
+            v.position.x *= size.x;
+            v.position.y *= size.y;
+            v.position.z *= size.z;
         }
         auto transA = object_a->getTransform();
         auto transB = object_b->getTransform();
