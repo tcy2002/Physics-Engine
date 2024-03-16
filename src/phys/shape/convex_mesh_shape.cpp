@@ -61,11 +61,11 @@ namespace pe_phys_shape {
         max += pos;
     }
 
-    bool ConvexMeshShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
+    bool ConvexMeshShape::localIsInside(const pe::Vector3 &point) const {
         return !std::any_of(_mesh.faces.begin(), _mesh.faces.end(), [&](auto &f) {
             auto &normal = f.normal;
             auto &p0 = _mesh.vertices[f.indices[0]].position;
-            return normal.dot(point - p0) >= margin;
+            return normal.dot(point - p0) >= 0;
         });
     }
 

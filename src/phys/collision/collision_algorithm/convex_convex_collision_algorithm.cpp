@@ -325,8 +325,8 @@ namespace pe_phys_collision {
         }
 
         // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt), margin)) ||
-            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt), margin))) {
+        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt))) ||
+            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt)))) {
             result.addContactPoint(sep, dMinPt - sep * margin,
                                    -dMin + margin * 2);
         }

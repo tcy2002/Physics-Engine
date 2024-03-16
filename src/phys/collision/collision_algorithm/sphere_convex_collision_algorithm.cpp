@@ -26,7 +26,7 @@ namespace pe_phys_collision {
                 vertices[0] = mesh_b.vertices[f.indices[0]].position;
                 vertices[1] = mesh_b.vertices[f.indices[i + 1]].position;
                 vertices[2] = mesh_b.vertices[f.indices[i + 2]].position;
-                getClosestPoints(object_a, vertices, trans_b, result, false);
+                getClosestPoints(object_a, vertices, trans_b, result);
             }
         }
 
@@ -37,7 +37,7 @@ namespace pe_phys_collision {
     void SphereConvexCollisionAlgorithm::getClosestPoints(pe_phys_object::RigidBody *object_a,
                                                           const pe::Vector3 vertices[],
                                                           const pe::Transform& transTri,
-                                                          ContactResult &result, bool shouldSwap) {
+                                                          ContactResult &result) {
         const pe::Transform& transSph = object_a->getTransform();
 
         pe::Vector3 point, normal;
@@ -49,14 +49,7 @@ namespace pe_phys_collision {
 
         if (collideSphereTriangle(sphereInTr, sphereRadius, vertices,
                                   point, normal, depth, margin)) {
-            if (shouldSwap) {
-                pe::Vector3 normalOnB = transTri.getBasis() * normal;
-                pe::Vector3 normalOnA = -normalOnB;
-                pe::Vector3 pointOnA = transTri * point + normalOnB * depth;
-                result.addContactPoint(normalOnA, pointOnA, depth);
-            } else {
-                result.addContactPoint(transTri.getBasis() * normal, transTri * point, depth);
-            }
+            result.addContactPoint(transTri.getBasis() * normal, transTri * point, depth);
         }
     }
 
@@ -142,7 +135,7 @@ namespace pe_phys_collision {
             pe::Real distanceSqr = contactToCentre.norm2();
 
             if (distanceSqr < radiusWithThreshold * radiusWithThreshold) {
-                if (distanceSqr > PE_EPS * PE_EPS) { // TODO: check if this is correct
+                if (distanceSqr > PE_EPS * PE_EPS) {
                     pe::Real distance = std::sqrt(distanceSqr);
                     resultNormal = contactToCentre;
                     resultNormal.normalize();
@@ -188,7 +181,8 @@ namespace pe_phys_collision {
         return false;
     }
 
-    bool SphereConvexCollisionAlgorithm::faceContains(const pe::Vector3 &p, const pe::Vector3 *vertices, pe::Vector3 &normal) {
+    bool SphereConvexCollisionAlgorithm::faceContains(const pe::Vector3 &p, const pe::Vector3 *vertices,
+                                                      pe::Vector3 &normal) {
         pe::Vector3 l_p(p);
         pe::Vector3 l_normal(normal);
         return pointInTriangle(vertices, l_normal, &l_p);

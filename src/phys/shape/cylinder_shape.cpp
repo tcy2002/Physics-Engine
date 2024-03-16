@@ -15,9 +15,9 @@ namespace pe_phys_shape {
         max = center + extent;
     }
 
-    bool CylinderShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
-        return point.y >= -_height * 0.5 - margin && point.y <= _height * 0.5 + margin &&
-               point.x * point.x + point.z * point.z <= _radius * _radius + margin * margin;
+    bool CylinderShape::localIsInside(const pe::Vector3 &point) const {
+        return point.y >= -_height * 0.5 && point.y <= _height * 0.5 &&
+               point.x * point.x + point.z * point.z <= _radius * _radius;
     }
 
     void CylinderShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,

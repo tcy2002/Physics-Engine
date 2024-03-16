@@ -23,10 +23,10 @@ namespace pe_phys_shape {
         max += pos;
     }
 
-    bool BoxShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
-        return std::abs(point.x) <= _half_size.x + margin &&
-               std::abs(point.y) <= _half_size.y + margin &&
-               std::abs(point.z) <= _half_size.z + margin;
+    bool BoxShape::localIsInside(const pe::Vector3 &point) const {
+        return std::abs(point.x) <= _half_size.x &&
+               std::abs(point.y) <= _half_size.y &&
+               std::abs(point.z) <= _half_size.z;
     }
 
     void BoxShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,

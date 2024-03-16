@@ -10,8 +10,8 @@ namespace pe_phys_shape {
         max = center + pe::Vector3(_radius, _radius, _radius);
     }
 
-    bool SphereShape::localIsInside(const pe::Vector3 &point, pe::Real margin) const {
-        return point.norm2() <= (_radius + margin) * (_radius + margin);
+    bool SphereShape::localIsInside(const pe::Vector3 &point) const {
+        return point.norm2() <= _radius * _radius;
     }
 
     void SphereShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,

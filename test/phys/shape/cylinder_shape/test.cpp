@@ -47,9 +47,9 @@ void testAABB() {
 void testIsInside() {
     CylinderShape cyl(0.5, 1.0);
 
-    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0., 0., 0.), 0.), true)
-    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0.353, 0.499, 0.353), 0.), true)
-    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0.354, 0.501, 0.354), 0.), false)
+    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0., 0., 0.)), true)
+    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0.353, 0.499, 0.353)), true)
+    ASSERT_EQUAL(cyl.localIsInside(pe::Vector3(0.354, 0.501, 0.354)), false)
 }
 
 void testProject() {
