@@ -25,7 +25,6 @@ namespace pe_phys_collision {
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
-        result.cleanContactPointFlag();
         if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
                                 shape_a->getUniqueEdges(), shape_b->getUniqueEdges(),
                                 transA, transB, sep, margin, result)) {

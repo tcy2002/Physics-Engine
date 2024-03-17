@@ -39,7 +39,6 @@ namespace pe_phys_collision {
             object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
             return false;
         }
-        result.cleanContactPointFlag();
         getClosestPoint(object_a, object_b, result);
         result.sortContactPoints();
         return result.getPointSize() > 0;

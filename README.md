@@ -71,7 +71,7 @@
 
 ### 效果
 
-- gif帧率10帧，实际运行帧率为60帧
+- gif帧率20帧，实际运行帧率为60帧
 - 破碎效果：根据事先设定好的毁伤源位置预计算（最终目标是根据坦克炮弹的击中位置实时计算）
 
-![demo.gif](./screenshots/demo.gif)
+![demo2.gif](./screenshots/demo2.gif)

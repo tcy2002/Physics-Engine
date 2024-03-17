@@ -66,13 +66,6 @@ namespace pe_phys_collision {
         _restitution_coeff = object_a->getRestitutionCoeff() * object_b->getRestitutionCoeff();
     }
 
-    void ContactResult::cleanContactPointFlag() {
-        for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
-            _points[i].invalidate();
-        }
-        _swap_flag = false;
-    }
-
     void ContactResult::addContactPoint(const pe::Vector3& world_normal,
                                         const pe::Vector3& world_pos, pe::Real depth) {
         pe::Vector3 point_a = world_pos;
@@ -106,14 +99,6 @@ namespace pe_phys_collision {
                 }
             }
         }
-    }
-
-    void ContactResult::editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real distance) {
-        _points[index].setWorldNormal(normal);
-        _points[index].setDistance(distance);
-        _points[index].setWorldPos(world_pos);
-        _points[index].setLocalPosA(_object_a->getTransform().inverseTransform(world_pos));
-        _points[index].setLocalPosB(_object_b->getTransform().inverseTransform(world_pos));
     }
 
     void ContactResult::sortContactPoints() {

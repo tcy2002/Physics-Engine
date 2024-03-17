@@ -44,7 +44,6 @@ namespace pe_phys_collision {
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
-        result.cleanContactPointFlag();
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
                                                                 pe_phys_shape::_box_unique_edges,

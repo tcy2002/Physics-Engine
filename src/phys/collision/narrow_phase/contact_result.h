@@ -52,14 +52,9 @@ namespace pe_phys_collision {
         ContactResult();
 
         void setObjects(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b);
-        void swapObjects() { std::swap(_object_a, _object_b); }
-
-        void cleanContactPointFlag();
-        void moveContactPointFlag(int index) { _points[index].invalidate(); }
 
         void addContactPoint(const pe::Vector3& world_normal, const pe::Vector3& world_pos, pe::Real depth);
         ContactPoint& getContactPoint(int index) { return _points[index]; }
-        void editContactPoint(int index, pe::Vector3 normal, pe::Vector3 world_pos, pe::Real distance);
         void sortContactPoints();
 
     protected:
