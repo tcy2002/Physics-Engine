@@ -27,8 +27,8 @@ namespace pe_phys_collision {
             v.position.y *= size.y;
             v.position.z *= size.z;
         }
-        auto transA = object_a->getTransform();
-        auto transB = object_b->getTransform();
+        auto& transA = object_a->getTransform();
+        auto& transB = object_b->getTransform();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
@@ -37,15 +37,11 @@ namespace pe_phys_collision {
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
-        pe::Array<pe::Vector3> unique_edges_b = {
-            {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
-        };
-
         result.cleanContactPointFlag();
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
                                                                 shape_a->getUniqueEdges(),
-                                                                unique_edges_b,
+                                                                pe_phys_shape::_box_unique_edges,
                                                                 transA, transB, sep, margin, result)) {
             return false;
         }

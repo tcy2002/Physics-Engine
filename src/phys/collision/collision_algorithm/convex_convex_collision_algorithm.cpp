@@ -15,8 +15,8 @@ namespace pe_phys_collision {
 
         auto& mesh_a = shape_a->getMesh();
         auto& mesh_b = shape_b->getMesh();
-        auto transA = object_a->getTransform();
-        auto transB = object_b->getTransform();
+        auto& transA = object_a->getTransform();
+        auto& transB = object_b->getTransform();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;

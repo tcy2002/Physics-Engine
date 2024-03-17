@@ -47,8 +47,8 @@ namespace pe_phys_collision {
 
     void BoxBoxCollisionAlgorithm::getClosestPoint(pe_phys_object::RigidBody* object_a,
                                                    pe_phys_object::RigidBody* object_b, ContactResult& result) {
-        const pe::Transform& transform_a = object_a->getTransform();
-        const pe::Transform& transform_b = object_b->getTransform();
+        auto& transform_a = object_a->getTransform();
+        auto& transform_b = object_b->getTransform();
 
         auto box_a = (pe_phys_shape::BoxShape*)(object_a->getCollisionShape());
         auto box_b = (pe_phys_shape::BoxShape*)(object_b->getCollisionShape());
@@ -97,7 +97,7 @@ namespace pe_phys_collision {
         }
     }
 
-    int BoxBoxCollisionAlgorithm::intersectRectQuad2(pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
+    int BoxBoxCollisionAlgorithm::intersectRectQuad2(const pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
         // q (and r) contain nq (and nr) coordinate points for the current (and
         // chopped) polygons
         pe::Real buffer[16];
@@ -413,7 +413,6 @@ namespace pe_phys_collision {
             pb[2] += ub[2] * beta;
 
             {
-                pe::Vector3 pointInWorld;
                 const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
                 result.addContactPoint(-normVec, pe::Vector3(pb[0], pb[1], pb[2]) +
                                         normVec * margin, -depth + margin * 2);

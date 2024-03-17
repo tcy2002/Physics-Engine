@@ -28,8 +28,8 @@ namespace pe_phys_collision {
             v.position.z *= radius;
             v.position.y *= height;
         }
-        auto transA = object_a->getTransform();
-        auto transB = object_b->getTransform();
+        auto& transA = object_a->getTransform();
+        auto& transB = object_b->getTransform();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
