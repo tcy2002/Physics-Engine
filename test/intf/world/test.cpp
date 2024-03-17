@@ -126,7 +126,7 @@ void testWorld() {
     pe_core::Viewer::open();
 
     // create rigid bodies
-    auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(50, 1, 50), 8);
+    auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(1000, 1, 1000), 8);
     rb1->setKinematic(true);
 #ifdef TEST_SINGLE
     const auto filename = CURRENT_TEST_SOURCE_DIR "/test4.obj";

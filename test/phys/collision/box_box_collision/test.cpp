@@ -18,7 +18,7 @@ void testBoxBox() {
     auto alg = new BoxBoxCollisionAlgorithm();
     ContactResult result;
     pe::Vector3 overlap_min, overlap_max;
-    alg->processCollision(rb1, rb2, result, overlap_min, overlap_max);
+    alg->processCollision(rb1, rb2, result);
 
     std::cout << result.getPointSize() << std::endl;
     for (int i = 0; i < result.getPointSize(); i++) {

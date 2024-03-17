@@ -11,11 +11,11 @@ namespace pe_phys_fracture {
     }
 
     pe::Vector3 max_vec(const pe::Vector3& a, const pe::Vector3& b) {
-        return pe::Vector3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+        return pe::Vector3(PE_MAX(a.x, b.x), PE_MAX(a.y, b.y), PE_MAX(a.z, b.z));
     }
 
     pe::Vector3 min_vec(const pe::Vector3& a, const pe::Vector3& b) {
-        return pe::Vector3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+        return pe::Vector3(PE_MIN(a.x, b.x), PE_MIN(a.y, b.y), PE_MIN(a.z, b.z));
     }
 
     pe::Vector3 average(const pe::Array<pe::Vector3>& vecs) {
@@ -43,7 +43,7 @@ namespace pe_phys_fracture {
     pe::Real calc_mesh_volume(const pe::Mesh& mesh) {
         pe::Real volume = 0;
         for (auto& face : mesh.faces) {
-            for (int i = 0; i < face.indices.size() - 2; i++) {
+            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
                 const pe::Vector3 &v0 = mesh.vertices[face.indices[0]].position;
                 const pe::Vector3 &v1 = mesh.vertices[face.indices[i + 1]].position;
                 const pe::Vector3 &v2 = mesh.vertices[face.indices[i + 2]].position;
@@ -59,7 +59,7 @@ namespace pe_phys_fracture {
         for (auto &f: mesh.faces) {
             pe::Vector3 face_centroid = pe::Vector3::zeros();
             pe::Vector3 face_area = pe::Vector3::zeros();
-            for (int i = 0; i < f.indices.size(); i++) {
+            for (int i = 0; i < (int)f.indices.size(); i++) {
                 auto &p0 = mesh.vertices[f.indices[i]].position;
                 auto &p1 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
                 face_area += p0.cross(p1);

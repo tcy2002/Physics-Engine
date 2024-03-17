@@ -3,6 +3,7 @@
 #include "phys/shape/box_shape.h"
 #include <fstream>
 #include <random>
+#include <string>
 #include "phys/shape/default_mesh.h"
 
 namespace pe_phys_fracture {
@@ -25,7 +26,7 @@ namespace pe_phys_fracture {
     uint32_t generateSeed() {
         static uint32_t seed = -1;
         if (seed == -1) {
-            seed = COMMON_GetTickCount();
+            seed = (uint32_t)COMMON_GetTickCount();
             std::cout << "fracture seed: " << seed << std::endl;
         }
         return seed;
@@ -43,7 +44,7 @@ namespace pe_phys_fracture {
     }
 
     pe::Vector3 FractureSolver::randomCylinderPoints(pe::Real radius, pe::Real height) {
-        static std::default_random_engine e(COMMON_GetTickCount());
+        static std::default_random_engine e((uint32_t)COMMON_GetTickCount());
         static std::uniform_real_distribution<pe::Real> d(0., 1.);
         pe::Real theta = d(e) * 2 * PE_PI, roa = sqrt(d(e)) * radius, L = d(e), L2 = L * L * height;
         pe::Real cos_t = cos(theta), sin_t = sin(theta);
@@ -122,7 +123,7 @@ namespace pe_phys_fracture {
         // calculate intensity for each point
         pe::Array<pe::Vector3> forces;
         forces.assign(points.size(), pe::Vector3::zeros());
-        for (int i = 0; i < points.size(); i++) {
+        for (int i = 0; i < (int)points.size(); i++) {
             pe::Vector3 pos = world_trans * points[i];
             for (auto& src : sources) {
                 pe::Real expForce = src.intensity.norm();
@@ -136,9 +137,8 @@ namespace pe_phys_fracture {
         pe::Array<pe::Mesh> fragments;
         _calculator.triangulate(points);
         _calculator.fracture(mesh, fragments);
-        for (int i = 0; i < fragments.size(); i++) {
+        for (int i = 0; i < (int)fragments.size(); i++) {
             if (!fragments[i].empty()) {
-                meshToObj(fragments[i], "test" + std::to_string(i) + ".obj");
                 auto rb = addMesh(fragments[i], world_trans);
                 pe::Vector3 vel = rb->getLinearVelocity();
                 vel += forces[i] / rb->getMass();

@@ -586,8 +586,8 @@ namespace pe_phys_collision {
         if (cnum < 1) return 0;  // this should never happen
 
         // we can't generate more contacts than we actually have
-        max_c = std::min(max_c, cnum);
-        max_c = std::max(max_c, 1);
+        max_c = PE_MIN(max_c, cnum);
+        max_c = PE_MAX(max_c, 1);
 
         const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
         const pe::Vector3 marginVec = normVec * margin;

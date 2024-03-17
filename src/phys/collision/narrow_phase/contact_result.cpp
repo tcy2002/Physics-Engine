@@ -135,7 +135,7 @@ namespace pe_phys_collision {
     pe::Real ContactResult::getSameContactPointDistanceThreshold() const {
         pe::Real a_scale = _object_a->getAABBScale();
         pe::Real b_scale = _object_b->getAABBScale();
-        return std::min(a_scale, b_scale) * 0.02;
+        return PE_MIN(a_scale, b_scale) * 0.02;
     }
 
 } // pe_phys_collision

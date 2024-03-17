@@ -33,7 +33,7 @@ void testAABB() {
     ASSERT_EQUAL(max.y, 3.0)
     ASSERT_EQUAL(max.z, 4.5)
 
-    transform.setRotation(pe::Vector3::up(), M_PI / 4);
+    transform.setRotation(pe::Vector3::up(), PE_PI / 4);
     transform.setTranslation(pe::Vector3(0., 0., 0.));
     box.getAABB(transform, min, max);
     ASSERT_EQUAL(min.x, -sqrt(2.))
@@ -76,7 +76,7 @@ void testProject() {
     ASSERT_EQUAL(maxPoint.z, 1.5)
 
     pe::Transform transform;
-    transform.setRotation({0, 1, 0}, M_PI / 4);
+    transform.setRotation({0, 1, 0}, PE_PI / 4);
     transform.setTranslation({2, 2, 2});
     box.project(transform, pe::Vector3::up(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.)

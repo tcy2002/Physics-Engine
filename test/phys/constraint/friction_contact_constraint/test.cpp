@@ -2,6 +2,7 @@
 #include "phys/constraint/constraint/friction_contact_constraint.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "phys/shape/box_shape.h"
+#include "utils/thread_pool.h"
 
 using namespace pe_phys_constraint;
 
@@ -51,5 +52,7 @@ void testFrictionContactConstraint() {
 }
 
 int main() {
+    utils::ThreadPool::init();
     testFrictionContactConstraint();
+    utils::ThreadPool::deinit();
 }

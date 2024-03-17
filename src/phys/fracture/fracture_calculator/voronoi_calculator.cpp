@@ -4,24 +4,24 @@ namespace pe_phys_fracture {
 
     void VoronoiCalculator::add_bounding_box(const pe::Array<pe::Vector3>& points) {
         // find aabb bounds
-        pe::Vector3 min(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX);
-        pe::Vector3 max(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN);
+        pe::Vector3 _min(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX);
+        pe::Vector3 _max(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN);
         for (auto& p : points) {
-            min = min_vec(min, p);
-            max = max_vec(max, p);
+            _min = min_vec(_min, p);
+            _max = max_vec(_max, p);
         }
 
         // dilate to include all possible points
-        auto center = (min + max) / 2;
+        auto center = (_min + _max) / 2;
         pe::Vector3 gap(.1, .1, .1);
-        min = center + (min - center) * 3 - gap;
-        max = center + (max - center) * 4 + gap;
+        _min = center + (_min - center) * 3 - gap;
+        _max = center + (_max - center) * 4 + gap;
 
         // add bounding box points
-        uint32_t v1i = _manager.add_vertex(min);
-        uint32_t v2i = _manager.add_vertex({max.x, max.y, min.z});
-        uint32_t v3i = _manager.add_vertex({max.x, min.y, max.z});
-        uint32_t v4i = _manager.add_vertex({min.x, max.y, max.z});
+        uint32_t v1i = _manager.add_vertex(_min);
+        uint32_t v2i = _manager.add_vertex({_max.x, _max.y, _min.z});
+        uint32_t v3i = _manager.add_vertex({_max.x, _min.y, _max.z});
+        uint32_t v4i = _manager.add_vertex({_min.x, _max.y, _max.z});
 
         // add bounding box triangles
         uint32_t t1i = _manager.add_triangle(v1i, v2i, v3i);
@@ -92,13 +92,13 @@ namespace pe_phys_fracture {
             }
 
             // remove bad tetrahedrons
-            for (uint32_t i = bad_tetrahedrons.size() - 1; i != -1; i--) {
+            for (uint32_t i = (uint32_t)bad_tetrahedrons.size() - 1; i != -1; i--) {
                 _manager.remove_tetrahedron(bad_tetrahedrons[i]);
             }
 
             // remove bad triangles
             std::sort(bad_triangles.begin(), bad_triangles.end());
-            for (uint32_t i = bad_triangles.size() - 1; i != -1; i--) {
+            for (uint32_t i = (uint32_t)bad_triangles.size() - 1; i != -1; i--) {
                 _manager.remove_triangle(bad_triangles[i]);
             }
         }

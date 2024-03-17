@@ -41,25 +41,25 @@ namespace pe_phys_fracture {
 
         void clear() { _vertices.clear(); _vertices.clear(); _faces.clear(); _tetrahedrons.clear(); }
 
-        uint32_t vertex_count() const { return _vertices.size(); }
+        uint32_t vertex_count() const { return (uint32_t)_vertices.size(); }
         uint32_t add_vertex(const pe::Vector3& p, const pe::Vector3& n = pe::Vector3::zeros());
         vertex get_vertex(uint32_t idx) { return _vertices[idx]; }
         void remove_vertex(uint32_t idx);
         void clear_vertices() { _vertices.clear(); }
 
-        uint32_t triangle_count() const { return _triangles.size(); }
+        uint32_t triangle_count() const { return (uint32_t)_triangles.size(); }
         uint32_t add_triangle(uint32_t v1, uint32_t v2, uint32_t v3);
         triangle get_triangle(uint32_t idx) { return _triangles[idx]; }
         void remove_triangle(uint32_t idx);
         void clear_triangles() { _triangles.clear(); }
 
-        uint32_t face_count() const { return _faces.size(); }
+        uint32_t face_count() const { return (uint32_t)_faces.size(); }
         uint32_t add_face(const polygon& face) { _faces.push_back(face); return _faces.size() - 1; }
         polygon get_face(uint32_t idx) { return _faces[idx]; }
         void remove_face(uint32_t idx) { _faces.erase_at(idx); }
         void clear_faces() { _faces.clear(); }
 
-        uint32_t tetrahedron_count() const { return _tetrahedrons.size(); }
+        uint32_t tetrahedron_count() const { return (uint32_t)_tetrahedrons.size(); }
         uint32_t add_tetrahedron(uint32_t t1, uint32_t t2, uint32_t t3, uint32_t t4,
                                  uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4);
         tetrahedron get_tetrahedron(uint32_t idx) { return _tetrahedrons[idx]; }

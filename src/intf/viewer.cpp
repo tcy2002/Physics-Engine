@@ -36,7 +36,7 @@ namespace pe_core {
     }
 
     void Viewer::open() {
-        simple_viewer::setCamera(common::Vector3<float>(0, 10, 20), 0, 3.1415 / 6);
+        simple_viewer::setCamera(common::Vector3<float>(0, 10, 20), 0, (float)(3.1415 / 6));
         viewer_thread = new std::thread([]{ simple_viewer::open("PhysicEngine", 800, 600); });
     }
 

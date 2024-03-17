@@ -29,7 +29,7 @@ hash_vector<T>& hash_vector<T>::operator=(const hash_vector<T>& other) {
     for (auto& p : index_table) {
         p = new link_node();
     }
-    uint32_t size = list.size();
+    uint32_t size = (uint32_t)list.size();
     for (uint32_t i = 0; i < size; i++) {
         uint32_t idx = hash(list[i]);
         index_table[idx]->next = new link_node(i, index_table[idx]->next);

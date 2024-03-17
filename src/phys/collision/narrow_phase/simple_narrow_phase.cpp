@@ -29,10 +29,11 @@ namespace pe_phys_collision {
 #   else
         for (auto& pair : pairs) {
             ContactResult result;
-            pe::Vector3 overlap_min, overlap_max;
             auto type_a = pair.first->getCollisionShape()->getType();
             auto type_b = pair.second->getCollisionShape()->getType();
-            if (_algos[type_a * 4 + type_b]->processCollision(pair.first, pair.second, result)) {
+            int algo_idx = type_a * 4 + type_b;
+            if (_algos[algo_idx] &&
+                _algos[algo_idx]->processCollision(pair.first, pair.second, result)) {
                 _contact_results.push_back(result);
             }
         }

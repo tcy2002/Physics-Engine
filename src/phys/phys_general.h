@@ -17,6 +17,15 @@
 #define PE_REAL_MIN -1e100
 #endif
 
+//// min max
+#ifdef _MSC_VER
+#define PE_MAX(a, b) max(a, b)
+#define PE_MIN(a, b) min(a, b)
+#else
+#define PE_MAX(a, b) std::max(a, b)
+#define PE_MIN(a, b) std::min(a, b)
+#endif
+
 //// geometry types
 #include "common/mesh.h"
 #include "common/vector3.h"
@@ -35,8 +44,8 @@ namespace pe {
 } // namespace pe
 
 //// vector macros
-#define PE_MAX_VEC(a, b) pe::Vector3(std::max((a).x, (b).x), std::max((a).y, (b).y), std::max((a).z, (b).z))
-#define PE_MIN_VEC(a, b) pe::Vector3(std::min((a).x, (b).x), std::min((a).y, (b).y), std::min((a).z, (b).z))
+#define PE_MAX_VEC(a, b) pe::Vector3(PE_MAX((a).x, (b).x), PE_MAX((a).y, (b).y), PE_MAX((a).z, (b).z))
+#define PE_MIN_VEC(a, b) pe::Vector3(PE_MIN((a).x, (b).x), PE_MIN((a).y, (b).y), PE_MIN((a).z, (b).z))
 #define PE_VEC_MAX pe::Vector3(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX)
 #define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
 

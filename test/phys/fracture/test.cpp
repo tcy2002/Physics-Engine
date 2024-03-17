@@ -1,6 +1,7 @@
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
+#include <string>
 
 using namespace pe_phys_fracture;
 

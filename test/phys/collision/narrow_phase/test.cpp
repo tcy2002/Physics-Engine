@@ -2,6 +2,7 @@
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "phys/object/rigidbody.h"
 #include "phys/shape/box_shape.h"
+#include "utils/thread_pool.h"
 
 using namespace pe_phys_collision;
 
@@ -24,6 +25,8 @@ void testNarrowPhase() {
 }
 
 int main() {
+    utils::ThreadPool::init();
     testNarrowPhase();
+    utils::ThreadPool::deinit();
     return 0;
 }

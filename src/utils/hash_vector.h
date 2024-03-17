@@ -50,7 +50,7 @@ namespace utils {
         T& back() { return list.back(); }
         auto begin() -> decltype(list.begin()) { return list.begin(); }
         auto end() -> decltype(list.end()) { return list.end(); }
-        uint32_t size() const { return list.size(); }
+        uint32_t size() const { return (uint32_t)list.size(); }
         bool empty() const { return list.empty(); }
         std::vector<T> to_vector() const { return list; }
 

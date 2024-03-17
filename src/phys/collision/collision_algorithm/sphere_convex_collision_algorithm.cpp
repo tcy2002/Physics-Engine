@@ -22,7 +22,7 @@ namespace pe_phys_collision {
         pe::Vector3 vertices[3];
         result.setObjects(object_a, object_b);
         for (auto& f : mesh_b.faces) {
-            for (int i = 0; i < f.indices.size() - 2; i++) {
+            for (int i = 0; i < (int)f.indices.size() - 2; i++) {
                 vertices[0] = mesh_b.vertices[f.indices[0]].position;
                 vertices[1] = mesh_b.vertices[f.indices[i + 1]].position;
                 vertices[2] = mesh_b.vertices[f.indices[i + 2]].position;

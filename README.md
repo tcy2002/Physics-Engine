@@ -44,6 +44,10 @@
     - mesh cylinder = mesh mesh √
 
   - 内存优化
+    - 待检查
+
+  - Clion使用vs编译
+    - 语法检查更严格
 
 ### 问题日志
 
@@ -68,6 +72,9 @@
 
 - cylinder 碰撞不稳定
   - 原因：default mesh错误，已修改
+
+- toolset更改为vs之后编译问题
+  - 无法写入清单文件，待解决
 
 ### 效果
 

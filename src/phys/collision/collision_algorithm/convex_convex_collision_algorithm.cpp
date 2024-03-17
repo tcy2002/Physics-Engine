@@ -48,7 +48,7 @@ namespace pe_phys_collision {
         int closestFaceB = -1;
         pe::Real dMax = PE_REAL_MIN;
         {
-            for (int face = 0; face < meshB.faces.size(); face++) {
+            for (int face = 0; face < (int)meshB.faces.size(); face++) {
                 const pe::Vector3 Normal = meshB.faces[face].normal;
                 const pe::Vector3 WorldNormal = transB.getBasis() * Normal;
                 pe::Real d = WorldNormal.dot(separatingNormal);
@@ -91,7 +91,7 @@ namespace pe_phys_collision {
         int closestFaceA = -1;
         {
             pe::Real dMin = PE_REAL_MAX;
-            for (int face = 0; face < meshA.faces.size(); face++) {
+            for (int face = 0; face < (int)meshA.faces.size(); face++) {
                 const pe::Vector3 Normal = meshA.faces[face].normal;
                 const pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
 
@@ -132,7 +132,7 @@ namespace pe_phys_collision {
             pe::Vector3 planeV = meshA.vertices[polyA.indices[0]].position;
             pe::Vector3 localPlaneNormal = polyA.normal;
 
-            for (int i = 0; i < pVtxIn->size(); i++) {
+            for (int i = 0; i < (int)pVtxIn->size(); i++) {
                 pe::Vector3 vtx = pVtxIn->at(i);
                 pe::Real depth = localPlaneNormal.dot(transA.inverseTransform(vtx) - planeV);
                 if (depth <= minDist) {
@@ -337,10 +337,10 @@ namespace pe_phys_collision {
         pe::Vector3 witnessPointA(0, 0, 0), witnessPointB(0, 0, 0);
 
         // Test edges
-        for (int e0 = 0; e0 < uniqueEdgesA.size(); e0++) {
+        for (int e0 = 0; e0 < (int)uniqueEdgesA.size(); e0++) {
             const pe::Vector3 edge0 = uniqueEdgesA[e0];
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
-            for (int e1 = 0; e1 < uniqueEdgesB.size(); e1++) {
+            for (int e1 = 0; e1 < (int)uniqueEdgesB.size(); e1++) {
                 const pe::Vector3 edge1 = uniqueEdgesB[e1];
                 const pe::Vector3 WorldEdge1 = transB.getBasis() * edge1;
 

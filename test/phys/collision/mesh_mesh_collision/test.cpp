@@ -1,9 +1,7 @@
 #include "test_general.h"
 #include "phys/collision/collision_algorithm/convex_convex_collision_algorithm.h"
-#include "phys/collision/collision_algorithm/box_box_collision_algorithm.h"
 #include "phys/object/rigidbody.h"
 #include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/box_shape.h"
 #include "phys/shape/default_mesh.h"
 #include <fstream>
 
@@ -17,12 +15,10 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
     }
 
     std::string c;
-    pe::Real y_min = PE_REAL_MAX;
     while (file >> c) {
         if (c == "v") {
             pe::Real x, y, z;
             file >> x >> y >> z;
-            y_min = std::min(y_min, y);
             mesh.vertices.push_back({{x, y, z}, {0, 0, 0}});
         } else if (c == "f") {
             int i;
@@ -34,7 +30,6 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
             file.clear();
         }
     }
-    std::cout << "y_min: " << y_min << std::endl;
 
     pe::Mesh::perFaceNormal(mesh);
     for (auto& face : mesh.faces) {
@@ -47,7 +42,7 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
 }
 
 pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
-    pe::Mesh result = pe_phys_fracture::_cylinder_mesh;
+    pe::Mesh result = pe_phys_shape::_cylinder_mesh;
     for (auto& v : result.vertices) {
         v.position.y *= height;
         v.position.x *= (radius / 0.5);
@@ -57,7 +52,7 @@ pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
 }
 
 pe::Mesh resizeBox(const pe::Vector3& size) {
-    pe::Mesh result = pe_phys_fracture::_box_mesh;
+    pe::Mesh result = pe_phys_shape::_box_mesh;
     for (auto& v : result.vertices) {
         v.position = v.position * size;
     }
@@ -66,26 +61,21 @@ pe::Mesh resizeBox(const pe::Vector3& size) {
 
 void testMeshMesh() {
     pe::Mesh mesh;
-    objToMesh(mesh, CURRENT_TEST_SOURCE_DIR "/mesh1.obj");
+    objToMesh(mesh, CURRENT_TEST_SOURCE_DIR "/mesh.obj");
     auto rb1 = new pe_phys_object::RigidBody();
-//    rb1->setCollisionShape(new pe_phys_shape::ConvexMeshShape(resizeBox(pe::Vector3(1, 1, 1))));
-    rb1->setCollisionShape(new pe_phys_shape::ConvexMeshShape(mesh));
-//    rb1->setCollisionShape(new pe_phys_shape::BoxShape({1, 1, 1}));
-//    pe::Transform trans;
-//    trans.setRotation({0, 0, 1}, 3.14159265 / 12);
-//    trans.setOrigin({0.3536, 0.6123, 0});
-//    rb1->setTransform(trans);
-    rb1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -1.4986, 0)));
+    auto shape = new pe_phys_shape::ConvexMeshShape();
+    shape->setMesh(mesh);
+    rb1->setCollisionShape(shape);
+    rb1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)));
     auto rb2 = new pe_phys_object::RigidBody();
-    rb2->setCollisionShape(new pe_phys_shape::ConvexMeshShape(resizeBox(pe::Vector3(20, 1, 20))));
-//    rb2->setCollisionShape(new pe_phys_shape::BoxShape({20, 1, 20}));
+    shape = new pe_phys_shape::ConvexMeshShape();
+    shape->setMesh(resizeBox({20, 1, 20}));
+    rb2->setCollisionShape(shape);
     rb2->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
 
     auto alg = new ConvexConvexCollisionAlgorithm();
-//    auto alg = new BoxBoxCollisionAlgorithm();
     ContactResult result;
-    pe::Vector3 overlap_min, overlap_max;
-    alg->processCollision(rb1, rb2, result, overlap_min, overlap_max);
+    alg->processCollision(rb1, rb2, result);
 
     std::cout << result.getPointSize() << std::endl;
     for (int i = 0; i < result.getPointSize(); i++) {

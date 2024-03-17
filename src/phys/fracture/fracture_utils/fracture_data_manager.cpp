@@ -65,16 +65,16 @@ namespace pe_phys_fracture {
                                          _vertices[v3].pos, _vertices[v4].pos,
                                          center, radius);
         _tetrahedrons.emplace_back(t1, t2, t3, t4, center, radius);
-        return _tetrahedrons.size() - 1;
+        return (uint32_t)_tetrahedrons.size() - 1;
     }
 
     void FractureDataManager::faces_to_triangles() {
         // transform faces into triangles
         clear_triangles();
         uint32_t face_count = _faces.size();
-        for (int i = 0; i < face_count; i++) {
-            uint32_t vert_count = _faces[i].vert_ids.size();
-            for (int j = 1; j < vert_count - 1; j++) {
+        for (uint32_t i = 0; i < face_count; i++) {
+            uint32_t vert_count = (uint32_t)_faces[i].vert_ids.size();
+            for (uint32_t j = 1; j < vert_count - 1; j++) {
                 add_triangle(_faces[i].vert_ids[0], _faces[i].vert_ids[j], _faces[i].vert_ids[j + 1]);
             }
         }
@@ -101,8 +101,8 @@ namespace pe_phys_fracture {
         }
 
         // check if a new vertex needs to be added or removed
-        uint32_t count = _faces[face_id].vert_ids.size();
-        for (int i = 0; i < count; i++) {
+        uint32_t count = (uint32_t)_faces[face_id].vert_ids.size();
+        for (uint32_t i = 0; i < count; i++) {
             uint32_t u1 = _faces[face_id].vert_ids[i],
                     u2 = _faces[face_id].vert_ids[(i + 1) % count],
                     u3 = _faces[face_id].vert_ids[(i + 2) % count];
@@ -138,7 +138,7 @@ namespace pe_phys_fracture {
         clear();
 
         // add vertices
-        uint32_t vert_count = mesh.vertices.size();
+        uint32_t vert_count = (uint32_t)mesh.vertices.size();
         pe::Array<uint32_t> vert_ids(vert_count);
         for (uint32_t i = 0; i < vert_count; i++) {
             vert_ids[i] = add_vertex(mesh.vertices[i].position, mesh.vertices[i].normal);
@@ -147,7 +147,7 @@ namespace pe_phys_fracture {
         // add faces: need to re-add until all triangles are added to face
         uint32_t tri_count = 0;
         for (auto& face : mesh.faces) {
-            tri_count += face.indices.size() - 2;
+            tri_count += (uint32_t)face.indices.size() - 2;
         }
         pe::Array<bool> tri_added(tri_count, false);
         int num = 0;

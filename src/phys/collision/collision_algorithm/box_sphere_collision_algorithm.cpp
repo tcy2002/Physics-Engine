@@ -44,12 +44,12 @@ namespace pe_phys_collision {
 
         // Determine the closest point to the sphere center in the box
         pe::Vector3 closestPoint = sphereRelPos;
-        closestPoint.x = std::min(boxHalfExtent.x, closestPoint.x);
-        closestPoint.x = std::max(-boxHalfExtent.x, closestPoint.x);
-        closestPoint.y = std::min(boxHalfExtent.y, closestPoint.y);
-        closestPoint.y = std::max(-boxHalfExtent.y, closestPoint.y);
-        closestPoint.z = std::min(boxHalfExtent.z, closestPoint.z);
-        closestPoint.z = std::max(-boxHalfExtent.z, closestPoint.z);
+        closestPoint.x = PE_MIN(boxHalfExtent.x, closestPoint.x);
+        closestPoint.x = PE_MAX(-boxHalfExtent.x, closestPoint.x);
+        closestPoint.y = PE_MIN(boxHalfExtent.y, closestPoint.y);
+        closestPoint.y = PE_MAX(-boxHalfExtent.y, closestPoint.y);
+        closestPoint.z = PE_MIN(boxHalfExtent.z, closestPoint.z);
+        closestPoint.z = PE_MAX(-boxHalfExtent.z, closestPoint.z);
 
         pe::Real intersectionDist = radius + margin;
         pe::Real contactDist = intersectionDist + margin;
