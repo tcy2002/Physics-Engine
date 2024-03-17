@@ -38,8 +38,8 @@ namespace utils {
     }
 
     void ThreadPool::deinit() {
-        if (getInstance()._size == 0) return; // not initialized
         auto& inst = getInstance();
+        if (inst._size == 0) return; // not initialized
         join();
         inst._stop.store(true);
         inst._cv.notify_all();
@@ -52,8 +52,8 @@ namespace utils {
     }
 
     void ThreadPool::join() {
-        if (getInstance()._size == 0) return; // not initialized
         auto& inst = getInstance();
+        if (inst._size == 0) return; // not initialized
         std::unique_lock<std::mutex> lock(inst._mtx);
         if (inst._task_num == 0) return;
         inst._cv_join.wait(lock, [&]{ return inst._task_num == 0; });

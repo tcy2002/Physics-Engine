@@ -26,7 +26,6 @@ namespace pe_phys_constraint {
         virtual void warmStart() = 0;
         virtual void iterateSequentialImpulse(int iter) = 0;
         virtual void afterSequentialImpulse() = 0;
-
     };
 
 } // namespace pe_phys_constraint

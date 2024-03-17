@@ -11,22 +11,27 @@ namespace pe_phys_constraint {
     void SequentialImpulseConstraintSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
                                                         const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                                                         const pe::Array<Constraint*>& constraints) {
-        _collision_objects = objects;
+        _collision_objects = objects; //TODO: optimize
         for (auto co : _collision_objects) {
             co->clearTempVelocity();
         }
 
+        // clear old constraints
+        for (auto c : _constraints) {
+            delete c;
+        }
+        _constraints.resize(contact_results.size());
+
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
-        pe::Array<Constraint*> contact_constraints(contact_results.size());
 #   ifdef PE_MULTI_THREAD
+        auto c = this;
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
-                                   [this, &contact_constraints](const pe_phys_collision::ContactResult& cr,
-                                           int idx){
+                                   [&c](const pe_phys_collision::ContactResult& cr, int idx){
            auto fcc = new FrictionContactConstraint();
            fcc->setContactResult(cr);
-           fcc->initSequentialImpulse(_param);
+           fcc->initSequentialImpulse(c->_param);
            fcc->warmStart();
-           contact_constraints[idx] = fcc;
+           c->_constraints[idx] = fcc;
         });
         utils::ThreadPool::join();
 #   else
@@ -35,11 +40,9 @@ namespace pe_phys_constraint {
             fcc->setContactResult(contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
-            contact_constraints[i] = fcc;
+            _constraints[i] = fcc;
         }
 #   endif
-
-        _constraints = contact_constraints;
     }
 
     void SequentialImpulseConstraintSolver::solve() {

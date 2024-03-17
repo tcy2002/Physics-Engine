@@ -46,25 +46,22 @@ namespace pe_core {
 
     void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
-        pe::Real dt = _dt;
-        pe::Real sleep_lin_vel2_threshold = _sleep_lin_vel2_threshold;
-        pe::Real sleep_ang_vel2_threshold = _sleep_ang_vel2_threshold;
-        pe::Real sleep_time_threshold = _sleep_time_threshold;
+        auto c = this;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [&](pe_phys_object::RigidBody* rb, int idx){
+                                   [&c](pe_phys_object::RigidBody* rb, int idx){
             if (rb->isKinematic()) return;
             if (rb->isSleep()) {
-                if (rb->getLinearVelocity().norm2() >= sleep_lin_vel2_threshold ||
-                    rb->getAngularVelocity().norm2() >= sleep_ang_vel2_threshold) {
+                if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
+                    rb->getAngularVelocity().norm2() >= c->_sleep_ang_vel2_threshold) {
                     rb->setSleep(false);
                 }
             } else {
-                rb->step(dt);
-                rb->applyDamping(dt);
-                if (rb->getLinearVelocity().norm2() < sleep_lin_vel2_threshold &&
-                    rb->getAngularVelocity().norm2() < sleep_ang_vel2_threshold) {
-                    rb->updateSleepTime(dt);
-                    if (rb->getSleepTime() >= sleep_time_threshold) {
+                rb->step(c->_dt);
+                rb->applyDamping(c->_dt);
+                if (rb->getLinearVelocity().norm2() < c->_sleep_lin_vel2_threshold &&
+                    rb->getAngularVelocity().norm2() < c->_sleep_ang_vel2_threshold) {
+                    rb->updateSleepTime(c->_dt);
+                    if (rb->getSleepTime() >= c->_sleep_time_threshold) {
                         rb->setSleep(true);
                         rb->setLinearVelocity(pe::Vector3::zeros());
                         rb->setAngularVelocity(pe::Vector3::zeros());
@@ -104,13 +101,12 @@ namespace pe_core {
 
     void World::applyExternalForce() {
 #   ifdef PE_MULTI_THREAD
-        pe::Vector3 gravity = _gravity;
-        pe::Real dt = _dt;
+        auto c = this;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [&](pe_phys_object::RigidBody* rb, int idx){
+                                   [&c](pe_phys_object::RigidBody* rb, int idx){
             if (rb->isKinematic()) return;
-            rb->addCentralForce(gravity * rb->getMass());
-            rb->applyForce(dt);
+            rb->addCentralForce(c->_gravity * rb->getMass());
+            rb->applyForce(c->_dt);
         });
         utils::ThreadPool::join();
 #   else

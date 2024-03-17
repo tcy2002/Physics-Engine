@@ -5,6 +5,7 @@
 #include <atomic>
 #include <vector>
 #include <queue>
+#include <iostream>
 #include "common/general.h"
 
 namespace utils {
@@ -20,8 +21,8 @@ namespace utils {
 
         template<typename Function, typename... Args>
         static void addTask(Function&& fn, Args&&... args) {
-            if (getInstance()._size == -1) return;
             auto& inst = getInstance();
+            if (inst._size == -1) return;
             std::unique_lock<std::mutex> lock(inst._mtx);
             inst._tasks.emplace([&]{ fn(args...); });
             inst._task_num++;
@@ -30,8 +31,9 @@ namespace utils {
 
         template <typename Iterator, typename Function>
         static void forEach(Iterator first, Iterator last, Function&& fn) {
-            if (getInstance()._size == -1) return;
+            if (first == last) return;
             auto& inst = getInstance();
+            if (inst._size == -1) return;
             std::unique_lock<std::mutex> lock(inst._mtx);
             auto p = first;
             while (p != last) {

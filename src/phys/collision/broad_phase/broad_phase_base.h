@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     class BroadPhaseBase {
     protected:
-        pe::Array<CollisionPair> _collision_pairs; // TODO: use pool allocator
+        pe::Array<CollisionPair> _collision_pairs;
 
     public:
         BroadPhaseBase() {}

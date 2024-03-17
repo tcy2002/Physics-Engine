@@ -6,15 +6,16 @@ namespace pe_phys_collision {
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs) {
 #   ifdef PE_MULTI_THREAD
         _contact_results.resize(pairs.size());
+        auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
-                                   [this](const CollisionPair& pair, int idx) {
+                                   [&c](const CollisionPair& pair, int idx) {
             ContactResult result;
             auto type_a = pair.first->getCollisionShape()->getType();
             auto type_b = pair.second->getCollisionShape()->getType();
             int algo_idx = type_a * 4 + type_b;
-            if (_algos[algo_idx] &&
-                _algos[algo_idx]->processCollision(pair.first, pair.second, result)) {
-                _contact_results[idx] = result;
+            if (c->_algos[algo_idx] &&
+                c->_algos[algo_idx]->processCollision(pair.first, pair.second, result)) {
+                c->_contact_results[idx] = result;
             }
         });
         utils::ThreadPool::join();
