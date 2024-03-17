@@ -60,8 +60,8 @@ namespace pe_phys_collision {
         int max_c = 4;
         pe::Real margin = 0.005;
 
-        auto basis_a = transform_a.getBasis();
-        auto basis_b = transform_b.getBasis();
+        auto& basis_a = transform_a.getBasis();
+        auto& basis_b = transform_b.getBasis();
         for (int j = 0; j < 3; j++) {
             R1[0 + 4 * j] = basis_a[j][0];
             R2[0 + 4 * j] = basis_b[j][0];
@@ -100,8 +100,8 @@ namespace pe_phys_collision {
     int BoxBoxCollisionAlgorithm::intersectRectQuad2(pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
         // q (and r) contain nq (and nr) coordinate points for the current (and
         // chopped) polygons
-        int nq = 4, nr = 0;
         pe::Real buffer[16];
+        int nq = 4, nr = 0;
         pe::Real* q = p;
         pe::Real* r = ret;
 

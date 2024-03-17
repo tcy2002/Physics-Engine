@@ -34,14 +34,16 @@
     - 抖动、小程度穿模（一定程度上解决）cid：79a2a09a
   
   - 其他碰撞对：
-    - box mesh = mesh mesh√
+    - box mesh = mesh mesh √
     - sphere shpere √
     - box shpere √
-    - mesh shpere = sphere triangles√
-    - cylinder cylinder = cylinder triangles
-    - box cylinder = cylinder triangles
-    - shpere cylinder
-    - mesh cylinder = cylinder triangles
+    - mesh shpere = sphere triangles √
+    - cylinder cylinder = mesh mesh √
+    - box cylinder = mesh mesh √
+    - shpere cylinder √
+    - mesh cylinder = mesh mesh √
+
+  - 内存优化
 
 ### 问题日志
 

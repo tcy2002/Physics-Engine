@@ -137,21 +137,21 @@ namespace pe_core {
         _narrow_phase->clearContactResults();
         _narrow_phase->calcContactResults(_broad_phase->getCollisionPairs());
 
-        static pe::Array<int> debug_points;
-        for (auto id : debug_points) {
-            pe_core::Viewer::removeCube(id);
-        }
-        debug_points.clear();
-        for (auto& cr : _narrow_phase->getContactResults()) {
-            if (cr.getObjectA()->getGlobalId() != 30 && cr.getObjectB()->getGlobalId() != 30) continue;
-            for (int i = 0; i < cr.getPointSize(); i++) {
-                auto point = cr.getContactPoint(i).getWorldPos();
-                int id = pe_core::Viewer::addCube({0.2, 0.2, 0.2});
-                pe_core::Viewer::updateCubeColor(id, {1, 0, 0});
-                pe_core::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
-                debug_points.push_back(id);
-            }
-        }
+//        static pe::Array<int> debug_points;
+//        for (auto id : debug_points) {
+//            pe_core::Viewer::removeCube(id);
+//        }
+//        debug_points.clear();
+//        for (auto& cr : _narrow_phase->getContactResults()) {
+//            if (cr.getObjectA()->getGlobalId() != 30 && cr.getObjectB()->getGlobalId() != 30) continue;
+//            for (int i = 0; i < cr.getPointSize(); i++) {
+//                auto point = cr.getContactPoint(i).getWorldPos();
+//                int id = pe_core::Viewer::addCube({0.2, 0.2, 0.2});
+//                pe_core::Viewer::updateCubeColor(id, {1, 0, 0});
+//                pe_core::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
+//                debug_points.push_back(id);
+//            }
+//        }
 
         // constraints
         _constraint_solver->setupSolver(_collision_objects,

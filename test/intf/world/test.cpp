@@ -11,7 +11,7 @@
 //#define TEST_SINGLE
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
-#define TEST_NUM 3
+#define TEST_NUM 99
 #define TEST_FRAME_TH 1000000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
@@ -166,7 +166,6 @@ void testWorld() {
             rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
         } else {
             rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0, 1.0);
-            std::cout << rb->getGlobalId() << std::endl;
         }
         rbs.push_back(rb);
         world->addRigidBody(rb);
