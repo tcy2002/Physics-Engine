@@ -74,7 +74,7 @@
   - 原因：default mesh错误，已修改
 
 - toolset更改为vs之后编译问题
-  - 无法写入清单文件，待解决
+  - 无法写入清单文件，解决：修改cmake generator为let cmake decide
 
 ### 效果
 
