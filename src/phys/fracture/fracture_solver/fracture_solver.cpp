@@ -35,7 +35,7 @@ namespace pe_phys_fracture {
         // edge contact and tiny fragment: 1013108201 1013255245
         // not stable: 1016601555
         // seems to pass through: 1019554970
-        static std::default_random_engine e(generateSeed());
+        static std::default_random_engine e(236155093);
         static std::uniform_real_distribution<pe::Real> d(0., 1.);
         pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
         pe::Real cos_t = cos(theta), sin_t = sin(theta), cos_a = cos(alpha), sin_a = sin(alpha);

@@ -11,7 +11,7 @@
 //#define TEST_SINGLE
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
-#define TEST_NUM 2
+#define TEST_NUM 3
 #define TEST_FRAME_TH 1000000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
@@ -160,15 +160,13 @@ void testWorld() {
     pe::Array<pe_phys_object::RigidBody*> rbs;
     for (int i = 0; i < TEST_NUM; i++) {
         pe_phys_object::RigidBody* rb;
-        if (i % 2 == 0) {
-            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 1.0, 1.0, 1.0);
-            pe::Transform trans;
-            trans.setRotation({0, 0, 1}, PE_PI / 2.5);
-            trans.setOrigin(rb->getTransform().getOrigin());
-            rb->setTransform(trans);
-//            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
+        if (i % 3 == 0) {
+            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
+        } else if (i % 3 == 1) {
+            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
         } else {
-            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.6, 0), 0.5, 1.0);
+            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0, 1.0);
+            std::cout << rb->getGlobalId() << std::endl;
         }
         rbs.push_back(rb);
         world->addRigidBody(rb);
@@ -195,17 +193,18 @@ void testWorld() {
     pe::Array<int> ids;
     for (int i = 0; i < TEST_NUM; i++) {
         int id;
-        if (i % 2 == 0) {
-            id = pe_core::Viewer::addCylinder(1.0, 1.0);
-            pe_core::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateCylinderTransform(id, rbs[i]->getTransform());
-//            id = pe_core::Viewer::addCube(pe::Vector3(1, 1, 1));
-//            pe_core::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
-//            pe_core::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
-        } else {
+        if (i % 3 == 0) {
+            id = pe_core::Viewer::addCube(pe::Vector3(1, 1, 1));
+            pe_core::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
+            pe_core::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
+        } else if (i % 3 == 1) {
             id = pe_core::Viewer::addSphere(0.5);
             pe_core::Viewer::updateSphereColor(id, pe::Vector3(0.8, 0.3, 0.3));
             pe_core::Viewer::updateSphereTransform(id, rbs[i]->getTransform());
+        } else {
+            id = pe_core::Viewer::addCylinder(0.5, 1);
+            pe_core::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.3, 0.3));
+            pe_core::Viewer::updateCylinderTransform(id, rbs[i]->getTransform());
         }
         ids.push_back(id);
     }
