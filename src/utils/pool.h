@@ -17,9 +17,6 @@ namespace utils {
         };
         FreeNode* _free_node;
 
-        int _used_num;
-        int _free_num;
-
         static void* aligned_malloc(size_t size, int align);
         static void aligned_free(T* ptr);
 
@@ -37,9 +34,6 @@ namespace utils {
         template <typename ...Args>
         T* create(Args&&... args);
         void destroy(T* ptr);
-
-        int getUsedNum() { return _used_num; }
-        int getFreeNum() { return _free_num; }
     };
 
     #include "pool.cpp"

@@ -23,15 +23,12 @@ T* Pool<T, BlockSize>::allocate() {
     }
     T* ptr = reinterpret_cast<T*>(_free_node);
     _free_node = _free_node->next;
-    _used_num++;
-    _free_num--;
     return ptr;
 }
 
 template <typename T, size_t BlockSize>
 void Pool<T, BlockSize>::deallocate(T* ptr) {
     if (ptr) {
-        _used_num--;
         pushFreeNode(reinterpret_cast<FreeNode*>(ptr));
     }
 }
@@ -39,7 +36,6 @@ void Pool<T, BlockSize>::deallocate(T* ptr) {
 template <typename T, size_t BlockSize>
 void Pool<T, BlockSize>::pushFreeNode(FreeNode *ptr) {
     if (ptr) {
-        _free_num++;
         ptr->next = _free_node;
         _free_node = ptr;
     }
@@ -79,14 +75,14 @@ void Pool<T, BlockSize>::destroyAll() {
             else if (free_nodes[j] > elem){
                 elem->~T();
             } else {
-                // error
+                PE_LOG_ERROR << "Pool destroy error" << std::endl;
             }
         }
     }
 }
 
 template <typename T, size_t BlockSize>
-Pool<T, BlockSize>::Pool(): _used_num(0), _free_num(0), _free_node(nullptr) {
+Pool<T, BlockSize>::Pool(): _free_node(nullptr) {
     if (BlockSize < sizeof(T)) {
         PE_LOG_ERROR << "Pool size too low (" << BlockSize << ")" << std::endl;
         exit(-1);
