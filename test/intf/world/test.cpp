@@ -12,7 +12,8 @@
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
 #define TEST_NUM 99
-#define TEST_FRAME_TH 1000000
+#define TEST_FRAME_TH 100000
+//#define TEST_FRAMERATE 1000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
     std::ifstream file(filename);
@@ -224,11 +225,15 @@ void testWorld() {
 
     // main loop
     int frame = 0;
+    auto start = COMMON_GetTickCount();
     while (true) {
-        frame++;
+#   ifdef TEST_FRAMERATE
+        if (++frame > TEST_FRAMERATE) break;
+#   else
         while (pe_core::Viewer::getKeyState('r') != 0) {
             if (pe_core::Viewer::getKeyState('q') == 0) goto ret;
         }
+#   endif
         auto t = COMMON_GetTickCount();
 #   ifdef TEST_SINGLE
         pe_core::Viewer::updateCubeTransform(id2, rb2->getTransform());
@@ -244,11 +249,17 @@ void testWorld() {
             pe_core::Viewer::updateCylinderTransform(ids[i], rbs[i]->getTransform());
         }
         world->step();
+#   if !defined(TEST_FRAMERATE)
         if (++frame > TEST_FRAME_TH) while (pe_core::Viewer::getKeyState('r') != 1);
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
+#   endif
     }
 
     ret:
+    auto end = COMMON_GetTickCount();
+#   ifdef TEST_FRAMERATE
+    std::cout << "FPS: " << (pe::Real)frame / ((pe::Real)(end - start) / 1000.0) << std::endl;
+#   endif
     pe_core::Viewer::close();
     delete world;
 }

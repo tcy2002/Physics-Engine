@@ -7,7 +7,7 @@ add_library(PEUtils STATIC
         utils/thread_pool.cpp)
 
 target_link_libraries(PEViewer PRIVATE
-        ${SV_LIB_DIR}/${CMAKE_BUILD_TYPE}/SimpleViewer.lib
+        ${SV_LIB_DIR}/${CMAKE_CFG_INTDIR}/SimpleViewer.lib
         ${SV_LIB_DIR}/freeglut.lib ${SV_LIB_DIR}/glew32.lib opengl32)
 
 target_link_libraries(PEngine PEViewer)
