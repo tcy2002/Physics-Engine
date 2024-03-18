@@ -1,6 +1,3 @@
-
-#include "pool.h"
-
 void* aligned_malloc(size_t size, int align) {
     const int pointer_size = sizeof(void*);
     const int requested_size = (int)size + align - 1 + pointer_size;
