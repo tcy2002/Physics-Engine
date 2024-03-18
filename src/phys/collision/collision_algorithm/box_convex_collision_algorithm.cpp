@@ -20,13 +20,7 @@ namespace pe_phys_collision {
         auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
         auto& mesh_a = shape_a->getMesh();
-        auto mesh_b = pe_phys_shape::_box_mesh;
-        auto& size = shape_b->getSize();
-        for (auto& v : mesh_b.vertices) {
-            v.position.x *= size.x;
-            v.position.y *= size.y;
-            v.position.z *= size.z;
-        }
+        auto& mesh_b = shape_b->getMesh();
         auto& transA = object_a->getTransform();
         auto& transB = object_b->getTransform();
 

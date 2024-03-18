@@ -4,9 +4,10 @@
 #include <queue>
 #include <unordered_map>
 #include <map>
+#include <cstdint>
 
 //// general macros
-#include "common/general.h"
+#include <common/general.h>
 
 //// real
 #ifdef PE_USE_DOUBLE
@@ -27,10 +28,10 @@
 #endif
 
 //// geometry types
-#include "common/mesh.h"
-#include "common/vector3.h"
-#include "common/matrix3x3.h"
-#include "common/transform.h"
+#include <common/mesh.h>
+#include <common/vector3.h>
+#include <common/matrix3x3.h>
+#include <common/transform.h>
 namespace pe {
 #ifdef PE_USE_DOUBLE
     using Real = double;

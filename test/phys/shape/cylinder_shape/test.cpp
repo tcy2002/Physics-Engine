@@ -118,9 +118,9 @@ std::string getUniqueEdges() {
 }
 
 int main() {
-    std::cout << getUniqueEdges() << std::endl;
-//    testConstruct();
-//    testAABB();
-//    testIsInside();
-//    testProject();
+//    std::cout << getUniqueEdges() << std::endl;
+    testConstruct();
+    testAABB();
+    testIsInside();
+    testProject();
 }

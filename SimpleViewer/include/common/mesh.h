@@ -20,7 +20,7 @@ namespace common {
         std::vector<Vertex> vertices;
         std::vector<Face> faces;
 
-        Mesh() = default;
+        Mesh() {}
         Mesh(std::vector<Vertex> vs, std::vector<Face> fs):
             vertices(std::move(vs)), faces(std::move(fs)) {}
 

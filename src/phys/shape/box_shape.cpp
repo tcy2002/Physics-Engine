@@ -1,9 +1,16 @@
 #include "box_shape.h"
+#include "default_mesh.h"
 
 namespace pe_phys_shape {
 
-    BoxShape::BoxShape(const pe::Vector3 &size):
-        _size(size), _half_size(size / 2) {}
+    BoxShape::BoxShape(const pe::Vector3 &size): _size(size), _half_size(size / 2) {
+        _mesh = PE_BOX_DEFAULT_MESH;
+        for (auto& v : _mesh.vertices) {
+            v.position.x *= size.x;
+            v.position.y *= size.y;
+            v.position.z *= size.z;
+        }
+    }
 
     void BoxShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
         min = PE_VEC_MAX;

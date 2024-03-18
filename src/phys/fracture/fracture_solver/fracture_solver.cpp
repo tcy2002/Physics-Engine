@@ -77,13 +77,7 @@ namespace pe_phys_fracture {
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
             mesh = ((pe_phys_shape::ConvexMeshShape*)(shape))->getMesh();
         } else if (shape->getType() == pe_phys_shape::ShapeType::Box) {
-            mesh = pe_phys_shape::_box_mesh;
-            auto size = ((pe_phys_shape::BoxShape*)(shape))->getSize();
-            for (auto& vert : mesh.vertices) {
-                vert.position.x *= size.x;
-                vert.position.y *= size.y;
-                vert.position.z *= size.z;
-            }
+            mesh = ((pe_phys_shape::BoxShape*)(shape))->getMesh();
         } else return;
 
         pe::Transform world_trans = _fracturable_object->getTransform();

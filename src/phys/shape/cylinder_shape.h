@@ -5,8 +5,9 @@
 namespace pe_phys_shape {
 
     class CylinderShape: public Shape {
-    COMMON_MEMBER_SET_GET(pe::Real, radius, Radius);
-    COMMON_MEMBER_SET_GET(pe::Real, height, Height);
+        COMMON_MEMBER_GET(pe::Real, radius, Radius);
+        COMMON_MEMBER_GET(pe::Real, height, Height);
+        COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh);
 
     public:
         CylinderShape(pe::Real radius, pe::Real height);

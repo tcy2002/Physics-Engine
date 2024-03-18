@@ -1,6 +1,7 @@
 include_directories(${ENGINE_INCLUDE_DIR} .)
 
 set(TEST_EXT_LIBS PEUtils)
+file(GLOB_RECURSE PHYS_COLLISION_ALGO ${ENGINE_INCLUDE_DIR}/phys/collision/collision_algorithm/*.cpp)
 
 add_subdirectory(intf/viewer)
 add_subdirectory(phys/object/rigidbody)
@@ -16,3 +17,4 @@ add_subdirectory(phys/fracture)
 add_subdirectory(phys/collision/mesh_mesh_collision)
 add_subdirectory(utils/thread_pool)
 add_subdirectory(phys/shape/cylinder_shape)
+add_subdirectory(utils/pool)

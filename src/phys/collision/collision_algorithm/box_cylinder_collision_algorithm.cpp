@@ -19,21 +19,8 @@ namespace pe_phys_collision {
 
         auto shape_a = (pe_phys_shape::BoxShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::CylinderShape*)object_b->getCollisionShape();
-        auto mesh_a = pe_phys_shape::_box_mesh;
-        auto& size = shape_a->getSize();
-        for (auto& v : mesh_a.vertices) {
-            v.position.x *= size.x;
-            v.position.y *= size.y;
-            v.position.z *= size.z;
-        }
-        auto mesh_b = pe_phys_shape::_cylinder_mesh;
-        pe::Real radius = shape_b->getRadius() * 2;
-        pe::Real height = shape_b->getHeight();
-        for (auto& v : mesh_b.vertices) {
-            v.position.x *= radius;
-            v.position.z *= radius;
-            v.position.y *= height;
-        }
+        auto& mesh_a = shape_a->getMesh();
+        auto& mesh_b = shape_b->getMesh();
         auto& transA = object_a->getTransform();
         auto& transB = object_b->getTransform();
 

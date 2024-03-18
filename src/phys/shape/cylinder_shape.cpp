@@ -1,8 +1,17 @@
 #include "cylinder_shape.h"
+#include "default_mesh.h"
 
 namespace pe_phys_shape {
 
-    CylinderShape::CylinderShape(pe::Real radius, pe::Real height): _radius(radius), _height(height) {}
+    CylinderShape::CylinderShape(pe::Real radius, pe::Real height): _radius(radius), _height(height) {
+        _mesh = PE_CYLINDER_DEFAULT_MESH;
+        pe::Real r2 = radius * 2;
+        for (auto& v : _mesh.vertices) {
+            v.position.x *= r2;
+            v.position.z *= r2;
+            v.position.y *= height;
+        }
+    }
 
     void CylinderShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
         pe::Vector3 axis = transform.getBasis().getColumn(1);

@@ -6,6 +6,7 @@ namespace pe_phys_shape {
 
     class BoxShape: public Shape {
         COMMON_MEMBER_GET(pe::Vector3, size, Size);
+        COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh);
 
     private:
         pe::Vector3 _half_size;

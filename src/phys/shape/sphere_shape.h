@@ -5,7 +5,7 @@
 namespace pe_phys_shape {
 
     class SphereShape: public Shape {
-        COMMON_MEMBER_SET_GET(pe::Real, radius, Radius);
+        COMMON_MEMBER_GET(pe::Real, radius, Radius);
 
     public:
         explicit SphereShape(pe::Real radius);

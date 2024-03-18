@@ -20,29 +20,10 @@ namespace utils {
         static void join();
 
         template<typename Function, typename... Args>
-        static void addTask(Function&& fn, Args&&... args) {
-            auto& inst = getInstance();
-            if (inst._size == -1) return;
-            std::unique_lock<std::mutex> lock(inst._mtx);
-            inst._tasks.emplace([&]{ fn(args...); });
-            inst._task_num++;
-            inst._cv.notify_one();
-        }
+        static void addTask(Function&& fn, Args&&... args);
 
         template <typename Iterator, typename Function>
-        static void forEach(Iterator first, Iterator last, Function&& fn) {
-            if (first == last) return;
-            auto& inst = getInstance();
-            if (inst._size == -1) return;
-            std::unique_lock<std::mutex> lock(inst._mtx);
-            auto p = first;
-            while (p != last) {
-                inst._tasks.emplace([&fn, p, first]{ fn(*p, (int)(p - first)); });
-                inst._task_num++;
-                ++p;
-            }
-            inst._cv.notify_all();
-        }
+        static void forEach(Iterator first, Iterator last, Function&& fn);
 
     public:
         ThreadPool(const ThreadPool&) = delete;
@@ -64,5 +45,30 @@ namespace utils {
 
         static ThreadPool& getInstance();
     };
+
+    template<typename Function, typename... Args>
+    void ThreadPool::addTask(Function&& fn, Args&&... args) {
+        auto& inst = getInstance();
+        if (inst._size == -1) return;
+        std::unique_lock<std::mutex> lock(inst._mtx);
+        inst._tasks.emplace([&]{ fn(std::forward<Args>(args)...); });
+        inst._task_num++;
+        inst._cv.notify_one();
+    }
+
+    template <typename Iterator, typename Function>
+    void ThreadPool::forEach(Iterator first, Iterator last, Function&& fn) {
+        if (first == last) return;
+        auto& inst = getInstance();
+        if (inst._size == -1) return;
+        std::unique_lock<std::mutex> lock(inst._mtx);
+        auto p = first;
+        while (p != last) {
+            inst._tasks.emplace([&fn, p, first]{ fn(*p, (int)(p - first)); });
+            inst._task_num++;
+            ++p;
+        }
+        inst._cv.notify_all();
+    }
 
 } // namespace common
