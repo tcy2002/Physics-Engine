@@ -9,15 +9,13 @@ namespace pe_phys_collision {
         auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [&c](const CollisionPair& pair, int idx) {
-            ContactResult result;
-            auto type_a = pair.first->getCollisionShape()->getType();
-            auto type_b = pair.second->getCollisionShape()->getType();
-            int algo_idx = type_a * 4 + type_b;
-            if (c->_algos[algo_idx] &&
-                c->_algos[algo_idx]->processCollision(pair.first, pair.second, result)) {
-                c->_contact_results[idx] = result;
-            }
-        });
+                                       auto type_a = pair.first->getCollisionShape()->getType();
+                                       auto type_b = pair.second->getCollisionShape()->getType();
+                                       int algo_idx = type_a * 4 + type_b;
+                                       c->_algos[algo_idx] &&
+                                       c->_algos[algo_idx]->processCollision(pair.first, pair.second,
+                                                                             c->_contact_results[idx]);
+                                   });
         utils::ThreadPool::join();
 
         // remove empty results

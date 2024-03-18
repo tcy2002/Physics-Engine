@@ -1,5 +1,4 @@
 #include "sequential_impulse_constraint_solver.h"
-#include "phys/constraint/constraint/friction_contact_constraint.h"
 #include "utils/thread_pool.h"
 
 namespace pe_phys_constraint {
@@ -11,28 +10,36 @@ namespace pe_phys_constraint {
     void SequentialImpulseConstraintSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
                                                         const pe::Array<pe_phys_collision::ContactResult>& contact_results,
                                                         const pe::Array<Constraint*>& constraints) {
-        _collision_objects = objects; //TODO: optimize
+        _collision_objects = objects;
         for (auto co : _collision_objects) {
             co->clearTempVelocity();
         }
 
         // clear old constraints
-        for (auto c : _constraints) {
-            delete c;
+        const int old_size = (int)_constraints.size();
+        const int new_size = (int)contact_results.size();
+        if (old_size < new_size) {
+            _constraints.resize(new_size);
+            for (int i = old_size; i < new_size; i++) {
+                _constraints[i] = _fcc_pool.create();
+            }
+        } else {
+            for (int i = new_size; i < old_size; i++) {
+                _fcc_pool.destroy((FrictionContactConstraint*)_constraints[i]);
+            }
+            _constraints.resize(new_size);
         }
-        _constraints.resize(contact_results.size());
 
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
 #   ifdef PE_MULTI_THREAD
         auto c = this;
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
                                    [&c](const pe_phys_collision::ContactResult& cr, int idx){
-           auto fcc = new FrictionContactConstraint();
-           fcc->setContactResult(cr);
-           fcc->initSequentialImpulse(c->_param);
-           fcc->warmStart();
-           c->_constraints[idx] = fcc;
-        });
+                                       auto fcc = (FrictionContactConstraint*)(c->_constraints[idx]);
+                                       fcc->setContactResult(cr);
+                                       fcc->initSequentialImpulse(c->_param);
+                                       fcc->warmStart();
+                                   });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < contact_results.size(); i++) {

@@ -34,8 +34,8 @@ namespace pe_core {
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
                                    [](pe_phys_object::RigidBody* rb, int idx) {
-            rb->computeAABB();
-        });
+                                       rb->computeAABB();
+                                   });
         utils::ThreadPool::join();
 #   else
         for (auto& co : _collision_objects) {
@@ -49,28 +49,28 @@ namespace pe_core {
         auto c = this;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
                                    [&c](pe_phys_object::RigidBody* rb, int idx){
-            if (rb->isKinematic()) return;
-            if (rb->isSleep()) {
-                if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
-                    rb->getAngularVelocity().norm2() >= c->_sleep_ang_vel2_threshold) {
-                    rb->setSleep(false);
-                }
-            } else {
-                rb->step(c->_dt);
-                rb->applyDamping(c->_dt);
-                if (rb->getLinearVelocity().norm2() < c->_sleep_lin_vel2_threshold &&
-                    rb->getAngularVelocity().norm2() < c->_sleep_ang_vel2_threshold) {
-                    rb->updateSleepTime(c->_dt);
-                    if (rb->getSleepTime() >= c->_sleep_time_threshold) {
-                        rb->setSleep(true);
-                        rb->setLinearVelocity(pe::Vector3::zeros());
-                        rb->setAngularVelocity(pe::Vector3::zeros());
-                    }
-                } else {
-                    rb->resetSleepTime();
-                }
-            }
-        });
+                                       if (rb->isKinematic()) return;
+                                       if (rb->isSleep()) {
+                                           if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
+                                               rb->getAngularVelocity().norm2() >= c->_sleep_ang_vel2_threshold) {
+                                               rb->setSleep(false);
+                                           }
+                                       } else {
+                                           rb->step(c->_dt);
+                                           rb->applyDamping(c->_dt);
+                                           if (rb->getLinearVelocity().norm2() < c->_sleep_lin_vel2_threshold &&
+                                               rb->getAngularVelocity().norm2() < c->_sleep_ang_vel2_threshold) {
+                                               rb->updateSleepTime(c->_dt);
+                                               if (rb->getSleepTime() >= c->_sleep_time_threshold) {
+                                                   rb->setSleep(true);
+                                                   rb->setLinearVelocity(pe::Vector3::zeros());
+                                                   rb->setAngularVelocity(pe::Vector3::zeros());
+                                               }
+                                           } else {
+                                               rb->resetSleepTime();
+                                           }
+                                       }
+                                   });
         utils::ThreadPool::join();
 #   else
         for (auto& rb : _collision_objects) {
@@ -104,10 +104,10 @@ namespace pe_core {
         auto c = this;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
                                    [&c](pe_phys_object::RigidBody* rb, int idx){
-            if (rb->isKinematic()) return;
-            rb->addCentralForce(c->_gravity * rb->getMass());
-            rb->applyForce(c->_dt);
-        });
+                                       if (rb->isKinematic()) return;
+                                       rb->addCentralForce(c->_gravity * rb->getMass());
+                                       rb->applyForce(c->_dt);
+                                   });
         utils::ThreadPool::join();
 #   else
         for (auto& rb : _collision_objects) {

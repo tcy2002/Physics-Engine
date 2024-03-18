@@ -1,4 +1,5 @@
-void* aligned_malloc(size_t size, int align) {
+template <typename T, size_t BlockSize>
+void* Pool<T, BlockSize>::aligned_malloc(size_t size, int align) {
     const int pointer_size = sizeof(void*);
     const int requested_size = (int)size + align - 1 + pointer_size;
     void* raw = malloc(requested_size);
@@ -8,8 +9,8 @@ void* aligned_malloc(size_t size, int align) {
     return aligned;
 }
 
-template <typename T>
-void aligned_free(T* ptr) {
+template <typename T, size_t BlockSize>
+void Pool<T, BlockSize>::aligned_free(T* ptr) {
     if (ptr) {
         free(((T**)ptr)[-1]);
     }
@@ -81,6 +82,14 @@ void Pool<T, BlockSize>::destroyAll() {
                 // error
             }
         }
+    }
+}
+
+template <typename T, size_t BlockSize>
+Pool<T, BlockSize>::Pool(): _used_num(0), _free_num(0), _free_node(nullptr) {
+    if (BlockSize < sizeof(T)) {
+        PE_LOG_ERROR << "Pool size too low (" << BlockSize << ")" << std::endl;
+        exit(-1);
     }
 }
 

@@ -44,7 +44,7 @@
     - mesh cylinder = mesh mesh √
 
   - 内存优化
-    - 待检查
+    - FrictionContactConstraint对象较大，且每一帧反复创建销毁，适合使用内存池
 
   - Clion使用vs编译
     - 语法检查更严格
@@ -67,15 +67,18 @@
 - sequential impulse稳定性
   - 尝试使用各向异性的margin，没有明显改善，改回固定margin（0.005）
   - 部分解决：
-    - 顾名思义，sequenetial不能用多线程（一部分解决，小碎块仍然不稳定），同时解决了时序一致性的问题
+    - 顾名思义，sequenetial impulse的迭代部分不能用多线程（一部分解决，小碎块仍然不稳定），同时解决了时序一致性的问题
     - 设置刚体的sleep threshold（速度小于阈值超过一定时间）
     - 还是会有穿模，示例为blob/0312/world
 
-- cylinder 碰撞不稳定
+- cylinder碰撞不稳定
   - 原因：default mesh错误，已修改
 
 - toolset更改为vs之后编译问题
   - 无法写入清单文件，解决：修改cmake generator为let cmake decide
+
+- 内存池启动崩溃
+  - 原因：设置的块大小过小，应至少大于一个对象的大小
 
 ### 效果
 
