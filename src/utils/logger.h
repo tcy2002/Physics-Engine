@@ -2,7 +2,7 @@
 
 #include <cstring>
 #include <iostream>
-#include "common/general.h"
+#include <common/general.h>
 
 //// filename: depends on platform
 #if defined __GNUC__ || defined LINUX

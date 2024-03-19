@@ -102,8 +102,8 @@ namespace pe_phys_object {
         });
     }
 
-    pe::Vector3 RigidBody::getWorldLinearVelocityAt(const pe::Vector3& world_point) const {
-        return _linear_velocity + _angular_velocity.cross(world_point - _transform.getOrigin());
+    pe::Vector3 RigidBody::getLinearVelocityAtLocalPoint(const pe::Vector3& local_p) const {
+        return _linear_velocity + _angular_velocity.cross(local_p);
     }
 
     pe::Real RigidBody::getKineticEnergy() {

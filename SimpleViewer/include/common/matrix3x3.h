@@ -44,6 +44,7 @@ namespace common {
         COMMON_FORCE_INLINE void invert();
         COMMON_FORCE_INLINE void setRotation(const Vector3<Scalar> &axis, Scalar angle);
         COMMON_FORCE_INLINE Matrix3x3 getAbsolute() const;
+        COMMON_FORCE_INLINE Vector3<Scalar> getDiag() const;
 
         COMMON_FORCE_INLINE static const Matrix3x3& identity();
         COMMON_FORCE_INLINE static const Matrix3x3& zeros();

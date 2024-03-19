@@ -6,7 +6,7 @@
 #include <vector>
 #include <queue>
 #include <iostream>
-#include "common/general.h"
+#include <common/general.h>
 
 namespace utils {
 

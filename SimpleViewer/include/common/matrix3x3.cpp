@@ -274,6 +274,11 @@ Matrix3x3<Scalar> Matrix3x3<Scalar>::getAbsolute() const {
 }
 
 template <typename Scalar>
+Vector3<Scalar> Matrix3x3<Scalar>::getDiag() const {
+    return {_m[0][0], _m[1][1], _m[2][2]};
+}
+
+template <typename Scalar>
 const Matrix3x3<Scalar>& Matrix3x3<Scalar>::identity() {
     static Matrix3x3 identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
     return identity;

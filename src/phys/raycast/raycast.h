@@ -1,0 +1,41 @@
+#pragma once
+
+#include <functional>
+#include "phys/object/rigidbody.h"
+
+namespace pe_phys_ray {
+    
+    class Raycast {
+    public:
+        struct RayResultCallback
+        {
+            pe::Real m_distance;
+            pe::Vector3 m_hitPoint;
+            pe::Vector3 m_normal;
+            const pe_phys_object::RigidBody* m_collisionObject;
+
+            virtual ~RayResultCallback() {}
+            bool hasHit() const { return (m_collisionObject != 0); }
+
+            RayResultCallback();
+        };
+
+        pe::Vector3 m_start, m_direction, m_localStart, m_localDirection;
+        pe::Real m_length;
+        RayResultCallback* m_resultCallback;
+        std::function<void(pe::Real, pe::Vector3)> m_callback;
+        std::function<void(RayResultCallback*)> m_closestHitCallback;
+
+    public:
+        Raycast(pe::Vector3 start, pe::Vector3 direction, pe::Real length);
+        virtual ~Raycast() { delete m_resultCallback; }
+        pe::Real maxItem(pe::Vector3 vec);
+        pe::Real minItem(pe::Vector3 vec);
+        void setDirection(const pe::Matrix3& local2world) { m_direction = local2world * m_localDirection; }
+        void setStart(const pe::Transform& trans) { m_start = trans * m_localStart; }
+        void bindCallback(const std::function<void(pe::Real, pe::Vector3)>& callback) { m_callback = callback; }
+        void bindClosetHitCallback(const std::function<void(RayResultCallback*)>& callback) { m_closestHitCallback = callback; }
+        void performRayTest(int id, const pe::Array<pe_phys_object::RigidBody*>& objs);
+    };
+    
+} // namespace pe_phys_ray

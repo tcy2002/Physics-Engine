@@ -38,6 +38,7 @@ namespace pe_core {
         ~World();
 
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
+        pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
         void addRigidBody(pe_phys_object::RigidBody* rigidbody);
         void step();
     };
