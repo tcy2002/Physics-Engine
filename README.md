@@ -3,7 +3,6 @@
 爸爸：KD-Engine  爷爷：Bullet Physics
 
 - 碰撞检测：SAT
-  已完成的碰撞对：Box-Box Box-sphere Box-Convex Sphere-Sphere Sphere-Convex Convex-Convex
 
 - 约束求解：Sequential Impulse
 
@@ -52,7 +51,7 @@
     - 语法检查更严格
 
   - 射线检测（车辆）
-    - 待完成
+    - 移植已完成，待测试
 
 ### 问题日志
 
