@@ -22,12 +22,12 @@
 
 - 3.4-3.10
   
-  - mesh mesh碰撞移植完成，待解决问题：
+  - mesh mesh碰撞完成，待解决问题：
     
-    - 穿模问题：一定程度上解决
+    - 穿模：一定程度上解决
     - penetration约束求解是否必要：应该是KD引擎里用了两份不同版本的算法，penetration部分在现有算法里没有影响，不必纠结
   
-  - 尝试一部分多线程并行化，待解决内容：
+  - 多线程加速，待解决内容：
     
     - 时序一致性：已解决
     - 加锁问题：已解决
@@ -53,7 +53,7 @@
   
   - 内存优化
     
-    - FrictionContactConstraint对象较大，且每一帧反复创建销毁，适合使用内存池
+    - FrictionContactConstraint对象占用空间较多，每一帧反复创建销毁，适合使用内存池，其他部分待定
   
   - Clion使用vs编译
     
@@ -65,7 +65,7 @@
 
 ### 问题日志
 
-- 窄域碰撞优化点：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
+- 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
 
 - 复杂几何体碰撞：偶尔穿模，示例为blob/0311/test4.obj
   
@@ -92,13 +92,14 @@
   
   - 原因：default mesh错误，已修改
 
-- toolset更改为vs之后编译问题
+- toolset更改为vs之后编译问题：无法写入清单文件
   
-  - 无法写入清单文件，解决：修改cmake generator为let cmake decide
+  - 解决：修改cmake generator为let cmake decide
 
 - 内存池启动崩溃
   
   - 原因：设置的块大小过小，应至少大于一个对象的大小
+  - 解决：加大小判断
 
 ### 效果
 
