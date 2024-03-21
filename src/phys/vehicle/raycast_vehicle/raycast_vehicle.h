@@ -6,104 +6,108 @@
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
 
-///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
-class RaycastVehicle
-{
-	pe::Array<pe::Vector3> m_forwardWS;
-	pe::Array<pe::Vector3> m_axle;
-	pe::Array<pe::Real> m_forwardImpulse;
-	pe::Array<pe::Real> m_sideImpulse;
+namespace pe_phys_vehicle {
 
-	///backwards compatibility
-	int m_userConstraintType;
-	int m_userConstraintId;
+    ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
+    class RaycastVehicle
+    {
+        pe::Array<pe::Vector3> m_forwardWS;
+        pe::Array<pe::Vector3> m_axle;
+        pe::Array<pe::Real> m_forwardImpulse;
+        pe::Array<pe::Real> m_sideImpulse;
 
-public:
-	class VehicleTuning {
-	public:
-		VehicleTuning();
-		pe::Real m_suspensionStiffness;
-		pe::Real m_suspensionCompression;
-		pe::Real m_suspensionDamping;
-		pe::Real m_maxSuspensionTravelCm;
-		pe::Real m_frictionSlip;
-		pe::Real m_maxSuspensionForce;
-	};
+        ///backwards compatibility
+        int m_userConstraintType;
+        int m_userConstraintId;
 
-private:
-	VehicleRaycaster* m_vehicleRaycaster;
-	pe::Real m_pitchControl;
-	pe::Real m_steeringValue;
-	pe::Real m_currentVehicleSpeedKmHour;
+    public:
+        class VehicleTuning {
+        public:
+            VehicleTuning();
+            pe::Real m_suspensionStiffness;
+            pe::Real m_suspensionCompression;
+            pe::Real m_suspensionDamping;
+            pe::Real m_maxSuspensionTravelCm;
+            pe::Real m_frictionSlip;
+            pe::Real m_maxSuspensionForce;
+        };
 
-	pe_phys_object::RigidBody* m_chassisBody;
+    private:
+        VehicleRaycaster* m_vehicleRaycaster;
+        pe::Real m_pitchControl;
+        pe::Real m_steeringValue;
+        pe::Real m_currentVehicleSpeedKmHour;
 
-	int m_indexRightAxis;
-	int m_indexUpAxis;
-	int m_indexForwardAxis;
+        pe_phys_object::RigidBody* m_chassisBody;
 
-	void defaultInit(const VehicleTuning& tuning);
-    static pe_phys_object::RigidBody& getFixedBody();
+        int m_indexRightAxis;
+        int m_indexUpAxis;
+        int m_indexForwardAxis;
 
-public:
-	//constructor to create a car from an existing rigidbody
-	RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis, VehicleRaycaster* raycaster);
-	virtual ~RaycastVehicle() {}
+        void defaultInit(const VehicleTuning& tuning);
+        static pe_phys_object::RigidBody& getFixedBody();
 
-	const pe::Transform& getChassisWorldTransform() const;
+    public:
+        //constructor to create a car from an existing rigidbody
+        RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis, VehicleRaycaster* raycaster);
+        virtual ~RaycastVehicle() {}
 
-	pe::Real rayCast(WheelInfo& wheel);
+        const pe::Transform& getChassisWorldTransform() const;
 
-	pe::Real getSteeringValue(int wheel) const;
-	void setSteeringValue(pe::Real steering, int wheel);
-	void applyEngineForce(pe::Real force, int wheel);
+        pe::Real rayCast(WheelInfo& wheel);
 
-	pe::Array<WheelInfo> m_wheelInfo;
-	const WheelInfo& getWheelInfo(int index) const;
-	WheelInfo& getWheelInfo(int index);
-    inline int getNumWheels() const { return int(m_wheelInfo.size()); }
-    void updateWheelTransform(int wheelIndex, bool interpolatedTransform = true);
-    const pe::Transform& getWheelTransformWS(int wheelIndex) const;
-	void updateWheelTransformsWS(WheelInfo& wheel, bool interpolatedTransform = true) const;
-    WheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
-                        const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
-                        const VehicleTuning& tuning, bool isFrontWheel);
+        pe::Real getSteeringValue(int wheel) const;
+        void setSteeringValue(pe::Real steering, int wheel);
+        void applyEngineForce(pe::Real force, int wheel);
 
-    void resetSuspension();
-	void setBrake(pe::Real brake, int wheelIndex);
-	void setPitchControl(pe::Real pitch) { m_pitchControl = pitch; }
+        pe::Array<WheelInfo> m_wheelInfo;
+        const WheelInfo& getWheelInfo(int index) const;
+        WheelInfo& getWheelInfo(int index);
+        inline int getNumWheels() const { return int(m_wheelInfo.size()); }
+        void updateWheelTransform(int wheelIndex, bool interpolatedTransform = true);
+        const pe::Transform& getWheelTransformWS(int wheelIndex) const;
+        void updateWheelTransformsWS(WheelInfo& wheel, bool interpolatedTransform = true) const;
+        WheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
+                            const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
+                            const VehicleTuning& tuning, bool isFrontWheel);
 
-    virtual void updateAction(pe::Real step) { updateVehicle(step); }
-    virtual void updateVehicle(pe::Real step);
-	void updateSuspension(pe::Real deltaTime);
-	virtual void updateFriction(pe::Real timeStep);
+        void resetSuspension();
+        void setBrake(pe::Real brake, int wheelIndex);
+        void setPitchControl(pe::Real pitch) { m_pitchControl = pitch; }
 
-	inline pe_phys_object::RigidBody* getRigidBody() { return m_chassisBody; }
-	const pe_phys_object::RigidBody* getRigidBody() const { return m_chassisBody; }
+        virtual void updateAction(pe::Real step) { updateVehicle(step); }
+        virtual void updateVehicle(pe::Real step);
+        void updateSuspension(pe::Real deltaTime);
+        virtual void updateFriction(pe::Real timeStep);
 
-    virtual void setCoordinateSystem(int rightIndex, int upIndex, int forwardIndex);
-	inline int getRightAxis() const { return m_indexRightAxis; }
-	inline int getUpAxis() const { return m_indexUpAxis; }
-	inline int getForwardAxis() const { return m_indexForwardAxis; }
-	pe::Vector3 getForwardVector() const; ///Worldspace forward vector
+        inline pe_phys_object::RigidBody* getRigidBody() { return m_chassisBody; }
+        const pe_phys_object::RigidBody* getRigidBody() const { return m_chassisBody; }
 
-	///Velocity of vehicle (positive if velocity vector has same direction as forward vector)
-	pe::Real getCurrentSpeedKmHour() const { return m_currentVehicleSpeedKmHour; }
+        virtual void setCoordinateSystem(int rightIndex, int upIndex, int forwardIndex);
+        inline int getRightAxis() const { return m_indexRightAxis; }
+        inline int getUpAxis() const { return m_indexUpAxis; }
+        inline int getForwardAxis() const { return m_indexForwardAxis; }
+        pe::Vector3 getForwardVector() const; ///Worldspace forward vector
 
-	///backwards compatibility
-	int getUserConstraintType() const { return m_userConstraintType; }
-	void setUserConstraintType(int userConstraintType) { m_userConstraintType = userConstraintType; };
-	void setUserConstraintId(int uid) { m_userConstraintId = uid; }
-	int getUserConstraintId() const { return m_userConstraintId; }
-};
+        ///Velocity of vehicle (positive if velocity vector has same direction as forward vector)
+        pe::Real getCurrentSpeedKmHour() const { return m_currentVehicleSpeedKmHour; }
 
-class DefaultVehicleRaycaster : public VehicleRaycaster {
-private:
-    pe_core::World* m_world;
+        ///backwards compatibility
+        int getUserConstraintType() const { return m_userConstraintType; }
+        void setUserConstraintType(int userConstraintType) { m_userConstraintType = userConstraintType; };
+        void setUserConstraintId(int uid) { m_userConstraintId = uid; }
+        int getUserConstraintId() const { return m_userConstraintId; }
+    };
 
-public:
-	explicit DefaultVehicleRaycaster(pe_core::World* world): m_world(world) {}
+    class DefaultVehicleRaycaster : public VehicleRaycaster {
+    private:
+        pe_intf::World* m_world;
 
-	virtual void* castRay(int rigid_idx, const pe::Vector3& from, const pe::Vector3& direction, pe::Real length,
-                          VehicleRaycasterResult& result);
-};
+    public:
+        explicit DefaultVehicleRaycaster(pe_intf::World* world): m_world(world) {}
+
+        virtual void* castRay(uint32_t rigid_idx, const pe::Vector3& from, const pe::Vector3& direction,
+                              pe::Real length, VehicleRaycasterResult& result) override;
+    };
+
+} // namespace pe_phys_vehicle

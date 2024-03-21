@@ -4,7 +4,7 @@
 #include "common/mesh.h"
 #include "opengl_viewer.h"
 
-namespace pe_core {
+namespace pe_intf {
 
     class Viewer {
     protected:

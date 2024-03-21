@@ -5,7 +5,7 @@
 #include "utils/thread_pool.h"
 #include "viewer.h"
 
-namespace pe_core {
+namespace pe_intf {
 
     World::World():
         _gravity(0, -9.8, 0),

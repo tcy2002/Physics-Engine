@@ -119,12 +119,12 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
 }
 
 void testWorld() {
-    auto world = new pe_core::World();
+    auto world = new pe_intf::World();
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
 
     // open viewer
-    pe_core::Viewer::open();
+    pe_intf::Viewer::open();
 
     // create rigid bodies
     auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(1000, 1, 1000), 8);
@@ -182,9 +182,9 @@ void testWorld() {
 #endif
 
     // add to viewer
-    int id1 = pe_core::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
-    pe_core::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
-    pe_core::Viewer::updateCubeTransform(id1, rb1->getTransform());
+    int id1 = pe_intf::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
+    pe_intf::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
+    pe_intf::Viewer::updateCubeTransform(id1, rb1->getTransform());
 #ifdef TEST_SINGLE
     int id2 = pe_core::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)(rb2->getCollisionShape()))->getMesh());
     pe_core::Viewer::updateMeshColor(id2, pe::Vector3(0.3, 0.8, 0.3));
@@ -194,26 +194,26 @@ void testWorld() {
     for (int i = 0; i < TEST_NUM; i++) {
         int id;
         if (i % 3 == 0) {
-            id = pe_core::Viewer::addCube(pe::Vector3(1, 1, 1));
-            pe_core::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
+            id = pe_intf::Viewer::addCube(pe::Vector3(1, 1, 1));
+            pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateCubeTransform(id, rbs[i]->getTransform());
         } else if (i % 3 == 1) {
-            id = pe_core::Viewer::addSphere(0.5);
-            pe_core::Viewer::updateSphereColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateSphereTransform(id, rbs[i]->getTransform());
+            id = pe_intf::Viewer::addSphere(0.5);
+            pe_intf::Viewer::updateSphereColor(id, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateSphereTransform(id, rbs[i]->getTransform());
         } else {
-            id = pe_core::Viewer::addCylinder(0.5, 1);
-            pe_core::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.3, 0.3));
-            pe_core::Viewer::updateCylinderTransform(id, rbs[i]->getTransform());
+            id = pe_intf::Viewer::addCylinder(0.5, 1);
+            pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateCylinderTransform(id, rbs[i]->getTransform());
         }
         ids.push_back(id);
     }
 #ifdef TEST_FRAC
     for (auto rb : fs->getFragments()) {
         auto shape = (pe_phys_shape::ConvexMeshShape*)(rb->getCollisionShape());
-        auto id = pe_core::Viewer::addMesh(shape->getMesh());
-        pe_core::Viewer::updateMeshColor(id, pe::Vector3(0.3, 0.8, 0.3));
-        pe_core::Viewer::updateMeshTransform(id, rb->getTransform());
+        auto id = pe_intf::Viewer::addMesh(shape->getMesh());
+        pe_intf::Viewer::updateMeshColor(id, pe::Vector3(0.3, 0.8, 0.3));
+        pe_intf::Viewer::updateMeshTransform(id, rb->getTransform());
         ids.push_back(id);
     }
 #endif
@@ -230,8 +230,8 @@ void testWorld() {
 #   ifdef TEST_FRAMERATE
         if (++frame > TEST_FRAMERATE) break;
 #   else
-        while (pe_core::Viewer::getKeyState('r') != 0) {
-            if (pe_core::Viewer::getKeyState('q') == 0) goto ret;
+        while (pe_intf::Viewer::getKeyState('r') != 0) {
+            if (pe_intf::Viewer::getKeyState('q') == 0) goto ret;
         }
 #   endif
         auto t = COMMON_GetTickCount();
@@ -243,14 +243,14 @@ void testWorld() {
         pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
 #   endif
         for (int i = 0; i < ids.size(); i++) {
-            pe_core::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
-            pe_core::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());
-            pe_core::Viewer::updateSphereTransform(ids[i], rbs[i]->getTransform());
-            pe_core::Viewer::updateCylinderTransform(ids[i], rbs[i]->getTransform());
+            pe_intf::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
+            pe_intf::Viewer::updateMeshTransform(ids[i], rbs[i]->getTransform());
+            pe_intf::Viewer::updateSphereTransform(ids[i], rbs[i]->getTransform());
+            pe_intf::Viewer::updateCylinderTransform(ids[i], rbs[i]->getTransform());
         }
         world->step();
 #   if !defined(TEST_FRAMERATE)
-        if (++frame > TEST_FRAME_TH) while (pe_core::Viewer::getKeyState('r') != 1);
+        if (++frame > TEST_FRAME_TH) while (pe_intf::Viewer::getKeyState('r') != 1);
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
 #   endif
     }
@@ -260,7 +260,7 @@ void testWorld() {
 #   ifdef TEST_FRAMERATE
     std::cout << "FPS: " << (pe::Real)frame / ((pe::Real)(end - start) / 1000.0) << std::endl;
 #   endif
-    pe_core::Viewer::close();
+    pe_intf::Viewer::close();
     delete world;
 }
 

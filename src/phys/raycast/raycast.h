@@ -29,13 +29,13 @@ namespace pe_phys_ray {
     public:
         Raycast(pe::Vector3 start, pe::Vector3 direction, pe::Real length);
         virtual ~Raycast() { delete m_resultCallback; }
-        pe::Real maxItem(pe::Vector3 vec);
-        pe::Real minItem(pe::Vector3 vec);
+        static pe::Real maxItem(pe::Vector3 vec);
+        static pe::Real minItem(pe::Vector3 vec);
         void setDirection(const pe::Matrix3& local2world) { m_direction = local2world * m_localDirection; }
         void setStart(const pe::Transform& trans) { m_start = trans * m_localStart; }
         void bindCallback(const std::function<void(pe::Real, pe::Vector3)>& callback) { m_callback = callback; }
         void bindClosetHitCallback(const std::function<void(RayResultCallback*)>& callback) { m_closestHitCallback = callback; }
-        void performRayTest(int id, const pe::Array<pe_phys_object::RigidBody*>& objs);
+        void performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody*>& objs);
     };
     
 } // namespace pe_phys_ray

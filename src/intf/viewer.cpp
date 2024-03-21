@@ -1,7 +1,7 @@
 #include "viewer.h"
 #include <thread>
 
-namespace pe_core {
+namespace pe_intf {
 
     std::thread* viewer_thread = nullptr;
     pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map;

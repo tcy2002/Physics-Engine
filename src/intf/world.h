@@ -13,7 +13,7 @@
 #include "phys/constraint/constraint/constraint.h"
 #include "phys/constraint/constraint_solver/constraint_solver.h"
 
-namespace pe_core {
+namespace pe_intf {
 
     class World {
         COMMON_MEMBER_SET_GET(pe::Vector3, gravity, Gravity);
