@@ -4,23 +4,29 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::initBody(pe_intf::World* dw) {
         body = new pe_phys_object::RigidBody();
-        body->setCollisionShape(new pe_phys_shape::BoxShape(
-                pe::Vector3(_bodyWidth / 2, _bodyHeight / 2, _bodyLength / 2)));
+        auto shape_b = new pe_phys_shape::BoxShape(pe::Vector3(
+                _bodyWidth, _bodyHeight, _bodyLength));
+        body->setCollisionShape(shape_b);
         body->setTransform(_transform);
         body->setMass(_bodyMass);
+        body->setLocalInertia(shape_b->calcLocalInertia(_bodyMass));
         dw->addRigidBody(body);
 
         turret = new pe_phys_object::RigidBody();
-        turret->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
-                _turretWidth / 2, _turretHeight / 2, _turretLength / 2)));
+        auto shape_t = new pe_phys_shape::BoxShape(pe::Vector3(
+                _turretWidth, _turretHeight, _turretLength));
+        turret->setCollisionShape(shape_t);
         turret->setMass(_turretMass);
+        turret->setLocalInertia(shape_t->calcLocalInertia(_turretMass));
         dw->addRigidBody(turret);
         turretTrl = pe::Vector3(0, (_bodyHeight + _turretHeight) / 2, _bodyLength / 20);
 
         barrel = new pe_phys_object::RigidBody();
-        barrel->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
-                _barrelRadius, _barrelRadius, _barrelLength / 2)));
+        auto shape_r = new pe_phys_shape::BoxShape(pe::Vector3(
+                _barrelRadius * 2, _barrelRadius * 2, _barrelLength));
+        barrel->setCollisionShape(shape_r);
         barrel->setMass(_barrelMass);
+        barrel->setLocalInertia(shape_r->calcLocalInertia(_barrelMass));
         dw->addRigidBody(barrel);
         barrelTrl = pe::Vector3(0, 0, -(_turretLength + _barrelLength) / 2);
 
@@ -65,7 +71,7 @@ namespace pe_phys_vehicle {
         for (int i = 0; i < _wheelNum; i++) {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
             wheel->setCollisionShape(new pe_phys_shape::CylinderShape(
-                    _wheelRadius, _wheelWidth / 2));
+                    _wheelRadius, _wheelWidth));
             wheels.push_back(wheel);
         }
 
@@ -80,7 +86,7 @@ namespace pe_phys_vehicle {
 
         vehicle->resetSuspension();
         for (int i = 0; i < _wheelNum; i++) {
-            //synchronize the wheels with the (interpolated) chassis worldtransform
+            //synchronize the wheels with the (interpolated) chassis world transform
             vehicle->updateWheelTransform(i, true);
         }
 
@@ -96,7 +102,7 @@ namespace pe_phys_vehicle {
         for (int i = 0; i < _trackSegmentNum * 2; i++) {
             pe_phys_object::RigidBody* rb = new pe_phys_object::RigidBody();
             rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
-                    _wheelWidth / 2, 0.03, 0.06)));
+                    _wheelWidth, 0.06, 0.2)));
             trackSegments.push_back(rb);
         }
 
@@ -338,26 +344,32 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::brake() {
         pe::Vector3 force = vehicle->getForwardVector() * vehicle->getCurrentSpeedKmHour() / 3.6 * -brakeForce * 200;
-        body->addForce(force, vehicle->getWheelTransformWS(0).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin());
+        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
+                       force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
+                       force);
     }
 
     void TankTemplate::moveForward() {
         pe::Vector3 force = vehicle->getForwardVector() * -forwardForce;
-        body->addForce(force, vehicle->getWheelTransformWS(0).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin());
+        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
+                       force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
+                       force);
     }
 
     void TankTemplate::moveBackward() {
         pe::Vector3 force = vehicle->getForwardVector() * backwardForce;
-        body->addForce(force, vehicle->getWheelTransformWS(0).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin());
-        body->addForce(force, vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin());
+        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
+                       force);
+        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
+                       force);
     }
 
     void TankTemplate::turnLeft() {

@@ -110,6 +110,9 @@ namespace pe_phys_vehicle {
         TankTemplate();
 
         void init(pe_intf::World* dw);
+        pe_phys_object::RigidBody* getBody() { return body; }
+        pe_phys_object::RigidBody* getTurret() { return turret; }
+        pe_phys_object::RigidBody* getBarrel() { return barrel; }
         pe::Array<pe_phys_object::RigidBody*>& getWheels() { return wheels; }
         pe::Array<pe_phys_object::RigidBody*>& getTrackSegments() { return trackSegments; }
 

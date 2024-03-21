@@ -1,6 +1,6 @@
 #include "raycast_vehicle.h"
 
-#define ROLLING_INFLUENCE_FIX
+//#define ROLLING_INFLUENCE_FIX
 
 namespace pe_phys_vehicle {
 
@@ -30,15 +30,16 @@ namespace pe_phys_vehicle {
 
     pe_phys_object::RigidBody& RaycastVehicle::getFixedBody() {
         static pe_phys_object::RigidBody s_fixed;
+        s_fixed.setCollisionShape(new pe_phys_shape::SphereShape(0.0));
         s_fixed.setTransform(pe::Transform::identity());
-        s_fixed.setMass(0);
-        s_fixed.setLocalInertia(pe::Matrix3::identity());
+        s_fixed.setMass(0.0);
+        s_fixed.setLocalInertia(pe::Matrix3::zeros());
         return s_fixed;
     }
 
-//
-// basically most of the code is general for 2 or 4 wheel vehicles, but some of it needs to be reviewed
-//
+    //
+    // basically most of the code is general for 2 or 4 wheel vehicles, but some of it needs to be reviewed
+    //
     WheelInfo& RaycastVehicle::addWheel(const pe::Vector3& connectionPointCS, const pe::Vector3& wheelDirectionCS0,
                                         const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength,
                                         pe::Real wheelRadius, const VehicleTuning& tuning, bool isFrontWheel) {
@@ -77,7 +78,9 @@ namespace pe_phys_vehicle {
         pe::Vector3 up = -wheel.m_raycastInfo.m_wheelDirectionWS;
         const pe::Vector3& right = wheel.m_raycastInfo.m_wheelAxleWS;
         pe::Vector3 fwd = up.cross(right);
-        fwd = fwd.normalized();
+        fwd.normalize();
+        //	up = right.cross(fwd);
+        //	up.normalize();
 
         //rotate around steering over de wheelAxleWS
         pe::Real steering = wheel.m_steering;
@@ -124,6 +127,10 @@ namespace pe_phys_vehicle {
         wheel.m_raycastInfo.m_isInContact = false;
 
         pe::Transform chassisTrans = getChassisWorldTransform();
+        //if (interpolatedTransform && (getRigidBody()->getMotionState()))
+        //{
+        //	getRigidBody()->getMotionState()->getWorldTransform(chassisTrans);
+        //}
 
         wheel.m_raycastInfo.m_hardPointWS = chassisTrans * wheel.m_chassisConnectionPointCS;
         wheel.m_raycastInfo.m_wheelDirectionWS = chassisTrans.getBasis() * wheel.m_wheelDirectionCS;
@@ -147,7 +154,8 @@ namespace pe_phys_vehicle {
         VehicleRaycaster::VehicleRaycasterResult rayResults;
 
         void* object = m_vehicleRaycaster->castRay(m_chassisBody->getGlobalId(),
-                                                   source, wheel.m_raycastInfo.m_wheelDirectionWS, rayLen, rayResults);
+                                                   source, wheel.m_raycastInfo.m_wheelDirectionWS,
+                                                   rayLen, rayResults);
 
         wheel.m_raycastInfo.m_groundObject = 0;
 
@@ -160,12 +168,14 @@ namespace pe_phys_vehicle {
             wheel.m_raycastInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
             //wheel.m_raycastInfo.m_groundObject = object;
 
-            pe::Real hitDistance = param * rayLen;
+            pe::Real hitDistance = param;
             wheel.m_raycastInfo.m_suspensionLength = hitDistance - wheel.m_wheelsRadius;
             //clamp on max suspension travel
 
-            pe::Real minSuspensionLength = wheel.getSuspensionRestLength() - wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
-            pe::Real maxSuspensionLength = wheel.getSuspensionRestLength() + wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
+            pe::Real minSuspensionLength = wheel.getSuspensionRestLength() -
+                    wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
+            pe::Real maxSuspensionLength = wheel.getSuspensionRestLength() +
+                    wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
             if (wheel.m_raycastInfo.m_suspensionLength < minSuspensionLength) {
                 wheel.m_raycastInfo.m_suspensionLength = minSuspensionLength;
             }
@@ -248,21 +258,19 @@ namespace pe_phys_vehicle {
 
         updateSuspension(step);
 
-        for (i = 0; i < m_wheelInfo.size(); i++)
-        {
+        for (i = 0; i < m_wheelInfo.size(); i++) {
             //apply suspension force
             WheelInfo& wheel = m_wheelInfo[i];
 
             pe::Real suspensionForce = wheel.m_wheelsSuspensionForce;
 
-            if (suspensionForce > wheel.m_maxSuspensionForce)
-            {
+            if (suspensionForce > wheel.m_maxSuspensionForce) {
                 suspensionForce = wheel.m_maxSuspensionForce;
             }
             pe::Vector3 impulse = wheel.m_raycastInfo.m_contactNormalWS * suspensionForce * step;
             pe::Vector3 relPos = wheel.m_raycastInfo.m_contactPointWS - getRigidBody()->getTransform().getOrigin();
 
-            getRigidBody()->applyImpulse(impulse, relPos);
+            getRigidBody()->applyImpulse(relPos, impulse);
         }
 
         updateFriction(step);
@@ -338,7 +346,8 @@ namespace pe_phys_vehicle {
 
                     pe::Real length_diff = (susp_length - current_length);
 
-                    force = wheel_info.m_suspensionStiffness * length_diff * wheel_info.m_clippedInvContactDotSuspension;
+                    force = wheel_info.m_suspensionStiffness * length_diff *
+                            wheel_info.m_clippedInvContactDotSuspension;
                 }
 
                 // Damper
@@ -366,8 +375,7 @@ namespace pe_phys_vehicle {
         }
     }
 
-    struct btWheelContactPoint
-    {
+    struct WheelContactPoint {
         pe_phys_object::RigidBody* m_body0;
         pe_phys_object::RigidBody* m_body1;
         pe::Vector3 m_frictionPositionWorld;
@@ -375,20 +383,24 @@ namespace pe_phys_vehicle {
         pe::Real m_jacDiagABInv;
         pe::Real m_maxImpulse;
 
-        btWheelContactPoint(pe_phys_object::RigidBody* body0, pe_phys_object::RigidBody* body1, const pe::Vector3& frictionPosWorld, const pe::Vector3& frictionDirectionWorld, pe::Real maxImpulse)
-                : m_body0(body0),
-                  m_body1(body1),
-                  m_frictionPositionWorld(frictionPosWorld),
-                  m_frictionDirectionWorld(frictionDirectionWorld),
-                  m_maxImpulse(maxImpulse) {
-            pe::Real denom0 = body0->getImpulseDenominator(frictionPosWorld, frictionDirectionWorld);
-            pe::Real denom1 = body1->getImpulseDenominator(frictionPosWorld, frictionDirectionWorld);
+        WheelContactPoint(pe_phys_object::RigidBody* body0, pe_phys_object::RigidBody* body1,
+                          const pe::Vector3& frictionPosWorld, const pe::Vector3& frictionDirectionWorld,
+                          pe::Real maxImpulse):
+                m_body0(body0),
+                m_body1(body1),
+                m_frictionPositionWorld(frictionPosWorld),
+                m_frictionDirectionWorld(frictionDirectionWorld),
+                m_maxImpulse(maxImpulse) {
+            pe::Real denom0 = body0->getImpulseDenominator(
+                    frictionPosWorld, frictionDirectionWorld);
+            pe::Real denom1 = body1->getImpulseDenominator(
+                    frictionPosWorld, frictionDirectionWorld);
             pe::Real relaxation = 1.f;
             m_jacDiagABInv = relaxation / (denom0 + denom1);
         }
     };
 
-    pe::Real calcRollingFriction(btWheelContactPoint& contactPoint, int numWheelsOnGround) {
+    pe::Real calcRollingFriction(WheelContactPoint& contactPoint, int numWheelsOnGround) {
         pe::Real j1;
 
         const pe::Vector3& contactPosWorld = contactPoint.m_frictionPositionWorld;
@@ -412,7 +424,7 @@ namespace pe_phys_vehicle {
         return j1;
     }
 
-//bilateral constraint between two dynamic objects
+    //bilateral constraint between two dynamic objects
     void resolveSingleBilateral(pe_phys_object::RigidBody& body1, const pe::Vector3& pos1,
                                 pe_phys_object::RigidBody& body2, const pe::Vector3& pos2,
                                 pe::Real distance, const pe::Vector3& normal, pe::Real& impulse, pe::Real timeStep) {
@@ -446,13 +458,13 @@ namespace pe_phys_vehicle {
         //todo: move this into proper structure
         pe::Real contactDamping = pe::Real(0.2);
 
-#ifdef ONLY_USE_LINEAR_MASS
+#   ifdef ONLY_USE_LINEAR_MASS
         Real massTerm = Real(1.) / (body1.getInvMass() + body2.getInvMass());
-	impulse = -contactDamping * rel_vel * massTerm;
-#else
+	    impulse = -contactDamping * rel_vel * massTerm;
+#   else
         pe::Real velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
         impulse = velocityImpulse;
-#endif
+#   endif
     }
 
     pe::Real sideFrictionStiffness2 = pe::Real(1.0);
@@ -472,7 +484,8 @@ namespace pe_phys_vehicle {
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
             WheelInfo& wheelInfo = m_wheelInfo[i];
-            class pe_phys_object::RigidBody* groundObject = (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+            class pe_phys_object::RigidBody* groundObject =
+                    (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
             if (groundObject)
                 numWheelsOnGround++;
             m_sideImpulse[i] = pe::Real(0.);
@@ -483,7 +496,8 @@ namespace pe_phys_vehicle {
             for (int i = 0; i < getNumWheels(); i++) {
                 WheelInfo& wheelInfo = m_wheelInfo[i];
 
-                class pe_phys_object::RigidBody* groundObject = (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+                class pe_phys_object::RigidBody* groundObject =
+                        (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
 
                 if (groundObject) {
                     const pe::Transform& wheelTrans = getWheelTransformWS(i);
@@ -518,7 +532,8 @@ namespace pe_phys_vehicle {
         {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
                 WheelInfo& wheelInfo = m_wheelInfo[wheel];
-                class pe_phys_object::RigidBody* groundObject = (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+                class pe_phys_object::RigidBody* groundObject =
+                        (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
 
                 pe::Real rollingFriction;
 
@@ -527,8 +542,11 @@ namespace pe_phys_vehicle {
                         rollingFriction = wheelInfo.m_engineForce * timeStep;
                     } else {
                         pe::Real defaultRollingFrictionImpulse = 0.f;
-                        pe::Real maxImpulse = (wheelInfo.m_brake != 0) ? wheelInfo.m_brake : defaultRollingFrictionImpulse;
-                        btWheelContactPoint contactPt(m_chassisBody, groundObject, wheelInfo.m_raycastInfo.m_contactPointWS, m_forwardWS[wheel], maxImpulse);
+                        pe::Real maxImpulse = (wheelInfo.m_brake != 0) ?
+                                wheelInfo.m_brake : defaultRollingFrictionImpulse;
+                        WheelContactPoint contactPt(m_chassisBody, groundObject,
+                                                    wheelInfo.m_raycastInfo.m_contactPointWS,
+                                                    m_forwardWS[wheel], maxImpulse);
                         rollingFriction = calcRollingFriction(contactPt, numWheelsOnGround);
                     }
                 }
@@ -584,7 +602,8 @@ namespace pe_phys_vehicle {
                                       m_chassisBody->getTransform().getOrigin();
 
                 if (m_forwardImpulse[wheel] != pe::Real(0.)) {
-                    m_chassisBody->applyImpulse(m_forwardWS[wheel] * (m_forwardImpulse[wheel]), rel_pos);
+                    m_chassisBody->applyImpulse(rel_pos,
+                                                m_forwardWS[wheel] * (m_forwardImpulse[wheel]));
                 }
                 if (m_sideImpulse[wheel] != pe::Real(0.)) {
                     class pe_phys_object::RigidBody* groundObject =
@@ -601,10 +620,10 @@ namespace pe_phys_vehicle {
 #else
                     rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
 #endif
-                    m_chassisBody->applyImpulse(sideImp, rel_pos);
+                    m_chassisBody->applyImpulse(rel_pos, sideImp);
 
                     //apply friction impulse on the ground
-                    groundObject->applyImpulse(-sideImp, rel_pos2);
+                    groundObject->applyImpulse(rel_pos2, -sideImp);
                 }
             }
         }
@@ -633,7 +652,6 @@ namespace pe_phys_vehicle {
 
         pe_phys_ray::Raycast* ray = new pe_phys_ray::Raycast(from, direction, length);
         ray->performRayTest(rigid_idx, m_world->getRigidBodies());
-
 
         if (ray->m_resultCallback->hasHit()) {
             pe_phys_object::RigidBody* body = m_world->getRigidBody(

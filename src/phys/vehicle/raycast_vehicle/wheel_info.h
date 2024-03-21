@@ -4,8 +4,7 @@
 
 namespace pe_phys_vehicle {
 
-    struct WheelInfoConstructionInfo
-    {
+    struct WheelInfoConstructionInfo {
         pe::Vector3 m_chassisConnectionCS;
         pe::Vector3 m_wheelDirectionCS;
         pe::Vector3 m_wheelAxleCS;
@@ -21,7 +20,7 @@ namespace pe_phys_vehicle {
         bool m_bIsFrontWheel;
     };
 
-/// WheelInfo contains information per wheel about friction and suspension.
+    /// WheelInfo contains information per wheel about friction and suspension.
     struct WheelInfo {
         struct RaycastInfo {
             //set by raycaster
@@ -57,6 +56,7 @@ namespace pe_phys_vehicle {
         pe::Real m_maxSuspensionForce;
 
         pe::Real m_engineForce;
+
         pe::Real m_brake;
 
         bool m_bIsFrontWheel;
@@ -64,9 +64,10 @@ namespace pe_phys_vehicle {
         void* m_clientInfo;  //can be used to store pointer to sync transforms...
 
         WheelInfo() {}
+
         explicit WheelInfo(WheelInfoConstructionInfo& ci);
 
-        void updateWheel(const pe_phys_object::RigidBody& chassis, RaycastInfo& raycastInfo);
+        void updateWheel(pe_phys_object::RigidBody &chassis, RaycastInfo& raycastInfo);
 
         pe::Real m_clippedInvContactDotSuspension;
         pe::Real m_suspensionRelativeVelocity;
