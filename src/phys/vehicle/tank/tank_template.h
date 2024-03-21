@@ -106,7 +106,7 @@ namespace pe_phys_vehicle {
         void uniformTrackVelocityOneSide(int side);
 
     public:
-        // refer to tank 99a：7.6m long and 3.5m wide.
+        // refer to tank 99a: 7.6m long and 3.5m wide.
         TankTemplate();
 
         void init(pe_intf::World* dw);
