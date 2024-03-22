@@ -28,7 +28,8 @@ namespace pe_phys_vehicle {
         COMMON_MEMBER_SET_GET(pe::Real, barrelLength, BarrelLength)
         COMMON_MEMBER_SET_GET(pe::Real, barrelMass, BarrelMass)
         COMMON_MEMBER_SET_GET(int, wheelNum, WheelNum)
-        COMMON_MEMBER_SET_GET(pe::Real, wheelRadius, WheelRadius)
+        COMMON_MEMBER_SET_GET(pe::Real, powerWheelRadius, PowerWheelRadius)
+        COMMON_MEMBER_SET_GET(pe::Real, drivenWheelRadius, DrivenWheelRadius)
         COMMON_MEMBER_SET_GET(pe::Real, wheelWidth, WheelWidth)
         COMMON_MEMBER_SET_GET(pe::Real, wheelFriction, WheelFriction)
         COMMON_MEMBER_SET_GET(pe::Real, wheelRollInfluence, WheelRollInfluence)
@@ -76,10 +77,10 @@ namespace pe_phys_vehicle {
         void initVehicle(pe_intf::World* dw);
 
         // initialize wheels
-        void initWheels();
+        void initWheels(pe_intf::World* dw);
 
         // initialize tracks
-        void initTracks();
+        void initTracks(pe_intf::World* dw);
 
         // update transform of turret and barrel
         void updateTurretAndBarrelTransform();

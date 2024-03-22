@@ -14,7 +14,10 @@ namespace pe_phys_vehicle {
 
     RaycastVehicle::RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
                                    VehicleRaycaster* raycaster):
-            m_vehicleRaycaster(raycaster), m_pitchControl(pe::Real(0.)) {
+            m_raycastExcludeIds(100, pe_phys_fracture::uint32_hash_func,
+                                pe_phys_fracture::uint32_equal),
+            m_vehicleRaycaster(raycaster),
+            m_pitchControl(pe::Real(0.)) {
         m_chassisBody = chassis;
         m_indexRightAxis = 0;
         m_indexUpAxis = 2;
@@ -38,7 +41,7 @@ namespace pe_phys_vehicle {
     }
 
     //
-    // basically most of the code is general for 2 or 4 wheel vehicles, but some of it needs to be reviewed
+    // basically most of the code is general for 2- or 4-wheel vehicles, but some of it needs to be reviewed
     //
     WheelInfo& RaycastVehicle::addWheel(const pe::Vector3& connectionPointCS, const pe::Vector3& wheelDirectionCS0,
                                         const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength,
@@ -153,7 +156,7 @@ namespace pe_phys_vehicle {
 
         VehicleRaycaster::VehicleRaycasterResult rayResults;
 
-        void* object = m_vehicleRaycaster->castRay(m_chassisBody->getGlobalId(),
+        void* object = m_vehicleRaycaster->castRay(m_chassisBody->getGlobalId(), m_raycastExcludeIds,
                                                    source, wheel.m_raycastInfo.m_wheelDirectionWS,
                                                    rayLen, rayResults);
 
@@ -646,12 +649,13 @@ namespace pe_phys_vehicle {
         m_indexForwardAxis = forwardIndex;
     }
 
-    void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::Vector3& from, const pe::Vector3& direction,
+    void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
+                                           const pe::Vector3& from, const pe::Vector3& direction,
                                            pe::Real length, VehicleRaycasterResult& result) {
         //	RayResultCallback& resultCallback;
 
         pe_phys_ray::Raycast* ray = new pe_phys_ray::Raycast(from, direction, length);
-        ray->performRayTest(rigid_idx, m_world->getRigidBodies());
+        ray->performRayTest(rigid_idx, m_world->getRigidBodies(), excludeIds);
 
         if (ray->m_resultCallback->hasHit()) {
             pe_phys_object::RigidBody* body = m_world->getRigidBody(

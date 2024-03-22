@@ -19,7 +19,7 @@ namespace pe_phys_fracture {
 
     void FractureDataManager::remove_vertex(uint32_t idx) {
         _vertices.erase_at(idx);
-        utils::hash_vector<triangle> new_triangles(FRAC_TRI_INIT(997));
+        pe::HashList<triangle> new_triangles(FRAC_TRI_INIT(997));
         for (auto tri : _triangles) {
             for (auto& vert_id : tri.vert_ids) {
                 if (vert_id == idx) {

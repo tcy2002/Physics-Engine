@@ -66,7 +66,7 @@ namespace pe_phys_fracture {
 
             // find all triangles that are part of the boundary of the cavity
             // or should be removed
-            utils::hash_vector<uint32_t> good_triangles(FRAC_UINT_INIT(_manager.triangle_count() * 2));
+            pe::HashList<uint32_t> good_triangles(FRAC_UINT_INIT(_manager.triangle_count() * 2));
             pe::Array<uint32_t> bad_triangles;
             for (auto tet_id : bad_tetrahedrons) {
                 auto tet = _manager.get_tetrahedron(tet_id);

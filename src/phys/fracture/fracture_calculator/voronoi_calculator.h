@@ -24,7 +24,7 @@ namespace pe_phys_fracture  {
     class VoronoiCalculator {
     private:
         FractureDataManager _manager{};
-        pe::Array<utils::hash_vector<uint32_t>> _adjacency_list;
+        pe::Array<pe::HashList<uint32_t>> _adjacency_list;
 
         void add_bounding_box(const pe::Array<pe::Vector3>& points);
         void remove_bounding_box();

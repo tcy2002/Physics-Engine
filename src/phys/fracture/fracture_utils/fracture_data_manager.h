@@ -31,9 +31,9 @@ namespace pe_phys_fracture {
      */
     class FractureDataManager {
     private:
-        utils::hash_vector<vertex> _vertices;
-        utils::hash_vector<triangle> _triangles;
-        utils::hash_vector<polygon> _faces;
+        pe::HashList<vertex> _vertices;
+        pe::HashList<triangle> _triangles;
+        pe::HashList<polygon> _faces;
         pe::Array<tetrahedron> _tetrahedrons;
 
     public:

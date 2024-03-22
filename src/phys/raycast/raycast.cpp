@@ -39,14 +39,15 @@ namespace pe_phys_ray {
         }
     }
 
-    void Raycast::performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody *> &objs) {
+    void Raycast::performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody *> &objs,
+                                 const pe::HashList<uint32_t>& excludeIds) {
         //avoid division by zero
         pe::Vector3 tmp_direction = pe::Vector3(m_direction.x != 0 ? m_direction.x : 0.001,
                                                 m_direction.y != 0 ? m_direction.y : 0.001,
                                                 m_direction.z != 0 ? m_direction.z : 0.001);
         pe::Real d_min = m_length;
         for (int i = 0; i < objs.size(); i++) {
-            if (objs[i]->getGlobalId() != id) {
+            if (objs[i]->getGlobalId() != id && !excludeIds.contains(objs[i]->getGlobalId())) {
                 //test AABB intersection
                 pe_phys_object::RigidBody* obj = objs[i];
                 pe::Real offset = obj->getAABBScale();

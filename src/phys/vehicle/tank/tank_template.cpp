@@ -1,4 +1,14 @@
 #include "tank_template.h"
+#include "phys/fracture/fracture_utils/fracture_data.h"
+
+// potential optimization:
+// 1. max speed (linear/angular)
+// 2. more real force simulation for drive wheels
+
+#define PE_TANK_TRACK_SEG_THICKNESS 0.06
+#define PE_TANK_TRACK_SEG_WIDTH 0.2
+#define PE_TANK_RAYCAST_OFFSET 0.05
+#define PE_TANK_WHEEL_MARGIN 0.02
 
 namespace pe_phys_vehicle {
 
@@ -13,6 +23,8 @@ namespace pe_phys_vehicle {
         dw->addRigidBody(body);
 
         turret = new pe_phys_object::RigidBody();
+        turret->setKinematic(true);
+        turret->addIgnoreCollisionId(body->getGlobalId());
         auto shape_t = new pe_phys_shape::BoxShape(pe::Vector3(
                 _turretWidth, _turretHeight, _turretLength));
         turret->setCollisionShape(shape_t);
@@ -22,6 +34,8 @@ namespace pe_phys_vehicle {
         turretTrl = pe::Vector3(0, (_bodyHeight + _turretHeight) / 2, _bodyLength / 20);
 
         barrel = new pe_phys_object::RigidBody();
+        barrel->setKinematic(true);
+        barrel->addIgnoreCollisionId(turret->getGlobalId());
         auto shape_r = new pe_phys_shape::BoxShape(pe::Vector3(
                 _barrelRadius * 2, _barrelRadius * 2, _barrelLength));
         barrel->setCollisionShape(shape_r);
@@ -38,41 +52,50 @@ namespace pe_phys_vehicle {
         DefaultVehicleRaycaster* rayCaster = new DefaultVehicleRaycaster(dw);
         vehicle = new RaycastVehicle(m_tuning, body, rayCaster);
         vehicle->setCoordinateSystem(0, 1, 2);
+        vehicle->addRaycastExcludeId(body->getGlobalId());
+        vehicle->addRaycastExcludeId(turret->getGlobalId());
+        vehicle->addRaycastExcludeId(barrel->getGlobalId());
     }
 
-    void TankTemplate::initWheels() {
-        pe::Real connectionHeight = -_bodyHeight / 2, connectionHeightEnds = 0;
+    void TankTemplate::initWheels(pe_intf::World* dw) {
+        pe::Real connectionHeight = -PE_TANK_RAYCAST_OFFSET;
+        pe::Real connectionHeightEnds = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
         pe::Vector3 connectionPointCS0;
         pe::Vector3 wheelDirectionCS0(0, -1, 0);
         pe::Vector3 wheelAxleCS(-1, 0, 0);
-        pe::Real suspensionRestLength = 0;
-        pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1);
+        pe::Real suspensionRestLength = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
+        pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1); //NOLINT
         RaycastVehicle::VehicleTuning m_tuning;
-        m_tuning.m_suspensionStiffness = 100.0;
-        m_tuning.m_maxSuspensionForce = 1000000.0;
+//        m_tuning.m_suspensionStiffness = 20.0;
+//        m_tuning.m_maxSuspensionForce = 100000.0;
 
         for (int i = 0; i < _wheelNum / 2; i++) {
+            pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
             connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (0.5 * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
-                              suspensionRestLength, _wheelRadius,
+                              suspensionRestLength, wheelRadius,
                               m_tuning, false);
             connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (0.5 * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
-                              suspensionRestLength, _wheelRadius,
+                              suspensionRestLength, wheelRadius,
                               m_tuning, false);
         }
 
         for (int i = 0; i < _wheelNum; i++) {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
+            wheel->setKinematic(true);
+            wheel->addIgnoreCollisionId(body->getGlobalId());
             wheel->setCollisionShape(new pe_phys_shape::CylinderShape(
-                    _wheelRadius, _wheelWidth));
+                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth));
             wheels.push_back(wheel);
+            dw->addRigidBody(wheel);
+            vehicle->addRaycastExcludeId(wheel->getGlobalId());
         }
 
         for (int i = 0; i < _wheelNum; i++) {
@@ -93,7 +116,7 @@ namespace pe_phys_vehicle {
         updateWheelsTransform();
     }
 
-    void TankTemplate::initTracks() {
+    void TankTemplate::initTracks(pe_intf::World* dw) {
         trackHoldingPoints.resize(_wheelNum * 2);
         trackHoldingWheels.resize(_wheelNum * 2);
         updateTrackHoldings();
@@ -101,8 +124,10 @@ namespace pe_phys_vehicle {
         // all the track segments are the same
         for (int i = 0; i < _trackSegmentNum * 2; i++) {
             pe_phys_object::RigidBody* rb = new pe_phys_object::RigidBody();
+            rb->setKinematic(true);
+            rb->addIgnoreCollisionId(body->getGlobalId());
             rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
-                    _wheelWidth, 0.06, 0.2)));
+                    _wheelWidth, PE_TANK_TRACK_SEG_THICKNESS, PE_TANK_TRACK_SEG_WIDTH)));
             trackSegments.push_back(rb);
         }
 
@@ -271,7 +296,7 @@ namespace pe_phys_vehicle {
         for (int i = side + 2; i < num - 2; i += 2) {
             avgDeltaDist += vehicle->getWheelInfo(i).m_deltaRotation * vehicle->getWheelInfo(i).m_wheelsRadius;
         }
-        avgDeltaDist /= (pe::Real)(num / 2 - 2);
+        avgDeltaDist /= (pe::Real)(num / 2 - 2); //NOLINT
 
         auto& offset = (side == 0 ? trackOffsetLeft : trackOffsetRight);
         auto length = (side == 0 ? trackLengthLeft : trackLengthRight);
@@ -279,7 +304,6 @@ namespace pe_phys_vehicle {
         if (offset < 0) offset += length;
         if (offset > length) offset -= length;
 
-        pe::Vector3 rightVec(1, 0, 0);
         for (int i = side; i < num; i += 2) {
             pe::Real oldDeltaAngle = vehicle->getWheelInfo(i).m_deltaRotation;
             pe::Real newDeltaAngle = avgDeltaDist / vehicle->getWheelInfo(i).m_wheelsRadius;
@@ -293,37 +317,38 @@ namespace pe_phys_vehicle {
             _bodyWidth(2.3),
             _bodyLength(7.),
             _bodyHeight(1.0),
-            _bodyMass(3000.0),
+            _bodyMass(30.0),
             _turretWidth(2.7),
             _turretHeight(0.8),
             _turretLength(3.5),
-            _turretMass(500.),
+            _turretMass(1.),
             _turretRotSpeed(1.0),
             _turretMaxAngle(3.141593 / 2.4),
             _barrelRadius(0.128),
             _barrelLength(4.2),
-            _barrelMass(50.),
+            _barrelMass(1.),
             _wheelNum(16),
-            _wheelRadius(0.4),
+            _powerWheelRadius(0.3),
+            _drivenWheelRadius(0.4),
             _wheelWidth(0.6),
-            _wheelFriction(1000.),
+            _wheelFriction(0.9),
             _wheelRollInfluence(0.1),
             _trackThickness(0.08),
             _trackSegmentNum(80),
             _suspensionStiffness(20.),
             _suspensionDamping(2.3),
             _suspensionCompression(4.4),
-            _engineForce(5000.) {}
+            _engineForce(50.) {}
 
     void TankTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;
         backwardForce = _engineForce;
-        turnForce = _engineForce * 10;
+        turnForce = _engineForce;
         brakeForce = _engineForce / 100;
         initBody(dw);
         initVehicle(dw);
-        initWheels();
-        initTracks();
+        initWheels(dw);
+        initTracks(dw);
     }
 
     void TankTemplate::advance(pe::Real step) {

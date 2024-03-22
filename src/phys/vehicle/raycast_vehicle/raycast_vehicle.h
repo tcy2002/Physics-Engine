@@ -5,6 +5,7 @@
 #include "wheel_info.h"
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
+#include "phys/fracture/fracture_utils/fracture_data.h"
 
 namespace pe_phys_vehicle {
 
@@ -15,6 +16,7 @@ namespace pe_phys_vehicle {
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;
         pe::Array<pe::Real> m_sideImpulse;
+        pe::HashList<uint32_t> m_raycastExcludeIds;
 
         ///backwards compatibility
         int m_userConstraintType;
@@ -54,6 +56,8 @@ namespace pe_phys_vehicle {
 
         const pe::Transform& getChassisWorldTransform() const;
 
+        void addRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.push_back(id); }
+        void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(id); }
         pe::Real rayCast(WheelInfo& wheel);
 
         pe::Real getSteeringValue(int wheel) const;
@@ -106,7 +110,8 @@ namespace pe_phys_vehicle {
     public:
         explicit DefaultVehicleRaycaster(pe_intf::World* world): m_world(world) {}
 
-        virtual void* castRay(uint32_t rigid_idx, const pe::Vector3& from, const pe::Vector3& direction,
+        virtual void* castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
+                              const pe::Vector3& from, const pe::Vector3& direction,
                               pe::Real length, VehicleRaycasterResult& result) override;
     };
 

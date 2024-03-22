@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <map>
 #include <cstdint>
+#include "utils/hash_vector.h"
 
 //// general macros
 #include <common/general.h>
@@ -61,6 +62,6 @@ namespace pe {
     template <typename T> using Queue = std::queue<T>;
     template <typename K, typename V> using Map = std::map<K, V>;
     template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
-    template <typename K, typename V> using MultiMap = std::unordered_multimap<K, V>;
+    template <typename T> using HashList = utils::hash_vector<T>;
     template <typename T1, typename T2> using KV = std::pair<T1, T2>;
 } // namespace pe

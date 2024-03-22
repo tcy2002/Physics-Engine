@@ -34,8 +34,10 @@ namespace pe_phys_ray {
         void setDirection(const pe::Matrix3& local2world) { m_direction = local2world * m_localDirection; }
         void setStart(const pe::Transform& trans) { m_start = trans * m_localStart; }
         void bindCallback(const std::function<void(pe::Real, pe::Vector3)>& callback) { m_callback = callback; }
-        void bindClosetHitCallback(const std::function<void(RayResultCallback*)>& callback) { m_closestHitCallback = callback; }
-        void performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody*>& objs);
+        void bindClosetHitCallback(const std::function<void(RayResultCallback*)>& callback)
+        { m_closestHitCallback = callback; }
+        void performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody*>& objs,
+                            const pe::HashList<uint32_t>& excludeIds);
     };
     
 } // namespace pe_phys_ray

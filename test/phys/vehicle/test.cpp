@@ -8,45 +8,66 @@ void testTank() {
     world->setDt(0.01);
     world->setGravity(pe::Vector3(0, -9.8, 0));
 
+    pe::Map<int, pe_phys_object::RigidBody*> id_map;
+    int id;
+
     // open viewer
     pe_intf::Viewer::open();
 
     // add ground
     auto ground = new pe_phys_object::RigidBody();
-    ground->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(100, 1, 100)));
-    ground->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
+    auto ground_shape = new pe_phys_shape::BoxShape(pe::Vector3(100, 1, 100));
+    ground->setCollisionShape(ground_shape);
+    pe::Matrix3 mat = pe::Matrix3::identity();
+//    mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / 12);
+    ground->setTransform(pe::Transform(mat, pe::Vector3(0, -0.5, 0)));
     ground->setKinematic(true);
+    ground->setLocalInertia(ground_shape->calcLocalInertia(1.0));
     world->addRigidBody(ground);
     int ground_id = pe_intf::Viewer::addCube(pe::Vector3(100, 1, 100));
     pe_intf::Viewer::updateCubeColor(ground_id, pe::Vector3(0.3, 0.3, 0.8));
     pe_intf::Viewer::updateCubeTransform(ground_id, ground->getTransform());
 
+    // add some obstacles
+    auto box = new pe_phys_object::RigidBody();
+    auto shape_box = new pe_phys_shape::BoxShape(pe::Vector3(10, 0.3, 10));
+    box->setCollisionShape(shape_box);
+    mat = pe::Matrix3::identity();
+    mat.setRotation(pe::Vector3(0, 1, 0), PE_PI / 4);
+    box->setTransform(pe::Transform(mat, pe::Vector3(0, 10, 0)));
+    box->setMass(10.0);
+    box->setLocalInertia(shape_box->calcLocalInertia(1.0));
+    world->addRigidBody(box);
+    int box_id = pe_intf::Viewer::addCube(shape_box->getSize());
+    pe_intf::Viewer::updateCubeColor(box_id, pe::Vector3(0.8, 0.3, 0.3));
+    pe_intf::Viewer::updateCubeTransform(box_id, box->getTransform());
+    id_map[box_id] = box;
+
     // init tank
     auto tank = new TankTemplate();
-    tank->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)));
+    mat = pe::Matrix3::identity();
+//    mat.setRotation(pe::Vector3(0, 0, 1), PE_PI);
+    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 50, 0)));
     tank->init(world);
-
-    pe::Map<int, pe_phys_object::RigidBody*> id_map;
-    int id;
 
     // add body to viewer
     auto shape_b = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getBody()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_b->getSize());
-    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.8, 0.3));
+    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.8, 0.3));
     pe_intf::Viewer::updateCubeTransform(id, tank->getBody()->getTransform());
     id_map[id] = tank->getBody();
 
     // add turret to viewer
     auto shape_t = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getTurret()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_t->getSize());
-    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.8, 0.3));
+    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.8, 0.3));
     pe_intf::Viewer::updateCubeTransform(id, tank->getTurret()->getTransform());
     id_map[id] = tank->getTurret();
 
     // add barrel to viewer
     auto shape_r = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getBarrel()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_r->getSize());
-    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.8, 0.3));
+    pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.8, 0.3));
     pe_intf::Viewer::updateCubeTransform(id, tank->getBarrel()->getTransform());
     id_map[id] = tank->getBarrel();
 
@@ -54,7 +75,7 @@ void testTank() {
     for (auto& wheel : tank->getWheels()) {
         auto shape = dynamic_cast<pe_phys_shape::CylinderShape*>(wheel->getCollisionShape());
         id = pe_intf::Viewer::addCylinder(shape->getRadius(), shape->getHeight());
-        pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.3, 0.3));
+        pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.8, 0.3));
         pe_intf::Viewer::updateCylinderTransform(id, wheel->getTransform());
         id_map[id] = wheel;
     }
@@ -63,7 +84,7 @@ void testTank() {
     for (auto& track : tank->getTrackSegments()) {
         auto shape = dynamic_cast<pe_phys_shape::BoxShape*>(track->getCollisionShape());
         id = pe_intf::Viewer::addCube(shape->getSize());
-        pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.3, 0.3));
+        pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.8, 0.8, 0.3));
         pe_intf::Viewer::updateCubeTransform(id, track->getTransform());
         id_map[id] = track;
     }
@@ -107,7 +128,7 @@ void testTank() {
     }
 
     ret:
-    delete tank;
+//    delete tank;
     delete world;
     pe_intf::Viewer::close();
 }
