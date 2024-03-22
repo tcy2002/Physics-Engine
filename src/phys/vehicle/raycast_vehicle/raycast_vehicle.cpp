@@ -401,7 +401,7 @@ namespace pe_phys_vehicle {
         }
     };
 
-    pe::Real calcRollingFriction(WheelContactPoint& contactPoint, int numWheelsOnGround) {
+    static pe::Real calcRollingFriction(WheelContactPoint& contactPoint, int numWheelsOnGround) {
         pe::Real j1;
 
         const pe::Vector3& contactPosWorld = contactPoint.m_frictionPositionWorld;
@@ -426,7 +426,7 @@ namespace pe_phys_vehicle {
     }
 
     //bilateral constraint between two dynamic objects
-    void resolveSingleBilateral(pe_phys_object::RigidBody& body1, const pe::Vector3& pos1,
+    static void resolveSingleBilateral(pe_phys_object::RigidBody& body1, const pe::Vector3& pos1,
                                 pe_phys_object::RigidBody& body2, const pe::Vector3& pos2,
                                 pe::Real distance, const pe::Vector3& normal, pe::Real& impulse, pe::Real timeStep) {
         (void)timeStep;
@@ -468,7 +468,7 @@ namespace pe_phys_vehicle {
 #   endif
     }
 
-    pe::Real sideFrictionStiffness2 = pe::Real(1.0);
+    static pe::Real sideFrictionStiffness2 = pe::Real(1.0);
     void RaycastVehicle::updateFriction(pe::Real timeStep) {
         //calculate the impulse, so that the wheels don't move sidewards
         int numWheel = getNumWheels();

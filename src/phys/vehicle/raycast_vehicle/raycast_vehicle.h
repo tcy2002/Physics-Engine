@@ -2,7 +2,7 @@
 
 #include "intf/world.h"
 #include "vehicle_raycaster.h"
-#include "wheel_info.h"
+#include "phys/vehicle/wheel_info.h"
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
@@ -10,8 +10,7 @@
 namespace pe_phys_vehicle {
 
     ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
-    class RaycastVehicle
-    {
+    class RaycastVehicle {
         pe::Array<pe::Vector3> m_forwardWS;
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;

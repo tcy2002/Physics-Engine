@@ -29,6 +29,7 @@ namespace pe_intf {
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
         pe_phys_constraint::ConstraintSolver* _constraint_solver;
         pe::Array<pe_phys_collision::CollisionPair> _collision_pairs;
+        friend class ContactVehicle;
 
         void updateAABBs();
         void updateObjectStatus();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "intf/world.h"
-#include "wheel_info.h"
+#include "phys/vehicle/wheel_info.h"
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
