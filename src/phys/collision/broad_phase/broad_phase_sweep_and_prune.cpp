@@ -3,7 +3,8 @@
 
 namespace pe_phys_collision {
 
-    void BroadPhaseSweepAndPrune::calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects) {
+    void BroadPhaseSweepAndPrune::calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects,
+                                                     pe::Array<CollisionPair>& pairs) {
         if (objects.size() < 2) return;
 
         // sort collision objects by their min x value
@@ -26,7 +27,7 @@ namespace pe_phys_collision {
                 pe_phys_object::RigidBody* cb2 = objects[j];
                 if (cb2->getAABBMax()[_target_axis] < cb1->getAABBMin()[_target_axis]) break;
                 if (validateCollisionPair(cb1, cb2)) {
-                    _collision_pairs.emplace_back(cb1, cb2);
+                    pairs.emplace_back(cb1, cb2);
                 }
             }
         }

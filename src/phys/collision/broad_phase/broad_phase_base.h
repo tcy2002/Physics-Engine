@@ -7,16 +7,13 @@ namespace pe_phys_collision {
     typedef std::pair<pe_phys_object::RigidBody*, pe_phys_object::RigidBody*> CollisionPair;
 
     class BroadPhaseBase {
-    protected:
-        pe::Array<CollisionPair> _collision_pairs;
-
     public:
         BroadPhaseBase() {}
         virtual ~BroadPhaseBase() {}
 
-        virtual void calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects) = 0;
-        void clearCollisionPairs() { _collision_pairs.clear(); }
-        const pe::Array<CollisionPair>& getCollisionPairs() const { return _collision_pairs; }
+        // todo: do not copy
+        virtual void calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects,
+                                        pe::Array<CollisionPair>& pairs) = 0;
 
     protected:
         virtual bool validateCollisionPair(pe_phys_object::RigidBody*, pe_phys_object::RigidBody*) const;

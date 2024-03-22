@@ -1,7 +1,6 @@
 #pragma once
 
 #include "intf/world.h"
-#include "vehicle_raycaster.h"
 #include "wheel_info.h"
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
@@ -10,7 +9,7 @@
 namespace pe_phys_vehicle {
 
     ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
-    class RaycastVehicle
+    class ContactVehicle
     {
         pe::Array<pe::Vector3> m_forwardWS;
         pe::Array<pe::Vector3> m_axle;
@@ -31,7 +30,6 @@ namespace pe_phys_vehicle {
         };
 
     private:
-        VehicleRaycaster* m_vehicleRaycaster;
         pe::Real m_currentVehicleSpeedKmHour;
 
         pe_phys_object::RigidBody* m_chassisBody;
@@ -45,8 +43,8 @@ namespace pe_phys_vehicle {
 
     public:
         //constructor to create a car from an existing rigidbody
-        RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis, VehicleRaycaster* raycaster);
-        virtual ~RaycastVehicle() {}
+        ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis);
+        virtual ~ContactVehicle() {}
 
         const pe::Transform& getChassisWorldTransform() const;
 
@@ -87,18 +85,6 @@ namespace pe_phys_vehicle {
 
         ///Velocity of vehicle (positive if velocity vector has same direction as forward vector)
         pe::Real getCurrentSpeedKmHour() const { return m_currentVehicleSpeedKmHour; }
-    };
-
-    class DefaultVehicleRaycaster : public VehicleRaycaster {
-    private:
-        pe_intf::World* m_world;
-
-    public:
-        explicit DefaultVehicleRaycaster(pe_intf::World* world): m_world(world) {}
-
-        virtual void* castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
-                              const pe::Vector3& from, const pe::Vector3& direction,
-                              pe::Real length, VehicleRaycasterResult& result) override;
     };
 
 } // namespace pe_phys_vehicle

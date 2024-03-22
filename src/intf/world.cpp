@@ -128,10 +128,10 @@ namespace pe_intf {
 
         // collision detection
         updateAABBs();
-        _broad_phase->clearCollisionPairs();
-        _broad_phase->calcCollisionPairs(_collision_objects);
+        _collision_pairs.clear();
+        _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
         _narrow_phase->clearContactResults();
-        _narrow_phase->calcContactResults(_broad_phase->getCollisionPairs());
+        _narrow_phase->calcContactResults(_collision_pairs);
 
 //        static pe::Array<int> debug_points;
 //        for (auto id : debug_points) {

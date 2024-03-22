@@ -28,6 +28,7 @@ namespace pe_intf {
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
         pe_phys_constraint::ConstraintSolver* _constraint_solver;
+        pe::Array<pe_phys_collision::CollisionPair> _collision_pairs;
 
         void updateAABBs();
         void updateObjectStatus();
