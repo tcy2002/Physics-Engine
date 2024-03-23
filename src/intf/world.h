@@ -2,7 +2,13 @@
 
 /*
  * TODO:
- * make world api multi-thread safe
+ * 1. hash acceleration for contact result search
+ * last: make world api multi-thread safe
+ *
+ * Not implemented:
+ * 1. terrain
+ * 2. group constraints
+ * 3. more constraints
  */
 
 #include "common/vector3.h"
@@ -12,6 +18,9 @@
 #include "phys/collision/narrow_phase/narrow_phase_base.h"
 #include "phys/constraint/constraint/constraint.h"
 #include "phys/constraint/constraint_solver/constraint_solver.h"
+
+// NO include: cause circular dependency
+namespace pe_phys_vehicle { class ContactVehicle; }
 
 namespace pe_intf {
 
@@ -28,8 +37,10 @@ namespace pe_intf {
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
         pe_phys_constraint::ConstraintSolver* _constraint_solver;
+
         pe::Array<pe_phys_collision::CollisionPair> _collision_pairs;
-        friend class ContactVehicle;
+        pe::Array<pe_phys_collision::ContactResult> _contact_results;
+        friend class pe_phys_vehicle::ContactVehicle;
 
         void updateAABBs();
         void updateObjectStatus();

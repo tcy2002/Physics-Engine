@@ -2,7 +2,7 @@
 
 #include "intf/world.h"
 #include "vehicle_raycaster.h"
-#include "phys/vehicle/wheel_info.h"
+#include "wheel_info.h"
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
@@ -39,7 +39,6 @@ namespace pe_phys_vehicle {
         int m_indexUpAxis;
         int m_indexForwardAxis;
 
-        void defaultInit(const VehicleTuning& tuning);
         static pe_phys_object::RigidBody& getFixedBody();
 
     public:
@@ -51,22 +50,22 @@ namespace pe_phys_vehicle {
 
         void addRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.push_back(id); }
         void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(id); }
-        pe::Real rayCast(WheelInfo& wheel);
+        pe::Real rayCast(RaycastWheelInfo& wheel);
 
         pe::Real getSteeringValue(int wheel) const;
         void setSteeringValue(pe::Real steering, int wheel);
         void applyEngineForce(pe::Real force, int wheel);
 
-        pe::Array<WheelInfo> m_wheelInfo;
-        const WheelInfo& getWheelInfo(int index) const;
-        WheelInfo& getWheelInfo(int index);
+        pe::Array<RaycastWheelInfo> m_wheelInfo;
+        const RaycastWheelInfo& getWheelInfo(int index) const;
+        RaycastWheelInfo& getWheelInfo(int index);
         inline int getNumWheels() const { return int(m_wheelInfo.size()); }
         void updateWheelTransform(int wheelIndex, bool interpolatedTransform = true);
         const pe::Transform& getWheelTransformWS(int wheelIndex) const;
-        void updateWheelTransformsWS(WheelInfo& wheel, bool interpolatedTransform = true) const;
-        WheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
-                            const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
-                            const VehicleTuning& tuning, bool isFrontWheel);
+        void updateWheelTransformsWS(RaycastWheelInfo& wheel, bool interpolatedTransform = true) const;
+        RaycastWheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
+                                   const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
+                                   const VehicleTuning& tuning, bool isFrontWheel);
 
         void resetSuspension();
         void setBrake(pe::Real brake, int wheelIndex);

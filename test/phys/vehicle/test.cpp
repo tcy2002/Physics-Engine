@@ -1,5 +1,6 @@
 #include "phys/vehicle/tank/tank_template.h"
 #include "intf/viewer.h"
+#include "phys/constraint/constraint/friction_contact_constraint.h"
 
 using namespace pe_phys_vehicle;
 

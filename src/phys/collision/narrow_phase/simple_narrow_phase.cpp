@@ -3,25 +3,26 @@
 
 namespace pe_phys_collision {
 
-    void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs) {
+    void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
+                                               pe::Array<ContactResult>& results) {
 #   ifdef PE_MULTI_THREAD
-        _contact_results.resize(pairs.size());
+        results.resize(pairs.size());
         auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
-                                   [&c](const CollisionPair& pair, int idx) {
+                                   [&](const CollisionPair& pair, int idx) {
                                        auto type_a = pair.first->getCollisionShape()->getType();
                                        auto type_b = pair.second->getCollisionShape()->getType();
                                        int algo_idx = type_a * 4 + type_b;
                                        c->_algos[algo_idx] &&
                                        c->_algos[algo_idx]->processCollision(pair.first, pair.second,
-                                                                             c->_contact_results[idx]);
+                                                                             results[idx]);
                                    });
         utils::ThreadPool::join();
 
         // remove empty results
-        for (int i = (int)_contact_results.size() - 1; i >= 0; i--) {
-            if (_contact_results[i].getPointSize() == 0) {
-                _contact_results.erase(_contact_results.begin() + i);
+        for (int i = (int)results.size() - 1; i >= 0; i--) {
+            if (results[i].getPointSize() == 0) {
+                results.erase(results.begin() + i);
             }
         }
 
@@ -37,14 +38,6 @@ namespace pe_phys_collision {
             }
         }
 #   endif
-    }
-
-    void SimpleNarrowPhase::clearContactResults() {
-        _contact_results.clear();
-    }
-
-    pe::Array<ContactResult>& SimpleNarrowPhase::getContactResults() {
-        return _contact_results;
     }
 
 } // namespace pe_phys_collision

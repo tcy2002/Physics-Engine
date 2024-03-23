@@ -4,7 +4,7 @@
 
 namespace pe_phys_vehicle {
 
-    struct WheelInfoConstructionInfo {
+    struct RaycastWheelInfoConstructionInfo {
         pe::Vector3 m_chassisConnectionCS;
         pe::Vector3 m_wheelDirectionCS;
         pe::Vector3 m_wheelAxleCS;
@@ -21,7 +21,7 @@ namespace pe_phys_vehicle {
     };
 
     /// WheelInfo contains information per wheel about friction and suspension.
-    struct WheelInfo {
+    struct RaycastWheelInfo {
         struct RaycastInfo {
             //set by raycaster
             pe::Vector3 m_contactNormalWS;  //contact normal
@@ -63,9 +63,9 @@ namespace pe_phys_vehicle {
 
         void* m_clientInfo;  //can be used to store pointer to sync transforms...
 
-        WheelInfo() {}
+        RaycastWheelInfo() {}
 
-        explicit WheelInfo(WheelInfoConstructionInfo& ci);
+        explicit RaycastWheelInfo(RaycastWheelInfoConstructionInfo& ci);
 
         void updateWheel(pe_phys_object::RigidBody &chassis, RaycastInfo& raycastInfo);
 

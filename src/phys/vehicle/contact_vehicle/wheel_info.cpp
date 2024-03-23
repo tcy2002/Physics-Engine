@@ -2,11 +2,11 @@
 
 namespace pe_phys_vehicle {
 
-    pe::Real WheelInfo::getSuspensionRestLength() const {
+    pe::Real ContactWheelInfo::getSuspensionRestLength() const {
         return m_suspensionRestLength1;
     }
 
-    WheelInfo::WheelInfo(WheelInfoConstructionInfo& ci) {
+    ContactWheelInfo::ContactWheelInfo(ContactWheelInfoConstructionInfo& ci) {
         m_suspensionRestLength1 = ci.m_suspensionRestLength;
         m_maxSuspensionTravelCm = ci.m_maxSuspensionTravelCm;
 
@@ -28,15 +28,15 @@ namespace pe_phys_vehicle {
         m_maxSuspensionForce = ci.m_maxSuspensionForce;
     }
 
-    void WheelInfo::updateWheel(pe_phys_object::RigidBody& chassis, RaycastInfo& raycastInfo) {
-        (void)raycastInfo;
+    void ContactWheelInfo::updateWheel(pe_phys_object::RigidBody& chassis, ContactInfo& ContactInfo) {
+        (void)ContactInfo;
 
-        if (m_raycastInfo.m_isInContact) {
-            pe::Real project = m_raycastInfo.m_contactNormalWS.dot(m_raycastInfo.m_wheelDirectionWS);
+        if (m_contactInfo.m_isInContact) {
+            pe::Real project = m_contactInfo.m_contactNormalWS.dot(m_contactInfo.m_wheelDirectionWS);
             pe::Vector3 chassis_velocity_at_contactPoint;
-            pe::Vector3 rel_pos = m_raycastInfo.m_contactPointWS - chassis.getTransform().getOrigin();
+            pe::Vector3 rel_pos = m_contactInfo.m_contactPointWS - chassis.getTransform().getOrigin();
             chassis_velocity_at_contactPoint = chassis.getLinearVelocityAtLocalPoint(rel_pos);
-            pe::Real projVel = m_raycastInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
+            pe::Real projVel = m_contactInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
             if (project >= pe::Real(-0.1)) {
                 m_suspensionRelativeVelocity = pe::Real(0.0);
                 m_clippedInvContactDotSuspension = pe::Real(1.0) / pe::Real(0.1);
@@ -46,9 +46,9 @@ namespace pe_phys_vehicle {
                 m_clippedInvContactDotSuspension = inv;
             }
         } else { // Not in contact : position wheel in a nice (rest length) position
-            m_raycastInfo.m_suspensionLength = this->getSuspensionRestLength();
+            m_contactInfo.m_suspensionLength = this->getSuspensionRestLength();
             m_suspensionRelativeVelocity = pe::Real(0.0);
-            m_raycastInfo.m_contactNormalWS = -m_raycastInfo.m_wheelDirectionWS;
+            m_contactInfo.m_contactNormalWS = -m_contactInfo.m_wheelDirectionWS;
             m_clippedInvContactDotSuspension = pe::Real(1.0);
         }
     }

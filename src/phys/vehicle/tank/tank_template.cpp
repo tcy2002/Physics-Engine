@@ -66,8 +66,6 @@ namespace pe_phys_vehicle {
         pe::Real suspensionRestLength = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
         pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1); //NOLINT
         RaycastVehicle::VehicleTuning m_tuning;
-//        m_tuning.m_suspensionStiffness = 20.0;
-//        m_tuning.m_maxSuspensionForce = 100000.0;
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
@@ -99,7 +97,7 @@ namespace pe_phys_vehicle {
         }
 
         for (int i = 0; i < _wheelNum; i++) {
-            WheelInfo& wheel = vehicle->getWheelInfo(i);
+            RaycastWheelInfo& wheel = vehicle->getWheelInfo(i);
             wheel.m_suspensionStiffness = _suspensionStiffness;
             wheel.m_wheelsDampingRelaxation = _suspensionDamping;
             wheel.m_wheelsDampingCompression = _suspensionCompression;

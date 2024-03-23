@@ -15,17 +15,12 @@ namespace pe_phys_vehicle {
     RaycastVehicle::RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
                                    VehicleRaycaster* raycaster):
             m_raycastExcludeIds(100, pe_phys_fracture::uint32_hash_func,
-                                pe_phys_fracture::uint32_equal),
-            m_vehicleRaycaster(raycaster) {
+                                pe_phys_fracture::uint32_equal) {
+        m_vehicleRaycaster = raycaster;
         m_chassisBody = chassis;
         m_indexRightAxis = 0;
         m_indexUpAxis = 2;
         m_indexForwardAxis = 1;
-        defaultInit(tuning);
-    }
-
-    void RaycastVehicle::defaultInit(const VehicleTuning& tuning) {
-        (void)tuning;
         m_currentVehicleSpeedKmHour = pe::Real(0.);
     }
 
@@ -41,10 +36,10 @@ namespace pe_phys_vehicle {
     //
     // basically most of the code is general for 2- or 4-wheel vehicles, but some of it needs to be reviewed
     //
-    WheelInfo& RaycastVehicle::addWheel(const pe::Vector3& connectionPointCS, const pe::Vector3& wheelDirectionCS0,
-                                        const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength,
-                                        pe::Real wheelRadius, const VehicleTuning& tuning, bool isFrontWheel) {
-        WheelInfoConstructionInfo ci;
+    RaycastWheelInfo& RaycastVehicle::addWheel(const pe::Vector3& connectionPointCS, const pe::Vector3& wheelDirectionCS0,
+                                               const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength,
+                                               pe::Real wheelRadius, const VehicleTuning& tuning, bool isFrontWheel) {
+        RaycastWheelInfoConstructionInfo ci;
 
         ci.m_chassisConnectionCS = connectionPointCS;
         ci.m_wheelDirectionCS = wheelDirectionCS0;
@@ -59,9 +54,9 @@ namespace pe_phys_vehicle {
         ci.m_maxSuspensionTravelCm = tuning.m_maxSuspensionTravelCm;
         ci.m_maxSuspensionForce = tuning.m_maxSuspensionForce;
 
-        m_wheelInfo.push_back(WheelInfo(ci));
+        m_wheelInfo.push_back(RaycastWheelInfo(ci));
 
-        WheelInfo& wheel = m_wheelInfo[getNumWheels() - 1];
+        RaycastWheelInfo& wheel = m_wheelInfo[getNumWheels() - 1];
 
         updateWheelTransformsWS(wheel, false);
         updateWheelTransform(getNumWheels() - 1, false);
@@ -69,12 +64,12 @@ namespace pe_phys_vehicle {
     }
 
     const pe::Transform& RaycastVehicle::getWheelTransformWS(int wheelIndex) const {
-        const WheelInfo& wheel = m_wheelInfo[wheelIndex];
+        const RaycastWheelInfo& wheel = m_wheelInfo[wheelIndex];
         return wheel.m_worldTransform;
     }
 
     void RaycastVehicle::updateWheelTransform(int wheelIndex, bool interpolatedTransform) {
-        WheelInfo& wheel = m_wheelInfo[wheelIndex];
+        RaycastWheelInfo& wheel = m_wheelInfo[wheelIndex];
         updateWheelTransformsWS(wheel, interpolatedTransform);
         pe::Vector3 up = -wheel.m_raycastInfo.m_wheelDirectionWS;
         const pe::Vector3& right = wheel.m_raycastInfo.m_wheelAxleWS;
@@ -114,7 +109,7 @@ namespace pe_phys_vehicle {
     void RaycastVehicle::resetSuspension() {
         int i;
         for (i = 0; i < m_wheelInfo.size(); i++) {
-            WheelInfo& wheel = m_wheelInfo[i];
+            RaycastWheelInfo& wheel = m_wheelInfo[i];
             wheel.m_raycastInfo.m_suspensionLength = wheel.getSuspensionRestLength();
             wheel.m_suspensionRelativeVelocity = pe::Real(0.0);
 
@@ -124,7 +119,7 @@ namespace pe_phys_vehicle {
         }
     }
 
-    void RaycastVehicle::updateWheelTransformsWS(WheelInfo& wheel, bool interpolatedTransform) const {
+    void RaycastVehicle::updateWheelTransformsWS(RaycastWheelInfo& wheel, bool interpolatedTransform) const {
         wheel.m_raycastInfo.m_isInContact = false;
 
         pe::Transform chassisTrans = getChassisWorldTransform();
@@ -138,7 +133,7 @@ namespace pe_phys_vehicle {
         wheel.m_raycastInfo.m_wheelAxleWS = chassisTrans.getBasis() * wheel.m_wheelAxleCS;
     }
 
-    pe::Real RaycastVehicle::rayCast(WheelInfo& wheel) {
+    pe::Real RaycastVehicle::rayCast(RaycastWheelInfo& wheel) {
         updateWheelTransformsWS(wheel, false);
 
         pe::Real depth = -1;
@@ -261,7 +256,7 @@ namespace pe_phys_vehicle {
 
         for (i = 0; i < m_wheelInfo.size(); i++) {
             //apply suspension force
-            WheelInfo& wheel = m_wheelInfo[i];
+            RaycastWheelInfo& wheel = m_wheelInfo[i];
 
             pe::Real suspensionForce = wheel.m_wheelsSuspensionForce;
 
@@ -277,7 +272,7 @@ namespace pe_phys_vehicle {
         updateFriction(step);
 
         for (i = 0; i < (int)m_wheelInfo.size(); i++) {
-            WheelInfo& wheel = m_wheelInfo[i];
+            RaycastWheelInfo& wheel = m_wheelInfo[i];
             pe::Vector3 relPos = wheel.m_raycastInfo.m_hardPointWS - getRigidBody()->getTransform().getOrigin();
             pe::Vector3 vel = getRigidBody()->getLinearVelocityAtLocalPoint(relPos);
 
@@ -305,7 +300,7 @@ namespace pe_phys_vehicle {
     }
 
     void RaycastVehicle::setSteeringValue(pe::Real steering, int wheel) {
-        WheelInfo& wheelInfo = getWheelInfo(wheel);
+        RaycastWheelInfo& wheelInfo = getWheelInfo(wheel);
         wheelInfo.m_steering = steering;
     }
 
@@ -314,15 +309,15 @@ namespace pe_phys_vehicle {
     }
 
     void RaycastVehicle::applyEngineForce(pe::Real force, int wheel) {
-        WheelInfo& wheelInfo = getWheelInfo(wheel);
+        RaycastWheelInfo& wheelInfo = getWheelInfo(wheel);
         wheelInfo.m_engineForce = force;
     }
 
-    const WheelInfo& RaycastVehicle::getWheelInfo(int index) const {
+    const RaycastWheelInfo& RaycastVehicle::getWheelInfo(int index) const {
         return m_wheelInfo[index];
     }
 
-    WheelInfo& RaycastVehicle::getWheelInfo(int index) {
+    RaycastWheelInfo& RaycastVehicle::getWheelInfo(int index) {
         return m_wheelInfo[index];
     }
 
@@ -336,7 +331,7 @@ namespace pe_phys_vehicle {
         pe::Real chassisMass = pe::Real(1.) / m_chassisBody->getInvMass();
 
         for (int w_it = 0; w_it < getNumWheels(); w_it++) {
-            WheelInfo& wheel_info = m_wheelInfo[w_it];
+            RaycastWheelInfo& wheel_info = m_wheelInfo[w_it];
 
             if (wheel_info.m_raycastInfo.m_isInContact) {
                 pe::Real force;
@@ -484,7 +479,7 @@ namespace pe_phys_vehicle {
 
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
-            WheelInfo& wheelInfo = m_wheelInfo[i];
+            RaycastWheelInfo& wheelInfo = m_wheelInfo[i];
             class pe_phys_object::RigidBody* groundObject =
                     (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
             if (groundObject)
@@ -495,7 +490,7 @@ namespace pe_phys_vehicle {
 
         {
             for (int i = 0; i < getNumWheels(); i++) {
-                WheelInfo& wheelInfo = m_wheelInfo[i];
+                RaycastWheelInfo& wheelInfo = m_wheelInfo[i];
 
                 class pe_phys_object::RigidBody* groundObject =
                         (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
@@ -532,7 +527,7 @@ namespace pe_phys_vehicle {
         bool sliding = false;
         {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
-                WheelInfo& wheelInfo = m_wheelInfo[wheel];
+                RaycastWheelInfo& wheelInfo = m_wheelInfo[wheel];
                 class pe_phys_object::RigidBody* groundObject =
                         (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
 
@@ -597,7 +592,7 @@ namespace pe_phys_vehicle {
         // apply the impulses
         {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
-                WheelInfo& wheelInfo = m_wheelInfo[wheel];
+                RaycastWheelInfo& wheelInfo = m_wheelInfo[wheel];
 
                 pe::Vector3 rel_pos = wheelInfo.m_raycastInfo.m_contactPointWS -
                                       m_chassisBody->getTransform().getOrigin();

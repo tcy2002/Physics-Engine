@@ -5,6 +5,9 @@
 #include "utils/thread_pool.h"
 #include "viewer.h"
 
+#define PE_SHOW_DEBUG_POINTS false
+#define PE_DEBUG_ID 30
+
 namespace pe_intf {
 
     World::World():
@@ -130,28 +133,31 @@ namespace pe_intf {
         updateAABBs();
         _collision_pairs.clear();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
-        _narrow_phase->clearContactResults();
-        _narrow_phase->calcContactResults(_collision_pairs);
+        _contact_results.clear();
+        _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
 
-//        static pe::Array<int> debug_points;
-//        for (auto id : debug_points) {
-//            pe_core::Viewer::removeCube(id);
-//        }
-//        debug_points.clear();
-//        for (auto& cr : _narrow_phase->getContactResults()) {
-//            if (cr.getObjectA()->getGlobalId() != 30 && cr.getObjectB()->getGlobalId() != 30) continue;
-//            for (int i = 0; i < cr.getPointSize(); i++) {
-//                auto point = cr.getContactPoint(i).getWorldPos();
-//                int id = pe_core::Viewer::addCube({0.2, 0.2, 0.2});
-//                pe_core::Viewer::updateCubeColor(id, {1, 0, 0});
-//                pe_core::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
-//                debug_points.push_back(id);
-//            }
-//        }
+#   if PE_SHOW_DEBUG_POINTS
+        static pe::Array<int> debug_points;
+        for (auto id : debug_points) {
+            pe_intf::Viewer::removeCube(id);
+        }
+        debug_points.clear();
+        for (auto& cr : _contact_results) {
+            if (cr.getObjectA()->getGlobalId() != PE_DEBUG_ID &&
+                cr.getObjectB()->getGlobalId() != PE_DEBUG_ID) continue;
+            for (int i = 0; i < cr.getPointSize(); i++) {
+                auto point = cr.getContactPoint(i).getWorldPos();
+                int id = pe_intf::Viewer::addCube({0.2, 0.2, 0.2});
+                pe_intf::Viewer::updateCubeColor(id, {1, 0, 0});
+                pe_intf::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
+                debug_points.push_back(id);
+            }
+        }
+#   endif
 
         // constraints
         _constraint_solver->setupSolver(_collision_objects,
-                                        _narrow_phase->getContactResults(),
+                                        _contact_results,
                                         _constraints);
         _constraint_solver->solve();
 
