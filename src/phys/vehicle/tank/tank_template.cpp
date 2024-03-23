@@ -94,6 +94,7 @@ namespace pe_phys_vehicle {
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->addRaycastExcludeId(wheel->getGlobalId());
+            vehicle->getWheelInfo(i).m_clientInfo = wheel;
         }
 
         for (int i = 0; i < _wheelNum; i++) {
