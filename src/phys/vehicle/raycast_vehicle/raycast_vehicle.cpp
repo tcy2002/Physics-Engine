@@ -139,13 +139,9 @@ namespace pe_phys_vehicle {
         pe::Real depth = -1;
 
         pe::Real rayLen = wheel.getSuspensionRestLength() + wheel.m_wheelsRadius;
-
-        pe::Vector3 rayVector = wheel.m_raycastInfo.m_wheelDirectionWS * (rayLen);
         const pe::Vector3& source = wheel.m_raycastInfo.m_hardPointWS;
-        wheel.m_raycastInfo.m_contactPointWS = source + rayVector;
-        const pe::Vector3& target = wheel.m_raycastInfo.m_contactPointWS;
 
-        pe::Real param;
+        pe::Real param = pe::Real(0.0);
 
         VehicleRaycaster::VehicleRaycasterResult rayResults;
 
@@ -157,7 +153,6 @@ namespace pe_phys_vehicle {
 
         if (object) {
             param = rayResults.m_distFraction;
-            depth = rayLen * rayResults.m_distFraction;
             wheel.m_raycastInfo.m_contactNormalWS = rayResults.m_hitNormalInWorld;
             wheel.m_raycastInfo.m_isInContact = true;
 
@@ -184,9 +179,9 @@ namespace pe_phys_vehicle {
             pe::Real denominator = wheel.m_raycastInfo.m_contactNormalWS.dot(wheel.m_raycastInfo.m_wheelDirectionWS);
 
             pe::Vector3 chassis_velocity_at_contactPoint;
-            pe::Vector3 relpos = wheel.m_raycastInfo.m_contactPointWS - getRigidBody()->getTransform().getOrigin();
+            pe::Vector3 relPos = wheel.m_raycastInfo.m_contactPointWS - getRigidBody()->getTransform().getOrigin();
 
-            chassis_velocity_at_contactPoint = getRigidBody()->getLinearVelocityAtLocalPoint(relpos);
+            chassis_velocity_at_contactPoint = getRigidBody()->getLinearVelocityAtLocalPoint(relPos);
 
             pe::Real projVel = wheel.m_raycastInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
 
@@ -206,7 +201,7 @@ namespace pe_phys_vehicle {
             wheel.m_clippedInvContactDotSuspension = pe::Real(1.0);
         }
 
-        return depth;
+        return param;
     }
 
     const pe::Transform& RaycastVehicle::getChassisWorldTransform() const {
