@@ -76,6 +76,8 @@ namespace pe_phys_vehicle {
 #   else
         RaycastVehicle::VehicleTuning m_tuning;
 #   endif
+        m_tuning.m_suspensionStiffness = 100.0;
+        m_tuning.m_maxSuspensionForce = 10000.0;
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
@@ -101,6 +103,8 @@ namespace pe_phys_vehicle {
             wheel->addIgnoreCollisionId(body->getGlobalId());
             wheel->setCollisionShape(new pe_phys_shape::CylinderShape(
                     vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth));
+//            wheel->setCollisionShape(new pe_phys_shape::SphereShape(
+//                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN));
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
@@ -393,22 +397,24 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::moveForward() {
         pe::Vector3 force = vehicle->getForwardVector() * -forwardForce;
-        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
-        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
+        pe::Vector3 forceUp = vehicle->getUpVector() * (forwardForce * 0.6);
+        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force + forceUp);
+        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
-                       force);
+                       force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
-                       force);
+                       force - forceUp);
     }
 
     void TankTemplate::moveBackward() {
         pe::Vector3 force = vehicle->getForwardVector() * backwardForce;
-        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
-        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
+        pe::Vector3 forceUp = vehicle->getUpVector() * (backwardForce * 0.5);
+        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force - forceUp);
+        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
-                       force);
+                       force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
-                       force);
+                       force + forceUp);
     }
 
     void TankTemplate::turnLeft() {

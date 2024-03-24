@@ -8,7 +8,7 @@
 
 namespace pe_phys_vehicle {
 
-    ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
+    ///contactResolve vehicle, very special constraint that turn a rigidbody into a vehicle.
     class ContactVehicle {
         pe::Array<pe::Vector3> m_forwardWS;
         pe::Array<pe::Vector3> m_axle;
@@ -50,7 +50,7 @@ namespace pe_phys_vehicle {
 
         void addRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.push_back(id); }
         void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(id); }
-        pe::Real rayCast(ContactWheelInfo& wheel);
+        pe::Real contactResolve(ContactWheelInfo& wheel);
 
         pe::Real getSteeringValue(int wheel) const;
         void setSteeringValue(pe::Real steering, int wheel);
@@ -82,6 +82,7 @@ namespace pe_phys_vehicle {
         inline int getUpAxis() const { return m_indexUpAxis; }
         inline int getForwardAxis() const { return m_indexForwardAxis; }
         pe::Vector3 getForwardVector() const; ///Worldspace forward vector
+        pe::Vector3 getUpVector() const; ///Worldspace up vector
 
         ///Velocity of vehicle (positive if velocity vector has same direction as forward vector)
         pe::Real getCurrentSpeedKmHour() const { return m_currentVehicleSpeedKmHour; }

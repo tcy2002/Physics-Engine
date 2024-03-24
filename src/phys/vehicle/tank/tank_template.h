@@ -1,6 +1,7 @@
 #include "phys/vehicle/raycast_vehicle/raycast_vehicle.h"
 #include "phys/vehicle/contact_vehicle/contact_vehicle.h"
 #include "phys/shape/cylinder_shape.h"
+#include "phys/shape/sphere_shape.h"
 
 #define PE_USE_CONTACT_VEHICLE true
 

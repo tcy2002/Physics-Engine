@@ -126,6 +126,9 @@ namespace pe_intf {
     }
 
     void World::step() {
+        // update status
+        updateObjectStatus();
+
         // external force
         applyExternalForce();
 
@@ -160,9 +163,6 @@ namespace pe_intf {
                                         _contact_results,
                                         _constraints);
         _constraint_solver->solve();
-
-        // update status
-        updateObjectStatus();
     }
 
 } // namespace pe_core

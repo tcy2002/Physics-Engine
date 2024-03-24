@@ -1,5 +1,6 @@
 #include "contact_vehicle.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
+#include "intf/viewer.h"
 
 //#define ROLLING_INFLUENCE_FIX
 
@@ -138,12 +139,12 @@ namespace pe_phys_vehicle {
                                               wheel.m_contactInfo.m_suspensionLength;
     }
 
-    pe::Real ContactVehicle::rayCast(ContactWheelInfo& wheel) {
+    pe::Real ContactVehicle::contactResolve(ContactWheelInfo& wheel) {
         updateWheelTransformsWS(wheel, false);
 
         // get the closest point from the contact info
         pe_phys_collision::ContactPoint* closest_point = nullptr;
-        pe::Real maxDepth = pe::Real(-1);
+        pe::Real maxDepth = PE_REAL_MIN;
         uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
         for (auto& cr : m_world->_contact_results) {
             if (m_raycastExcludeIds.contains(cr.getObjectA()->getGlobalId()) ||
@@ -152,7 +153,7 @@ namespace pe_phys_vehicle {
             }
 
             if (cr.getObjectA()->getGlobalId() == rb_id || cr.getObjectB()->getGlobalId() == rb_id) {
-                for (int i = 0; i < cr.getPointSize(); i++) {
+                for (int i = 0; i < PE_MIN(1, cr.getPointSize()); i++) {
                     auto& cp = cr.getContactPoint(i);
                     pe::Real dist = -cp.getDistance();
                     if (dist > maxDepth) {
@@ -168,20 +169,24 @@ namespace pe_phys_vehicle {
         if (closest_point) {
             // if the contact point is on the side of the wheel, ignore it
             if (PE_APPROX_EQUAL(closest_point->getWorldNormal().cross(wheel.m_contactInfo.m_wheelAxleWS).norm2(),
-                                pe::Real(0.0))) {
-                return maxDepth;
+                                pe::Real(0.0))
+                || wheel.m_contactInfo.m_wheelDirectionWS
+                .dot(wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_wheelCenterWS) < 0) {
+                return pe::Real(0.0);
             }
 
             wheel.m_contactInfo.m_isInContact = true;
             wheel.m_contactInfo.m_contactPointWS = closest_point->getWorldPos();
-            wheel.m_contactInfo.m_contactNormalWS = closest_point->getWorldNormal();
-            if (wheel.m_contactInfo.m_contactNormalWS
-                .dot(wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_wheelCenterWS) > 0) {
-                wheel.m_contactInfo.m_contactNormalWS *= -1;
-            }
+//            wheel.m_contactInfo.m_contactNormalWS = closest_point->getWorldNormal();
+//            if (wheel.m_contactInfo.m_contactNormalWS
+//                .dot(wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_wheelCenterWS) > 0) {
+//                wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_contactNormalWS;
+//            }
+            wheel.m_contactInfo.m_contactNormalWS =
+                    (wheel.m_contactInfo.m_wheelCenterWS - wheel.m_contactInfo.m_contactPointWS)
+                    .projectToPlane(wheel.m_contactInfo.m_wheelAxleWS).normalized();
 
             wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
-            //wheel.m_contactInfo.m_groundObject = object;
 
             // calculate suspension length
             pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
@@ -195,12 +200,14 @@ namespace pe_phys_vehicle {
             } else {
                 wheel.m_contactInfo.m_suspensionLength = susExtent + whlExtent;
             }
+            wheel.m_contactInfo.m_suspensionLength =
+                    PE_MIN(wheel.getSuspensionRestLength(), wheel.m_contactInfo.m_suspensionLength);
 
             //clamp on max suspension travel
             pe::Real minSuspensionLength = wheel.getSuspensionRestLength() -
-                    wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
+                    wheel.m_maxSuspensionTravelCm * pe::Real(0.005);
             pe::Real maxSuspensionLength = wheel.getSuspensionRestLength() +
-                    wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
+                    wheel.m_maxSuspensionTravelCm * pe::Real(0.005);
             if (wheel.m_contactInfo.m_suspensionLength < minSuspensionLength) {
                 wheel.m_contactInfo.m_suspensionLength = minSuspensionLength;
             }
@@ -227,7 +234,9 @@ namespace pe_phys_vehicle {
             }
         } else {
             //put wheel info as in rest position
-            wheel.m_contactInfo.m_suspensionLength = wheel.getSuspensionRestLength();
+            if (wheel.m_contactInfo.m_suspensionLength < wheel.getSuspensionRestLength()) {
+                wheel.m_contactInfo.m_suspensionLength += 0.01;
+            }
             wheel.m_suspensionRelativeVelocity = pe::Real(0.0);
             wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_wheelDirectionWS;
             wheel.m_clippedInvContactDotSuspension = pe::Real(1.0);
@@ -274,9 +283,7 @@ namespace pe_phys_vehicle {
 
         int i;
         for (i = 0; i < m_wheelInfo.size(); i++) {
-            //pe::Real depth;
-            //depth =
-            rayCast(m_wheelInfo[i]);
+            contactResolve(m_wheelInfo[i]);
         }
 
         updateSuspension(step);
@@ -478,7 +485,6 @@ namespace pe_phys_vehicle {
 
         pe::Real rel_vel = normal.dot(vel);
 
-        //todo: move this into proper structure
         pe::Real contactDamping = pe::Real(0.2);
 
 #   ifdef ONLY_USE_LINEAR_MASS
@@ -661,6 +667,17 @@ namespace pe_phys_vehicle {
                 chassisTrans.getBasis()[2][m_indexForwardAxis]);
 
         return forwardW;
+    }
+
+    pe::Vector3 ContactVehicle::getUpVector() const {
+        const pe::Transform& chassisTrans = getChassisWorldTransform();
+
+        pe::Vector3 up(
+                chassisTrans.getBasis()[0][m_indexUpAxis],
+                chassisTrans.getBasis()[1][m_indexUpAxis],
+                chassisTrans.getBasis()[2][m_indexUpAxis]);
+
+        return up;
     }
 
     void ContactVehicle::setCoordinateSystem(int rightIndex, int upIndex, int forwardIndex) {

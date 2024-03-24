@@ -17,7 +17,7 @@ void testTank() {
 
     // add ground
     auto ground = new pe_phys_object::RigidBody();
-    auto ground_shape = new pe_phys_shape::BoxShape(pe::Vector3(100, 1, 100));
+    auto ground_shape = new pe_phys_shape::BoxShape(pe::Vector3(1000, 1, 1000));
     ground->setCollisionShape(ground_shape);
     pe::Matrix3 mat = pe::Matrix3::identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / 12);
@@ -25,7 +25,7 @@ void testTank() {
     ground->setKinematic(true);
     ground->setLocalInertia(ground_shape->calcLocalInertia(1.0));
     world->addRigidBody(ground);
-    int ground_id = pe_intf::Viewer::addCube(pe::Vector3(100, 1, 100));
+    int ground_id = pe_intf::Viewer::addCube(ground_shape->getSize());
     pe_intf::Viewer::updateCubeColor(ground_id, pe::Vector3(0.3, 0.3, 0.8));
     pe_intf::Viewer::updateCubeTransform(ground_id, ground->getTransform());
 
@@ -74,8 +74,9 @@ void testTank() {
 
     // add wheels to viewer
     for (auto& wheel : tank->getWheels()) {
+//        auto shape = dynamic_cast<pe_phys_shape::SphereShape*>(wheel->getCollisionShape());
         auto shape = dynamic_cast<pe_phys_shape::CylinderShape*>(wheel->getCollisionShape());
-        id = pe_intf::Viewer::addCylinder(shape->getRadius(), shape->getHeight());
+        id = pe_intf::Viewer::addCylinder(shape->getRadius(), 0.5);
         pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.8, 0.3));
         pe_intf::Viewer::updateCylinderTransform(id, wheel->getTransform());
         id_map[id] = wheel;
@@ -97,6 +98,10 @@ void testTank() {
         auto t = COMMON_GetTickCount();
 
         world->step();
+        for (auto rb : id_map) {
+            pe_intf::Viewer::updateCubeTransform(rb.first, rb.second->getTransform());
+            pe_intf::Viewer::updateCylinderTransform(rb.first, rb.second->getTransform());
+        }
 
         if (pe_intf::Viewer::getKeyState('i') == 0) {
             tank->moveForward();
@@ -115,13 +120,7 @@ void testTank() {
         } else {
             tank->idle();
         }
-
         tank->advance(world->getDt());
-
-        for (auto rb : id_map) {
-            pe_intf::Viewer::updateCubeTransform(rb.first, rb.second->getTransform());
-            pe_intf::Viewer::updateCylinderTransform(rb.first, rb.second->getTransform());
-        }
 
 //        while (pe_intf::Viewer::getKeyState('r') != 1)
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
