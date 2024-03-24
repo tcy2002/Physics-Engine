@@ -12,7 +12,7 @@
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
 #define TEST_NUM 99
-#define TEST_FRAME_TH 100000
+#define TEST_FRAME_TH 1000000
 //#define TEST_FRAMERATE 1000
 
 void objToMesh(pe::Mesh& mesh, const std::string &filename) {
@@ -162,11 +162,11 @@ void testWorld() {
     for (int i = 0; i < TEST_NUM; i++) {
         pe_phys_object::RigidBody* rb;
         if (i % 3 == 0) {
-            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), pe::Vector3(1, 1, 1), 1);
+            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
         } else if (i % 3 == 1) {
-            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), 0.5, 1.0);
+            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
         } else {
-            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), 0.5, 1.0, 1.0);
+            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0, 1.0);
         }
         rbs.push_back(rb);
         world->addRigidBody(rb);

@@ -2,7 +2,7 @@
 #include "phys/vehicle/contact_vehicle/contact_vehicle.h"
 #include "phys/shape/cylinder_shape.h"
 
-#define PE_USE_CONTACT_VEHICLE true
+#define PE_USE_CONTACT_VEHICLE false
 
 namespace pe_phys_vehicle {
 

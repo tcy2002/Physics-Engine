@@ -76,6 +76,14 @@
       - 1、使用多个射线检测（目前aabb检测不支持这种方式）
       - 2、使用碰撞检测代替射线检测
 
+  - 检查碰撞检测
+    - 1、margin
+      - box-sphere取消getSphereDistance的margin
+      - sphere-convex取消radiusWithThreshold的margin
+    - 2、碰撞对顺序
+      - 涉及cylinder的全部将cylinder放在前面
+      - 最近点需要统一为物体B上的点
+
 ### 问题日志
 
 - 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
