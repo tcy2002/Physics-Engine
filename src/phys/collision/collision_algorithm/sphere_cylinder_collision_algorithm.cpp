@@ -17,6 +17,7 @@ namespace pe_phys_collision {
 
         auto shape_a = (pe_phys_shape::CylinderShape*)object_a->getCollisionShape();
         auto shape_b = (pe_phys_shape::SphereShape*)object_b->getCollisionShape();
+        auto& c_trans = object_a->getTransform();
         pe::Real s_r = shape_b->getRadius();
         pe::Real c_r = shape_a->getRadius();
         pe::Real c_h = shape_a->getHeight() * 0.5;
@@ -28,34 +29,33 @@ namespace pe_phys_collision {
             return false;
         }
 
-        result.setObjects(object_b, object_a);
+        result.setObjects(object_a, object_b);
         pe::Real r = std::sqrt(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
+        pe::Vector3 normal;
+        pe::Vector3 ptOnSph;
+        pe::Real depth;
         if (s_pos.y >= -c_h && s_pos.y <= c_h) {
-            // hit at the bottom or top
-            pe::Vector3 normal = pe::Vector3(s_pos.x, 0, s_pos.z).normalized();
-            pe::Vector3 ptOnCyl = normal * (c_r + margin);
-            ptOnCyl.y = s_pos.y;
-            pe::Vector3 wNormal = object_a->getTransform().getBasis() * normal;
-            pe::Vector3 wPtOnCyl = object_a->getTransform() * ptOnCyl;
-            pe::Real depth = c_r + s_r - r;
-            result.addContactPoint(wNormal, wPtOnCyl, -depth + 2 * margin);
+            // hit the side
+            normal = pe::Vector3(-s_pos.x, 0, -s_pos.z).normalized();
+            ptOnSph = normal * s_r + s_pos;
+            depth = c_r + s_r - r;
         } else if (r <= c_r) {
-            // hit at the side
-            pe::Vector3 normal = s_pos.y > 0 ? pe::Vector3::up() : -pe::Vector3::up();
-            pe::Vector3 ptOnCyl = pe::Vector3(s_pos.x, s_pos.y > 0 ? c_h : -c_h, s_pos.z);
-            pe::Vector3 wNormal = object_a->getTransform().getBasis() * normal;
-            pe::Vector3 wPtOnCyl = object_a->getTransform() * (ptOnCyl + normal * margin);
-            pe::Real depth = s_r + c_h - std::abs(s_pos.y);
-            result.addContactPoint(wNormal, wPtOnCyl, -depth + 2 * margin);
+            // hit the bottom or top
+            normal = s_pos.y > 0 ? -pe::Vector3::up() : pe::Vector3::up();
+            ptOnSph = s_pos + normal * s_r;
+            depth = s_r + c_h - std::abs(s_pos.y);
         } else {
             // hit at the edge
             pe::Vector3 ptOnCyl = pe::Vector3(s_pos.x, 0, s_pos.z).normalized() * c_r;
             ptOnCyl.y = s_pos.y > 0 ? c_h : -c_h;
-            pe::Vector3 wNormal = object_a->getTransform().getBasis() * (s_pos - ptOnCyl).normalized();
-            pe::Vector3 wPtOnCyl = object_a->getTransform() * ptOnCyl + wNormal * margin;
-            pe::Real depth = s_r - (s_pos - ptOnCyl).norm();
-            result.addContactPoint(wNormal, wPtOnCyl, -depth + 2 * margin);
+            normal = (ptOnCyl - s_pos).normalized();
+            ptOnSph = normal * s_r + s_pos;
+            depth = s_r - (s_pos - ptOnCyl).norm();
         }
+
+        normal = c_trans.getBasis() * normal;
+        ptOnSph = c_trans * ptOnSph;
+        result.addContactPoint(normal, ptOnSph - normal * margin, -depth + 2 * margin);
         result.sortContactPoints();
         return true;
     }

@@ -13,7 +13,7 @@ namespace pe_phys_collision {
 
         static bool getSphereDistance(const pe_phys_shape::BoxShape* boxShape, const pe::Transform& boxTrans,
                                       const pe::Vector3& sphereCenter, pe::Real radius,
-                                      pe::Real maxDist, pe::Vector3& ptOnBox, pe::Vector3& normal, pe::Real& dist);
+                                      pe::Vector3& ptOnBox, pe::Vector3& normal, pe::Real& dist);
         static pe::Real getSpherePenetration(const pe::Vector3& boxHalfExt, const pe::Vector3& sphereRelPos,
                                              pe::Vector3& closestPoint, pe::Vector3& normal);
     };

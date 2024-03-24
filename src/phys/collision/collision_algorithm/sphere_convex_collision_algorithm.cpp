@@ -43,13 +43,16 @@ namespace pe_phys_collision {
         pe::Vector3 point, normal;
         pe::Real depth = 0;
         pe::Real margin = 0.005;
+
         //move sphere into triangle space
         pe::Vector3 sphereInTr = transTri.inverseTransform(transSph.getOrigin());
         pe::Real sphereRadius = ((pe_phys_shape::SphereShape*)object_a->getCollisionShape())->getRadius();
 
         if (collideSphereTriangle(sphereInTr, sphereRadius, vertices,
-                                  point, normal, depth, margin)) {
-            result.addContactPoint(transTri.getBasis() * normal, transTri * point, depth);
+                                  point, normal, depth)) {
+            normal = transTri.getBasis() * normal;
+            point = transTri * point;
+            result.addContactPoint(normal, point - normal * margin, depth + 2 * margin);
         }
     }
 
@@ -78,23 +81,20 @@ namespace pe_phys_collision {
 
     bool SphereConvexCollisionAlgorithm::collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real radius,
                                                                const pe::Vector3 vertices[], pe::Vector3& point,
-                                                               pe::Vector3& resultNormal, pe::Real& depth,
-                                                               pe::Real margin) {
-        pe::Real radiusWithThreshold = radius + margin;
+                                                               pe::Vector3& resultNormal, pe::Real& depth) {
+        pe::Real radiusWithThreshold = radius;
         pe::Vector3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]);
         pe::Real l2 = normal.norm2();
         bool hasContact = false;
         pe::Vector3 contactPoint;
 
-        if (l2 >= PE_EPS * PE_EPS)
-        {
+        if (l2 >= PE_EPS * PE_EPS) {
             normal /= std::sqrt(l2);
 
             pe::Vector3 p1ToCentre = sphereCenter - vertices[0];
             pe::Real distanceFromPlane = p1ToCentre.dot(normal);
 
-            if (distanceFromPlane < pe::Real(0.))
-            {
+            if (distanceFromPlane < pe::Real(0.)) {
                 //triangle facing the other way
                 distanceFromPlane *= pe::Real(-1.);
                 normal *= pe::Real(-1.);

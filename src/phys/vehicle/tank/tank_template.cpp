@@ -8,7 +8,7 @@
 #define PE_TANK_TRACK_SEG_THICKNESS 0.06
 #define PE_TANK_TRACK_SEG_WIDTH 0.2
 #define PE_TANK_RAYCAST_OFFSET 0.05
-#define PE_TANK_WHEEL_MARGIN 0.02
+#define PE_TANK_WHEEL_MARGIN 0.00 //tricky
 
 namespace pe_phys_vehicle {
 

@@ -276,7 +276,7 @@ namespace pe_phys_collision {
         const pe::Vector3 DeltaC2 = c0 - c1;
 
         pe::Real dMin = PE_REAL_MAX;
-        pe::Vector3 dMinPt;
+        pe::Vector3 dMinPtOnB;
         bool ptOnA = false;
 
         // Test normals from hullA
@@ -288,13 +288,14 @@ namespace pe_phys_collision {
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(shapeA, shapeB, transA, transB, faceANormalWS, d, wA, wB)) {
+            if (!testSepAxis(shapeA, shapeB, transA, transB,
+                             faceANormalWS, d, wA, wB)) {
                 return false;
             }
 
             if (d < dMin) {
                 dMin = d;
-                dMinPt = wB;
+                dMinPtOnB = wB;
                 ptOnA = false;
                 sep = faceANormalWS;
             }
@@ -317,16 +318,16 @@ namespace pe_phys_collision {
 
             if (d < dMin) {
                 dMin = d;
-                dMinPt = wA;
+                dMinPtOnB = wA + WorldNormal * d;
                 ptOnA = true;
                 sep = WorldNormal;
             }
         }
 
         // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPt))) ||
-            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPt)))) {
-            result.addContactPoint(sep, dMinPt - sep * margin,
+        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB))) ||
+            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB)))) {
+            result.addContactPoint(sep, dMinPtOnB - sep * margin,
                                    -dMin + margin * 2);
         }
 

@@ -23,9 +23,9 @@ namespace pe_phys_collision {
 
         result.setObjects(object_a, object_b);
         pe::Vector3 normal = rel / dist;
-        pe::Vector3 wPtOnB = object_b->getTransform().getOrigin() + rel / dist * radius_b;
-        result.addContactPoint(normal, wPtOnB - normal * margin,
-                               dist - radius_a - radius_b + 2 * margin);
+        pe::Vector3 wPtOnB = object_b->getTransform().getOrigin() + normal * radius_b;
+        pe::Real depth = dist - radius_a - radius_b;
+        result.addContactPoint(normal, wPtOnB - normal * margin, depth + 2 * margin);
         result.sortContactPoints();
         return true;
     }

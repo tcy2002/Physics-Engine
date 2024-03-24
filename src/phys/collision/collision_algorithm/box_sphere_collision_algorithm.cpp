@@ -4,26 +4,27 @@ namespace pe_phys_collision {
 
     bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
                                                           ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Sphere) {
+        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box) {
             std::swap(object_a, object_b);
         }
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Sphere) {
+        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Sphere ||
+            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::BoxShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::SphereShape*)object_b->getCollisionShape();
-        pe::Vector3 sphereCenter = object_b->getTransform().getOrigin();
-        pe::Real radius = shape_b->getRadius();
+        auto shape_a = (pe_phys_shape::SphereShape*)object_a->getCollisionShape();
+        auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
+        pe::Vector3 sphereCenter = object_a->getTransform().getOrigin();
+        pe::Real radius = shape_a->getRadius();
         pe::Real margin = 0.005;
 
         pe::Vector3 ptOnBox, normal;
         pe::Real dist;
-        if (getSphereDistance(shape_a, object_a->getTransform(), sphereCenter, radius,
-                              margin, ptOnBox, normal, dist)) {
-            result.setObjects(object_b, object_a);
-            result.addContactPoint(normal, ptOnBox, dist);
+        if (getSphereDistance(shape_b, object_b->getTransform(), sphereCenter, radius,
+                              ptOnBox, normal, dist)) {
+            result.setObjects(object_a, object_b);
+            result.addContactPoint(normal, ptOnBox - normal * margin,
+                                   dist + 2 * margin);
             result.sortContactPoints();
             return true;
         }
@@ -34,8 +35,7 @@ namespace pe_phys_collision {
     bool BoxSphereCollisionAlgorithm::getSphereDistance(const pe_phys_shape::BoxShape *boxShape,
                                                         const pe::Transform& boxTrans,
                                                         const pe::Vector3& sphereCenter, pe::Real radius,
-                                                        pe::Real margin, pe::Vector3 &ptOnBox, pe::Vector3 &normal,
-                                                        pe::Real &dist) {
+                                                        pe::Vector3 &ptOnBox, pe::Vector3 &normal, pe::Real &dist) {
         pe::Vector3 const& boxHalfExtent = boxShape->getSize() / 2.0;
         dist = 1.0f;
 
@@ -51,13 +51,11 @@ namespace pe_phys_collision {
         closestPoint.z = PE_MIN(boxHalfExtent.z, closestPoint.z);
         closestPoint.z = PE_MAX(-boxHalfExtent.z, closestPoint.z);
 
-        pe::Real intersectionDist = radius + margin;
-        pe::Real contactDist = intersectionDist + margin;
         normal = sphereRelPos - closestPoint;
 
         //if there is no penetration, we are done
         pe::Real dist2 = normal.norm2();
-        if (dist2 > contactDist * contactDist) {
+        if (dist2 > radius * radius) {
             return false;
         }
 
@@ -71,14 +69,9 @@ namespace pe_phys_collision {
             normal /= distance;
         }
 
-        ptOnBox = closestPoint + normal * margin;
-        dist = distance - intersectionDist;
-
-        // transform back in world space
-        pe::Vector3 tmp = boxTrans * ptOnBox;
-        ptOnBox = tmp;
-        tmp = boxTrans.getBasis() * normal;
-        normal = tmp;
+        normal = boxTrans.getBasis() * normal;
+        ptOnBox = boxTrans * closestPoint;
+        dist = distance - radius;
 
         return true;
     }
