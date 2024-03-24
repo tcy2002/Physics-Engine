@@ -29,26 +29,26 @@ void testTank() {
     pe_intf::Viewer::updateCubeColor(ground_id, pe::Vector3(0.3, 0.3, 0.8));
     pe_intf::Viewer::updateCubeTransform(ground_id, ground->getTransform());
 
-//    // add some obstacle
-//    auto box = new pe_phys_object::RigidBody();
-//    auto shape_box = new pe_phys_shape::BoxShape(pe::Vector3(10, 0.3, 10));
-//    box->setCollisionShape(shape_box);
-//    mat = pe::Matrix3::identity();
+    // add some obstacle
+    auto box = new pe_phys_object::RigidBody();
+    auto shape_box = new pe_phys_shape::BoxShape(pe::Vector3(10, 0.3, 10));
+    box->setCollisionShape(shape_box);
+    mat = pe::Matrix3::identity();
 //    mat.setRotation(pe::Vector3(0, 1, 0), PE_PI / 4);
-//    box->setTransform(pe::Transform(mat, pe::Vector3(0, 10, 0)));
-//    box->setMass(10.0);
-//    box->setLocalInertia(shape_box->calcLocalInertia(1.0));
-//    world->addRigidBody(box);
-//    int box_id = pe_intf::Viewer::addCube(shape_box->getSize());
-//    pe_intf::Viewer::updateCubeColor(box_id, pe::Vector3(0.8, 0.3, 0.3));
-//    pe_intf::Viewer::updateCubeTransform(box_id, box->getTransform());
-//    id_map[box_id] = box;
+    box->setTransform(pe::Transform(mat, pe::Vector3(0, 0.15, -10)));
+    box->setKinematic(true);
+    box->setLocalInertia(shape_box->calcLocalInertia(1.0));
+    world->addRigidBody(box);
+    int box_id = pe_intf::Viewer::addCube(shape_box->getSize());
+    pe_intf::Viewer::updateCubeColor(box_id, pe::Vector3(0.8, 0.3, 0.3));
+    pe_intf::Viewer::updateCubeTransform(box_id, box->getTransform());
+    id_map[box_id] = box;
 
     // init tank
     auto tank = new TankTemplate();
     mat = pe::Matrix3::identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), PE_PI);
-    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 1, 0)));
+    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 1.3, 0)));
     tank->init(world);
 
     // add body to viewer

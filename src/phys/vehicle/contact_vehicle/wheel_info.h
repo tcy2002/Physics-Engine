@@ -30,6 +30,7 @@ namespace pe_phys_vehicle {
             pe::Vector3 m_hardPointWS;       //raycast starting point
             pe::Vector3 m_wheelDirectionWS;  //direction in world space
             pe::Vector3 m_wheelAxleWS;       // axle in world space
+            pe::Vector3 m_wheelCenterWS;     // center of the wheel
             bool m_isInContact;
             void* m_groundObject;  //could be general void* ptr
         };
@@ -66,8 +67,6 @@ namespace pe_phys_vehicle {
         ContactWheelInfo() {}
 
         explicit ContactWheelInfo(ContactWheelInfoConstructionInfo& ci);
-
-        void updateWheel(pe_phys_object::RigidBody &chassis, ContactInfo& ContactInfo);
 
         pe::Real m_clippedInvContactDotSuspension;
         pe::Real m_suspensionRelativeVelocity;

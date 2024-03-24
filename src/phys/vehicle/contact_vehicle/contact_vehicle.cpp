@@ -13,19 +13,15 @@ namespace pe_phys_vehicle {
             m_frictionSlip(pe::Real(10.5)),
             m_maxSuspensionForce(pe::Real(6000.)) {}
 
-    ContactVehicle::ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis):
+    ContactVehicle::ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
+                                   pe_intf::World* world):
             m_raycastExcludeIds(100, pe_phys_fracture::uint32_hash_func,
                                 pe_phys_fracture::uint32_equal) {
-        m_vehicleRaycaster = 0;
         m_chassisBody = chassis;
+        m_world = world;
         m_indexRightAxis = 0;
         m_indexUpAxis = 2;
         m_indexForwardAxis = 1;
-        defaultInit(tuning);
-    }
-
-    void ContactVehicle::defaultInit(const VehicleTuning& tuning) {
-        (void)tuning;
         m_currentVehicleSpeedKmHour = pe::Real(0.);
     }
 
@@ -41,7 +37,8 @@ namespace pe_phys_vehicle {
     //
     // basically most of the code is general for 2- or 4-wheel vehicles, but some of it needs to be reviewed
     //
-    ContactWheelInfo& ContactVehicle::addWheel(const pe::Vector3& connectionPointCS, const pe::Vector3& wheelDirectionCS0,
+    ContactWheelInfo& ContactVehicle::addWheel(const pe::Vector3& connectionPointCS,
+                                               const pe::Vector3& wheelDirectionCS0,
                                                const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength,
                                                pe::Real wheelRadius, const VehicleTuning& tuning, bool isFrontWheel) {
         ContactWheelInfoConstructionInfo ci;
@@ -136,43 +133,67 @@ namespace pe_phys_vehicle {
         wheel.m_contactInfo.m_hardPointWS = chassisTrans * wheel.m_chassisConnectionPointCS;
         wheel.m_contactInfo.m_wheelDirectionWS = chassisTrans.getBasis() * wheel.m_wheelDirectionCS;
         wheel.m_contactInfo.m_wheelAxleWS = chassisTrans.getBasis() * wheel.m_wheelAxleCS;
+        wheel.m_contactInfo.m_wheelCenterWS = wheel.m_contactInfo.m_hardPointWS +
+                                              wheel.m_contactInfo.m_wheelDirectionWS *
+                                              wheel.m_contactInfo.m_suspensionLength;
     }
 
     pe::Real ContactVehicle::rayCast(ContactWheelInfo& wheel) {
         updateWheelTransformsWS(wheel, false);
 
-        pe::Real depth = -1;
+        // get the closest point from the contact info
+        pe_phys_collision::ContactPoint* closest_point = nullptr;
+        pe::Real maxDepth = pe::Real(-1);
+        uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
+        for (auto& cr : m_world->_contact_results) {
+            if (m_raycastExcludeIds.contains(cr.getObjectA()->getGlobalId()) ||
+                m_raycastExcludeIds.contains(cr.getObjectB()->getGlobalId())) {
+                continue;
+            }
 
-        pe::Real rayLen = wheel.getSuspensionRestLength() + wheel.m_wheelsRadius;
-
-        pe::Vector3 rayVector = wheel.m_contactInfo.m_wheelDirectionWS * (rayLen);
-        const pe::Vector3& source = wheel.m_contactInfo.m_hardPointWS;
-        wheel.m_contactInfo.m_contactPointWS = source + rayVector;
-        const pe::Vector3& target = wheel.m_contactInfo.m_contactPointWS;
-
-        pe::Real param;
-
-        VehicleRaycaster::VehicleRaycasterResult rayResults;
-
-        void* object = m_vehicleRaycaster->castRay(m_chassisBody->getGlobalId(), m_raycastExcludeIds,
-                                                   source, wheel.m_contactInfo.m_wheelDirectionWS,
-                                                   rayLen, rayResults);
+            if (cr.getObjectA()->getGlobalId() == rb_id || cr.getObjectB()->getGlobalId() == rb_id) {
+                for (int i = 0; i < cr.getPointSize(); i++) {
+                    auto& cp = cr.getContactPoint(i);
+                    pe::Real dist = -cp.getDistance();
+                    if (dist > maxDepth) {
+                        maxDepth = dist;
+                        closest_point = &cp;
+                    }
+                }
+            }
+        }
 
         wheel.m_contactInfo.m_groundObject = 0;
 
-        if (object) {
-            param = rayResults.m_distFraction;
-            depth = rayLen * rayResults.m_distFraction;
-            wheel.m_contactInfo.m_contactNormalWS = rayResults.m_hitNormalInWorld;
+        if (closest_point) {
+            // if the contact point is on the side of the wheel, ignore it
+            if (PE_APPROX_EQUAL(closest_point->getWorldNormal().cross(wheel.m_contactInfo.m_wheelAxleWS).norm2(),
+                                pe::Real(0.0))) {
+                return maxDepth;
+            }
+
+            wheel.m_contactInfo.m_contactPointWS = closest_point->getWorldPos();
+            wheel.m_contactInfo.m_contactNormalWS =
+                    (wheel.m_contactInfo.m_wheelCenterWS - wheel.m_contactInfo.m_contactPointWS)
+                    .projectToPlane(wheel.m_contactInfo.m_wheelAxleWS).normalized();
             wheel.m_contactInfo.m_isInContact = true;
 
             wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
             //wheel.m_contactInfo.m_groundObject = object;
 
-            pe::Real hitDistance = param;
-            wheel.m_contactInfo.m_suspensionLength = hitDistance - wheel.m_wheelsRadius;
-            //clamp on max suspension travel
+            // calculate suspension length
+            pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
+                    .dot(getForwardVector());
+            pe::Real whlExtent = std::sqrt(wheel.m_wheelsRadius * wheel.m_wheelsRadius - fwdExtent * fwdExtent);
+            pe::Real susExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
+                    .dot(wheel.m_contactInfo.m_wheelDirectionWS);
+            if (wheel.m_contactInfo.m_contactNormalWS.dot(wheel.m_contactInfo.m_wheelDirectionWS) < pe::Real(0.0)) {
+                wheel.m_contactInfo.m_suspensionLength = susExtent - whlExtent;
+            } else {
+                wheel.m_contactInfo.m_suspensionLength = susExtent + whlExtent;
+            }
 
+            //clamp on max suspension travel
             pe::Real minSuspensionLength = wheel.getSuspensionRestLength() -
                     wheel.m_maxSuspensionTravelCm * pe::Real(0.01);
             pe::Real maxSuspensionLength = wheel.getSuspensionRestLength() +
@@ -184,14 +205,12 @@ namespace pe_phys_vehicle {
                 wheel.m_contactInfo.m_suspensionLength = maxSuspensionLength;
             }
 
-            wheel.m_contactInfo.m_contactPointWS = rayResults.m_hitPointInWorld;
-
             pe::Real denominator = wheel.m_contactInfo.m_contactNormalWS.dot(wheel.m_contactInfo.m_wheelDirectionWS);
 
             pe::Vector3 chassis_velocity_at_contactPoint;
-            pe::Vector3 relpos = wheel.m_contactInfo.m_contactPointWS - getRigidBody()->getTransform().getOrigin();
+            pe::Vector3 relPos = wheel.m_contactInfo.m_contactPointWS - getRigidBody()->getTransform().getOrigin();
 
-            chassis_velocity_at_contactPoint = getRigidBody()->getLinearVelocityAtLocalPoint(relpos);
+            chassis_velocity_at_contactPoint = getRigidBody()->getLinearVelocityAtLocalPoint(relPos);
 
             pe::Real projVel = wheel.m_contactInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
 
@@ -211,7 +230,7 @@ namespace pe_phys_vehicle {
             wheel.m_clippedInvContactDotSuspension = pe::Real(1.0);
         }
 
-        return depth;
+        return maxDepth;
     }
 
     const pe::Transform& ContactVehicle::getChassisWorldTransform() const {

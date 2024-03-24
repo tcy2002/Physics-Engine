@@ -5,13 +5,11 @@
 #include "phys/raycast/raycast.h"
 #include "utils/jacobian_entry.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
-#include "phys/vehicle/raycast_vehicle/raycast_vehicle.h"
 
 namespace pe_phys_vehicle {
 
     ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
-    class ContactVehicle
-    {
+    class ContactVehicle {
         pe::Array<pe::Vector3> m_forwardWS;
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;
@@ -31,21 +29,21 @@ namespace pe_phys_vehicle {
         };
 
     private:
-        VehicleRaycaster* m_vehicleRaycaster;
         pe::Real m_currentVehicleSpeedKmHour;
 
         pe_phys_object::RigidBody* m_chassisBody;
+        pe_intf::World* m_world;
 
         int m_indexRightAxis;
         int m_indexUpAxis;
         int m_indexForwardAxis;
 
-        void defaultInit(const VehicleTuning& tuning);
         static pe_phys_object::RigidBody& getFixedBody();
 
     public:
         //constructor to create a car from an existing rigidbody
-        ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis);
+        ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
+                       pe_intf::World* world);
         virtual ~ContactVehicle() {}
 
         const pe::Transform& getChassisWorldTransform() const;

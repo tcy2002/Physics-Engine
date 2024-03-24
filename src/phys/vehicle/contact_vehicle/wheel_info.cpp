@@ -28,29 +28,4 @@ namespace pe_phys_vehicle {
         m_maxSuspensionForce = ci.m_maxSuspensionForce;
     }
 
-    void ContactWheelInfo::updateWheel(pe_phys_object::RigidBody& chassis, ContactInfo& ContactInfo) {
-        (void)ContactInfo;
-
-        if (m_contactInfo.m_isInContact) {
-            pe::Real project = m_contactInfo.m_contactNormalWS.dot(m_contactInfo.m_wheelDirectionWS);
-            pe::Vector3 chassis_velocity_at_contactPoint;
-            pe::Vector3 rel_pos = m_contactInfo.m_contactPointWS - chassis.getTransform().getOrigin();
-            chassis_velocity_at_contactPoint = chassis.getLinearVelocityAtLocalPoint(rel_pos);
-            pe::Real projVel = m_contactInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
-            if (project >= pe::Real(-0.1)) {
-                m_suspensionRelativeVelocity = pe::Real(0.0);
-                m_clippedInvContactDotSuspension = pe::Real(1.0) / pe::Real(0.1);
-            } else {
-                pe::Real inv = pe::Real(-1.) / project;
-                m_suspensionRelativeVelocity = projVel * inv;
-                m_clippedInvContactDotSuspension = inv;
-            }
-        } else { // Not in contact : position wheel in a nice (rest length) position
-            m_contactInfo.m_suspensionLength = this->getSuspensionRestLength();
-            m_suspensionRelativeVelocity = pe::Real(0.0);
-            m_contactInfo.m_contactNormalWS = -m_contactInfo.m_wheelDirectionWS;
-            m_clippedInvContactDotSuspension = pe::Real(1.0);
-        }
-    }
-
 } // namespace pe_phys_vehicle
