@@ -111,8 +111,13 @@ Vector3<Scalar> Vector3<Scalar>::lerp(const Vector3<Scalar>& v, Scalar t) const 
 }
 
 template <typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::project(const Vector3<Scalar>& v) const {
+Vector3<Scalar> Vector3<Scalar>::projectToVec(const Vector3<Scalar>& v) const {
     return v * (dot(v) / v.dot(v));
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::projectToPlane(const Vector3<Scalar>& v) const {
+    return *this - projectToVec(v);
 }
 
 template <typename Scalar>
