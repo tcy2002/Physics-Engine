@@ -159,15 +159,18 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::updateWheelsTransform() {
-        pe::Matrix3 wheelRot = pe::Matrix3::identity();
-        pe::Real theta = 3.1415926 / 2;
-        wheelRot[0][0] = cos(theta);
-        wheelRot[0][1] = -sin(theta);
-        wheelRot[1][0] = sin(theta);
-        wheelRot[1][1] = cos(theta);
-        int num = (int)wheels.size();
+        static pe::Matrix3 wheelRot = pe::Matrix3::identity();
+        static pe::Real theta = PE_PI / pe::Real(2.0);
+        static bool init = false;
+        if (!init) {
+            init = true;
+            wheelRot[0][0] = cos(theta);
+            wheelRot[0][1] = -sin(theta);
+            wheelRot[1][0] = sin(theta);
+            wheelRot[1][1] = cos(theta);
+        }
 
-        for (int i = 0; i < num; i++) {
+        for (int i = 0; i < (int)wheels.size(); i++) {
             pe::Transform tr = vehicle->getWheelInfo(i).m_worldTransform;
             tr.setBasis(tr.getBasis() * wheelRot);
             wheels[i]->setTransform(tr);

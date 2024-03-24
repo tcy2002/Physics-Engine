@@ -82,12 +82,16 @@ Scalar Vector3<Scalar>::norm2() const {
 
 template <typename Scalar>
 Vector3<Scalar> Vector3<Scalar>::normalized() const {
-    return *this / norm();
+    Scalar n = norm();
+    if (n < 0.00001) return {0., 0., 0.};
+    return *this / n;
 }
 
 template <typename Scalar>
 void Vector3<Scalar>::normalize() {
-    *this /= norm();
+    Scalar n = norm();
+    if (n < 0.00001) return;
+    *this /= n;
 }
 
 template <typename Scalar>

@@ -172,11 +172,13 @@ namespace pe_phys_vehicle {
                 return maxDepth;
             }
 
-            wheel.m_contactInfo.m_contactPointWS = closest_point->getWorldPos();
-            wheel.m_contactInfo.m_contactNormalWS =
-                    (wheel.m_contactInfo.m_wheelCenterWS - wheel.m_contactInfo.m_contactPointWS)
-                    .projectToPlane(wheel.m_contactInfo.m_wheelAxleWS).normalized();
             wheel.m_contactInfo.m_isInContact = true;
+            wheel.m_contactInfo.m_contactPointWS = closest_point->getWorldPos();
+            wheel.m_contactInfo.m_contactNormalWS = closest_point->getWorldNormal();
+            if (wheel.m_contactInfo.m_contactNormalWS
+                .dot(wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_wheelCenterWS) > 0) {
+                wheel.m_contactInfo.m_contactNormalWS *= -1;
+            }
 
             wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
             //wheel.m_contactInfo.m_groundObject = object;
@@ -184,7 +186,8 @@ namespace pe_phys_vehicle {
             // calculate suspension length
             pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
                     .dot(getForwardVector());
-            pe::Real whlExtent = std::sqrt(wheel.m_wheelsRadius * wheel.m_wheelsRadius - fwdExtent * fwdExtent);
+            pe::Real whlExtent =
+                    std::sqrt(PE_MAX(0, wheel.m_wheelsRadius * wheel.m_wheelsRadius - fwdExtent * fwdExtent));
             pe::Real susExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
                     .dot(wheel.m_contactInfo.m_wheelDirectionWS);
             if (wheel.m_contactInfo.m_contactNormalWS.dot(wheel.m_contactInfo.m_wheelDirectionWS) < pe::Real(0.0)) {
