@@ -48,9 +48,15 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::initVehicle(pe_intf::World* dw) {
+#   if PE_USE_CONTACT_VEHICLE
+        ContactVehicle::VehicleTuning m_tuning;
+        vehicle = new ContactVehicle(m_tuning, body, dw);
+#   else
         RaycastVehicle::VehicleTuning m_tuning;
         DefaultVehicleRaycaster* rayCaster = new DefaultVehicleRaycaster(dw);
         vehicle = new RaycastVehicle(m_tuning, body, rayCaster);
+#   endif
+
         vehicle->setCoordinateSystem(0, 1, 2);
         vehicle->addRaycastExcludeId(body->getGlobalId());
         vehicle->addRaycastExcludeId(turret->getGlobalId());
@@ -65,7 +71,11 @@ namespace pe_phys_vehicle {
         pe::Vector3 wheelAxleCS(-1, 0, 0);
         pe::Real suspensionRestLength = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
         pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1); //NOLINT
+#   if PE_USE_CONTACT_VEHICLE
+        ContactVehicle::VehicleTuning m_tuning;
+#   else
         RaycastVehicle::VehicleTuning m_tuning;
+#   endif
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
@@ -93,12 +103,14 @@ namespace pe_phys_vehicle {
                     vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth));
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
-            vehicle->addRaycastExcludeId(wheel->getGlobalId());
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
+#       if !PE_USE_CONTACT_VEHICLE
+            vehicle->addRaycastExcludeId(wheel->getGlobalId());
+#       endif
         }
 
         for (int i = 0; i < _wheelNum; i++) {
-            RaycastWheelInfo& wheel = vehicle->getWheelInfo(i);
+            auto& wheel = vehicle->getWheelInfo(i);
             wheel.m_suspensionStiffness = _suspensionStiffness;
             wheel.m_wheelsDampingRelaxation = _suspensionDamping;
             wheel.m_wheelsDampingCompression = _suspensionCompression;

@@ -1,11 +1,18 @@
 #include "phys/vehicle/raycast_vehicle/raycast_vehicle.h"
+#include "phys/vehicle/contact_vehicle/contact_vehicle.h"
 #include "phys/shape/cylinder_shape.h"
+
+#define PE_USE_CONTACT_VEHICLE true
 
 namespace pe_phys_vehicle {
 
     class TankTemplate {
     private:
+#   if PE_USE_CONTACT_VEHICLE
+        ContactVehicle* vehicle;
+#   else
         RaycastVehicle* vehicle;
+#   endif
         pe_phys_object::RigidBody* body, * turret, * barrel;
         pe::Array<pe_phys_object::RigidBody*> wheels;
         pe::Array<pe_phys_object::RigidBody*> trackSegments;
