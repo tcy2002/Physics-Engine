@@ -136,8 +136,6 @@ namespace pe_phys_vehicle {
     pe::Real RaycastVehicle::rayCast(RaycastWheelInfo& wheel) {
         updateWheelTransformsWS(wheel, false);
 
-        pe::Real depth = -1;
-
         pe::Real rayLen = wheel.getSuspensionRestLength() + wheel.m_wheelsRadius;
         const pe::Vector3& source = wheel.m_raycastInfo.m_hardPointWS;
 
