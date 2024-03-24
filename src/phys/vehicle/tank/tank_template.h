@@ -109,6 +109,7 @@ namespace pe_phys_vehicle {
     public:
         // refer to tank 99a: 7.6m long and 3.5m wide.
         TankTemplate();
+        ~TankTemplate() { delete vehicle; }
 
         void init(pe_intf::World* dw);
         pe_phys_object::RigidBody* getBody() { return body; }
