@@ -67,8 +67,6 @@ namespace pe_phys_vehicle {
 
         explicit RaycastWheelInfo(RaycastWheelInfoConstructionInfo& ci);
 
-        void updateWheel(pe_phys_object::RigidBody &chassis, RaycastInfo& raycastInfo);
-
         pe::Real m_clippedInvContactDotSuspension;
         pe::Real m_suspensionRelativeVelocity;
         //calculated by suspension
