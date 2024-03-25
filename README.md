@@ -95,7 +95,7 @@
                 - v0.1(10012d6): 车轮会抖动(1)，行进时suspension会异常变短(2)，过坎时计算出错(3)
                 - v0.2(e25dbca): (3)已解决，(2)进一步发现有两种情况，一是以地面法矢量为接触法线，二是以车轮法矢量为接触法线，前者车轮下陷，后者suspension缩短
                 - v0.3(ebceaaa): (1)部分解决，仍有轻微抖动，解决方式为当没有接触发生时，按递增方式还原suspension；(2)待解决
-                - v1.0(f1e366e): (1)车轮半径设置margin，(2)更新suspension时需要考虑接触深度，问题都已初步解决
+                - v1.0(f1e366e): 问题都已初步解决
 
 ### 问题日志
 
@@ -134,3 +134,14 @@
 
     - 原因：设置的块大小过小，应至少大于一个对象的大小
     - 解决：加大小判断
+
+- contact vehicle
+
+    - 问题1：车轮抖动
+        - 原因：车轮与地面的接触点不稳定，没有接触点时suspension直接还原
+        - 解决：改为递增还原
+    - 问题2：suspension速度快时会变短
+        - 原因：速度增加导致contact depth变大，contact vehicle的特殊计算方式允许较短的suspension连续存在
+        - 解决：设置suspension时不考虑contact depth，但计算形变量时加入contact depth
+    - 问题3：过坎时出现计算异常
+        - 原因：sqrt(<0)导致NaN (contact_vehicle.cpp: 182)
