@@ -18,8 +18,8 @@
 ![demo.gif](./screenshots/demo.gif)
 
 - 履带坦克
-  Raycast：根据射线检测的深度设置impulse和suspension，表现为直接贴地
-  Contact：根据车轮与地面的碰撞结果设置impulse和suspension，力的反馈更真实
+    - Raycast：根据射线检测的深度设置impulse和suspension，表现为直接贴地
+    - Contact：根据车轮与地面的碰撞结果设置impulse和suspension，力的反馈更真实
 
 | Raycast                               | Contact                                   |
 |---------------------------------------|-------------------------------------------|
