@@ -34,7 +34,7 @@ namespace pe_phys_collision {
             int algo_idx = type_a * 4 + type_b;
             if (_algos[algo_idx] &&
                 _algos[algo_idx]->processCollision(pair.first, pair.second, result)) {
-                _contact_results.push_back(result);
+                results.push_back(result);
             }
         }
 #   endif

@@ -5,8 +5,6 @@
 // 1. max speed (linear/angular)
 // 2. more real force simulation for drive wheels
 
-#define PE_TANK_TRACK_SEG_THICKNESS 0.06
-#define PE_TANK_TRACK_SEG_WIDTH 0.2
 #define PE_TANK_SUS_OFFSET 0.15
 #define PE_TANK_WHEEL_MARGIN -0.01 //tricky
 #define PE_TANK_TRACK_MARGIN 0.012
@@ -101,12 +99,15 @@ namespace pe_phys_vehicle {
             wheel->setKinematic(true);
             wheel->addIgnoreCollisionId(body->getGlobalId());
 #       if PE_USE_SPHERE_WHEEL
-            wheel->setCollisionShape(new pe_phys_shape::SphereShape(
-                    vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN));
+            auto shape = new pe_phys_shape::SphereShape(
+                    vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN);
 #       else
-            wheel->setCollisionShape(new pe_phys_shape::CylinderShape(
-                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth));
+            auto shape = new pe_phys_shape::CylinderShape(
+                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth);
 #       endif
+            wheel->setCollisionShape(shape);
+            wheel->setMass(_wheelMass);
+            wheel->setLocalInertia(shape->calcLocalInertia(_wheelMass));
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
@@ -134,6 +135,8 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::initTracks(pe_intf::World* dw) {
+        (void)dw;
+
         trackHoldingPoints.resize(_wheelNum * 2);
         trackHoldingWheels.resize(_wheelNum * 2);
         updateTrackHoldings();
@@ -142,9 +145,10 @@ namespace pe_phys_vehicle {
         for (int i = 0; i < _trackSegmentNum * 2; i++) {
             pe_phys_object::RigidBody* rb = new pe_phys_object::RigidBody();
             rb->setKinematic(true);
+            // current track is totally fake
             rb->addIgnoreCollisionId(body->getGlobalId());
             rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
-                    _wheelWidth, PE_TANK_TRACK_SEG_THICKNESS, PE_TANK_TRACK_SEG_WIDTH)));
+                    _wheelWidth, _trackThickness, _trackSegmentWidth)));
             trackSegments.push_back(rb);
         }
 
@@ -153,15 +157,21 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::updateTurretAndBarrelTransform() {
         auto& bodyTrans = body->getTransform();
+        auto& bodyLinVel = body->getLinearVelocity();
+        auto& bodyAngVel = body->getAngularVelocity();
 
         pe::Matrix3 rotTurret;
         rotTurret.setRotation(pe::Vector3::up(), turretAngle);
         pe::Transform transTurret = bodyTrans * pe::Transform(rotTurret, turretTrl);
         turret->setTransform(transTurret);
+        turret->setLinearVelocity(bodyLinVel);
+        turret->setAngularVelocity(bodyAngVel);
 
         auto rotBarrel = pe::Matrix3::identity();
         pe::Transform transBarrel = transTurret * pe::Transform(rotBarrel, barrelTrl);
         barrel->setTransform(transBarrel);
+        barrel->setLinearVelocity(bodyLinVel);
+        barrel->setAngularVelocity(bodyAngVel);
     }
 
     void TankTemplate::updateWheelsTransform() {
@@ -177,9 +187,11 @@ namespace pe_phys_vehicle {
         }
 
         for (int i = 0; i < (int)wheels.size(); i++) {
-            pe::Transform tr = vehicle->getWheelInfo(i).m_worldTransform;
+            auto& wi = vehicle->getWheelInfo(i);
+            pe::Transform tr = wi.m_worldTransform;
             tr.setBasis(tr.getBasis() * wheelRot);
             wheels[i]->setTransform(tr);
+            wheels[i]->setLinearVelocity(body->getLinearVelocity());
         }
     }
 
@@ -359,9 +371,11 @@ namespace pe_phys_vehicle {
             _wheelWidth(0.6),
             _wheelFriction(0.9),
             _wheelRollInfluence(0.1),
-            _trackThickness(0.08),
+            _wheelMass(1.),
+            _trackThickness(0.1),
             _trackSegmentNum(80),
-            _suspensionStiffness(30.0),
+            _trackSegmentWidth(0.18),
+            _suspensionStiffness(36.0),
             _suspensionDamping(2.0),
             _suspensionCompression(2.0),
             _engineForce(50.),
@@ -372,7 +386,7 @@ namespace pe_phys_vehicle {
         forwardForce = _engineForce;
         backwardForce = _engineForce;
         turnForce = _engineForce;
-        brakeForce = _engineForce / 100;
+        brakeForce = _engineForce / 50;
         initBody(dw);
         initVehicle(dw);
         initWheels(dw);

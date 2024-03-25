@@ -75,6 +75,7 @@ void Pool<T, BlockSize>::destroyAll() {
             else if (free_nodes[j] > elem){
                 elem->~T();
             } else {
+                ///todo: check why this should not happen
                 PE_LOG_ERROR << "Pool destroy error" << std::endl;
             }
         }

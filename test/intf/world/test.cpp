@@ -11,7 +11,7 @@
 //#define TEST_SINGLE
 #define TEST_FRAC
 //#define TEST_SECOND_GROUND
-#define TEST_NUM 99
+#define PE_TEST_OBJ_NUM 99
 #define TEST_FRAME_TH 1000000
 //#define TEST_FRAMERATE 1000
 
@@ -56,14 +56,13 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe:
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
+    rb->setAngularDamping(0.8);
     pe::Mesh mesh;
     objToMesh(mesh, filename);
     auto shape = new pe_phys_shape::ConvexMeshShape();
     shape->setMesh(mesh);
     rb->setCollisionShape(shape);
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
-    pe::Vector3 aabb_min, aabb_max;
-    shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
+    rb->setLocalInertia(shape->calcLocalInertia(mass));
     return rb;
 }
 
@@ -73,9 +72,10 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
+    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
+    rb->setAngularDamping(0.8);
     return rb;
 }
 
@@ -85,7 +85,7 @@ pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Rea
     auto shape = new pe_phys_shape::SphereShape(radius);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
+    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -98,7 +98,7 @@ pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::R
     auto shape = new pe_phys_shape::CylinderShape(radius, height);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
+    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -114,6 +114,7 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
+    rb->setAngularDamping(0.8);
     rb->setThreshold(th);
     return rb;
 }
@@ -124,7 +125,8 @@ void testWorld() {
     world->setGravity(pe::Vector3(0, -9.8, 0));
 
     // open viewer
-    pe_intf::Viewer::open();
+    pe_intf::Viewer::open("WorldTest", 800, 600,
+                          {0, 10, 20}, 0, (float)(PE_PI / 6.0));
 
     // create rigid bodies
     auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(1000, 1, 1000), 8);
@@ -159,10 +161,10 @@ void testWorld() {
     world->addRigidBody(rb2);
 #endif
     pe::Array<pe_phys_object::RigidBody*> rbs;
-    for (int i = 0; i < TEST_NUM; i++) {
+    for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         pe_phys_object::RigidBody* rb;
         if (i % 3 == 0) {
-            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1);
+            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1.0);
         } else if (i % 3 == 1) {
             rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
         } else {
@@ -191,7 +193,7 @@ void testWorld() {
     pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
 #endif
     pe::Array<int> ids;
-    for (int i = 0; i < TEST_NUM; i++) {
+    for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         int id;
         if (i % 3 == 0) {
             id = pe_intf::Viewer::addCube(pe::Vector3(1, 1, 1));
@@ -231,7 +233,7 @@ void testWorld() {
         if (++frame > TEST_FRAMERATE) break;
 #   else
         while (pe_intf::Viewer::getKeyState('r') != 0) {
-            if (pe_intf::Viewer::getKeyState('q') == 0) goto ret;
+            if (pe_intf::Viewer::getKeyState(27) == 0) goto ret;
         }
 #   endif
         auto t = COMMON_GetTickCount();

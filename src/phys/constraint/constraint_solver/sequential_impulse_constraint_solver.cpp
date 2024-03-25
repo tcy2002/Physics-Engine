@@ -7,9 +7,10 @@ namespace pe_phys_constraint {
         _iteration = 16;
     }
 
-    void SequentialImpulseConstraintSolver::setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                                        const pe::Array<pe_phys_collision::ContactResult>& contact_results,
-                                                        const pe::Array<Constraint*>& constraints) {
+    void SequentialImpulseConstraintSolver::setupSolver(
+            const pe::Array<pe_phys_object::RigidBody*>& objects,
+            const pe::Array<pe_phys_collision::ContactResult>& contact_results,
+            const pe::Array<Constraint*>& constraints) {
         _collision_objects = objects;
         for (auto co : _collision_objects) {
             co->clearTempVelocity();

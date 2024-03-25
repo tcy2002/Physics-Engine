@@ -16,7 +16,9 @@ namespace pe_intf {
         static common::Mesh<float> convertMesh(const pe::Mesh& mesh);
 
     public:
-        static void open();
+        static void open(const std::string& title, int width, int height,
+                            const common::Vector3<float>& camera_pos,
+                            float camera_yaw, float camera_pitch);
         static void close();
 
         static int getKeyState(char key);

@@ -137,6 +137,7 @@ namespace pe_phys_vehicle {
 
         // get the closest point from the contact info
         pe_phys_collision::ContactPoint* closest_point = nullptr;
+        pe_phys_object::RigidBody* other_obj = nullptr;
         pe::Real maxDepth = PE_REAL_MIN;
         uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
         for (auto& cr : m_world->_contact_results) {
@@ -145,13 +146,14 @@ namespace pe_phys_vehicle {
                 continue;
             }
 
-            if (cr.getObjectA()->getGlobalId() == rb_id || cr.getObjectB()->getGlobalId() == rb_id) {
+            if (cr.getObjectA()->getGlobalId() == rb_id) {
                 for (int i = 0; i < PE_MIN(1, cr.getPointSize()); i++) {
                     auto& cp = cr.getContactPoint(i);
                     pe::Real dist = -cp.getDistance();
                     if (dist > maxDepth) {
                         maxDepth = dist;
                         closest_point = &cp;
+                        other_obj = cr.getObjectB();
                     }
                 }
             }
@@ -174,7 +176,7 @@ namespace pe_phys_vehicle {
                 wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_contactNormalWS;
             }
 
-            wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
+            wheel.m_contactInfo.m_groundObject = other_obj;  ///@todo for driving on dynamic/movable objects!;
 
             // calculate suspension length
             pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
@@ -514,7 +516,7 @@ namespace pe_phys_vehicle {
                     const pe::Vector3& surfNormalWS = wheelInfo.m_contactInfo.m_contactNormalWS;
                     pe::Real proj = m_axle[i].dot(surfNormalWS);
                     m_axle[i] -= surfNormalWS * proj;
-                    m_axle[i] = m_axle[i].normalized();
+                    m_axle[i].normalize();
 
                     m_forwardWS[i] = surfNormalWS.cross(m_axle[i]);
                     m_forwardWS[i].normalize();

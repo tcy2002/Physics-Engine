@@ -17,7 +17,7 @@ namespace pe_phys_collision {
         pe::Real dist = rel.norm();
         pe::Real margin = 0.005;
 
-        if (dist > radius_a + radius_b) {
+        if (dist > radius_a + radius_b || PE_APPROX_EQUAL(dist, 0)) {
             return false;
         }
 

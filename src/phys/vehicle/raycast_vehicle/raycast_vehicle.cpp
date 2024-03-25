@@ -419,7 +419,6 @@ namespace pe_phys_vehicle {
 
         pe::Real rel_vel = normal.dot(vel);
 
-        //todo: move this into proper structure
         pe::Real contactDamping = pe::Real(0.2);
 
 #   ifdef ONLY_USE_LINEAR_MASS
@@ -475,7 +474,7 @@ namespace pe_phys_vehicle {
                     const pe::Vector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
                     pe::Real proj = m_axle[i].dot(surfNormalWS);
                     m_axle[i] -= surfNormalWS * proj;
-                    m_axle[i] = m_axle[i].normalized();
+                    m_axle[i].normalize();
 
                     m_forwardWS[i] = surfNormalWS.cross(m_axle[i]);
                     m_forwardWS[i].normalize();

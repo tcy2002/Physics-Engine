@@ -86,7 +86,6 @@ namespace pe_phys_collision {
         pe::Real d = 1 - ua_ub * ua_ub;
 
         if (d <= PE_EPS) {
-            // TODO: needs to be more robust
             alpha = 0;
             beta = 0;
         } else {

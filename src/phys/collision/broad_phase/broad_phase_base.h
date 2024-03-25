@@ -11,7 +11,7 @@ namespace pe_phys_collision {
         BroadPhaseBase() {}
         virtual ~BroadPhaseBase() {}
 
-        // todo: do not copy
+        // not using const & because objects will be sorted
         virtual void calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects,
                                         pe::Array<CollisionPair>& pairs) = 0;
 

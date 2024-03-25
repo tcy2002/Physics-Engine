@@ -4,7 +4,7 @@
 namespace pe_intf {
 
     std::thread* viewer_thread = nullptr;
-    pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map;
+    pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map; // NOLINT
 
     common::Vector3<float> Viewer::convertVector3(pe::Vector3 vector) {
         return common::Vector3<float>((float)vector.x, (float)vector.y, (float)vector.z);
@@ -35,11 +35,12 @@ namespace pe_intf {
         return result;
     }
 
-    void Viewer::open() {
-        simple_viewer::setCamera(
-                common::Vector3<float>(-10, 5, -4.5), (float)(-PE_PI / 2), (float)(3.1415 / 6));
-        viewer_thread = new std::thread([]{
-            simple_viewer::open("PhysicEngine", 800, 600);
+    void Viewer::open(const std::string& title, int width, int height,
+                      const common::Vector3<float>& camera_pos,
+                      float camera_yaw, float camera_pitch) {
+        simple_viewer::setCamera(camera_pos, camera_yaw, camera_pitch);
+        viewer_thread = new std::thread([=]{
+            simple_viewer::open(title, width, height);
         });
     }
 

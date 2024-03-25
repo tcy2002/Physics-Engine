@@ -79,7 +79,7 @@ namespace pe_phys_constraint {
 
     void FrictionContactConstraint::warmStart() {
         for (int i = 0; i < (int)_cis.size(); i++) {
-            pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
+            auto& cp = _contact_result.getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
             ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
 
@@ -119,7 +119,8 @@ namespace pe_phys_constraint {
 #           else
                 pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
                 pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
-                pe::Real scale = ci.friction_coeff * ci.n_applied_impulse / std::sqrt(t0_total_impulse * t0_total_impulse + t1_total_impulse * t1_total_impulse);
+                pe::Real scale = ci.friction_coeff * ci.n_applied_impulse /
+                        std::sqrt(t0_total_impulse * t0_total_impulse + t1_total_impulse * t1_total_impulse);
                 if(scale < 1) {
                     t0_total_impulse *= scale;
                     t1_total_impulse *= scale;

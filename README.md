@@ -95,7 +95,7 @@
                 - v0.1(10012d6): 车轮会抖动(1)，行进时suspension会异常变短(2)，过坎时计算出错(3)
                 - v0.2(e25dbca): (3)已解决，(2)进一步发现有两种情况，一是以地面法矢量为接触法线，二是以车轮法矢量为接触法线，前者车轮下陷，后者suspension缩短
                 - v0.3(ebceaaa): (1)部分解决，仍有轻微抖动，解决方式为当没有接触发生时，按递增方式还原suspension；(2)待解决
-                - v1.0(f1e366e): 问题都已初步解决
+                - v1.0(f1e366e): 问题都已初步解决，待优化的点：轮子与可活动物体的碰撞
 
 ### 问题日志
 
@@ -145,3 +145,16 @@
         - 解决：设置suspension时不考虑contact depth，但计算形变量时加入contact depth
     - 问题3：过坎时出现计算异常
         - 原因：sqrt(<0)导致NaN (contact_vehicle.cpp: 182)
+    - 问题4（新问题）：刹车异常，即使坡度很小也会溜
+        - 原因未知
+
+- 引擎问题：工作中出现nan
+
+    - 原因：normalize(0 0 0)导致NaN (sphere_cylinder_collision_algorithm.cpp: 39)
+    - 解决：37行加r>0的判断
+
+- todo list (not including world.h)
+  - convex_convex_collision_algorithm.cpp: 46
+  - friction_contact_constraint.cpp: 108
+  - contact_vehicle.cpp: 177
+  - pool.cpp: 78

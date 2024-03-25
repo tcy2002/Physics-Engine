@@ -34,7 +34,7 @@ namespace pe_phys_collision {
         pe::Vector3 normal;
         pe::Vector3 ptOnSph;
         pe::Real depth;
-        if (s_pos.y >= -c_h && s_pos.y <= c_h) {
+        if (s_pos.y >= -c_h && s_pos.y <= c_h && r > 0) { // r > 0 to avoid normalizing zero vector below
             // hit the side
             normal = pe::Vector3(-s_pos.x, 0, -s_pos.z).normalized();
             ptOnSph = normal * s_r + s_pos;
