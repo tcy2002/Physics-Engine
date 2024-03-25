@@ -60,9 +60,9 @@ namespace pe_phys_vehicle {
         const RaycastWheelInfo& getWheelInfo(int index) const;
         RaycastWheelInfo& getWheelInfo(int index);
         inline int getNumWheels() const { return int(m_wheelInfo.size()); }
-        void updateWheelTransform(int wheelIndex, bool interpolatedTransform = true);
+        void updateWheelTransform(int wheelIndex);
         const pe::Transform& getWheelTransformWS(int wheelIndex) const;
-        void updateWheelTransformsWS(RaycastWheelInfo& wheel, bool interpolatedTransform = true) const;
+        void updateWheelTransformsWS(RaycastWheelInfo& wheel) const;
         RaycastWheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
                                    const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
                                    const VehicleTuning& tuning, bool isFrontWheel);
@@ -82,6 +82,7 @@ namespace pe_phys_vehicle {
         inline int getUpAxis() const { return m_indexUpAxis; }
         inline int getForwardAxis() const { return m_indexForwardAxis; }
         pe::Vector3 getForwardVector() const; ///Worldspace forward vector
+        pe::Vector3 getUpVector() const; ///Worldspace up vector
 
         ///Velocity of vehicle (positive if velocity vector has same direction as forward vector)
         pe::Real getCurrentSpeedKmHour() const { return m_currentVehicleSpeedKmHour; }

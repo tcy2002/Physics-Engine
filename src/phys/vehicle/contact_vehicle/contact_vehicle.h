@@ -60,9 +60,9 @@ namespace pe_phys_vehicle {
         const ContactWheelInfo& getWheelInfo(int index) const;
         ContactWheelInfo& getWheelInfo(int index);
         inline int getNumWheels() const { return int(m_wheelInfo.size()); }
-        void updateWheelTransform(int wheelIndex, bool interpolatedTransform = true);
+        void updateWheelTransform(int wheelIndex);
         const pe::Transform& getWheelTransformWS(int wheelIndex) const;
-        void updateWheelTransformsWS(ContactWheelInfo& wheel, bool interpolatedTransform = true) const;
+        void updateWheelTransformsWS(ContactWheelInfo& wheel) const;
         ContactWheelInfo& addWheel(const pe::Vector3& connectionPointCS0, const pe::Vector3& wheelDirectionCS0,
                                    const pe::Vector3& wheelAxleCS, pe::Real suspensionRestLength, pe::Real wheelRadius,
                                    const VehicleTuning& tuning, bool isFrontWheel);

@@ -7,8 +7,9 @@
 
 #define PE_TANK_TRACK_SEG_THICKNESS 0.06
 #define PE_TANK_TRACK_SEG_WIDTH 0.2
-#define PE_TANK_RAYCAST_OFFSET 0.05
-#define PE_TANK_WHEEL_MARGIN 0.00 //tricky
+#define PE_TANK_SUS_OFFSET 0.15
+#define PE_TANK_WHEEL_MARGIN -0.01 //tricky
+#define PE_TANK_TRACK_MARGIN 0.012
 
 namespace pe_phys_vehicle {
 
@@ -64,20 +65,18 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::initWheels(pe_intf::World* dw) {
-        pe::Real connectionHeight = -PE_TANK_RAYCAST_OFFSET;
-        pe::Real connectionHeightEnds = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
+        pe::Real connectionHeight = -PE_TANK_SUS_OFFSET;
+        pe::Real connectionHeightEnds = _bodyHeight / 2 - PE_TANK_SUS_OFFSET;
         pe::Vector3 connectionPointCS0;
         pe::Vector3 wheelDirectionCS0(0, -1, 0);
         pe::Vector3 wheelAxleCS(-1, 0, 0);
-        pe::Real suspensionRestLength = _bodyHeight / 2 - PE_TANK_RAYCAST_OFFSET;
+        pe::Real suspensionRestLength = _bodyHeight / 2;
         pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1); //NOLINT
 #   if PE_USE_CONTACT_VEHICLE
         ContactVehicle::VehicleTuning m_tuning;
 #   else
         RaycastVehicle::VehicleTuning m_tuning;
 #   endif
-        m_tuning.m_suspensionStiffness = 100.0;
-        m_tuning.m_maxSuspensionForce = 10000.0;
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
@@ -101,10 +100,13 @@ namespace pe_phys_vehicle {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
             wheel->setKinematic(true);
             wheel->addIgnoreCollisionId(body->getGlobalId());
+#       if PE_USE_SPHERE_WHEEL
+            wheel->setCollisionShape(new pe_phys_shape::SphereShape(
+                    vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN));
+#       else
             wheel->setCollisionShape(new pe_phys_shape::CylinderShape(
                     vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth));
-//            wheel->setCollisionShape(new pe_phys_shape::SphereShape(
-//                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN));
+#       endif
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
@@ -125,7 +127,7 @@ namespace pe_phys_vehicle {
         vehicle->resetSuspension();
         for (int i = 0; i < _wheelNum; i++) {
             //synchronize the wheels with the (interpolated) chassis world transform
-            vehicle->updateWheelTransform(i, true);
+            vehicle->updateWheelTransform(i);
         }
 
         updateWheelsTransform();
@@ -270,8 +272,8 @@ namespace pe_phys_vehicle {
             int j = (i + 2) % _wheelNum;
             auto p1 = bodyTrans.inverseTransform(vehicle->getWheelTransformWS(i).getOrigin());
             auto p2 = bodyTrans.inverseTransform(vehicle->getWheelTransformWS(j).getOrigin());
-            pe::Real r1 = vehicle->getWheelInfo(i).m_wheelsRadius;
-            pe::Real r2 = vehicle->getWheelInfo(j).m_wheelsRadius;
+            pe::Real r1 = vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_TRACK_MARGIN;
+            pe::Real r2 = vehicle->getWheelInfo(j).m_wheelsRadius - PE_TANK_TRACK_MARGIN;
 
             auto forwardVec = (p1 - p2).normalized();
             auto downVec = (p1 - p2).cross(rightVec).normalized();
@@ -330,6 +332,12 @@ namespace pe_phys_vehicle {
         }
     }
 
+    void TankTemplate::setBrake(bool brake) {
+        for (int i = 0; i < vehicle->getNumWheels(); i++) {
+            vehicle->setBrake(brake ? brakeForce : 0, i);
+        }
+    }
+
     TankTemplate::TankTemplate():
             _transform(pe::Transform::identity()),
             _bodyWidth(2.3),
@@ -353,10 +361,12 @@ namespace pe_phys_vehicle {
             _wheelRollInfluence(0.1),
             _trackThickness(0.08),
             _trackSegmentNum(80),
-            _suspensionStiffness(20.),
-            _suspensionDamping(2.3),
-            _suspensionCompression(4.4),
-            _engineForce(50.) {}
+            _suspensionStiffness(30.0),
+            _suspensionDamping(2.0),
+            _suspensionCompression(2.0),
+            _engineForce(50.),
+            _maxSpeed(50.0),
+            _maxRotSpeed(2.0) {}
 
     void TankTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;
@@ -379,6 +389,7 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::idle() {
+        setBrake(false);
         vehicle->applyEngineForce(0, 0);
         vehicle->applyEngineForce(0, 1);
         vehicle->applyEngineForce(0, vehicle->getNumWheels() - 1);
@@ -386,18 +397,14 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::brake() {
-        pe::Vector3 force = vehicle->getForwardVector() * vehicle->getCurrentSpeedKmHour() / 3.6 * -brakeForce * 200;
-        body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force);
-        body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force);
-        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
-                       force);
-        body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 2).getOrigin(),
-                       force);
+        setBrake(true);
     }
 
     void TankTemplate::moveForward() {
-        pe::Vector3 force = vehicle->getForwardVector() * -forwardForce;
-        pe::Vector3 forceUp = vehicle->getUpVector() * (forwardForce * 0.6);
+        setBrake(false);
+        pe::Vector3 force = getSpeedKmHour() < _maxSpeed ?
+                vehicle->getForwardVector() * -forwardForce : pe::Vector3(0, 0, 0);
+        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * pe::Real(1.1)));
         body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
@@ -407,8 +414,10 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::moveBackward() {
-        pe::Vector3 force = vehicle->getForwardVector() * backwardForce;
-        pe::Vector3 forceUp = vehicle->getUpVector() * (backwardForce * 0.5);
+        setBrake(false);
+        pe::Vector3 force = getSpeedKmHour() > -_maxSpeed ?
+                            vehicle->getForwardVector() * backwardForce : pe::Vector3(0, 0, 0);
+        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * pe::Real(1.0));
         body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
@@ -418,12 +427,16 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::turnLeft() {
-        pe::Vector3 torque = body->getTransform().getBasis() * pe::Vector3::up() * turnForce * 10;
+        setBrake(false);
+        if (body->getAngularVelocity().dot(vehicle->getUpVector()) > _maxRotSpeed) return;
+        pe::Vector3 torque = body->getTransform().getBasis() * vehicle->getUpVector() * turnForce * 10;
         body->addTorque(torque);
     }
 
     void TankTemplate::turnRight() {
-        pe::Vector3 torque = body->getTransform().getBasis() * pe::Vector3::up() * -turnForce * 10;
+        setBrake(false);
+        if (body->getAngularVelocity().dot(vehicle->getUpVector()) < -_maxRotSpeed) return;
+        pe::Vector3 torque = body->getTransform().getBasis() * vehicle->getUpVector() * -turnForce * 10;
         body->addTorque(torque);
     }
 
@@ -437,6 +450,10 @@ namespace pe_phys_vehicle {
         if (turretAngle > -_turretMaxAngle) {
             turretAngle -= step * _turretRotSpeed;
         }
+    }
+
+    pe::Real TankTemplate::getSpeedKmHour() const {
+        return -vehicle->getCurrentSpeedKmHour();
     }
 
 } // namespace pe_phys_vehicle

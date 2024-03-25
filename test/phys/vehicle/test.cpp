@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "phys/vehicle/tank/tank_template.h"
 #include "intf/viewer.h"
 #include "phys/constraint/constraint/friction_contact_constraint.h"
@@ -74,8 +75,11 @@ void testTank() {
 
     // add wheels to viewer
     for (auto& wheel : tank->getWheels()) {
-//        auto shape = dynamic_cast<pe_phys_shape::SphereShape*>(wheel->getCollisionShape());
+#   if PE_USE_SPHERE_WHEEL
+        auto shape = dynamic_cast<pe_phys_shape::SphereShape*>(wheel->getCollisionShape());
+#   else
         auto shape = dynamic_cast<pe_phys_shape::CylinderShape*>(wheel->getCollisionShape());
+#   endif
         id = pe_intf::Viewer::addCylinder(shape->getRadius(), 0.5);
         pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.8, 0.8, 0.3));
         pe_intf::Viewer::updateCylinderTransform(id, wheel->getTransform());
@@ -91,6 +95,7 @@ void testTank() {
         id_map[id] = track;
     }
 
+    int frame = 0;
     while (true) {
 //        while (pe_intf::Viewer::getKeyState('r') != 0)
             if (pe_intf::Viewer::getKeyState('q') == 0) goto ret;
@@ -121,6 +126,10 @@ void testTank() {
             tank->idle();
         }
         tank->advance(world->getDt());
+        if (++frame == 30) {
+            frame = 0;
+            std::cout << "\r" << std::fixed << std::setprecision(2) << tank->getSpeedKmHour() << " km/h    ";
+        }
 
 //        while (pe_intf::Viewer::getKeyState('r') != 1)
         COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));

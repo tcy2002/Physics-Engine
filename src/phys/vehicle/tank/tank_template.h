@@ -4,6 +4,7 @@
 #include "phys/shape/sphere_shape.h"
 
 #define PE_USE_CONTACT_VEHICLE true
+#define PE_USE_SPHERE_WHEEL false
 
 namespace pe_phys_vehicle {
 
@@ -47,6 +48,8 @@ namespace pe_phys_vehicle {
         COMMON_MEMBER_SET_GET(pe::Real, suspensionDamping, SuspensionDamping)
         COMMON_MEMBER_SET_GET(pe::Real, suspensionCompression, SuspensionCompression)
         COMMON_MEMBER_SET_GET(pe::Real, engineForce, EngineForce)
+        COMMON_MEMBER_SET_GET(pe::Real, maxSpeed, MaxSpeed)
+        COMMON_MEMBER_SET_GET(pe::Real, maxRotSpeed, MaxRotSpeed)
 
         pe::Real forwardForce;
         pe::Real backwardForce;
@@ -114,6 +117,9 @@ namespace pe_phys_vehicle {
         // synchronize the velocity of single side of tracks
         void uniformTrackVelocityOneSide(int side);
 
+        // set brake
+        void setBrake(bool brake);
+
     public:
         // refer to tank 99a: 7.6m long and 3.5m wide.
         TankTemplate();
@@ -136,6 +142,7 @@ namespace pe_phys_vehicle {
         void turnRight();
         void barrelRotLeft(pe::Real step);
         void barrelRotRight(pe::Real step);
+        pe::Real getSpeedKmHour() const;
     };
 
 } // namespace pe_phys_vehicle

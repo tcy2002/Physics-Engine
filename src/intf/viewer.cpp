@@ -36,8 +36,11 @@ namespace pe_intf {
     }
 
     void Viewer::open() {
-        simple_viewer::setCamera(common::Vector3<float>(0, 10, 20), 0, (float)(3.1415 / 6));
-        viewer_thread = new std::thread([]{ simple_viewer::open("PhysicEngine", 800, 600); });
+        simple_viewer::setCamera(
+                common::Vector3<float>(-10, 5, -4.5), (float)(-PE_PI / 2), (float)(3.1415 / 6));
+        viewer_thread = new std::thread([]{
+            simple_viewer::open("PhysicEngine", 800, 600);
+        });
     }
 
     void Viewer::close() {

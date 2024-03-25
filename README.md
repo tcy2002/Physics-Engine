@@ -15,7 +15,7 @@
 - gif帧率20帧，实际运行帧率为60帧
 - 破碎效果：根据事先设定好的毁伤源位置预计算（最终目标是根据坦克炮弹的击中位置实时计算）
 
-![demo2.gif](./screenshots/demo2.gif)
+![demo.gif](./screenshots/demo.gif)
 
 ### 开发日志
 
@@ -65,6 +65,14 @@
   - Clion使用vs编译
     
     - 语法检查更严格
+
+  - 检查碰撞检测
+    - 1、margin
+      - box-sphere取消getSphereDistance的margin
+      - sphere-convex取消radiusWithThreshold的margin
+    - 2、碰撞对顺序
+      - 涉及cylinder的全部将cylinder放在前面
+      - 最近点需要统一为物体B上的点
   
   - 履带坦克
     
@@ -77,15 +85,7 @@
       - 2、使用碰撞检测代替射线检测（已选）
         - v0.1(10012d6): 车轮会抖动(1)，行进时suspension会异常变短(2)，过坎时计算出错(3)
         - v0.2(e25dbca): (3)已解决，(2)进一步发现有两种情况，一是以地面法矢量为接触法线，二是以车轮法矢量为接触法线，前者车轮下陷，后者suspension缩短
-        - v0.3(): (1)部分解决，仍有轻微抖动，解决方式为当没有接触发生时，按递增方式还原suspension；(2)待解决
-
-  - 检查碰撞检测
-    - 1、margin
-      - box-sphere取消getSphereDistance的margin
-      - sphere-convex取消radiusWithThreshold的margin
-    - 2、碰撞对顺序
-      - 涉及cylinder的全部将cylinder放在前面
-      - 最近点需要统一为物体B上的点
+        - v0.3(ebceaaa): (1)部分解决，仍有轻微抖动，解决方式为当没有接触发生时，按递增方式还原suspension；(2)待解决
 
 ### 问题日志
 

@@ -24,6 +24,7 @@ namespace pe_phys_vehicle {
     struct ContactWheelInfo {
         struct ContactInfo {
             //set by raycaster
+            pe::Real m_contactDepth;
             pe::Vector3 m_contactNormalWS;  //contact normal
             pe::Vector3 m_contactPointWS;   //raycast hit point
             pe::Real m_suspensionLength;
