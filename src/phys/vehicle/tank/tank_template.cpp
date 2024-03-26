@@ -119,6 +119,7 @@ namespace pe_phys_vehicle {
             wheel.m_wheelsDampingCompression = _suspensionCompression;
             wheel.m_frictionSlip = _wheelFriction;
             wheel.m_rollInfluence = _wheelRollInfluence;
+            wheel.m_rollDamping = _wheelRollDamping;
         }
 
         vehicle->resetSuspension();
@@ -367,6 +368,7 @@ namespace pe_phys_vehicle {
             _wheelWidth(0.6),
             _wheelFriction(0.9),
             _wheelRollInfluence(0.1),
+            _wheelRollDamping(0.03),
             _wheelMass(1.),
             _trackThickness(0.1),
             _trackSegmentNum(80),

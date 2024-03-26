@@ -174,6 +174,7 @@ void testTank() {
         auto t = COMMON_GetTickCount();
 
         world->step();
+        tank->advance(world->getDt());
         for (auto rb : id_map) {
             pe_intf::Viewer::updateCubeTransform(rb.first, rb.second->getTransform());
             pe_intf::Viewer::updateCylinderTransform(rb.first, rb.second->getTransform());
@@ -197,10 +198,9 @@ void testTank() {
         } else {
             tank->idle();
         }
-        tank->advance(world->getDt());
         if (++frame == 30) {
             frame = 0;
-            std::cout << "\r" << std::fixed << std::setprecision(2) << tank->getSpeedKmHour() << " km/h    ";
+//            std::cout << "\r" << std::fixed << std::setprecision(2) << tank->getSpeedKmHour() << " km/h    ";
         }
 
 //        while (pe_intf::Viewer::getKeyState('r') != 1)

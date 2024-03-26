@@ -42,6 +42,7 @@ namespace pe_phys_vehicle {
         COMMON_MEMBER_SET_GET(pe::Real, wheelWidth, WheelWidth)
         COMMON_MEMBER_SET_GET(pe::Real, wheelFriction, WheelFriction)
         COMMON_MEMBER_SET_GET(pe::Real, wheelRollInfluence, WheelRollInfluence)
+        COMMON_MEMBER_SET_GET(pe::Real, wheelRollDamping, WheelRollDamping)
         COMMON_MEMBER_SET_GET(pe::Real, wheelMass, WheelMass)
         COMMON_MEMBER_SET_GET(pe::Real, trackThickness, TrackThickness)
         COMMON_MEMBER_SET_GET(int, trackSegmentNum, TrackSegmentNum)

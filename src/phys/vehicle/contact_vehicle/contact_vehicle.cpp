@@ -547,13 +547,18 @@ namespace pe_phys_vehicle {
                     if (wheelInfo.m_engineForce != 0.f) {
                         rollingFriction = wheelInfo.m_engineForce * timeStep;
                     } else {
-                        pe::Real defaultRollingFrictionImpulse = 0.f;
                         pe::Real maxImpulse = (wheelInfo.m_brake != 0) ?
-                                wheelInfo.m_brake : defaultRollingFrictionImpulse;
+                                wheelInfo.m_brake : wheelInfo.m_rollDamping;
                         WheelContactPoint contactPt(m_chassisBody, groundObject,
                                                     wheelInfo.m_contactInfo.m_contactPointWS,
                                                     m_forwardWS[wheel], maxImpulse);
                         rollingFriction = calcRollingFriction(contactPt, numWheelsOnGround);
+                        // to avoid sliding on slopes
+                        if (wheelInfo.m_brake != 0) {
+                            rollingFriction = rollingFriction > 0 ?
+                                    PE_MAX(wheelInfo.m_brake / pe::Real(10), rollingFriction) :
+                                    PE_MIN(-wheelInfo.m_brake / pe::Real(10), rollingFriction);
+                        }
                     }
                 }
 

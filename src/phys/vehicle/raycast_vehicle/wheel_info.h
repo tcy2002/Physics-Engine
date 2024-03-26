@@ -53,6 +53,7 @@ namespace pe_phys_vehicle {
         pe::Real m_rotation;
         pe::Real m_deltaRotation;
         pe::Real m_rollInfluence;
+        pe::Real m_rollDamping;
         pe::Real m_maxSuspensionForce;
 
         pe::Real m_engineForce;
