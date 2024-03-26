@@ -413,6 +413,10 @@ namespace pe_phys_vehicle {
         pe::Vector3 force = getSpeedKmHour() < _maxSpeed ?
                 vehicle->getForwardVector() * -forwardForce : pe::Vector3(0, 0, 0);
         pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * pe::Real(1.1)));
+        if (vehicle->getNumWheelsOnGround() == 0) {
+            force = pe::Vector3(0, 0, 0);
+            forceUp = pe::Vector3(0, 0, 0);
+        }
         body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force + forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),
@@ -426,6 +430,10 @@ namespace pe_phys_vehicle {
         pe::Vector3 force = getSpeedKmHour() > -_maxSpeed ?
                             vehicle->getForwardVector() * backwardForce : pe::Vector3(0, 0, 0);
         pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * pe::Real(1.0));
+        if (vehicle->getNumWheelsOnGround() == 0) {
+            force = pe::Vector3(0, 0, 0);
+            forceUp = pe::Vector3(0, 0, 0);
+        }
         body->addForce(vehicle->getWheelTransformWS(0).getOrigin(), force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(1).getOrigin(), force - forceUp);
         body->addForce(vehicle->getWheelTransformWS(vehicle->getNumWheels() - 1).getOrigin(),

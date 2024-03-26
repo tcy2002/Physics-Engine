@@ -38,6 +38,8 @@ namespace pe_phys_vehicle {
         int m_indexUpAxis;
         int m_indexForwardAxis;
 
+        int m_numWheelsOnGround;
+
         static pe_phys_object::RigidBody& getFixedBody();
 
     public:
@@ -60,6 +62,7 @@ namespace pe_phys_vehicle {
         const ContactWheelInfo& getWheelInfo(int index) const;
         ContactWheelInfo& getWheelInfo(int index);
         inline int getNumWheels() const { return int(m_wheelInfo.size()); }
+        inline int getNumWheelsOnGround() const { return m_numWheelsOnGround; }
         void updateWheelTransform(int wheelIndex);
         const pe::Transform& getWheelTransformWS(int wheelIndex) const;
         void updateWheelTransformsWS(ContactWheelInfo& wheel) const;

@@ -117,7 +117,7 @@ void testTank() {
     auto tank = new TankTemplate();
     mat = pe::Matrix3::identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), PE_PI);
-    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 1.3, 0)));
+    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 15.3, 0)));
     tank->init(world);
 
     // add body to viewer

@@ -28,12 +28,13 @@ namespace pe_phys_vehicle {
             pe::Vector3 m_contactNormalWS;  //contact normal
             pe::Vector3 m_contactPointWS;   //raycast hit point
             pe::Real m_suspensionLength;
+            pe::Real m_suspensionDelta = pe::Real(0.005);
             pe::Vector3 m_hardPointWS;       //raycast starting point
             pe::Vector3 m_wheelDirectionWS;  //direction in world space
             pe::Vector3 m_wheelAxleWS;       // axle in world space
             pe::Vector3 m_wheelCenterWS;     // center of the wheel
-            bool m_isInContact;
-            void* m_groundObject;  //could be general void* ptr
+            bool m_isInContact = false;
+            void* m_groundObject = nullptr;  //could be general void* ptr
         };
 
         ContactInfo m_contactInfo;

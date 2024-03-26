@@ -12,7 +12,7 @@ namespace pe_phys_vehicle {
             m_suspensionDamping(pe::Real(0.88)),
             m_maxSuspensionTravelCm(pe::Real(500.)),
             m_frictionSlip(pe::Real(10.5)),
-            m_maxSuspensionForce(pe::Real(6000.)) {}
+            m_maxSuspensionForce(pe::Real(1000.)) {}
 
     ContactVehicle::ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
                                    pe_intf::World* world):
@@ -167,6 +167,10 @@ namespace pe_phys_vehicle {
                                 pe::Real(0.0))) {
                 return pe::Real(0.0);
             }
+            if ((closest_point->getWorldPos() - wheel.m_contactInfo.m_wheelCenterWS)
+                .dot(wheel.m_contactInfo.m_wheelDirectionWS) < pe::Real(0.0)) {
+                return pe::Real(0.0);
+            }
 
             wheel.m_contactInfo.m_isInContact = true;
             wheel.m_contactInfo.m_contactPointWS = closest_point->getWorldPos();
@@ -227,7 +231,11 @@ namespace pe_phys_vehicle {
         } else {
             //put wheel info as in rest position
             if (wheel.m_contactInfo.m_suspensionLength < wheel.getSuspensionRestLength()) {
-                wheel.m_contactInfo.m_suspensionLength += 0.005;
+                wheel.m_contactInfo.m_suspensionLength += wheel.m_contactInfo.m_suspensionDelta;
+                wheel.m_contactInfo.m_suspensionDelta += pe::Real(0.005);
+            } else {
+                wheel.m_contactInfo.m_suspensionLength = wheel.getSuspensionRestLength();
+                wheel.m_contactInfo.m_suspensionDelta = pe::Real(0.005);
             }
             wheel.m_suspensionRelativeVelocity = pe::Real(0.0);
             wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_wheelDirectionWS;
@@ -484,7 +492,7 @@ namespace pe_phys_vehicle {
         m_forwardImpulse.resize(numWheel);
         m_sideImpulse.resize(numWheel);
 
-        int numWheelsOnGround = 0;
+        m_numWheelsOnGround = 0;
 
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
@@ -492,7 +500,7 @@ namespace pe_phys_vehicle {
             class pe_phys_object::RigidBody* groundObject =
                     (class pe_phys_object::RigidBody*)wheelInfo.m_contactInfo.m_groundObject;
             if (groundObject)
-                numWheelsOnGround++;
+                m_numWheelsOnGround++;
             m_sideImpulse[i] = pe::Real(0.);
             m_forwardImpulse[i] = pe::Real(0.);
         }
@@ -552,7 +560,7 @@ namespace pe_phys_vehicle {
                         WheelContactPoint contactPt(m_chassisBody, groundObject,
                                                     wheelInfo.m_contactInfo.m_contactPointWS,
                                                     m_forwardWS[wheel], maxImpulse);
-                        rollingFriction = calcRollingFriction(contactPt, numWheelsOnGround);
+                        rollingFriction = calcRollingFriction(contactPt, m_numWheelsOnGround);
                         // to avoid sliding on slopes
                         if (wheelInfo.m_brake != 0) {
                             rollingFriction = rollingFriction > 0 ?

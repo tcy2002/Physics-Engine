@@ -442,7 +442,7 @@ namespace pe_phys_vehicle {
         m_forwardImpulse.resize(numWheel);
         m_sideImpulse.resize(numWheel);
 
-        int numWheelsOnGround = 0;
+        m_numWheelsOnGround = 0;
 
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
@@ -450,7 +450,7 @@ namespace pe_phys_vehicle {
             class pe_phys_object::RigidBody* groundObject =
                     (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
             if (groundObject)
-                numWheelsOnGround++;
+                m_numWheelsOnGround++;
             m_sideImpulse[i] = pe::Real(0.);
             m_forwardImpulse[i] = pe::Real(0.);
         }
@@ -509,7 +509,7 @@ namespace pe_phys_vehicle {
                         WheelContactPoint contactPt(m_chassisBody, groundObject,
                                                     wheelInfo.m_raycastInfo.m_contactPointWS,
                                                     m_forwardWS[wheel], maxImpulse);
-                        rollingFriction = calcRollingFriction(contactPt, numWheelsOnGround);
+                        rollingFriction = calcRollingFriction(contactPt, m_numWheelsOnGround);
                         // to avoid sliding on slopes
                         if (wheelInfo.m_brake != 0) {
                             rollingFriction = rollingFriction > 0 ?
