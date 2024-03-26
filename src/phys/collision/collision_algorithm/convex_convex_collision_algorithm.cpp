@@ -43,8 +43,6 @@ namespace pe_phys_collision {
                                                              pe::Real minDist, pe::Real maxDist,
                                                              VertexArray &worldVertsB1, VertexArray &worldVertsB2,
                                                              pe::Real margin, ContactResult &result) {
-        // pe::Vector3 separatingNormal = separatingNormal1.normalized(); ///todo: check why error happens here
-
         int closestFaceB = -1;
         pe::Real dMax = PE_REAL_MIN;
         {

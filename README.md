@@ -154,7 +154,6 @@
     - 解决：37行加r>0的判断
 
 - todo list (not including world.h)
-  - convex_convex_collision_algorithm.cpp: 46
   - friction_contact_constraint.cpp: 108
   - contact_vehicle.cpp: 177
   - pool.cpp: 78

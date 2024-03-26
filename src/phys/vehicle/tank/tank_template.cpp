@@ -1,12 +1,8 @@
 #include "tank_template.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
 
-// potential optimization:
-// 1. max speed (linear/angular)
-// 2. more real force simulation for drive wheels
-
 #define PE_TANK_SUS_OFFSET 0.15
-#define PE_TANK_WHEEL_MARGIN -0.01 //tricky
+#define PE_TANK_WHEEL_MARGIN 0.01
 #define PE_TANK_TRACK_MARGIN 0.012
 
 namespace pe_phys_vehicle {
@@ -103,7 +99,7 @@ namespace pe_phys_vehicle {
                     vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN);
 #       else
             auto shape = new pe_phys_shape::CylinderShape(
-                    vehicle->getWheelInfo(i).m_wheelsRadius - PE_TANK_WHEEL_MARGIN, _wheelWidth);
+                    vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN, _wheelWidth);
 #       endif
             wheel->setCollisionShape(shape);
             wheel->setMass(_wheelMass);
@@ -404,10 +400,6 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::idle() {
         setBrake(false);
-        vehicle->applyEngineForce(0, 0);
-        vehicle->applyEngineForce(0, 1);
-        vehicle->applyEngineForce(0, vehicle->getNumWheels() - 1);
-        vehicle->applyEngineForce(0, vehicle->getNumWheels() - 2);
     }
 
     void TankTemplate::brake() {
