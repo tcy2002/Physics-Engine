@@ -6,8 +6,8 @@
 using namespace pe_phys_vehicle;
 
 #define margin pe::Vector3(0.05, 0.03, 0.05)
-#define PE_TEST_OBJ false
-#define PE_TEST_OBJ_NUM 99
+#define PE_TEST_OBJ true
+#define PE_TEST_OBJ_NUM 100
 
 pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
     auto rb = new pe_phys_object::RigidBody();
@@ -96,15 +96,15 @@ void testTank() {
     for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         pe_phys_object::RigidBody* rb;
         if (i % 3 == 0) {
-            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, -20), pe::Vector3(0.2, 0.2, 0.2), mass);
+            rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), pe::Vector3(0.2, 0.2, 0.2), mass);
             id = pe_intf::Viewer::addCube(pe::Vector3(0.2, 0.2, 0.2));
             pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.8, 0.3));
         } else if (i % 3 == 1) {
-            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, -20), 0.1, mass);
+            rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), 0.1, mass);
             id = pe_intf::Viewer::addSphere(0.1);
             pe_intf::Viewer::updateSphereColor(id, pe::Vector3(0.3, 0.8, 0.3));
         } else {
-            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, -20), 0.1, 0.2, mass);
+            rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, -40), 0.1, 0.2, mass);
             id = pe_intf::Viewer::addCylinder(0.1, 0.2);
             pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.3, 0.8, 0.3));
         }
@@ -117,7 +117,7 @@ void testTank() {
     auto tank = new TankTemplate();
     mat = pe::Matrix3::identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), PE_PI);
-    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 15.3, 0)));
+    tank->setTransform(pe::Transform(mat, pe::Vector3(0, 1.3, 0)));
     tank->init(world);
 
     // add body to viewer

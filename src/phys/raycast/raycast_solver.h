@@ -7,8 +7,7 @@ namespace pe_phys_ray {
     
     class Raycast {
     public:
-        struct RayResultCallback
-        {
+        struct RayResultCallback {
             pe::Real m_distance;
             pe::Vector3 m_hitPoint;
             pe::Vector3 m_normal;

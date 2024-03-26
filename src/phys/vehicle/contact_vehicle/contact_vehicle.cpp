@@ -180,7 +180,7 @@ namespace pe_phys_vehicle {
                 wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_contactNormalWS;
             }
 
-            wheel.m_contactInfo.m_groundObject = other_obj;  ///@todo for driving on dynamic/movable objects!;
+            wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
 
             // calculate suspension length
             pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
@@ -232,10 +232,10 @@ namespace pe_phys_vehicle {
             //put wheel info as in rest position
             if (wheel.m_contactInfo.m_suspensionLength < wheel.getSuspensionRestLength()) {
                 wheel.m_contactInfo.m_suspensionLength += wheel.m_contactInfo.m_suspensionDelta;
-                wheel.m_contactInfo.m_suspensionDelta += pe::Real(0.005);
+                wheel.m_contactInfo.m_suspensionDelta += pe::Real(0.003);
             } else {
                 wheel.m_contactInfo.m_suspensionLength = wheel.getSuspensionRestLength();
-                wheel.m_contactInfo.m_suspensionDelta = pe::Real(0.005);
+                wheel.m_contactInfo.m_suspensionDelta = pe::Real(0.003);
             }
             wheel.m_suspensionRelativeVelocity = pe::Real(0.0);
             wheel.m_contactInfo.m_contactNormalWS = -wheel.m_contactInfo.m_wheelDirectionWS;

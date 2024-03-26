@@ -28,7 +28,7 @@ namespace pe_phys_vehicle {
             pe::Vector3 m_contactNormalWS;  //contact normal
             pe::Vector3 m_contactPointWS;   //raycast hit point
             pe::Real m_suspensionLength;
-            pe::Real m_suspensionDelta = pe::Real(0.005);
+            pe::Real m_suspensionDelta = pe::Real(0.003);
             pe::Vector3 m_hardPointWS;       //raycast starting point
             pe::Vector3 m_wheelDirectionWS;  //direction in world space
             pe::Vector3 m_wheelAxleWS;       // axle in world space
