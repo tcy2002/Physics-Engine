@@ -2,13 +2,13 @@
 
 namespace pe_phys_ray {
 
-    Raycast::RayResultCallback::RayResultCallback() :
+    RaycastSolver::RayResultCallback::RayResultCallback() :
             m_distance(pe::Real(0.)),
             m_hitPoint(pe::Vector3(0, 0, 0)),
             m_collisionObject(0),
             m_normal(pe::Vector3(0, 0, 0)) {}
 
-    Raycast::Raycast(pe::Vector3 start, pe::Vector3 direction, pe::Real length) {
+    RaycastSolver::RaycastSolver(pe::Vector3 start, pe::Vector3 direction, pe::Real length) {
         m_localStart = start;
         m_start = start;
         m_localDirection = direction;
@@ -19,7 +19,7 @@ namespace pe_phys_ray {
         m_closestHitCallback = nullptr;
     }
 
-    pe::Real Raycast::maxItem(pe::Vector3 vec) {
+    pe::Real RaycastSolver::maxItem(pe::Vector3 vec) {
         if (vec.x > vec.y) {
             if (vec.z > vec.x) return vec.z;
             else return vec.x;
@@ -29,7 +29,7 @@ namespace pe_phys_ray {
         }
     }
 
-    pe::Real Raycast::minItem(pe::Vector3 vec) {
+    pe::Real RaycastSolver::minItem(pe::Vector3 vec) {
         if (vec.x < vec.y) {
             if (vec.z < vec.x) return vec.z;
             else return vec.x;
@@ -39,8 +39,8 @@ namespace pe_phys_ray {
         }
     }
 
-    void Raycast::performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody *> &objs,
-                                 const pe::HashList<uint32_t>& excludeIds) {
+    void RaycastSolver::performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody *> &objs,
+                                       const pe::HashList<uint32_t>& excludeIds) {
         //avoid division by zero
         pe::Vector3 tmp_direction = pe::Vector3(m_direction.x != 0 ? m_direction.x : 0.001,
                                                 m_direction.y != 0 ? m_direction.y : 0.001,

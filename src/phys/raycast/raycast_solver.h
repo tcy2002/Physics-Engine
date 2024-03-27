@@ -5,7 +5,7 @@
 
 namespace pe_phys_ray {
     
-    class Raycast {
+    class RaycastSolver {
     public:
         struct RayResultCallback {
             pe::Real m_distance;
@@ -26,8 +26,8 @@ namespace pe_phys_ray {
         std::function<void(RayResultCallback*)> m_closestHitCallback;
 
     public:
-        Raycast(pe::Vector3 start, pe::Vector3 direction, pe::Real length);
-        virtual ~Raycast() { delete m_resultCallback; }
+        RaycastSolver(pe::Vector3 start, pe::Vector3 direction, pe::Real length);
+        virtual ~RaycastSolver() { delete m_resultCallback; }
         static pe::Real maxItem(pe::Vector3 vec);
         static pe::Real minItem(pe::Vector3 vec);
         void setDirection(const pe::Matrix3& local2world) { m_direction = local2world * m_localDirection; }

@@ -1,9 +1,11 @@
 #pragma once
 
 /*
- * TODO:
- * 1. hash acceleration for contact result search
- * last: make world api multi-thread safe
+ * TODO: priority decreases from top to bottom
+ * 1. all shape's raycast
+ * 2. hash acceleration for contact result search
+ * 3. implement below
+ * last: make world class thread-safe
  *
  * Not implemented:
  * 1. terrain
@@ -19,11 +21,15 @@
 #include "phys/constraint/constraint/constraint.h"
 #include "phys/constraint/constraint_solver/constraint_solver.h"
 
-// NO include: cause circular dependency
+// NO include: will cause circular dependency
 namespace pe_phys_vehicle { class ContactVehicle; }
 
 namespace pe_intf {
 
+    // The basic physics world manager
+    // You can get a physics instance by new World(), freely add rigidbodies to
+    // the world, and call step() to update it.
+    // NOT thread-safe
     class World {
         COMMON_MEMBER_SET_GET(pe::Vector3, gravity, Gravity);
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);

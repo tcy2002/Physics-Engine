@@ -1,6 +1,6 @@
 #include "raycast_vehicle.h"
 
-//#define ROLLING_INFLUENCE_FIX
+#define ROLLING_INFLUENCE_FIX
 
 namespace pe_phys_vehicle {
 
@@ -630,7 +630,7 @@ namespace pe_phys_vehicle {
                                            pe::Real length, VehicleRaycasterResult& result) {
         //	RayResultCallback& resultCallback;
 
-        pe_phys_ray::Raycast* ray = new pe_phys_ray::Raycast(from, direction, length);
+        pe_phys_ray::RaycastSolver* ray = new pe_phys_ray::RaycastSolver(from, direction, length);
         ray->performRayTest(rigid_idx, m_world->getRigidBodies(), excludeIds);
 
         if (ray->m_resultCallback->hasHit()) {

@@ -54,12 +54,11 @@ namespace pe {
 //// math
 #define PE_EPS 1e-5
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
-#define PE_PI 3.14159265358979323846
+#define PE_PI 3.141592653589
 
 //// other date types
 namespace pe {
     template <typename T> using Array = std::vector<T>;
-    template <typename T> using Queue = std::queue<T>;
     template <typename K, typename V> using Map = std::map<K, V>;
     template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
     template <typename T> using HashList = utils::hash_vector<T>;
