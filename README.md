@@ -12,7 +12,7 @@
 
 ### 效果
 
-- gif帧率20帧，实际运行帧率为60帧
+- 实际运行帧率为60帧，gif帧率偏低
 - 破碎效果：根据事先设定好的毁伤源位置预计算（最终目标是根据坦克炮弹的击中位置实时计算）
 
 ![demo.gif](./screenshots/demo.gif)
@@ -25,6 +25,9 @@
 | Raycast                               | Contact                                   |
 |---------------------------------------|-------------------------------------------|
 | ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
+
+- 坦克综合效果
+  ![tank](./screenshots/tank.gif)
 
 ### 开发日志
 
@@ -156,6 +159,6 @@
     - 解决：37行加r>0的判断
 
 - todo list (not including world.h)
-  - friction_contact_constraint.cpp: 108
-  - contact_vehicle.cpp: 177
-  - pool.cpp: 78
+    - friction_contact_constraint.cpp: 108
+    - contact_vehicle.cpp: 177
+    - pool.cpp: 78
