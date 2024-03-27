@@ -26,13 +26,6 @@
 |---------------------------------------|-------------------------------------------|
 | ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
 
-- 坦克综合效果
-  <img src="./screenshots/demo.gif" width="100%">
-  <video controls>
-    <source src="./screenshots/tank.mp4" type="video/mp4">
-  </video>
-
-
 ### 开发日志
 
 - 2.26-3.3
