@@ -1,4 +1,5 @@
 #include "raycast_vehicle.h"
+#include "phys/raycast/raycast/raycast_box.h"
 
 #define ROLLING_INFLUENCE_FIX
 
@@ -627,21 +628,41 @@ namespace pe_phys_vehicle {
     void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                                            const pe::Vector3& from, const pe::Vector3& direction,
                                            pe::Real length, VehicleRaycasterResult& result) {
-        //	RayResultCallback& resultCallback;
+//        pe_phys_ray::RaycastSolver* ray = new pe_phys_ray::RaycastSolver(from, direction, length);
+//        ray->performRayTest(rigid_idx, m_world->getRigidBodies(), excludeIds);
 
-        pe_phys_ray::RaycastSolver* ray = new pe_phys_ray::RaycastSolver(from, direction, length);
-        ray->performRayTest(rigid_idx, m_world->getRigidBodies(), excludeIds);
-
-        if (ray->m_resultCallback->hasHit()) {
-            pe_phys_object::RigidBody* body = m_world->getRigidBody(
-                    ray->m_resultCallback->m_collisionObject->getGlobalId());
-            if (body) {
-                result.m_hitPointInWorld = ray->m_resultCallback->m_hitPoint;
-                result.m_hitNormalInWorld = ray->m_resultCallback->m_normal;
-                result.m_hitNormalInWorld.normalize();
-                result.m_distFraction = ray->m_resultCallback->m_distance;
-                return (void*)body;
+        bool hit = false;
+        pe::Vector3 hit_point, hit_normal;
+        pe::Real distance = PE_REAL_MAX;
+        pe_phys_object::RigidBody* hit_object = nullptr;
+        for (auto rb : m_world->getRigidBodies()) {
+            if (rb->getGlobalId() == rigid_idx || excludeIds.contains(rb->getGlobalId())) {
+                continue;
             }
+            auto shape = rb->getCollisionShape();
+            if (shape->getType() != pe_phys_shape::ShapeType::Box) {
+                continue;
+            }
+            pe_phys_ray::RaycastBox raycast_box;
+            bool hit_this;
+            pe::Vector3 hit_point_this, hit_normal_this;
+            pe::Real distance_this;
+            hit_this = raycast_box.processRaycast(from, direction, length, rb,
+                                                  distance_this, hit_point_this, hit_normal_this);
+            if (hit_this && distance_this < distance) {
+                hit = true;
+                hit_point = hit_point_this;
+                hit_normal = hit_normal_this;
+                distance = distance_this;
+                hit_object = rb;
+            }
+        }
+
+        if (hit) {
+            result.m_hitPointInWorld = hit_point;
+            result.m_hitNormalInWorld = hit_normal;
+            result.m_distFraction = distance;
+            return (void*)hit_object;
         }
         return 0;
     }

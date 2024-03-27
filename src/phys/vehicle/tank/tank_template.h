@@ -3,7 +3,7 @@
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/sphere_shape.h"
 
-#define PE_USE_CONTACT_VEHICLE true
+#define PE_USE_CONTACT_VEHICLE false
 #define PE_USE_SPHERE_WHEEL false
 
 namespace pe_phys_vehicle {

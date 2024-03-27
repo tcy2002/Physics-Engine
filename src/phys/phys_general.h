@@ -47,9 +47,9 @@ namespace pe {
 #define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
 
 //// math
-#define PE_EPS 0.00001
+#define PE_EPS pe::Real(0.00001)
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
-#define PE_PI 3.141592653589
+#define PE_PI pe::Real(3.141592653589)
 
 //// other date types
 namespace pe {
