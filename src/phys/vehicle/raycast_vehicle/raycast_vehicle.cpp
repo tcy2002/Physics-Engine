@@ -14,8 +14,7 @@ namespace pe_phys_vehicle {
 
     RaycastVehicle::RaycastVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
                                    VehicleRaycaster* raycaster):
-            m_raycastExcludeIds(100, pe_phys_fracture::uint32_hash_func,
-                                pe_phys_fracture::uint32_equal) {
+            m_raycastExcludeIds(100) {
         m_vehicleRaycaster = raycaster;
         m_chassisBody = chassis;
         m_indexRightAxis = 0;
@@ -625,7 +624,7 @@ namespace pe_phys_vehicle {
         m_indexForwardAxis = forwardIndex;
     }
 
-    void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
+    void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                                            const pe::Vector3& from, const pe::Vector3& direction,
                                            pe::Real length, VehicleRaycasterResult& result) {
         //	RayResultCallback& resultCallback;

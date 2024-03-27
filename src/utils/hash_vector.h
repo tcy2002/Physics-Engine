@@ -21,7 +21,7 @@ namespace utils {
      * custom type may use other strategy to compare equality, e.g.
      * Vector3
      */
-    template <typename T>
+    template <typename T, typename HashFunc, typename EqualFunc>
     class hash_vector {
     private:
         struct link_node {
@@ -33,15 +33,13 @@ namespace utils {
 
         std::vector<T> list;
         std::vector<link_node*> index_table;
+        HashFunc hash_func;
+        EqualFunc equal_func;
         uint32_t capacity;
-        std::function<uint32_t(const T&)> hash_func;
-        std::function<bool(const T&, const T&)> equal;
         uint32_t hash(const T& val) const { return hash_func(val) % capacity; }
 
     public:
-        hash_vector(uint32_t capacity,
-                    std::function<uint32_t(const T&)> hash_func,
-                    std::function<bool(const T&, const T&)> equal);
+        explicit hash_vector(uint32_t capacity = 997);
         hash_vector(const hash_vector& other) { *this = other; }
         ~hash_vector();
         hash_vector& operator=(const hash_vector& other);

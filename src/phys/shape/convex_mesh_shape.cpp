@@ -20,9 +20,7 @@ namespace pe_phys_shape {
         // calculate unique edges: each edge is represented by two vertices,
         // and each edge does not appear more than once in the list
         _unique_edges.clear();
-        utils::hash_vector<pe::Vector3> vert_map((uint32_t)_mesh.vertices.size(),
-                                                 pe_phys_fracture::vector3_hash_func,
-                                                 pe_phys_fracture::vector3_equal);
+        pe::Vector3HashList vert_map((uint32_t)_mesh.vertices.size());
         pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
             _unique_faces.push_back({});

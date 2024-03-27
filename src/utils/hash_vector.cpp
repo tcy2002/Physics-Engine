@@ -1,10 +1,6 @@
-template <typename T>
-hash_vector<T>::hash_vector(uint32_t capacity,
-                            std::function<uint32_t(const T&)> hash_func,
-                            std::function<bool(const T&, const T&)> equal) {
+template <typename T, typename HashFunc, typename EqualFunc>
+hash_vector<T, HashFunc, EqualFunc>::hash_vector(uint32_t capacity) {
     this->capacity = capacity;
-    this->hash_func = hash_func;
-    this->equal = equal;
     list.reserve(capacity);
     index_table.resize(capacity);
     for (uint32_t i = 0; i < capacity; ++i) {
@@ -12,12 +8,10 @@ hash_vector<T>::hash_vector(uint32_t capacity,
     }
 }
 
-template <typename T>
-hash_vector<T>& hash_vector<T>::operator=(const hash_vector<T>& other) {
+template <typename T, typename HashFunc, typename EqualFunc>
+hash_vector<T, HashFunc, EqualFunc>& hash_vector<T, HashFunc, EqualFunc>::operator=(const hash_vector<T, HashFunc, EqualFunc>& other) {
     list = other.list;
     capacity = other.capacity;
-    hash_func = other.hash_func;
-    equal = other.equal;
     for (auto p : index_table) {
         while (p != nullptr) {
             auto tmp = p;
@@ -37,8 +31,8 @@ hash_vector<T>& hash_vector<T>::operator=(const hash_vector<T>& other) {
     return *this;
 }
 
-template <typename T>
-hash_vector<T>::~hash_vector() {
+template <typename T, typename HashFunc, typename EqualFunc>
+hash_vector<T, HashFunc, EqualFunc>::~hash_vector() {
     for (auto p : index_table) {
         while (p != nullptr) {
             auto tmp = p;
@@ -48,36 +42,36 @@ hash_vector<T>::~hash_vector() {
     }
 }
 
-template <typename T>
-bool hash_vector<T>::contains(const T& item) const {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::contains(const T& item) const {
     auto p = index_table[hash(item)];
     while (p->next != nullptr) {
         p = p->next;
-        if (equal(list[p->val], item)) {
+        if (equal_func(list[p->val], item)) {
             return true;
         }
     }
     return false;
 }
 
-template <typename T>
-uint32_t hash_vector<T>::index_of(const T& item) const {
+template <typename T, typename HashFunc, typename EqualFunc>
+uint32_t hash_vector<T, HashFunc, EqualFunc>::index_of(const T& item) const {
     auto p = index_table[hash(item)];
     while (p->next != nullptr) {
         p = p->next;
-        if (equal(list[p->val], item)) {
+        if (equal_func(list[p->val], item)) {
             return p->val;
         }
     }
     return -1;
 }
 
-template <typename T>
-bool hash_vector<T>::push_back(const T& item) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::push_back(const T& item) {
     auto p = index_table[hash(item)];
     while (p->next != nullptr) {
         p = p->next;
-        if (equal(list[p->val], item)) {
+        if (equal_func(list[p->val], item)) {
             return false;
         }
     }
@@ -86,8 +80,8 @@ bool hash_vector<T>::push_back(const T& item) {
     return true;
 }
 
-template <typename T>
-void hash_vector<T>::pop_back() {
+template <typename T, typename HashFunc, typename EqualFunc>
+void hash_vector<T, HashFunc, EqualFunc>::pop_back() {
     if (list.empty()) {
         return;
     }
@@ -102,15 +96,15 @@ void hash_vector<T>::pop_back() {
     list.pop_back();
 }
 
-template <typename T>
-bool hash_vector<T>::insert(const T &item, uint32_t idx) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::insert(const T &item, uint32_t idx) {
     if (idx > size()) {
         return false;
     }
     auto p = index_table[hash(item)];
     while (p->next != nullptr) {
         p = p->next;
-        if (equal(list[p->val], item)) {
+        if (equal_func(list[p->val], item)) {
             return false;
         }
     }
@@ -132,13 +126,13 @@ bool hash_vector<T>::insert(const T &item, uint32_t idx) {
     return true;
 }
 
-template <typename T>
-bool hash_vector<T>::append(const hash_vector<T>& other) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::append(const hash_vector<T, HashFunc, EqualFunc>& other) {
     return append(other.to_vector());
 }
 
-template <typename T>
-bool hash_vector<T>::append(const std::vector<T>& other) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::append(const std::vector<T>& other) {
     bool flag = true;
     for (auto& item : other) {
         flag &= push_back(item);
@@ -146,8 +140,8 @@ bool hash_vector<T>::append(const std::vector<T>& other) {
     return flag;
 }
 
-template <typename T>
-bool hash_vector<T>::erase(const T &item) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::erase(const T &item) {
     uint32_t idx = index_of(item);
     if (idx == -1) {
         return false;
@@ -156,8 +150,8 @@ bool hash_vector<T>::erase(const T &item) {
     return true;
 }
 
-template <typename T>
-void hash_vector<T>::erase_at(uint32_t idx) {
+template <typename T, typename HashFunc, typename EqualFunc>
+void hash_vector<T, HashFunc, EqualFunc>::erase_at(uint32_t idx) {
     if (idx >= size()) {
         return;
     }
@@ -184,8 +178,8 @@ void hash_vector<T>::erase_at(uint32_t idx) {
     list.erase(list.begin() + idx);
 }
 
-template <typename T>
-bool hash_vector<T>::replace(const T& old_item, const T& new_item) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::replace(const T& old_item, const T& new_item) {
     uint32_t idx = index_of(old_item);
     if (idx == -1) {
         return false;
@@ -193,15 +187,15 @@ bool hash_vector<T>::replace(const T& old_item, const T& new_item) {
     return replace_at(idx, new_item);
 }
 
-template <typename T>
-bool hash_vector<T>::replace_at(uint32_t idx, const T& new_item) {
+template <typename T, typename HashFunc, typename EqualFunc>
+bool hash_vector<T, HashFunc, EqualFunc>::replace_at(uint32_t idx, const T& new_item) {
     if (idx >= size()) {
         return false;
     }
     auto p = index_table[hash(new_item)];
     while (p->next != nullptr) {
         p = p->next;
-        if (equal(list[p->val], new_item)) {
+        if (equal_func(list[p->val], new_item)) {
             return false;
         }
     }
@@ -220,8 +214,8 @@ bool hash_vector<T>::replace_at(uint32_t idx, const T& new_item) {
     return true;
 }
 
-template <typename T>
-void hash_vector<T>::clear() {
+template <typename T, typename HashFunc, typename EqualFunc>
+void hash_vector<T, HashFunc, EqualFunc>::clear() {
     list.clear();
     for (auto& p : index_table) {
         auto q = p->next;

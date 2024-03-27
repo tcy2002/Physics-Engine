@@ -58,9 +58,45 @@ namespace pe {
 
 //// other date types
 namespace pe {
-    template <typename T> using Array = std::vector<T>;
-    template <typename K, typename V> using Map = std::map<K, V>;
-    template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
-    template <typename T> using HashList = utils::hash_vector<T>;
-    template <typename T1, typename T2> using KV = std::pair<T1, T2>;
+    template <typename T>
+    using Array = std::vector<T>;
+
+    template <typename K, typename V>
+    using Map = std::map<K, V>;
+
+    template <typename K, typename V>
+    using HashMap = std::unordered_map<K, V>;
+
+    template <typename T, typename HashFunc, typename EqualFunc>
+    using HashList = utils::hash_vector<T, HashFunc, EqualFunc>;
+
+    template <typename T1, typename T2>
+    using KV = std::pair<T1, T2>;
+
+    struct uint32_equal {
+        bool operator()(uint32_t a, uint32_t b) const { return a == b; }
+    };
+    struct uint32_hash {
+        uint32_t operator()(uint32_t v) const { return v; }
+    };
+    using Uint32HashList = HashList<uint32_t, uint32_hash, uint32_equal>;
+
+    struct vector3_equal {
+        bool operator()(const pe::Vector3& a, const pe::Vector3& b) const {
+            return PE_APPROX_EQUAL(a.x, b.x) && PE_APPROX_EQUAL(a.y, b.y) && PE_APPROX_EQUAL(a.z, b.z);
+        }
+    };
+    struct vector3_hash {
+        uint32_t operator()(const pe::Vector3& v) const {
+            auto x = (uint32_t)(std::round(v.x / PE_EPS));
+            auto y = (uint32_t)(std::round(v.y / PE_EPS));
+            auto z = (uint32_t)(std::round(v.z / PE_EPS));
+            uint32_t h = 0x995af;
+            h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
+            h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);
+            h ^= z + 0x9e3779b9 + (h << 6) + (h >> 2);
+            return h;
+        }
+    };
+    using Vector3HashList = HashList<Vector3, vector3_hash, vector3_equal>;
 } // namespace pe

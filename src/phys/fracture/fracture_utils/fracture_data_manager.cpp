@@ -2,11 +2,6 @@
 
 namespace pe_phys_fracture {
 
-    FractureDataManager::FractureDataManager():
-        _vertices(FRAC_VERT_INIT(997)),
-        _triangles(FRAC_TRI_INIT(997)),
-        _faces(FRAC_FACE_INIT(997)) {}
-
     uint32_t FractureDataManager::add_vertex(const pe::Vector3& p, const pe::Vector3& n) {
         vertex new_vertex(p, n);
         uint32_t idx = _vertices.index_of(new_vertex);
@@ -19,7 +14,7 @@ namespace pe_phys_fracture {
 
     void FractureDataManager::remove_vertex(uint32_t idx) {
         _vertices.erase_at(idx);
-        pe::HashList<triangle> new_triangles(FRAC_TRI_INIT(997));
+        TriangleHashList new_triangles;
         for (auto tri : _triangles) {
             for (auto& vert_id : tri.vert_ids) {
                 if (vert_id == idx) {

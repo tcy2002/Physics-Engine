@@ -11,7 +11,7 @@ namespace pe_phys_ray {
         virtual ~Raycast() {}
         virtual bool raycastTest(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
                                  const pe::Array<pe_phys_object::RigidBody*>& objs,
-                                 const pe::HashList<uint32_t>& excludeIds,
+                                 const pe::Uint32HashList& excludeIds,
                                  pe::Real& distance, pe::Vector3& hitPoint, pe::Vector3& hitNormal) = 0;
     };
 

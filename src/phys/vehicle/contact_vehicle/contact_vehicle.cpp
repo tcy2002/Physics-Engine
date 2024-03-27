@@ -16,8 +16,7 @@ namespace pe_phys_vehicle {
 
     ContactVehicle::ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
                                    pe_intf::World* world):
-            m_raycastExcludeIds(100, pe_phys_fracture::uint32_hash_func,
-                                pe_phys_fracture::uint32_equal) {
+            m_raycastExcludeIds(100) {
         m_chassisBody = chassis;
         m_world = world;
         m_indexRightAxis = 0;

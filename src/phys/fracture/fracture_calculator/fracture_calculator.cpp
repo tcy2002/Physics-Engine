@@ -36,7 +36,7 @@ namespace pe_phys_fracture {
     void FractureCalculator::cut_mesh_by_plane(FractureDataManager &old_mesh, const pe::Vector3 &p,
                                                const pe::Vector3 &n, FractureDataManager &new_mesh) {
         uint32_t face_count = old_mesh.face_count();
-        pe::HashList<pe::Vector3> inter_points(FRAC_VEC_INIT(50));
+        pe::Vector3HashList inter_points(50);
 
         // cut all the faces
         for (uint32_t face_id = 0; face_id < face_count; face_id++) {
@@ -64,10 +64,10 @@ namespace pe_phys_fracture {
                                                                    FractureDataManager &new_mesh) {
         auto face = old_mesh.get_face(face_id);
         uint32_t vert_count = (uint32_t)face.vert_ids.size();
-        pe::HashList<pe::Vector3> inter_points(FRAC_VEC_INIT(vert_count));
+        pe::Vector3HashList inter_points(vert_count);
         pe::Array<vertex> vertices(vert_count);
         pe::Array<int> side(vert_count, -1);
-        pe::HashList<uint32_t> new_point_ids(FRAC_UINT_INIT(vert_count * 2));
+        pe::Uint32HashList new_point_ids(vert_count * 2);
 
         // check the side of each vertex to the cutting plane
         for (uint32_t i = 0; i < vert_count; i++) {

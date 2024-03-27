@@ -14,7 +14,7 @@ namespace pe_phys_vehicle {
             pe::Real m_distFraction;
         };
 
-        virtual void* castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
+        virtual void* castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                               const pe::Vector3& from, const pe::Vector3& direction,
                               pe::Real length, VehicleRaycasterResult& result) = 0;
     };

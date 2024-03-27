@@ -40,7 +40,7 @@ namespace pe_phys_ray {
     }
 
     void RaycastSolver::performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody *> &objs,
-                                       const pe::HashList<uint32_t>& excludeIds) {
+                                       const pe::Uint32HashList& excludeIds) {
         //avoid division by zero
         pe::Vector3 tmp_direction = pe::Vector3(m_direction.x != 0 ? m_direction.x : 0.001,
                                                 m_direction.y != 0 ? m_direction.y : 0.001,

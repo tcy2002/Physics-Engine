@@ -1,8 +1,5 @@
 #pragma once
 
-#include "utils/hash_vector.h"
-#include "phys/phys_general.h"
-#include "fracture_utils.h"
 #include "fracture_data.h"
 
 namespace pe_phys_fracture {
@@ -31,13 +28,13 @@ namespace pe_phys_fracture {
      */
     class FractureDataManager {
     private:
-        pe::HashList<vertex> _vertices;
-        pe::HashList<triangle> _triangles;
-        pe::HashList<polygon> _faces;
+        VertexHashList _vertices;
+        TriangleHashList _triangles;
+        PolygonHashList _faces;
         pe::Array<tetrahedron> _tetrahedrons;
 
     public:
-        FractureDataManager();
+        FractureDataManager() {}
 
         void clear() { _vertices.clear(); _vertices.clear(); _faces.clear(); _tetrahedrons.clear(); }
 

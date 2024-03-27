@@ -14,7 +14,7 @@ namespace pe_phys_vehicle {
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;
         pe::Array<pe::Real> m_sideImpulse;
-        pe::HashList<uint32_t> m_raycastExcludeIds;
+        pe::Uint32HashList m_raycastExcludeIds;
 
     public:
         class VehicleTuning {

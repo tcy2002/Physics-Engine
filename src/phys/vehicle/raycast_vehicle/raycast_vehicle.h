@@ -15,7 +15,7 @@ namespace pe_phys_vehicle {
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;
         pe::Array<pe::Real> m_sideImpulse;
-        pe::HashList<uint32_t> m_raycastExcludeIds;
+        pe::Uint32HashList m_raycastExcludeIds;
 
     public:
         class VehicleTuning {
@@ -98,7 +98,7 @@ namespace pe_phys_vehicle {
     public:
         explicit DefaultVehicleRaycaster(pe_intf::World* world): m_world(world) {}
 
-        virtual void* castRay(uint32_t rigid_idx, const pe::HashList<uint32_t>& excludeIds,
+        virtual void* castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                               const pe::Vector3& from, const pe::Vector3& direction,
                               pe::Real length, VehicleRaycasterResult& result) override;
     };

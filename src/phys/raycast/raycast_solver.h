@@ -36,7 +36,7 @@ namespace pe_phys_ray {
         void bindClosetHitCallback(const std::function<void(RayResultCallback*)>& callback)
         { m_closestHitCallback = callback; }
         void performRayTest(uint32_t id, const pe::Array<pe_phys_object::RigidBody*>& objs,
-                            const pe::HashList<uint32_t>& excludeIds);
+                            const pe::Uint32HashList& excludeIds);
     };
     
 } // namespace pe_phys_ray
