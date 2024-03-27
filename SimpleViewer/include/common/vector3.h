@@ -26,6 +26,9 @@ namespace common {
         COMMON_FORCE_INLINE Vector3& operator*=(Scalar);
         COMMON_FORCE_INLINE Vector3& operator/=(Scalar);
         COMMON_FORCE_INLINE Vector3 operator*(const Vector3&) const;
+        COMMON_FORCE_INLINE Vector3& operator*=(const Vector3&);
+        COMMON_FORCE_INLINE Vector3 operator/(const Vector3&) const;
+        COMMON_FORCE_INLINE Vector3& operator/=(const Vector3&);
 
         COMMON_FORCE_INLINE Scalar norm() const;
         COMMON_FORCE_INLINE Scalar norm2() const;
@@ -47,6 +50,8 @@ namespace common {
         COMMON_FORCE_INLINE static const Vector3& forward();
         COMMON_FORCE_INLINE static const Vector3& up();
         COMMON_FORCE_INLINE static const Vector3& right();
+        COMMON_FORCE_INLINE static Vector3 max2(const Vector3&, const Vector3&);
+        COMMON_FORCE_INLINE static Vector3 min2(const Vector3&, const Vector3&);
     };
 
     template <typename Scalar>

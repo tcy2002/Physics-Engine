@@ -7,8 +7,8 @@ namespace pe_phys_fracture {
         pe::Vector3 _min(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX);
         pe::Vector3 _max(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN);
         for (auto& p : points) {
-            _min = min_vec(_min, p);
-            _max = max_vec(_max, p);
+            _min = pe::Vector3::min2(_min, p);
+            _max = pe::Vector3::max2(_max, p);
         }
 
         // dilate to include all possible points

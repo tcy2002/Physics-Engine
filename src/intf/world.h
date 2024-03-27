@@ -5,7 +5,8 @@
  * 1. all shape's raycast
  * 2. hash acceleration for contact result search
  * 3. implement below
- * last: make world class thread-safe
+ * 4. make class World thread-safe
+ * 5. code style consistency
  *
  * Not implemented:
  * 1. terrain

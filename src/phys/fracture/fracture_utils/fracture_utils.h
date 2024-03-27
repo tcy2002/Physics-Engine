@@ -4,13 +4,6 @@
 
 namespace pe_phys_fracture {
 
-    bool approx_equal(pe::Real a, pe::Real b);
-    bool approx_equal(const pe::Vector3& a, const pe::Vector3& b);
-
-    pe::Vector3 max_vec(const pe::Vector3& a, const pe::Vector3& b);
-    pe::Vector3 min_vec(const pe::Vector3& a, const pe::Vector3& b);
-    pe::Vector3 average(const pe::Array<pe::Vector3>& vecs);
-
     pe::Matrix3 from_two_vectors(const pe::Vector3& a, const pe::Vector3& b);
 
     pe::Real calc_mesh_volume(const pe::Mesh& mesh);

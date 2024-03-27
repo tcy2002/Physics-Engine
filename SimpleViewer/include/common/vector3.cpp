@@ -71,6 +71,27 @@ Vector3<Scalar> Vector3<Scalar>::operator*(const Vector3<Scalar>& v) const {
 }
 
 template <typename Scalar>
+Vector3<Scalar>& Vector3<Scalar>::operator*=(const Vector3<Scalar>& v) {
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
+    return *this;
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::operator/(const Vector3<Scalar>& v) const {
+    return {x / v.x, y / v.y, z / v.z};
+}
+
+template <typename Scalar>
+Vector3<Scalar>& Vector3<Scalar>::operator/=(const Vector3<Scalar>& v) {
+    x /= v.x;
+    y /= v.y;
+    z /= v.z;
+    return *this;
+}
+
+template <typename Scalar>
 Scalar Vector3<Scalar>::norm() const {
     return sqrt(x * x + y * y + z * z);
 }
@@ -170,6 +191,16 @@ template <typename Scalar>
 const Vector3<Scalar>& Vector3<Scalar>::right() {
     static Vector3<Scalar> left(1., 0., 0.);
     return left;
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::max2(const Vector3<Scalar>& a, const Vector3<Scalar>& b) {
+    return {a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y, a.z > b.z ? a.z : b.z};
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::min2(const Vector3<Scalar>& a, const Vector3<Scalar>& b) {
+    return {a.x < b.x ? a.x : b.x, a.y < b.y ? a.y : b.y, a.z < b.z ? a.z : b.z};
 }
 
 template <typename Scalar>

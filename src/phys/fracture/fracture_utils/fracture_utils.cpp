@@ -2,30 +2,6 @@
 
 namespace pe_phys_fracture {
 
-    bool approx_equal(pe::Real a, pe::Real b) {
-        return std::abs(a - b) < PE_EPS;
-    }
-
-    bool approx_equal(const pe::Vector3& a, const pe::Vector3& b) {
-        return approx_equal(a.x, b.x) && approx_equal(a.y, b.y) && approx_equal(a.z, b.z);
-    }
-
-    pe::Vector3 max_vec(const pe::Vector3& a, const pe::Vector3& b) {
-        return pe::Vector3(PE_MAX(a.x, b.x), PE_MAX(a.y, b.y), PE_MAX(a.z, b.z));
-    }
-
-    pe::Vector3 min_vec(const pe::Vector3& a, const pe::Vector3& b) {
-        return pe::Vector3(PE_MIN(a.x, b.x), PE_MIN(a.y, b.y), PE_MIN(a.z, b.z));
-    }
-
-    pe::Vector3 average(const pe::Array<pe::Vector3>& vecs) {
-        pe::Vector3 sum = pe::Vector3::zeros();
-        for (const auto& v : vecs) {
-            sum += v;
-        }
-        return sum / (pe::Real)vecs.size();
-    }
-
     pe::Matrix3 from_two_vectors(const pe::Vector3& a, const pe::Vector3& b) {
         pe::Vector3 c = a.cross(b);
         pe::Real s = c.norm();
@@ -101,7 +77,7 @@ namespace pe_phys_fracture {
                                       const pe::Vector3& v1, const pe::Vector3& v2,
                                       pe::Vector3& inter, pe::Real& t) {
         pe::Real d = n.dot(v2 - v1);
-        if (approx_equal(d, 0)) {
+        if (PE_APPROX_EQUAL(d, 0)) {
             return false;
         }
 
@@ -115,7 +91,7 @@ namespace pe_phys_fracture {
     }
 
     bool is_point_on_plane(const pe::Vector3& p, const pe::Vector3& n, const pe::Vector3& v) {
-        return approx_equal(n.dot(v - p), 0);
+        return PE_APPROX_EQUAL(n.dot(v - p), 0);
     }
 
     bool is_point_inside_sphere(const pe::Vector3& p, const pe::Vector3& center, pe::Real radius) {
@@ -123,7 +99,7 @@ namespace pe_phys_fracture {
     }
 
     bool are_points_collinear(const pe::Vector3& p1, const pe::Vector3& p2, const pe::Vector3& p3) {
-        return approx_equal((p1 - p2).cross(p3 - p2).norm(), 0);
+        return PE_APPROX_EQUAL((p1 - p2).cross(p3 - p2).norm(), 0);
     }
 
 } // namespace pe_phys_fracture

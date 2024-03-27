@@ -52,8 +52,8 @@ namespace pe_phys_shape {
         auto &pos = transform.getOrigin();
         for (auto &p: _mesh.vertices) {
             auto v = rot * p.position;
-            min = PE_MIN_VEC(min, v);
-            max = PE_MAX_VEC(max, v);
+            min = pe::Vector3::min2(min, v);
+            max = pe::Vector3::max2(max, v);
         }
         min += pos;
         max += pos;

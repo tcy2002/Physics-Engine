@@ -9,10 +9,9 @@ namespace pe_phys_ray {
     public:
         Raycast() {}
         virtual ~Raycast() {}
-        virtual bool raycastTest(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
-                                 const pe::Array<pe_phys_object::RigidBody*>& objs,
-                                 const pe::Uint32HashList& excludeIds,
-                                 pe::Real& distance, pe::Vector3& hitPoint, pe::Vector3& hitNormal) = 0;
+        virtual bool processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
+                                    pe_phys_object::RigidBody* object,
+                                    pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) = 0;
     };
 
 } // namespace pe_phys_ray

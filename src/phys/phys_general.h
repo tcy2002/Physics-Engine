@@ -20,13 +20,10 @@
 #endif
 
 //// min max
-#ifdef _MSC_VER
-#define PE_MAX(a, b) max(a, b)
-#define PE_MIN(a, b) min(a, b)
-#else
-#define PE_MAX(a, b) std::max(a, b)
-#define PE_MIN(a, b) std::min(a, b)
-#endif
+#define PE_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define PE_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define PE_MAX3(a, b, c) PE_MAX(PE_MAX(a, b), c)
+#define PE_MIN3(a, b, c) PE_MIN(PE_MIN(a, b), c)
 
 //// geometry types
 #include <common/mesh.h>
@@ -45,14 +42,12 @@ namespace pe {
     using Transform = common::Transform<Real>;
 } // namespace pe
 
-//// vector macros
-#define PE_MAX_VEC(a, b) pe::Vector3(PE_MAX((a).x, (b).x), PE_MAX((a).y, (b).y), PE_MAX((a).z, (b).z))
-#define PE_MIN_VEC(a, b) pe::Vector3(PE_MIN((a).x, (b).x), PE_MIN((a).y, (b).y), PE_MIN((a).z, (b).z))
+//// vector3
 #define PE_VEC_MAX pe::Vector3(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX)
 #define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
 
 //// math
-#define PE_EPS 1e-5
+#define PE_EPS 0.00001
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
 #define PE_PI 3.141592653589
 

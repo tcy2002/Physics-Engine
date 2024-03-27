@@ -23,8 +23,8 @@ namespace pe_phys_shape {
             p.y = i & 2 ? _half_size.y : -_half_size.y;
             p.z = i & 4 ? _half_size.z : -_half_size.z;
             auto v = rot * p;
-            min = PE_MIN_VEC(min, v);
-            max = PE_MAX_VEC(max, v);
+            min = pe::Vector3::min2(min, v);
+            max = pe::Vector3::max2(max, v);
         }
         min += pos;
         max += pos;
