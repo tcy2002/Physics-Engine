@@ -27,9 +27,7 @@
 | ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
 
 - 坦克综合效果
-  <video controls="" width="100%" height="100%">
-    <source src="./screenshots/tank.mp4" type="video/mp4">
-  </video>
+  <iframe src="./screenshots/tank.mp4" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"/>
 
 
 ### 开发日志
