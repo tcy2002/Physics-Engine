@@ -26,6 +26,12 @@
 |---------------------------------------|-------------------------------------------|
 | ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
 
+- 坦克综合效果
+  <video controls="" width="100%" height="100%">
+    <source src="./screenshots/tank.mp4" type="video/mp4">
+  </video>
+
+
 ### 开发日志
 
 - 2.26-3.3
@@ -76,7 +82,7 @@
         - 语法检查更严格
 
     - 检查碰撞检测
-        - 1、margin
+        - 1、PE_TEST_GROUND_MARGIN
             - box-sphere取消getSphereDistance的margin
             - sphere-convex取消radiusWithThreshold的margin
         - 2、碰撞对顺序
