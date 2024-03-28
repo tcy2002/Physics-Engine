@@ -42,7 +42,7 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
 }
 
 pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
-    pe::Mesh result = pe_phys_shape::_cylinder_mesh;
+    pe::Mesh result = PE_CYLINDER_DEFAULT_MESH;
     for (auto& v : result.vertices) {
         v.position.y *= height;
         v.position.x *= (radius / 0.5);
@@ -52,7 +52,7 @@ pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
 }
 
 pe::Mesh resizeBox(const pe::Vector3& size) {
-    pe::Mesh result = pe_phys_shape::_box_mesh;
+    pe::Mesh result = PE_BOX_DEFAULT_MESH;
     for (auto& v : result.vertices) {
         v.position = v.position * size;
     }

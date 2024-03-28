@@ -102,7 +102,7 @@ void testProject() {
 
 std::string getUniqueEdges() {
     pe_phys_shape::ConvexMeshShape mesh;
-    mesh.setMesh(pe_phys_shape::_cylinder_mesh);
+    mesh.setMesh(PE_CYLINDER_DEFAULT_MESH);
     std::stringstream str;
     str << "const pe::Array<pe::Vector3> _cylinder_unique_edges = { //NOLINT\n";
     auto& edges = mesh.getUniqueEdges();

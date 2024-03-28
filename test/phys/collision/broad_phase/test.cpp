@@ -27,10 +27,10 @@ void testCollisionPair() {
 
     auto bp = new BroadPhaseSweepAndPrune();
     pe::Array<pe_phys_object::RigidBody*> collision_objects = {rb1, rb2, rb3, rb4};
-    bp->calcCollisionPairs(collision_objects);
-    auto collision_pairs = bp->getCollisionPairs();
+    pe::Array<pe_phys_collision::CollisionPair> result;
+    bp->calcCollisionPairs(collision_objects, result);
 
-    ASSERT_EQUAL_INT(collision_pairs.size(), 2)
+    ASSERT_EQUAL_INT(result.size(), 2)
 }
 
 int main() {

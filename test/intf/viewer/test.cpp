@@ -1,7 +1,7 @@
 #include "intf/viewer.h"
 
 void testViewer() {
-    pe_intf::Viewer::open();
+    pe_intf::Viewer::open("ViewerTest", 800, 600, {0, 5, 10}, 0, (float)(PE_PI / 6.0));
 
     int id = pe_intf::Viewer::addCylinder(1.2, 1.0);
     pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.3, 0.3, 0.7));

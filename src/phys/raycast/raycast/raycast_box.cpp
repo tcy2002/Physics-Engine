@@ -3,7 +3,7 @@
 
 namespace pe_phys_ray {
 
-    bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
+    bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                     pe_phys_object::RigidBody* object,
                                     pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         auto& trans = object->getTransform();
@@ -16,7 +16,7 @@ namespace pe_phys_ray {
                       distance, hit_point, hit_normal)) {
             hit_point = trans * hit_point;
             hit_normal = trans.getBasis() * hit_normal;
-            return distance <= length;
+            return true;
         } else {
             hit_point = pe::Vector3::zeros();
             hit_normal = pe::Vector3::zeros();

@@ -628,9 +628,6 @@ namespace pe_phys_vehicle {
     void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                                            const pe::Vector3& from, const pe::Vector3& direction,
                                            pe::Real length, VehicleRaycasterResult& result) {
-//        pe_phys_ray::RaycastSolver* ray = new pe_phys_ray::RaycastSolver(from, direction, length);
-//        ray->performRayTest(rigid_idx, m_world->getRigidBodies(), excludeIds);
-
         bool hit = false;
         pe::Vector3 hit_point, hit_normal;
         pe::Real distance = PE_REAL_MAX;
@@ -647,9 +644,9 @@ namespace pe_phys_vehicle {
             bool hit_this;
             pe::Vector3 hit_point_this, hit_normal_this;
             pe::Real distance_this;
-            hit_this = raycast_box.processRaycast(from, direction, length, rb,
-                                                  distance_this, hit_point_this, hit_normal_this);
-            if (hit_this && distance_this < distance) {
+            hit_this = raycast_box.processRaycast(from, direction, rb, distance_this,
+                                                  hit_point_this, hit_normal_this);
+            if (hit_this && distance_this < length && distance_this < distance) {
                 hit = true;
                 hit_point = hit_point_this;
                 hit_normal = hit_normal_this;

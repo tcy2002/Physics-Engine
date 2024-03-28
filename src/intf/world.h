@@ -4,10 +4,11 @@
  * TODO: priority decreases from top to bottom
  * 1. all shape's raycast
  * 2. hash acceleration for contact result search
- * 3. implement below
- * 4. use smart pointer
- * 5. make class World thread-safe
- * 6. code style consistency
+ * 3. composed rigidbody
+ * 4. implement below
+ * 5. use smart pointer
+ * 6. make class World thread-safe
+ * 7. code style consistency
  *
  * Not implemented:
  * 1. terrain

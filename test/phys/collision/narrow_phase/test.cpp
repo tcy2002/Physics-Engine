@@ -18,10 +18,10 @@ void testNarrowPhase() {
     auto rb2 = createRigidBody(pe::Vector3(0, 0.99, 0), pe::Vector3(1, 1, 1));
     auto np = new SimpleNarrowPhase();
     pe::Array<CollisionPair> pairs = {{rb1, rb2}};
-    np->calcContactResults(pairs);
-    auto results = np->getContactResults();
-    ASSERT_EQUAL_INT(results.size(), 1)
-    ASSERT_EQUAL_INT(results[0].getPointSize(), 4)
+    pe::Array<pe_phys_collision::ContactResult> result;
+    np->calcContactResults(pairs, result);
+    ASSERT_EQUAL_INT(result.size(), 1)
+    ASSERT_EQUAL_INT(result[0].getPointSize(), 4)
 }
 
 int main() {
