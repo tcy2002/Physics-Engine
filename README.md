@@ -101,7 +101,7 @@
                 - v1.0(f1e366e): 问题都已初步解决，待优化的点：轮子与可活动物体的碰撞
                 - v1.1(de8fb1b): 解决了溜坡的问题
                 - v2.0(b399d0b): 一些细节问题
-              
+
 - 3.25-3.31
 
     - 射线检测补全：已完成
@@ -164,7 +164,20 @@
     - 原因：normalize(0 0 0)导致NaN (sphere_cylinder_collision_algorithm.cpp: 39)
     - 解决：37行加r>0的判断
 
-- todo list (not including world.h)
-    - friction_contact_constraint.cpp: 108
-    - contact_vehicle.cpp: 177
-    - pool.cpp: 78
+- todo
+    - code
+        - friction_contact_constraint.cpp: 108
+        - contact_vehicle.cpp: 177
+        - pool.cpp: 78
+
+    - 功能
+        - 1. hash acceleration for contact result search
+        - 2. terrain
+        - 3. composed rigidbody
+        - 1. make class World thread-safe
+        - 5. code style consistency
+        - 1. 8-tree broad phase and 8-tree raycast
+        - 1. group constraints
+        - 8. more constraints
+        - 9. use smart pointer
+    

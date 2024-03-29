@@ -1,18 +1,5 @@
 #pragma once
 
-/*
- * TODO: priority decreases from top to bottom
- * 1. all shape's raycast
- * 2. hash acceleration for contact result search
- * 3. terrain
- * 4. composed rigidbody
- * 5. use smart pointer
- * 6. make class World thread-safe
- * 7. code style consistency
- * 8. group constraints
- * 9. more constraints
- */
-
 #include "common/vector3.h"
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
