@@ -12,7 +12,6 @@ namespace pe_phys_ray {
         pe::Real center2start = (trans.getOrigin() - start).norm();
         pe::Real start2proj = (trans.getOrigin() - start).dot(direction);
         pe::Real proj2center = std::sqrt(PE_MAX(center2start * center2start - start2proj * start2proj, 0));
-        std::cout << center2start << " " << start2proj << " " << proj2center << std::endl;
 
         if (proj2center > radius) {
             hit_point = pe::Vector3::zeros();

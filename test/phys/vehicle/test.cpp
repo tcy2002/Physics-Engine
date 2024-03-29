@@ -215,7 +215,7 @@ void testTank() {
         }
         if (++frame == 30) {
             frame = 0;
-//            std::cout << "\r" << std::fixed << std::setprecision(2) << tank->getSpeedKmHour() << " km/h    ";
+            std::cout << "\r" << std::fixed << std::setprecision(2) << tank->getSpeedKmHour() << " km/h    ";
         }
 
 //        while (pe_intf::Viewer::getKeyState('r') != 1)

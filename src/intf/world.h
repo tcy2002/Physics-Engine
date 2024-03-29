@@ -4,16 +4,13 @@
  * TODO: priority decreases from top to bottom
  * 1. all shape's raycast
  * 2. hash acceleration for contact result search
- * 3. composed rigidbody
- * 4. implement below
+ * 3. terrain
+ * 4. composed rigidbody
  * 5. use smart pointer
  * 6. make class World thread-safe
  * 7. code style consistency
- *
- * Not implemented:
- * 1. terrain
- * 2. group constraints
- * 3. more constraints
+ * 8. group constraints
+ * 9. more constraints
  */
 
 #include "common/vector3.h"
