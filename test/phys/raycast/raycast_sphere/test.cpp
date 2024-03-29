@@ -4,7 +4,7 @@
 
 using namespace pe_phys_ray;
 
-void testRaycastBox() {
+void testRaycastSphere() {
     RaycastSphere rs;
     pe::Vector3 start(1, 0, 0);
     pe::Vector3 direction(0, 1, 1);
@@ -21,5 +21,5 @@ void testRaycastBox() {
 }
 
 int main() {
-    testRaycastBox();
+    testRaycastSphere();
 }

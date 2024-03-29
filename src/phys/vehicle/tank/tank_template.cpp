@@ -53,9 +53,11 @@ namespace pe_phys_vehicle {
 #   endif
 
         vehicle->setCoordinateSystem(0, 1, 2);
+#   if !PE_USE_CONTACT_VEHICLE
         vehicle->addRaycastExcludeId(body->getGlobalId());
         vehicle->addRaycastExcludeId(turret->getGlobalId());
         vehicle->addRaycastExcludeId(barrel->getGlobalId());
+#   endif
     }
 
     void TankTemplate::initWheels(pe_intf::World* dw) {
@@ -373,7 +375,7 @@ namespace pe_phys_vehicle {
             _trackThickness(0.1),
             _trackSegmentNum(80),
             _trackSegmentWidth(0.18),
-            _suspensionStiffness(36.0),
+            _suspensionStiffness(25.0),
             _suspensionDamping(2.0),
             _suspensionCompression(2.0),
             _engineForce(50.),

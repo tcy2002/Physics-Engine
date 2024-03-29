@@ -57,7 +57,7 @@ namespace pe_phys_fracture {
         pe::Vector3 offset = convexMesh->setMesh(mesh);
         rb->setCollisionShape(convexMesh);
         rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));
-        rb->setMass(calc_mesh_volume(mesh));
+        rb->setMass(pe_phys_shape::ConvexMeshShape::calcMeshVolume(mesh));
         rb->setLocalInertia(convexMesh->calcLocalInertia(rb->getMass()));
         rb->setFrictionCoeff(0.3);
         rb->setRestitutionCoeff(0.8);

@@ -15,8 +15,7 @@ namespace pe_phys_vehicle {
             m_maxSuspensionForce(pe::Real(1000.)) {}
 
     ContactVehicle::ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
-                                   pe_intf::World* world):
-            m_raycastExcludeIds(100) {
+                                   pe_intf::World* world) {
         m_chassisBody = chassis;
         m_world = world;
         m_indexRightAxis = 0;
@@ -140,11 +139,6 @@ namespace pe_phys_vehicle {
         pe::Real maxDepth = PE_REAL_MIN;
         uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
         for (auto& cr : m_world->_contact_results) {
-            if (m_raycastExcludeIds.contains(cr.getObjectA()->getGlobalId()) ||
-                m_raycastExcludeIds.contains(cr.getObjectB()->getGlobalId())) {
-                continue;
-            }
-
             if (cr.getObjectA()->getGlobalId() == rb_id) {
                 for (int i = 0; i < PE_MIN(1, cr.getPointSize()); i++) {
                     auto& cp = cr.getContactPoint(i);

@@ -14,7 +14,6 @@ namespace pe_phys_vehicle {
         pe::Array<pe::Vector3> m_axle;
         pe::Array<pe::Real> m_forwardImpulse;
         pe::Array<pe::Real> m_sideImpulse;
-        pe::Uint32HashList m_raycastExcludeIds;
 
     public:
         class VehicleTuning {
@@ -50,8 +49,6 @@ namespace pe_phys_vehicle {
 
         const pe::Transform& getChassisWorldTransform() const;
 
-        void addRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.push_back(id); }
-        void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(id); }
         pe::Real contactResolve(ContactWheelInfo& wheel);
 
         pe::Real getSteeringValue(int wheel) const;

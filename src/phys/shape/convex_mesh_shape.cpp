@@ -1,8 +1,5 @@
 #include "convex_mesh_shape.h"
 #include <algorithm>
-#include "phys/fracture/fracture_utils/fracture_data.h"
-#include "phys/fracture/fracture_utils/fracture_utils.h"
-#include "utils/hash_vector.h"
 
 //#define INERTIA_USE_AABB
 
@@ -12,7 +9,7 @@ namespace pe_phys_shape {
     // Returns the relocation vector.
     pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
-        pe::Vector3 centroid = pe_phys_fracture::calc_mesh_centroid(_mesh);
+        pe::Vector3 centroid = calcMeshCentroid(_mesh);
         for (auto &v: _mesh.vertices) {
             v.position -= centroid;
         }
@@ -161,5 +158,37 @@ namespace pe_phys_shape {
         inertia[2][1] = inertia[1][2];
         return inertia * (mass / (2 * sum));
 #   endif
+    }
+
+    pe::Real ConvexMeshShape::calcMeshVolume(const pe::Mesh &mesh) {
+        pe::Real volume = 0;
+        for (auto& face : mesh.faces) {
+            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
+                const pe::Vector3 &v0 = mesh.vertices[face.indices[0]].position;
+                const pe::Vector3 &v1 = mesh.vertices[face.indices[i + 1]].position;
+                const pe::Vector3 &v2 = mesh.vertices[face.indices[i + 2]].position;
+                volume += v0.dot(v1.cross(v2));
+            }
+        }
+        return volume / pe::Real(6.0);
+    }
+
+    pe::Vector3 ConvexMeshShape::calcMeshCentroid(const pe::Mesh &mesh) {
+        pe::Vector3 centroid = pe::Vector3::zeros();
+        pe::Real surface_area = 0;
+        for (auto &f: mesh.faces) {
+            pe::Vector3 face_centroid = pe::Vector3::zeros();
+            pe::Vector3 face_area = pe::Vector3::zeros();
+            for (int i = 0; i < (int)f.indices.size(); i++) {
+                auto &p0 = mesh.vertices[f.indices[i]].position;
+                auto &p1 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
+                face_area += p0.cross(p1);
+                face_centroid += p0;
+            }
+            pe::Real face_area_ = face_area.norm();
+            surface_area += face_area_;
+            centroid += face_centroid / (pe::Real) f.indices.size() * face_area_;
+        }
+        return centroid / surface_area;
     }
 }

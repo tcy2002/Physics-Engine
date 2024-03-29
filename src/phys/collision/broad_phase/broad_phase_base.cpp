@@ -5,6 +5,7 @@ namespace pe_phys_collision {
     bool BroadPhaseBase::validateCollisionPair(pe_phys_object::RigidBody* co1, pe_phys_object::RigidBody* co2) const {
         if (!co1 || !co2) return false;
         if (!co1->getCollisionShape() || !co2->getCollisionShape()) return false;
+        if (!co1->getCollisionShape()->isConvex() || !co2->getCollisionShape()->isConvex()) return false;
         if (co1->getGlobalId() == co2->getGlobalId()) return false;
         if (co1->isIgnoreCollisionId(co2->getGlobalId())) return false;
         if (co2->isIgnoreCollisionId(co1->getGlobalId())) return false;

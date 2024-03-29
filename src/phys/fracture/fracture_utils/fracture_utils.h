@@ -6,8 +6,6 @@ namespace pe_phys_fracture {
 
     pe::Matrix3 from_two_vectors(const pe::Vector3& a, const pe::Vector3& b);
 
-    pe::Real calc_mesh_volume(const pe::Mesh& mesh);
-    pe::Vector3 calc_mesh_centroid(const pe::Mesh& mesh);
     void calc_tet_bounding_sphere(const pe::Vector3& v1, const pe::Vector3& v2,
                                   const pe::Vector3& v3, const pe::Vector3& v4,
                                   pe::Vector3& center, pe::Real& radius);
