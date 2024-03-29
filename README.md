@@ -18,11 +18,11 @@
 ![demo.gif](./screenshots/demo.gif)
 
 - 履带坦克
-    - RaycastSolver：根据射线检测的深度设置impulse和suspension，表现为直接贴地
+    - DefaultRaycastSolver：根据射线检测的深度设置impulse和suspension，表现为直接贴地
     - Contact：根据车轮与地面的碰撞结果设置impulse和suspension，力的反馈更真实
     - 目前履带没有碰撞效果，会有穿模发生，正在寻找方案解决(3.25)
 
-| RaycastSolver                               | Contact                                   |
+| DefaultRaycastSolver                               | Contact                                   |
 |---------------------------------------|-------------------------------------------|
 | ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
 

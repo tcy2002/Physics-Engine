@@ -3,8 +3,8 @@
 #include "phys/object/rigidbody.h"
 
 namespace pe_phys_ray {
-    
-    class RaycastSolver {
+
+    class RaycastSolverBase {
     public:
         struct RaycastResult {
             pe::Real m_distance = PE_REAL_MAX;
@@ -14,12 +14,12 @@ namespace pe_phys_ray {
             bool hasHit() const { return m_collisionObject != nullptr; }
         };
 
-        RaycastSolver() {}
-        virtual ~RaycastSolver() {}
+        RaycastSolverBase() {}
+        virtual ~RaycastSolverBase() {}
         virtual bool performRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
                                     const pe::Array<pe_phys_object::RigidBody*>& objects,
                                     const pe::Uint32HashList& ignores,
-                                    RaycastResult& result);
+                                    RaycastResult& result) = 0;
     };
-    
+
 } // namespace pe_phys_ray

@@ -1,4 +1,4 @@
-#include "raycast_solver.h"
+#include "default_raycast_solver.h"
 #include "phys/raycast/raycast/raycast_box.h"
 #include "phys/raycast/raycast/raycast_sphere.h"
 #include "phys/raycast/raycast/raycast_cylinder.h"
@@ -6,10 +6,10 @@
 
 namespace pe_phys_ray {
 
-    bool RaycastSolver::performRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
-                                       const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                       const pe::Uint32HashList& ignores,
-                                       RaycastResult& result) {
+    bool DefaultRaycastSolver::performRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
+                                              const pe::Array<pe_phys_object::RigidBody*>& objects,
+                                              const pe::Uint32HashList& ignores,
+                                              RaycastResult& result) {
         result.m_distance = PE_REAL_MAX;
         result.m_collisionObject = nullptr;
 

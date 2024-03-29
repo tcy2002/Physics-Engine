@@ -1,12 +1,19 @@
 #include "raycast_mesh.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
+#include "phys/raycast/raycast/raycast_box.h"
 
 namespace pe_phys_ray {
 
     bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                        pe_phys_object::RigidBody* object,
                                        pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
+        // first, test the aabb box
+        if (!RaycastBox::rayHitBox(start, direction, object->getAABBMin(), object->getAABBMax(),
+                                   distance, hit_point, hit_normal)) {
+            return false;
+        }
+
         auto& trans = object->getTransform();
         pe::Vector3 start_local = trans.inverseTransform(start);
         pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
@@ -20,6 +27,8 @@ namespace pe_phys_ray {
         }
 
         distance = PE_REAL_MAX;
+        hit_point = pe::Vector3::zeros();
+        hit_normal = pe::Vector3::zeros();
         for (auto& face: mesh->faces) {
             pe::Real d;
             pe::Vector3 hit;
