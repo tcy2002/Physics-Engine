@@ -2,7 +2,7 @@
 
 #include "raycast.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     class RaycastCylinder: public Raycast {
     public:

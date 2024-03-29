@@ -4,7 +4,7 @@
 #include "phys/raycast/raycast/raycast_cylinder.h"
 #include "phys/raycast/raycast/raycast_mesh.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     bool DefaultRaycastSolver::performRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
                                               const pe::Array<pe_phys_object::RigidBody*>& objects,

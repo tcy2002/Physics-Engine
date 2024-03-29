@@ -3,7 +3,7 @@
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     class Raycast {
     public:

@@ -1,7 +1,7 @@
 #include "raycast_sphere.h"
 #include "phys/shape/sphere_shape.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     bool RaycastSphere::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                     pe_phys_object::RigidBody* object,

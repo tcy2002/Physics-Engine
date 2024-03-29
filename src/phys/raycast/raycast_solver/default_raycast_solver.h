@@ -2,7 +2,7 @@
 
 #include "raycast_solver_base.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
     
     class DefaultRaycastSolver : public RaycastSolverBase {
     public:

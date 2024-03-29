@@ -1,7 +1,7 @@
 #include "raycast_cylinder.h"
 #include "phys/shape/cylinder_shape.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     bool RaycastCylinder::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                          pe_phys_object::RigidBody* object,

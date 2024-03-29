@@ -629,7 +629,7 @@ namespace pe_phys_vehicle {
     void* DefaultVehicleRaycaster::castRay(uint32_t rigid_idx, const pe::Uint32HashList& excludeIds,
                                            const pe::Vector3& from, const pe::Vector3& direction,
                                            pe::Real length, VehicleRaycasterResult& result) {
-        pe_phys_ray::DefaultRaycastSolver::RaycastResult res;
+        pe_phys_raycast::RaycastResult res;
         bool hit = m_raySolver.performRaycast(from, direction, length,
                                          m_world->getRigidBodies(), excludeIds, res);
 

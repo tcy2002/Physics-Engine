@@ -95,7 +95,7 @@ namespace pe_phys_vehicle {
     class DefaultVehicleRaycaster : public VehicleRaycaster {
     private:
         pe_intf::World* m_world;
-        pe_phys_ray::DefaultRaycastSolver m_raySolver;
+        pe_phys_raycast::DefaultRaycastSolver m_raySolver;
 
     public:
         explicit DefaultVehicleRaycaster(pe_intf::World* world): m_world(world) {}

@@ -2,7 +2,7 @@
 #include "phys/shape/box_shape.h"
 #include "phys/object/rigidbody.h"
 
-using namespace pe_phys_ray;
+using namespace pe_phys_raycast;
 
 void testRaycastBox() {
     RaycastBox rb;

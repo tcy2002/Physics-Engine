@@ -3,7 +3,7 @@
 #include "phys/shape/concave_mesh_shape.h"
 #include "phys/raycast/raycast/raycast_box.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                        pe_phys_object::RigidBody* object,

@@ -4,7 +4,7 @@
 #include "phys/shape/default_mesh.h"
 #include "phys/object/rigidbody.h"
 
-using namespace pe_phys_ray;
+using namespace pe_phys_raycast;
 
 void testRaycastMesh() {
     RaycastMesh rm;

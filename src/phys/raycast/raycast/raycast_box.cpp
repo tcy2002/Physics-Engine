@@ -1,7 +1,7 @@
 #include "raycast_box.h"
 #include "phys/shape/box_shape.h"
 
-namespace pe_phys_ray {
+namespace pe_phys_raycast {
 
     bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                     pe_phys_object::RigidBody* object,
