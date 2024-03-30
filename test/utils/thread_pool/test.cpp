@@ -23,7 +23,5 @@ void testThreadPool() {
 }
 
 int main() {
-    std::vector<int> a;
-    std::cout << (a.begin() == a.end()) << std::endl;
-//    testThreadPool();
+    testThreadPool();
 }
