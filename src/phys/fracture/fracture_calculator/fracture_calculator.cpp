@@ -40,7 +40,9 @@ namespace pe_phys_fracture {
 
         // cut all the faces
         for (uint32_t face_id = 0; face_id < face_count; face_id++) {
-            inter_points.append(cut_face_by_plane(face_id, old_mesh, p, n, new_mesh));
+            for (auto& point : cut_face_by_plane(face_id, old_mesh, p, n, new_mesh)) {
+                inter_points.push_back(point);
+            }
         }
         if (inter_points.size() < 3) {
             return;

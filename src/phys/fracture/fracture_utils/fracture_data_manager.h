@@ -53,7 +53,7 @@ namespace pe_phys_fracture {
         uint32_t face_count() const { return (uint32_t)_faces.size(); }
         uint32_t add_face(const polygon& face) { _faces.push_back(face); return _faces.size() - 1; }
         polygon get_face(uint32_t idx) { return _faces[idx]; }
-        void remove_face(uint32_t idx) { _faces.erase_at(idx); }
+        void remove_face(uint32_t idx) { _faces.erase(_faces.begin() + idx); }
         void clear_faces() { _faces.clear(); }
 
         uint32_t tetrahedron_count() const { return (uint32_t)_tetrahedrons.size(); }

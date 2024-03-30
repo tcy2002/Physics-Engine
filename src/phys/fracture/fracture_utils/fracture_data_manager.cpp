@@ -4,16 +4,16 @@ namespace pe_phys_fracture {
 
     uint32_t FractureDataManager::add_vertex(const pe::Vector3& p, const pe::Vector3& n) {
         vertex new_vertex(p, n);
-        uint32_t idx = _vertices.index_of(new_vertex);
-        if (idx == -1) {
+        auto it = _vertices.find(new_vertex);
+        if (it == _vertices.end()) {
             _vertices.push_back(new_vertex);
             return _vertices.size() - 1;
         }
-        return idx;
+        return (uint32_t)(it - _vertices.begin());
     }
 
     void FractureDataManager::remove_vertex(uint32_t idx) {
-        _vertices.erase_at(idx);
+        _vertices.erase(_vertices.begin() + idx);
         TriangleHashList new_triangles;
         for (auto tri : _triangles) {
             for (auto& vert_id : tri.vert_ids) {
@@ -31,16 +31,16 @@ namespace pe_phys_fracture {
 
     uint32_t FractureDataManager::add_triangle(uint32_t v1, uint32_t v2, uint32_t v3) {
         triangle new_tri(v1, v2, v3);
-        uint32_t idx = _triangles.index_of(new_tri);
-        if (idx == -1) {
+        auto it = _triangles.find(new_tri);
+        if (it == _triangles.end()) {
             _triangles.push_back(new_tri);
             return _triangles.size() - 1;
         }
-        return idx;
+        return (uint32_t)(it - _triangles.begin());
     }
 
     void FractureDataManager::remove_triangle(uint32_t idx) {
-        _triangles.erase_at(idx);
+        _triangles.erase(_triangles.begin() + idx);
         for (auto& tet : _tetrahedrons) {
             for (auto& tri_id : tet.tri_ids) {
                 if (tri_id == idx) {
@@ -84,10 +84,10 @@ namespace pe_phys_fracture {
 
         // use normal to identify a face
         polygon new_face(n);
-        uint32_t face_id = _faces.index_of(new_face);
+        uint32_t face_id = (uint32_t)(_faces.find(new_face) - _faces.begin());
 
         // if the face doesn't exist, create a new one
-        if (face_id == -1) {
+        if (face_id == face_count()) {
             for (auto v : vs) {
                 new_face.add_vert(v);
             }
@@ -108,7 +108,9 @@ namespace pe_phys_fracture {
             if ((u1 == v1i || u2 == v2i || u3 == v3i) &&
                 (u1 == v2i || u2 == v3i || u3 == v1i) &&
                 (u1 == v3i || u2 == v1i || u3 == v2i)) {
-                _faces[face_id].remove_vert((i + 1) % count);
+                auto face = _faces[face_id];
+                face.remove_vert((i + 1) % count);
+                _faces.replace(_faces.begin() + face_id, face);
                 return true;
             }
 
@@ -116,7 +118,9 @@ namespace pe_phys_fracture {
             for (int j = 0; j < 3; j++) {
                 uint32_t v1 = vs[j], v2 = vs[(j + 1) % 3];
                 if ((u1 == v1 && u2 == v2) || (u1 == v2 && u2 == v1)) {
-                    _faces[face_id].add_vert(vs[(j + 2) % 3], (i + 1) % count);
+                    auto face = _faces[face_id];
+                    face.add_vert(vs[(j + 2) % 3], (i + 1) % count);
+                    _faces.replace(_faces.begin() + face_id, face);
                     return true;
                 }
             }

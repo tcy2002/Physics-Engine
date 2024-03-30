@@ -24,12 +24,12 @@ namespace pe_phys_shape {
             for (int i = 0; i < (int)f.indices.size(); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
-                uint32_t id0 = vert_map.index_of(_mesh.vertices[v0].position);
-                uint32_t id1 = vert_map.index_of(_mesh.vertices[v1].position);
-                if (id0 == -1) { vert_map.push_back(_mesh.vertices[v0].position); id0 = vert_map.size() - 1; }
-                if (id1 == -1) { vert_map.push_back(_mesh.vertices[v1].position); id1 = vert_map.size() - 1; }
+                uint32_t id0 = (uint32_t)(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
+                if (id0 == (uint32_t)vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
+                uint32_t id1 = (uint32_t)(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
+                if (id1 == (uint32_t)vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
                 if (i == 0) _unique_faces.back().push_back(id0);
-                if (i != f.indices.size() - 1) _unique_faces.back().push_back(id1);
+                if (i != (int)f.indices.size() - 1) _unique_faces.back().push_back(id1);
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;

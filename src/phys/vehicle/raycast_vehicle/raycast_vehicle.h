@@ -52,7 +52,7 @@ namespace pe_phys_vehicle {
         const pe::Transform& getChassisWorldTransform() const;
 
         void addRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.push_back(id); }
-        void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(id); }
+        void removeRaycastExcludeId(uint32_t id) { m_raycastExcludeIds.erase(m_raycastExcludeIds.find(id)); }
         pe::Real rayCast(RaycastWheelInfo& wheel);
 
         pe::Real getSteeringValue(int wheel) const;

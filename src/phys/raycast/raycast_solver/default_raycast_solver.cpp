@@ -19,7 +19,7 @@ namespace pe_phys_raycast {
         static RaycastMesh r_mesh;
 
         for (auto rb : objects) {
-            if (ignores.contains(rb->getGlobalId())) {
+            if (ignores.find(rb->getGlobalId()) != ignores.end()) {
                 continue;
             }
 

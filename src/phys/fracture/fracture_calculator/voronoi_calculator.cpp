@@ -71,8 +71,8 @@ namespace pe_phys_fracture {
             for (auto tet_id : bad_tetrahedrons) {
                 auto tet = _manager.get_tetrahedron(tet_id);
                 for (auto tri_id : tet.tri_ids) {
-                    if (good_triangles.contains(tri_id)) {
-                        good_triangles.erase(tri_id);
+                    if (good_triangles.find(tri_id) != good_triangles.end()) {
+                        good_triangles.erase(good_triangles.find(tri_id));
                         bad_triangles.push_back(tri_id);
                     } else {
                         good_triangles.push_back(tri_id);
