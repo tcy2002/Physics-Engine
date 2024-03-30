@@ -30,7 +30,7 @@ void testFrictionContactConstraint() {
 
     auto np = pe_phys_collision::SimpleNarrowPhase();
     pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb1, rb2}};
-    pe::Array<pe_phys_collision::ContactResult> result;
+    pe::Array<pe_phys_collision::ContactResult*> result;
     np.calcContactResults(pairs, result);
     auto solver = new SequentialImpulseConstraintSolver();
     solver->setupSolver({rb1, rb2}, result, {});

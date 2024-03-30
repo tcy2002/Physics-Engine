@@ -27,13 +27,13 @@ void testFrictionContactConstraint() {
 
     auto np = pe_phys_collision::SimpleNarrowPhase();
     pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb2, rb1}};
-    pe::Array<pe_phys_collision::ContactResult> result;
+    pe::Array<pe_phys_collision::ContactResult*> result;
     np.calcContactResults(pairs, result);
     ASSERT_EQUAL_INT(result.size(), 1)
-    ASSERT_EQUAL_INT(result[0].getPointSize(), 4)
+    ASSERT_EQUAL_INT(result[0]->getPointSize(), 4)
 
     auto fcc = FrictionContactConstraint();
-    fcc.setContactResult(result[0]);
+    fcc.setContactResult(*result[0]);
     ConstraintParam param{};
 
     rb1->clearTempVelocity();
