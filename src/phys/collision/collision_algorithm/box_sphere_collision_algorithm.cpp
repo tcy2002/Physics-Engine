@@ -22,6 +22,7 @@ namespace pe_phys_collision {
         pe::Real dist;
         if (getSphereDistance(shape_b, object_b->getTransform(), sphereCenter, radius,
                               ptOnBox, normal, dist)) {
+            result.clearContactPoints();
             result.setObjects(object_a, object_b);
             result.addContactPoint(normal, ptOnBox - normal * margin,
                                    dist + 2 * margin);

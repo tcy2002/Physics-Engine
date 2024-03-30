@@ -134,9 +134,7 @@ namespace pe_intf {
 
         // collision detection
         updateAABBs();
-        _collision_pairs.clear();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
-        _contact_results.clear();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
 
 #   if PE_SHOW_DEBUG_POINTS

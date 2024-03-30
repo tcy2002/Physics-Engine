@@ -108,6 +108,10 @@
 
     - 移植大地形：待完成
 
+    - 其他优化
+        - hash vector: 使用STL unordered_multimap
+        - contact result: 也使用pool管理
+
 ### 问题日志
 
 - 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
@@ -171,7 +175,7 @@
         - pool.cpp: 78
 
     - 功能
-        1. hash acceleration for contact result search
+        1. multi raycast √
         2. terrain
         3. code style consistency
         4. composed rigidbody

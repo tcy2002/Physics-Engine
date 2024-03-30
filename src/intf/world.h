@@ -32,7 +32,7 @@ namespace pe_intf {
         pe_phys_constraint::ConstraintSolver* _constraint_solver;
 
         pe::Array<pe_phys_collision::CollisionPair> _collision_pairs;
-        pe::Array<pe_phys_collision::ContactResult> _contact_results;
+        pe::Array<pe_phys_collision::ContactResult*> _contact_results;
         friend class pe_phys_vehicle::ContactVehicle;
 
         void updateAABBs();

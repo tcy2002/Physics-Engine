@@ -29,6 +29,7 @@ namespace pe_phys_collision {
             return false;
         }
 
+        result.clearContactPoints();
         result.setObjects(object_a, object_b);
         pe::Real r = std::sqrt(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
         pe::Vector3 normal;

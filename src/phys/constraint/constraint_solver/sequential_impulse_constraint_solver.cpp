@@ -9,7 +9,7 @@ namespace pe_phys_constraint {
 
     void SequentialImpulseConstraintSolver::setupSolver(
             const pe::Array<pe_phys_object::RigidBody*>& objects,
-            const pe::Array<pe_phys_collision::ContactResult>& contact_results,
+            const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
             const pe::Array<Constraint*>& constraints) {
         _collision_objects = objects;
         for (auto co : _collision_objects) {
@@ -35,9 +35,9 @@ namespace pe_phys_constraint {
 #   ifdef PE_MULTI_THREAD
         auto c = this;
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
-                                   [&c](const pe_phys_collision::ContactResult& cr, int idx){
+                                   [&c](pe_phys_collision::ContactResult* cr, int idx){
                                        auto fcc = (FrictionContactConstraint*)(c->_constraints[idx]);
-                                       fcc->setContactResult(cr);
+                                       fcc->setContactResult(*cr);
                                        fcc->initSequentialImpulse(c->_param);
                                        fcc->warmStart();
                                    });
@@ -45,7 +45,7 @@ namespace pe_phys_constraint {
 #   else
         for (int i = 0; i < contact_results.size(); i++) {
             auto fcc = new FrictionContactConstraint();
-            fcc->setContactResult(contact_results[i]);
+            fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
             _constraints[i] = fcc;

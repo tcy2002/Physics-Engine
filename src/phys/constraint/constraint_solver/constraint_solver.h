@@ -14,7 +14,7 @@ namespace pe_phys_constraint {
         ConstraintSolver(): _param(ConstraintParam()), _iteration(1) {}
         virtual ~ConstraintSolver() {}
         virtual void setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                 const pe::Array<pe_phys_collision::ContactResult>& contact_results,
+                                 const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
                                  const pe::Array<Constraint*>& constraints) = 0;
         virtual void solve() = 0;
     };

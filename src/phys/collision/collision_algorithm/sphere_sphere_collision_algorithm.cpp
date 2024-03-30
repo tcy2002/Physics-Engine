@@ -21,6 +21,7 @@ namespace pe_phys_collision {
             return false;
         }
 
+        result.clearContactPoints();
         result.setObjects(object_a, object_b);
         pe::Vector3 normal = rel / dist;
         pe::Vector3 wPtOnB = object_b->getTransform().getOrigin() + normal * radius_b;

@@ -6,7 +6,7 @@
 using namespace pe_phys_vehicle;
 
 #define PE_TEST_GROUND_MARGIN pe::Vector3(0.05, 0.03, 0.05)
-#define PE_TEST_OBJ false
+#define PE_TEST_OBJ true
 #define PE_TEST_OBJ_NUM 150
 
 pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {

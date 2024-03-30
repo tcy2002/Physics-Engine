@@ -20,6 +20,7 @@ namespace pe_phys_collision {
         auto& trans_b = object_b->getTransform();
 
         pe::Vector3 vertices[3];
+        result.clearContactPoints();
         result.setObjects(object_a, object_b);
         for (auto& f : mesh_b.faces) {
             for (int i = 0; i < (int)f.indices.size() - 2; i++) {

@@ -3,7 +3,7 @@
 namespace pe_phys_fracture {
 
     uint32_t vertex::VertexHash::operator()(const vertex& v) const {
-        static pe::vector3_hash hash;
+        static pe::Vector3Hash hash;
         auto x = hash(v.pos);
         auto y = hash(v.nor);
         uint32_t h = 0x10f1;
@@ -13,7 +13,7 @@ namespace pe_phys_fracture {
     }
 
     bool vertex::VertexEqual::operator()(const vertex& a, const vertex& b) const {
-        static pe::vector3_equal equal;
+        static pe::Vector3Equal equal;
         return equal(a.pos, b.pos) && equal(a.nor, b.nor);
     }
 
@@ -51,12 +51,12 @@ namespace pe_phys_fracture {
     }
 
     uint32_t polygon::PolygonHash::operator()(const polygon& p) const {
-        static pe::vector3_hash hash;
+        static pe::Vector3Hash hash;
         return hash(p.nor);
     }
 
     bool polygon::PolygonEqual::operator()(const polygon& a, const polygon& b) const {
-        static pe::vector3_equal equal;
+        static pe::Vector3Equal equal;
         return equal(a.nor, b.nor);
     }
 

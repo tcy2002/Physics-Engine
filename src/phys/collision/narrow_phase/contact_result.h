@@ -57,6 +57,7 @@ namespace pe_phys_collision {
         ContactPoint& getContactPoint(int index) { return _points[index]; }
         const ContactPoint& getContactPoint(int index) const { return _points[index]; }
         void sortContactPoints();
+        void clearContactPoints();
 
     protected:
         int getExistingClosestPoint(const pe::Vector3& local_pos_b) const;

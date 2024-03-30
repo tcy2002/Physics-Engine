@@ -22,6 +22,7 @@ namespace pe_phys_collision {
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
+        result.clearContactPoints();
         result.setObjects(object_a, object_b);
 
         VertexArray world_verts_b1;

@@ -70,6 +70,7 @@ namespace pe_phys_collision {
             R2[2 + 4 * j] = basis_b[j][2];
         }
 
+        result.clearContactPoints();
         result.setObjects(object_a, object_b);
         dBoxBox2(transform_a.getOrigin(), R1, box_a->getSize(),
                  transform_b.getOrigin(), R2, box_b->getSize(),

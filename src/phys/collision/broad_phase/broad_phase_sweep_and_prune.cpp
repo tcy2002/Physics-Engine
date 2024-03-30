@@ -6,6 +6,7 @@ namespace pe_phys_collision {
     void BroadPhaseSweepAndPrune::calcCollisionPairs(pe::Array<pe_phys_object::RigidBody*> objects,
                                                      pe::Array<CollisionPair>& pairs) {
         if (objects.size() < 2) return;
+        pairs.clear();
 
         // sort collision objects by their min x value
         std::sort(objects.begin(), objects.end(),

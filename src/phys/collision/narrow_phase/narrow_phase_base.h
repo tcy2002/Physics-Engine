@@ -36,7 +36,7 @@ namespace pe_phys_collision {
             }
         }
 
-        virtual void calcContactResults(const pe::Array<CollisionPair>& pairs, pe::Array<ContactResult>& results) = 0;
+        virtual void calcContactResults(const pe::Array<CollisionPair>& pairs, pe::Array<ContactResult*>& results) = 0;
     };
 
 } // namespace pe_phys_collision

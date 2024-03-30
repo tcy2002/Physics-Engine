@@ -115,6 +115,14 @@ namespace pe_phys_collision {
         _point_size = PE_CONTACT_CACHE_SIZE;
     }
 
+    void ContactResult::clearContactPoints() {
+        for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
+            _points[i].invalidate();
+        }
+        _point_size = 0;
+        _swap_flag = false;
+    }
+
     int ContactResult::getExistingClosestPoint(const pe::Vector3 &local_pos_b) const {
         pe::Real min_dist = getSameContactPointDistanceThreshold();
         min_dist *= min_dist;

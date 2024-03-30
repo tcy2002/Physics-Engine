@@ -68,20 +68,14 @@ namespace pe {
     template <typename T1, typename T2>
     using KV = std::pair<T1, T2>;
 
-    struct uint32_equal {
-        bool operator()(uint32_t a, uint32_t b) const { return a == b; }
-    };
-    struct uint32_hash {
-        uint32_t operator()(uint32_t v) const { return v; }
-    };
-    using Uint32HashList = HashList<uint32_t, uint32_hash, uint32_equal>;
+    using Uint32HashList = HashList<uint32_t, std::hash<uint32_t>, std::equal_to<uint32_t>>;
 
-    struct vector3_equal {
+    struct Vector3Equal {
         bool operator()(const pe::Vector3& a, const pe::Vector3& b) const {
             return PE_APPROX_EQUAL(a.x, b.x) && PE_APPROX_EQUAL(a.y, b.y) && PE_APPROX_EQUAL(a.z, b.z);
         }
     };
-    struct vector3_hash {
+    struct Vector3Hash {
         uint32_t operator()(const pe::Vector3& v) const {
             auto x = (uint32_t)(std::round(v.x / PE_EPS));
             auto y = (uint32_t)(std::round(v.y / PE_EPS));
@@ -93,5 +87,5 @@ namespace pe {
             return h;
         }
     };
-    using Vector3HashList = HashList<Vector3, vector3_hash, vector3_equal>;
+    using Vector3HashList = HashList<Vector3, Vector3Hash, Vector3Equal>;
 } // namespace pe
