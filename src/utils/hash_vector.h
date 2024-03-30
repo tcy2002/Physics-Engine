@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
 #include <functional>
 
@@ -10,16 +9,6 @@ namespace utils {
      * @brief A hash vector, similar usage to std::vector, but
      * can provide high efficiency on sequential write and random
      * search.
-     *
-     * Capacity and hash function is user-given.
-     *
-     * Must register the hash function of custom type like:
-     * uint32_t hash_func(const T& item) {}
-     * and the equal function like:
-     * bool equal(const T& a, const T& b) {}
-     * reason: some '==' operator has already been overloaded, and
-     * custom type may use other strategy to compare equality, e.g.
-     * Vector3
      */
     template <typename T, typename HashFunc, typename EqualFunc>
     class hash_vector {
