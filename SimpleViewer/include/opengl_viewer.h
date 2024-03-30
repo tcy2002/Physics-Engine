@@ -1,5 +1,6 @@
 /**
  * @brief A singleton, single-window, reopenable OpenGL viewer
+ * by tcy
  *
  * Supported objects: common::Mesh<float>, Cube, Cylinder, Cone, Line(Strips), TODO: Text(Ascii)
  *

@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <map>
 #include <cstdint>
-#include "utils/hash_vector.h"
 
 //// general macros
 #include <common/general.h>
@@ -52,6 +51,7 @@ namespace pe {
 #define PE_PI pe::Real(3.141592653589)
 
 //// other date types
+#include "utils/hash_vector.h"
 namespace pe {
     template <typename T>
     using Array = std::vector<T>;

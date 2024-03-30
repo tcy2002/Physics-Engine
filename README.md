@@ -180,7 +180,7 @@
         3. code style consistency
         4. composed rigidbody
         5. make class World thread-safe
-        6. 8-tree broad phase and 8-tree raycast
+        6. use octtree in broad phase and raycast
         7. group constraints
         8. more constraints
         9. use smart pointer
