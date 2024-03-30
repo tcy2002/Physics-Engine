@@ -171,13 +171,13 @@
         - pool.cpp: 78
 
     - 功能
-        - 1. hash acceleration for contact result search
-        - 2. terrain
-        - 3. composed rigidbody
-        - 1. make class World thread-safe
-        - 5. code style consistency
-        - 1. 8-tree broad phase and 8-tree raycast
-        - 1. group constraints
-        - 8. more constraints
-        - 9. use smart pointer
+        1. hash acceleration for contact result search
+        2. terrain
+        3. code style consistency
+        4. composed rigidbody
+        5. make class World thread-safe
+        6. 8-tree broad phase and 8-tree raycast
+        7. group constraints
+        8. more constraints
+        9. use smart pointer
     
