@@ -16,11 +16,13 @@ public:
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
         // create a ground
-        auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(1000, 1, 1000), 8);
+        auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0),
+                                      pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
 
         // create a fracturable box and solve it
-        auto rb2 = createFracturableObject(pe::Vector3(0, 5, 0), pe::Vector3(4, 4, 4), 1);
+        auto rb2 = createFracturableObject(pe::Vector3(0, 5, 0),
+                                           pe::Vector3(4, 4, 4), 1);
         auto fs = new pe_phys_fracture::FractureSolver();
         pe_phys_fracture::FractureSource src;
         src.type = pe_phys_fracture::FractureType::Sphere;
@@ -34,11 +36,14 @@ public:
         for (int i = 0; i < 99; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
-                rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), pe::Vector3(1, 1, 1), 1.0);
+                rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                                        pe::Vector3(1, 1, 1), 1.0);
             } else if (i % 3 == 1) {
-                rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0);
+                rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                                           0.5, 1.0);
             } else {
-                rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0, 1.0);
+                rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                                             0.5, 1.0, 1.0);
             }
             rbs.push_back(rb);
         }
@@ -54,7 +59,8 @@ public:
     }
 
 protected:
-    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
+    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos,
+                                                         const pe::Vector3& size, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -67,7 +73,8 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Real radius, pe::Real mass) {
+    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos,
+                                                            pe::Real radius, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
@@ -80,7 +87,8 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::Real radius, pe::Real height, pe::Real mass) {
+    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos,
+                                                              pe::Real radius, pe::Real height, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
@@ -93,7 +101,8 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& pos, const pe::Vector3& size, pe::Real th) {
+    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& pos,
+                                                                      const pe::Vector3& size, pe::Real th) {
         auto rb = new pe_phys_object::FracturableObject();
         rb->setMass(1.0);
         auto shape = new pe_phys_shape::BoxShape(size);

@@ -11,11 +11,11 @@
 
 //// real
 #ifdef PE_USE_DOUBLE
-#define PE_REAL_MAX 1e100
-#define PE_REAL_MIN -1e100
+#define PE_REAL_MAX pe::Real(1e100)
+#define PE_REAL_MIN pe::Real(-1e100)
 #else
-#define PE_REAL_MAX 1e100
-#define PE_REAL_MIN -1e100
+#define PE_REAL_MAX pe::Real(1e30)
+#define PE_REAL_MIN pe::Real(-1e30)
 #endif
 
 //// min max

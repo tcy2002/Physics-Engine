@@ -6,6 +6,7 @@ void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
 
     int frame = 0;
     int dt_ms = (int)(dt * 1000);
+    auto start = COMMON_GetTickCount();
     while (++frame < max_frame) {
         auto t = COMMON_GetTickCount();
 
@@ -18,14 +19,15 @@ void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
             }
         }
 
-        COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
+        COMMON_Sleep(dt_ms - (int)(COMMON_GetTickCount() - t));
     }
+    auto end = COMMON_GetTickCount();
+    std::cout << "fps: " << (pe::Real)frame / ((pe::Real)(end - start) / 1000.0) << std::endl;
 }
 
 template <bool UseViewer>
 void Simulator<UseViewer>::renderInit() {
-    pe_intf::Viewer::open("PhysicsDemo", 800, 600,
-                          {0, 10, 20}, 0, (float)(PE_PI / 6.0));
+    pe_intf::Viewer::open("PhysicsDemo", 800, 600, {0, 10, 20}, 0, (float)(PE_PI / 12.0));
 
     // add models and initialize transform
     for (auto rb : _world.getRigidBodies()) {
@@ -82,6 +84,14 @@ void Simulator<UseViewer>::renderInit() {
             case pe_phys_shape::ShapeType::ConcaveMesh: case pe_phys_shape::ShapeType::ConvexMesh:
                 pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(0.8, 0.8, 0.3));
                 break;
+        }
+    }
+
+    // wait for key 'r' to start
+    while (pe_intf::Viewer::getKeyState('r') != 0) {
+        COMMON_Sleep(10);
+        if (pe_intf::Viewer::getKeyState(27) == 0) {
+            return;
         }
     }
 }

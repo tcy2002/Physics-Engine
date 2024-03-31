@@ -69,7 +69,8 @@ public:
     }
 
 protected:
-    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
+    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos,
+                                                         const pe::Vector3& size, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -82,7 +83,8 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Real radius, pe::Real mass) {
+    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos,
+                                                            pe::Real radius, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
@@ -95,7 +97,8 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::Real radius, pe::Real height, pe::Real mass) {
+    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos,
+                                                              pe::Real radius, pe::Real height, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::CylinderShape(radius, height);

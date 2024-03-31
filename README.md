@@ -177,6 +177,10 @@
     - 仍然存在稳定性问题
     - 碰撞时小概率发生异常impulse，目前只观察到box-cylinder存在这种情况
 
+- 性能：
+    - 相比KD-Engine，BombDemo的帧率明显偏低（KD-Engine 60帧左右，本引擎 24帧）
+    - 待分析
+
 - todo
     - code
         - friction_contact_constraint.cpp: 108
@@ -186,14 +190,15 @@
     - 功能
         1. multi raycast √
         2. simulator √
-        3. add comments
-        4. terrain
-        5. simulator class
-        6. code style consistency
-        7. composed rigidbody
-        8. lock and thread-safe
-        9. use octree in broad phase and raycast
-        10. group constraints
-        11. more constraints
-        12. use smart pointer
+        3. float warning
+        4. add comments
+        5. terrain
+        6. simulator class
+        7. code style consistency
+        8. composed rigidbody
+        9. lock and thread-safe
+        10. use octree in broad phase and raycast
+        11. group constraints
+        12. more constraints
+        13. use smart pointer
     
