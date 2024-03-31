@@ -20,8 +20,10 @@ namespace pe_intf { // interface
         Simulator() {}
         virtual ~Simulator() {}
 
-        virtual void init() = 0;
-        virtual void step() = 0;
+        // Initialize the physics world here before running
+        virtual void init() {}
+        // Called every frame to update the physics world
+        virtual void step() {}
 
         void run(pe::Real dt = pe::Real(0.01), int max_frame = 1024);
 

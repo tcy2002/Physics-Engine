@@ -9,6 +9,7 @@ void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
     while (++frame < max_frame) {
         auto t = COMMON_GetTickCount();
 
+        _world.step();
         step();
 
         if (UseViewer) {

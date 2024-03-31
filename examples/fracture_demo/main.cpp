@@ -10,7 +10,7 @@ public:
     virtual ~FractureSimulator() {}
 
     void init() override {
-        // Initialize the physics world here before running
+        /* Initialize the physics world here before running */
 
         // set gravity
         _world.setGravity(pe::Vector3(0, -9.8, 0));
@@ -51,13 +51,6 @@ public:
         for (auto rb : fs->getFragments()) {
             _world.addRigidBody(rb);
         }
-    }
-
-    void step() override {
-        // Called every frame to update the physics world
-
-        // step the physics world
-        _world.step();
     }
 
 protected:

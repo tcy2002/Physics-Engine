@@ -13,7 +13,7 @@ public:
     virtual ~TankSimulator() { delete _tank; }
 
     void init() override {
-        // Initialize the physics world here before running
+        /* Initialize the physics world here before running */
 
         // set gravity
         _world.setGravity(pe::Vector3(0, -9.8, 0));
@@ -45,12 +45,9 @@ public:
     }
 
     void step() override {
-        // Called every frame to update the physics world
+        /* Called every frame to update the physics world */
 
-        // step the physics world
-        _world.step();
-
-        // step the tank
+        // update the tank
         _tank->advance(_world.getDt());
         if (pe_intf::Viewer::getKeyState('i') == 0) {
             _tank->moveForward();

@@ -106,11 +106,15 @@
 
     - 射线检测补全：已完成
 
-    - 移植大地形：待完成
+    - 移植大地形：暂时弃用
 
     - 其他优化
         - hash vector: 使用STL unordered_multimap
         - contact result: 也使用pool管理
+
+    - simulator
+        - 仿真器类，用于管理整个物理引擎，负责后台管理物理引擎和前台渲染，用户只需要重写init和step函数即可
+        - 已完成
 
 ### 问题日志
 
@@ -181,13 +185,15 @@
 
     - 功能
         1. multi raycast √
-        2. terrain
-        3. simulator class
-        4. code style consistency
-        5. composed rigidbody
-        6. lock and thread-safe
-        7. use octree in broad phase and raycast
-        8. group constraints
-        9. more constraints
-        10. use smart pointer
+        2. simulator √
+        3. add comments
+        4. terrain
+        5. simulator class
+        6. code style consistency
+        7. composed rigidbody
+        8. lock and thread-safe
+        9. use octree in broad phase and raycast
+        10. group constraints
+        11. more constraints
+        12. use smart pointer
     
