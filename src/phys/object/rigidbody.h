@@ -6,9 +6,10 @@
 namespace pe_phys_object {
 
     class RigidBody {
-        /* Base properties: id, kinematic, shape, mass, inertia */
+        /* Base properties */
         COMMON_MEMBER_GET(uint32_t, global_id, GlobalId)
         COMMON_BOOL_SET_GET(kinematic, Kinematic)
+        COMMON_BOOL_SET_GET(ignore_collision, IgnoreCollision)
         COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
         COMMON_MEMBER_GET(pe::Real, mass, Mass)
         COMMON_MEMBER_GET(pe::Real, inv_mass, InvMass)

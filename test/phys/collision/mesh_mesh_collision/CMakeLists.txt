@@ -10,4 +10,4 @@ add_executable(PETestMeshMeshCollision test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_data.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_utils.cpp)
 
-target_link_libraries(PETestMeshMeshCollision ${TEST_EXT_LIBS} PEViewer)
+target_link_libraries(PETestMeshMeshCollision PEUtils)

@@ -43,8 +43,7 @@ namespace pe_phys_vehicle {
 
     public:
         //constructor to create a car from an existing rigidbody
-        ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis,
-                       pe_intf::World* world);
+        ContactVehicle(const VehicleTuning& tuning, pe_phys_object::RigidBody* chassis, pe_intf::World* world);
         virtual ~ContactVehicle() {}
 
         const pe::Transform& getChassisWorldTransform() const;

@@ -1,0 +1,2 @@
+add_subdirectory(fracture_demo)
+add_subdirectory(tank_demo)

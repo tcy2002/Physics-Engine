@@ -18,7 +18,6 @@ namespace pe_phys_vehicle {
         dw->addRigidBody(body);
 
         turret = new pe_phys_object::RigidBody();
-        turret->setKinematic(true);
         turret->addIgnoreCollisionId(body->getGlobalId());
         auto shape_t = new pe_phys_shape::BoxShape(pe::Vector3(
                 _turretWidth, _turretHeight, _turretLength));
@@ -29,7 +28,6 @@ namespace pe_phys_vehicle {
         turretTrl = pe::Vector3(0, (_bodyHeight + _turretHeight) / 2, _bodyLength / 20);
 
         barrel = new pe_phys_object::RigidBody();
-        barrel->setKinematic(true);
         barrel->addIgnoreCollisionId(turret->getGlobalId());
         auto shape_r = new pe_phys_shape::BoxShape(pe::Vector3(
                 _barrelRadius * 2, _barrelRadius * 2, _barrelLength));
@@ -94,7 +92,6 @@ namespace pe_phys_vehicle {
 
         for (int i = 0; i < _wheelNum; i++) {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
-            wheel->setKinematic(true);
             wheel->addIgnoreCollisionId(body->getGlobalId());
 #       if PE_USE_SPHERE_WHEEL
             auto shape = new pe_phys_shape::SphereShape(
@@ -143,12 +140,12 @@ namespace pe_phys_vehicle {
         // all the track segments are the same
         for (int i = 0; i < _trackSegmentNum * 2; i++) {
             pe_phys_object::RigidBody* rb = new pe_phys_object::RigidBody();
-            rb->setKinematic(true);
             // current track is totally fake
-            rb->addIgnoreCollisionId(body->getGlobalId());
             rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(
                     _wheelWidth, _trackThickness, _trackSegmentWidth)));
             trackSegments.push_back(rb);
+            rb->setIgnoreCollision(true);
+            dw->addRigidBody(rb);
         }
 
         updateTracksTransform();

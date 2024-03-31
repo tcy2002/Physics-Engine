@@ -8,63 +8,11 @@
 #include "intf/viewer.h"
 #include <fstream>
 
-//#define PE_TEST_SINGLE
 #define PE_TEST_FRAC
 //#define PE_TEST_SECOND_GROUND
 #define PE_TEST_OBJ_NUM 99
 #define PE_TEST_FRAME_TH 1000000
 //#define PE_TEST_FRAMERATE 1000
-
-void objToMesh(pe::Mesh& mesh, const std::string &filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file " << filename << std::endl;
-        return;
-    }
-
-    std::string c;
-    while (file >> c) {
-        if (c == "v") {
-            pe::Real x, y, z;
-            file >> x >> y >> z;
-            mesh.vertices.push_back({{x, y, z}, {0, 0, 0}});
-        } else if (c == "f") {
-            int i;
-            pe::Mesh::Face face;
-            while (file >> i) {
-                face.indices.push_back(i - 1);
-            }
-            mesh.faces.push_back(face);
-            file.clear();
-        }
-    }
-
-    pe::Mesh::perFaceNormal(mesh);
-    for (auto& face : mesh.faces) {
-        for (auto i : face.indices) {
-            mesh.vertices[i].normal = face.normal;
-        }
-    }
-
-    file.close();
-}
-
-pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass,
-                                               const std::string& filename) {
-    auto rb = new pe_phys_object::RigidBody();
-    rb->setMass(mass);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setFrictionCoeff(0.5);
-    rb->setRestitutionCoeff(0.5);
-    rb->setAngularDamping(0.8);
-    pe::Mesh mesh;
-    objToMesh(mesh, filename);
-    auto shape = new pe_phys_shape::ConvexMeshShape();
-    shape->setMesh(mesh);
-    rb->setCollisionShape(shape);
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
-    return rb;
-}
 
 pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::Vector3& size, pe::Real mass) {
     auto rb = new pe_phys_object::RigidBody();
@@ -128,38 +76,27 @@ void testWorld() {
     pe_intf::Viewer::open("WorldTest", 800, 600,
                           {0, 10, 20}, 0, (float)(PE_PI / 6.0));
 
-    // create rigid bodies
+    // create a ground
     auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(1000, 1, 1000), 8);
     rb1->setKinematic(true);
-#ifdef PE_TEST_SINGLE
-    const auto filename = CURRENT_TEST_SOURCE_DIR "/test.obj";
-    auto rb2 = createMeshRigidBody(pe::Vector3(0, 5, 0), pe::Vector3(1, 1, 1), 1.0, filename);
-    pe::Transform trans, trans2;
-    trans.setOrigin(rb2->getTransform().getOrigin());
-    trans.setRotation({0, 0, 1}, -0.90);
-    trans2.setRotation({1, 0, 0}, 0.05);
-    trans.setBasis(trans2.getBasis() * trans.getBasis());
-    rb2->setTransform(trans);
-#endif
+
 #ifdef PE_TEST_FRAC
-    auto rb3 = createFracturableObject(pe::Vector3(0, 5, 0), pe::Vector3(4, 4, 4), 1);
+    // create a fracturable object and solve it
+    auto rb2 = createFracturableObject(pe::Vector3(0, 5, 0), pe::Vector3(4, 4, 4), 1);
     auto fs = new pe_phys_fracture::FractureSolver();
     pe_phys_fracture::FractureSource src;
     src.type = pe_phys_fracture::FractureType::Sphere;
     src.position = pe::Vector3(1.5, 6.5, 1.5);
     src.intensity = pe::Vector3(0.5, 0.5, 0.5);
-    fs->setFracturableObject(rb3);
+    fs->setFracturableObject(rb2);
     fs->solve({src});
 #endif
+
 #ifdef PE_TEST_SECOND_GROUND
-    auto rb4 = createRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(12, 1, 12), 2);
+    auto rb3 = createBoxRigidBody(pe::Vector3(0, 1.5, 0), pe::Vector3(12, 1, 12), 2);
 #endif
 
-    // add to world
-    world->addRigidBody(rb1);
-#ifdef PE_TEST_SINGLE
-    world->addRigidBody(rb2);
-#endif
+    // create some other dynamic objects
     pe::Array<pe_phys_object::RigidBody*> rbs;
     for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         pe_phys_object::RigidBody* rb;
@@ -171,27 +108,27 @@ void testWorld() {
             rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0), 0.5, 1.0, 1.0);
         }
         rbs.push_back(rb);
+    }
+
+    // add to world
+    world->addRigidBody(rb1);
+    for (auto rb : rbs) {
         world->addRigidBody(rb);
     }
 #ifdef PE_TEST_FRAC
     for (auto rb : fs->getFragments()) {
-        rbs.push_back(rb);
         world->addRigidBody(rb);
+        rbs.push_back(rb);
     }
 #endif
 #ifdef PE_TEST_SECOND_GROUND
-    world->addRigidBody(rb4);
+    world->addRigidBody(rb3);
 #endif
 
     // add to viewer
     int id1 = pe_intf::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
     pe_intf::Viewer::updateCubeColor(id1, pe::Vector3(0.3, 0.3, 0.8));
     pe_intf::Viewer::updateCubeTransform(id1, rb1->getTransform());
-#ifdef PE_TEST_SINGLE
-    int id2 = pe_core::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)(rb2->getCollisionShape()))->getMesh());
-    pe_core::Viewer::updateMeshColor(id2, pe::Vector3(0.3, 0.8, 0.3));
-    pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
-#endif
     pe::Array<int> ids;
     for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         int id;
@@ -220,9 +157,9 @@ void testWorld() {
     }
 #endif
 #ifdef PE_TEST_SECOND_GROUND
-    int id4 = pe_core::Viewer::addCube(pe::Vector3(12, 1, 12));
-    pe_core::Viewer::updateCubeColor(id4, pe::Vector3(0.3, 0.3, 0.8));
-    pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
+    int id4 = pe_intf::Viewer::addCube(pe::Vector3(12, 1, 12));
+    pe_intf::Viewer::updateCubeColor(id4, pe::Vector3(0.3, 0.3, 0.8));
+    pe_intf::Viewer::updateCubeTransform(id4, rb3->getTransform());
 #endif
 
     // main loop
@@ -237,12 +174,8 @@ void testWorld() {
         }
 #   endif
         auto t = COMMON_GetTickCount();
-#   ifdef PE_TEST_SINGLE
-        pe_core::Viewer::updateCubeTransform(id2, rb2->getTransform());
-        pe_core::Viewer::updateMeshTransform(id2, rb2->getTransform());
-#   endif
 #   ifdef PE_TEST_SECOND_GROUND
-        pe_core::Viewer::updateCubeTransform(id4, rb4->getTransform());
+        pe_intf::Viewer::updateCubeTransform(id4, rb3->getTransform());
 #   endif
         for (int i = 0; i < ids.size(); i++) {
             pe_intf::Viewer::updateCubeTransform(ids[i], rbs[i]->getTransform());
@@ -253,14 +186,14 @@ void testWorld() {
         world->step();
 #   if !defined(PE_TEST_FRAMERATE)
         if (++frame > PE_TEST_FRAME_TH) while (pe_intf::Viewer::getKeyState('r') != 1);
-        COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
 #   endif
+        COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
     }
 
     ret:
     auto end = COMMON_GetTickCount();
 #   ifdef PE_TEST_FRAMERATE
-    std::cout << "FPS: " << (pe::Real)frame / ((pe::Real)(end - start) / 1000.0) << std::endl;
+    std::cout << "FPS: " << (pe::Real)PE_TEST_FRAMERATE / ((pe::Real)(end - start) / 1000.0) << std::endl;
 #   endif
     pe_intf::Viewer::close();
     delete world;

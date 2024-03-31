@@ -30,7 +30,7 @@ void testCollisionPair() {
     pe::Array<pe_phys_collision::CollisionPair> result;
     bp->calcCollisionPairs(collision_objects, result);
 
-    ASSERT_EQUAL_INT(result.size(), 2)
+    ASSERT_EQUAL_INT(result.size(), 3)
 }
 
 int main() {

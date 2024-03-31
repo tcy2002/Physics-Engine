@@ -9,4 +9,4 @@ add_executable(PETestFracture test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/convex_mesh_shape.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/box_shape.cpp)
 
-target_link_libraries(PETestFracture ${TEST_EXT_LIBS})
+target_link_libraries(PETestFracture PEUtils)

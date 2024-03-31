@@ -5,4 +5,4 @@ add_executable(PETestCvmShape test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_data.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_utils.cpp)
 
-target_link_libraries(PETestCvmShape ${TEST_EXT_LIBS})
+target_link_libraries(PETestCvmShape PEUtils)

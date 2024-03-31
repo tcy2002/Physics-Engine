@@ -28,6 +28,40 @@ void meshToObj(const pe::Mesh &mesh, const std::string &filename) {
     file.close();
 }
 
+void objToMesh(pe::Mesh& mesh, const std::string &filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file " << filename << std::endl;
+        return;
+    }
+
+    std::string c;
+    while (file >> c) {
+        if (c == "v") {
+            pe::Real x, y, z;
+            file >> x >> y >> z;
+            mesh.vertices.push_back({{x, y, z}, {0, 0, 0}});
+        } else if (c == "f") {
+            int i;
+            pe::Mesh::Face face;
+            while (file >> i) {
+                face.indices.push_back(i - 1);
+            }
+            mesh.faces.push_back(face);
+            file.clear();
+        }
+    }
+
+    pe::Mesh::perFaceNormal(mesh);
+    for (auto& face : mesh.faces) {
+        for (auto i : face.indices) {
+            mesh.vertices[i].normal = face.normal;
+        }
+    }
+
+    file.close();
+}
+
 void testConstruct() {
     ConvexMeshShape meshShape;
     meshShape.setMesh(PE_CYLINDER_DEFAULT_MESH);

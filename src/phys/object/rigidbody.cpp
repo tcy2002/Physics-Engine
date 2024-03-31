@@ -49,6 +49,7 @@ namespace pe_phys_object {
     RigidBody::RigidBody():
             _global_id(++_globalIdCounter),
             _kinematic(false),
+            _ignore_collision(false),
             _collision_shape(nullptr),
             _mass(1.),
             _inv_mass(1.),

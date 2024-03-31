@@ -168,6 +168,11 @@
     - 原因：normalize(0 0 0)导致NaN (sphere_cylinder_collision_algorithm.cpp: 39)
     - 解决：37行加r>0的判断
 
+- 碰撞问题：
+
+    - 仍然存在稳定性问题
+    - 碰撞时小概率发生异常impulse，目前只观察到box-cylinder存在这种情况
+
 - todo
     - code
         - friction_contact_constraint.cpp: 108
@@ -177,11 +182,12 @@
     - 功能
         1. multi raycast √
         2. terrain
-        3. code style consistency
-        4. composed rigidbody
-        5. make class World thread-safe
-        6. use octtree in broad phase and raycast
-        7. group constraints
-        8. more constraints
-        9. use smart pointer
+        3. simulator class
+        4. code style consistency
+        5. composed rigidbody
+        6. lock and thread-safe
+        7. use octree in broad phase and raycast
+        8. group constraints
+        9. more constraints
+        10. use smart pointer
     

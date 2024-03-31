@@ -4,4 +4,4 @@ add_executable(PETestNarrowPhase test.cpp ${PHYS_COLLISION_ALGO}
         ${ENGINE_INCLUDE_DIR}/phys/object/rigidbody.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/box_shape.cpp)
 
-target_link_libraries(PETestNarrowPhase ${TEST_EXT_LIBS})
+target_link_libraries(PETestNarrowPhase PEUtils)

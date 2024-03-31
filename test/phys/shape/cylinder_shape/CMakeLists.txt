@@ -5,4 +5,4 @@ add_executable(PETestCylinderShape test.cpp ${ENGINE_INCLUDE_DIR}/phys/shape/cyl
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_data.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/fracture_utils/fracture_utils.cpp)
 
-target_link_libraries(PETestCylinderShape ${TEST_EXT_LIBS})
+target_link_libraries(PETestCylinderShape PEUtils)

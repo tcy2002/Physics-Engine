@@ -4,4 +4,4 @@ add_executable(PETestBoxBoxCollision test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/box_shape.cpp
         ${ENGINE_INCLUDE_DIR}/phys/collision/narrow_phase/contact_result.cpp)
 
-target_link_libraries(PETestBoxBoxCollision ${TEST_EXT_LIBS})
+target_link_libraries(PETestBoxBoxCollision PEUtils)

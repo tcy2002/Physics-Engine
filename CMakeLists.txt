@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(PhysicsEngine)
 
 set(CMAKE_CXX_STANDARD 14)
+set(TEST_ENABLED OFF)
 
 set(ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(SV_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/SimpleViewer/include)
@@ -19,4 +20,7 @@ include_directories(${ENGINE_INCLUDE_DIR})
 include_directories(${SV_INCLUDE_DIR})
 
 add_subdirectory(src)
-add_subdirectory(test)
+add_subdirectory(examples)
+if(TEST_ENABLED)
+    add_subdirectory(test)
+endif()

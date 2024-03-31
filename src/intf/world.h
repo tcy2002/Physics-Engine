@@ -11,7 +11,7 @@
 // NO include: will cause circular dependency
 namespace pe_phys_vehicle { class ContactVehicle; }
 
-namespace pe_intf {
+namespace pe_intf { // interface
 
     // The basic physics world manager
     // You can get a physics instance by new World(), freely add rigidbodies to

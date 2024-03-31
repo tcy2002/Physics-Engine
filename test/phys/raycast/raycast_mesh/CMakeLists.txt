@@ -4,3 +4,5 @@ add_executable(PETestRaycastMesh test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/convex_mesh_shape.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/concave_mesh_shape.cpp
         ${ENGINE_INCLUDE_DIR}/phys/object/rigidbody.cpp)
+
+target_link_libraries(PETestRaycastMesh PEUtils)
