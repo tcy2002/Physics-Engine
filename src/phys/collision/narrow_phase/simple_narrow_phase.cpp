@@ -41,14 +41,6 @@ namespace pe_phys_collision {
             _algos[algo_idx]->processCollision(pairs[i].first, pairs[i].second, *results[i]);
         }
 #   endif
-
-        // remove empty results
-        for (int i = (int)results.size() - 1; i >= 0; i--) {
-            if (results[i]->getPointSize() == 0) {
-                _cr_pool.destroy(results[i]);
-                results.erase(results.begin() + i);
-            }
-        }
     }
 
 } // namespace pe_phys_collision
