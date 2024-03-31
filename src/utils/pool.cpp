@@ -69,13 +69,13 @@ void Pool<T, BlockSize>::destroyAll() {
     for (int i = 0; i < _blocks.size(); i++) {
         T* elem = reinterpret_cast<T*>(_blocks[i]);
         T* b_end = elem + (BlockSize / sizeof(T));
-        for(; elem != b_end; elem++){
-            if (free_nodes[j] == elem)
+        for(; elem < b_end; elem++){
+            if (free_nodes[j] == elem) {
                 j++;
-            else if (free_nodes[j] > elem){
+            } else if (free_nodes[j] > elem) {
                 elem->~T();
             } else {
-                ///todo: check why this should not happen
+                ///todo: check why this happens and why should not happen
                 PE_LOG_ERROR << "Pool destroy error" << std::endl;
             }
         }

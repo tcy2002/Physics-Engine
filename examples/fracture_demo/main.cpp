@@ -4,6 +4,8 @@
 #include "phys/object/fracturable_object.h"
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 
+//#define PE_SECOND_GROUND
+
 class FractureSimulator : public pe_intf::Simulator<true> {
 public:
     FractureSimulator() {}
@@ -19,17 +21,28 @@ public:
         auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0),
                                       pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
+        _world.addRigidBody(rb1);
+
+#   ifdef PE_SECOND_GROUND
+        // create a second ground
+        auto rb2 = createBoxRigidBody(pe::Vector3(0, 0.5, 0),
+                                      pe::Vector3(15, 1, 15), 8);
+        _world.addRigidBody(rb2);
+#   endif
 
         // create a fracturable box and solve it
-        auto rb2 = createFracturableObject(pe::Vector3(0, 5, 0),
+        auto rb3 = createFracturableObject(pe::Vector3(0, 5, 0),
                                            pe::Vector3(4, 4, 4), 1);
         auto fs = new pe_phys_fracture::FractureSolver();
         pe_phys_fracture::FractureSource src;
         src.type = pe_phys_fracture::FractureType::Sphere;
         src.position = pe::Vector3(1.5, 6.5, 1.5);
         src.intensity = pe::Vector3(0.5, 0.5, 0.5);
-        fs->setFracturableObject(rb2);
+        fs->setFracturableObject(rb3);
         fs->solve({src});
+        for (auto rb : fs->getFragments()) {
+            _world.addRigidBody(rb);
+        }
 
         // create some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
@@ -45,15 +58,6 @@ public:
                 rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
                                              0.5, 1.0, 1.0);
             }
-            rbs.push_back(rb);
-        }
-
-        // add to world
-        _world.addRigidBody(rb1);
-        for (auto rb : rbs) {
-            _world.addRigidBody(rb);
-        }
-        for (auto rb : fs->getFragments()) {
             _world.addRigidBody(rb);
         }
     }

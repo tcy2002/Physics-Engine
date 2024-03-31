@@ -3,7 +3,7 @@
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
 
-#define PE_CONTACT_CACHE_SIZE 32
+#define PE_CONTACT_CACHE_SIZE 4
 
 namespace pe_phys_collision {
 
@@ -32,7 +32,7 @@ namespace pe_phys_collision {
                      const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance);
 
         COMMON_FORCE_INLINE void invalidate() { _world_pos = PE_VEC_MAX; }
-        COMMON_FORCE_INLINE bool isValid() const { return _world_pos.x < PE_REAL_MAX; }
+        COMMON_FORCE_INLINE bool isValid() const { return _world_pos.x != PE_REAL_MAX; }
     };
 
     class ContactResult {

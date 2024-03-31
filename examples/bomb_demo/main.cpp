@@ -37,8 +37,8 @@ public:
 
         // bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                       pe::Vector3(0, 5, 50)),
-                                         1, 50);
+                                                       pe::Vector3(0, 2, 50)),
+                                         1.2, 50);
         rb2->setLinearVelocity(pe::Vector3(0, 0, -500));
         _world.addRigidBody(rb2);
     }
@@ -127,6 +127,6 @@ protected:
 
 int main() {
     BombSimulator simulator;
-    simulator.run(0.01, 100);
+    simulator.run(0.01, 300);
     return 0;
 }

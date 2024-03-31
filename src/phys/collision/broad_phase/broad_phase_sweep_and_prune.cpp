@@ -11,7 +11,7 @@ namespace pe_phys_collision {
         // sort collision objects by their min x value
         std::sort(objects.begin(), objects.end(),
                   [this](pe_phys_object::RigidBody* cb1, pe_phys_object::RigidBody* cb2) {
-            return cb1->getAABBMax()[_target_axis] > cb2->getAABBMax()[_target_axis];
+            return cb1->getAABBMin()[_target_axis] < cb2->getAABBMin()[_target_axis];
         });
 
         // sweep the sorted array and find collision pairs
@@ -26,7 +26,7 @@ namespace pe_phys_collision {
             // test collision pairs
             for (int j = i + 1; j < (int)objects.size(); j++) {
                 pe_phys_object::RigidBody* cb2 = objects[j];
-                if (cb2->getAABBMax()[_target_axis] < cb1->getAABBMin()[_target_axis]) break;
+                if (cb2->getAABBMin()[_target_axis] > cb1->getAABBMax()[_target_axis]) break;
                 if (validateCollisionPair(cb1, cb2)) {
                     pairs.emplace_back(cb1, cb2);
                 }
@@ -35,6 +35,7 @@ namespace pe_phys_collision {
 
         // update axis sorted to be the one with the largest variance
         pe::Vector3 v = s2 - s * s / (pe::Real)objects.size();
+        _target_axis = 0;
         if (v.y > v.x) _target_axis = 1;
         if (v.z > v[_target_axis]) _target_axis = 2;
     }

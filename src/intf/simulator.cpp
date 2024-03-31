@@ -2,7 +2,11 @@ template <bool UseViewer>
 void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
     _world.setDt(dt);
     init();
-    if (UseViewer) renderInit();
+    if (UseViewer) {
+        if (!renderInit()) {
+            return;
+        }
+    }
 
     int frame = 0;
     int dt_ms = (int)(dt * 1000);
@@ -26,7 +30,7 @@ void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
 }
 
 template <bool UseViewer>
-void Simulator<UseViewer>::renderInit() {
+bool Simulator<UseViewer>::renderInit() {
     pe_intf::Viewer::open("PhysicsDemo", 800, 600, {0, 10, 20}, 0, (float)(PE_PI / 12.0));
 
     // add models and initialize transform
@@ -91,9 +95,10 @@ void Simulator<UseViewer>::renderInit() {
     while (pe_intf::Viewer::getKeyState('r') != 0) {
         COMMON_Sleep(10);
         if (pe_intf::Viewer::getKeyState(27) == 0) {
-            return;
+            return false;
         }
     }
+    return true;
 }
 
 template <bool UseViewer>

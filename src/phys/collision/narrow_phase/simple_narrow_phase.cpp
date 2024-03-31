@@ -5,7 +5,6 @@ namespace pe_phys_collision {
 
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
                                                pe::Array<ContactResult*>& results) {
-
         // clear old contact results
         const int old_size = (int)results.size();
         const int new_size = (int)pairs.size();

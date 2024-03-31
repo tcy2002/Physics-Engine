@@ -2,8 +2,9 @@
 
 namespace pe_phys_collision {
 
-    bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
-                                                          ContactResult& result) {
+    bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
+                                                       pe_phys_object::RigidBody* object_b,
+                                                       ContactResult& result) {
         if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box) {
             std::swap(object_a, object_b);
         }

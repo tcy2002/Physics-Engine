@@ -29,7 +29,7 @@ namespace pe_intf { // interface
 
     private:
         pe::Map<int, pe_phys_object::RigidBody*> _id_map;
-        void renderInit();
+        bool renderInit();
         bool renderStep();
     };
 

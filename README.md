@@ -178,8 +178,8 @@
     - 碰撞时小概率发生异常impulse，目前只观察到box-cylinder存在这种情况
 
 - 性能：
-    - 相比KD-Engine，BombDemo的帧率明显偏低（KD-Engine 60帧左右，本引擎 24帧）
-    - 待分析
+    - 相比KD-Engine，BombDemo的帧率明显偏低（KD-Engine 45帧左右，本引擎 24帧）
+    - 将contact point max size调整为与KD-Engine相同，帧率提升到35帧左右
 
 - todo
     - code
