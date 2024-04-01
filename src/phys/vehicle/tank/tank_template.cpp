@@ -3,7 +3,7 @@
 
 #define PE_TANK_SUS_OFFSET 0.15
 #define PE_TANK_WHEEL_MARGIN 0.01
-#define PE_TANK_TRACK_MARGIN 0.012
+#define PE_TANK_TRACK_MARGIN 0.01
 
 namespace pe_phys_vehicle {
 

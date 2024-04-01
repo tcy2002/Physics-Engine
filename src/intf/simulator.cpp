@@ -100,6 +100,7 @@ bool Simulator<UseViewer>::renderInit() {
     while (pe_intf::Viewer::getKeyState('r') != 0) {
         COMMON_Sleep(10);
         if (pe_intf::Viewer::getKeyState(27) == 0) {
+            pe_intf::Viewer::close();
             return false;
         }
     }
@@ -109,6 +110,7 @@ bool Simulator<UseViewer>::renderInit() {
 template <bool UseViewer>
 bool Simulator<UseViewer>::renderStep() {
     if (pe_intf::Viewer::getKeyState(27) == 0) {
+        pe_intf::Viewer::close();
         return false;
     }
 

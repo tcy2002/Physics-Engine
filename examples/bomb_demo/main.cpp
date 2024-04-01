@@ -93,6 +93,6 @@ protected:
 int main() {
     BombSimulator simulator;
     // delta time per frame, max frame
-    simulator.run(0.01, 10000);
+    simulator.run(0.016, 10000);
     return 0;
 }
