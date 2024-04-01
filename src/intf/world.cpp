@@ -133,9 +133,16 @@ namespace pe_intf {
         applyExternalForce();
 
         // collision detection
+        auto start = COMMON_GetTickCount();
         updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
+        auto end = COMMON_GetTickCount();
+        broad_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
+
+        start = COMMON_GetTickCount();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
+        end = COMMON_GetTickCount();
+        narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 
 #   if PE_SHOW_DEBUG_POINTS
         static pe::Array<int> debug_points;
@@ -157,10 +164,13 @@ namespace pe_intf {
 #   endif
 
         // constraints
+        start = COMMON_GetTickCount();
         _constraint_solver->setupSolver(_collision_objects,
                                         _contact_results,
                                         _constraints);
         _constraint_solver->solve();
+        end = COMMON_GetTickCount();
+        constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.001);
     }
 
 } // namespace pe_core

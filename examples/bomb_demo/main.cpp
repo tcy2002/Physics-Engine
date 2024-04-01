@@ -2,7 +2,6 @@
 #include "intf/simulator.h"
 #include "phys/object/rigidbody.h"
 #include "phys/object/fracturable_object.h"
-#include "phys/fracture/fracture_solver/fracture_solver.h"
 
 class BombSimulator : public pe_intf::Simulator<true> {
 public:
@@ -127,6 +126,6 @@ protected:
 
 int main() {
     BombSimulator simulator;
-    simulator.run(0.01, 300);
+    simulator.run(0.01, 10000);
     return 0;
 }

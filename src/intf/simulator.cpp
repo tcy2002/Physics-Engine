@@ -26,7 +26,12 @@ void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
         COMMON_Sleep(dt_ms - (int)(COMMON_GetTickCount() - t));
     }
     auto end = COMMON_GetTickCount();
-    std::cout << "fps: " << (pe::Real)frame / ((pe::Real)(end - start) / 1000.0) << std::endl;
+    pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);
+    std::cout << "fps: " << (pe::Real)frame / total_time << std::endl;
+    std::cout << "total time: " << total_time << "s" << std::endl;
+    std::cout << "broad phase time: " << _world.broad_phase_time << "s" << std::endl;
+    std::cout << "narrow phase time: " << _world.narrow_phase_time << "s" << std::endl;
+    std::cout << "constraint solver time: " << _world.constraint_solver_time << "s" << std::endl;
 }
 
 template <bool UseViewer>

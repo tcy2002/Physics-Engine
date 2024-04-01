@@ -62,14 +62,18 @@ namespace pe_phys_constraint {
         }
 
         // sync velocity
-        for (auto co : _collision_objects) {
-            co->syncTempVelocity();
-        }
+        utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
+                                   [](pe_phys_object::RigidBody* rb, int idx){
+                                       rb->syncTempVelocity();
+                                   });
+        utils::ThreadPool::join();
 
         // after solving
-        for (auto constraint : _constraints) {
-            constraint->afterSequentialImpulse();
-        }
+        utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
+                                   [](Constraint* constraint, int idx){
+                                       constraint->afterSequentialImpulse();
+                                   });
+        utils::ThreadPool::join();
     }
 
 } // namespace pe_phys_constraint

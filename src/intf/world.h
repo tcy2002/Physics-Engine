@@ -42,6 +42,10 @@ namespace pe_intf { // interface
     public:
         World();
         ~World();
+        // for performance analysis
+        pe::Real broad_phase_time = 0;
+        pe::Real narrow_phase_time = 0;
+        pe::Real constraint_solver_time = 0;
 
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
         pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
