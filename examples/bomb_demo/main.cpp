@@ -3,6 +3,8 @@
 #include "phys/object/rigidbody.h"
 #include "phys/object/fracturable_object.h"
 
+// true/false: simulate with/without viewer
+// if using viewer, press `r` to start simulation 
 class BombSimulator : public pe_intf::Simulator<true> {
 public:
     BombSimulator() {}
@@ -11,34 +13,27 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
 
-        // set gravity
+        // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
+        // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
-        // create a ground
+        // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                     pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(250, 1, 250), 8);
         rb1->setKinematic(true);
-        _world.addRigidBody(rb1);
+        _world.addRigidBody(rb1); // a rigidbody must be put into the _world to perform physical effects
 
-        // tower 1
-        createTower(pe::Vector3(0, 0, 0), 4, 12, 8);
-        createTower(pe::Vector3(0, 0, 0), 6, 12, 12);
-        createTower(pe::Vector3(0, 0, 0), 8, 11, 16);
-        createTower(pe::Vector3(0, 0, 0), 10, 10, 20);
-        createTower(pe::Vector3(0, 0, 0), 12, 9, 24);
-        createTower(pe::Vector3(0, 0, 0), 14, 8, 28);
-
-        // tower 2
+        // add a tower
         createTower(pe::Vector3(0, 0, -50), 4, 28, 8);
         createTower(pe::Vector3(0, 0, -50), 6, 27, 12);
         createTower(pe::Vector3(0, 0, -50), 8, 26, 16);
 
-        // bomb
+        // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),
-                                         1.2, 50);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -500));
+                                         2.0, 50);
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -300));
         _world.addRigidBody(rb2);
     }
 
@@ -73,10 +68,10 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
+        rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
+        rb->setFrictionCoeff(0.5); // friction coefficient
+        rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -93,39 +88,11 @@ protected:
         rb->setAngularDamping(0.8);
         return rb;
     }
-
-    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
-                                                              pe::Real radius, pe::Real height, pe::Real mass) {
-        auto rb = new pe_phys_object::RigidBody();
-        rb->setMass(mass);
-        auto shape = new pe_phys_shape::CylinderShape(radius, height);
-        rb->setCollisionShape(shape);
-        rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
-        return rb;
-    }
-
-    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
-                                                                      const pe::Vector3& size, pe::Real th) {
-        auto rb = new pe_phys_object::FracturableObject();
-        rb->setMass(1.0);
-        auto shape = new pe_phys_shape::BoxShape(size);
-        rb->setCollisionShape(shape);
-        rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(1.0));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
-        rb->setThreshold(th);
-        return rb;
-    }
 };
 
 int main() {
     BombSimulator simulator;
+    // delta time per frame, max frame
     simulator.run(0.01, 10000);
     return 0;
 }

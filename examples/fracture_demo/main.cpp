@@ -4,8 +4,8 @@
 #include "phys/object/fracturable_object.h"
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 
-//#define PE_SECOND_GROUND
-
+// true/false: simulate with/without viewer
+// if using viewer, press `r` to start simulation 
 class FractureSimulator : public pe_intf::Simulator<true> {
 public:
     FractureSimulator() {}
@@ -14,24 +14,18 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
 
-        // set gravity
+        // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
+        // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
-        // create a ground
-        auto rb1 = createBoxRigidBody(pe::Vector3(0, -0.5, 0),
+        // add a ground
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
-        _world.addRigidBody(rb1);
+        _world.addRigidBody(rb1); // a rigidbody must be put into the _world to perform physical effects
 
-#   ifdef PE_SECOND_GROUND
-        // create a second ground
-        auto rb2 = createBoxRigidBody(pe::Vector3(0, 0.5, 0),
-                                      pe::Vector3(15, 1, 15), 8);
-        _world.addRigidBody(rb2);
-#   endif
-
-        // create a fracturable box and solve it
-        auto rb3 = createFracturableObject(pe::Vector3(0, 5, 0),
+        // add a fracturable box and solve it
+        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)),
                                            pe::Vector3(4, 4, 4), 1);
         auto fs = new pe_phys_fracture::FractureSolver();
         pe_phys_fracture::FractureSource src;
@@ -44,18 +38,18 @@ public:
             _world.addRigidBody(rb);
         }
 
-        // create some other dynamic objects
+        // add some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
         for (int i = 0; i < 99; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
-                rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * 1.1, 0)),
                                         pe::Vector3(1, 1, 1), 1.0);
             } else if (i % 3 == 1) {
-                rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * 1.1, 0)),
                                            0.5, 1.0);
             } else {
-                rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, 0),
+                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * 1.1, 0)),
                                              0.5, 1.0, 1.0);
             }
             _world.addRigidBody(rb);
@@ -63,27 +57,27 @@ public:
     }
 
 protected:
-    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos,
-                                                         const pe::Vector3& size, pe::Real mass) {
+    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
+        const pe::Vector3& size, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
-        rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-        rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
+        rb->setTransform(trans);
+        rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
+        rb->setFrictionCoeff(0.5); // friction coefficient
+        rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos,
-                                                            pe::Real radius, pe::Real mass) {
+    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
+        pe::Real radius, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
-        rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+        rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass));
         rb->setFrictionCoeff(0.5);
         rb->setRestitutionCoeff(0.5);
@@ -91,13 +85,13 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos,
-                                                              pe::Real radius, pe::Real height, pe::Real mass) {
+    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
+        pe::Real radius, pe::Real height, pe::Real mass) {
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
-        rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+        rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass));
         rb->setFrictionCoeff(0.5);
         rb->setRestitutionCoeff(0.5);
@@ -105,13 +99,13 @@ protected:
         return rb;
     }
 
-    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& pos,
-                                                                      const pe::Vector3& size, pe::Real th) {
+    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
+        const pe::Vector3& size, pe::Real th) {
         auto rb = new pe_phys_object::FracturableObject();
         rb->setMass(1.0);
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
-        rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+        rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(1.0));
         rb->setFrictionCoeff(0.5);
         rb->setRestitutionCoeff(0.5);
@@ -123,6 +117,7 @@ protected:
 
 int main() {
     FractureSimulator simulator;
+    // delta time per frame, max frame
     simulator.run(0.01, 10000);
     return 0;
 }
