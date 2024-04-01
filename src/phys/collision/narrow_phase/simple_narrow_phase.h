@@ -7,7 +7,7 @@ namespace pe_phys_collision {
 
     class SimpleNarrowPhase: public NarrowPhaseBase {
     private:
-        utils::Pool<ContactResult, 4096> _cr_pool;
+        utils::Pool<ContactResult, 16384> _cr_pool;
 
     public:
         SimpleNarrowPhase(): NarrowPhaseBase() {}

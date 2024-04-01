@@ -3,7 +3,7 @@
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
 
-#define PE_CONTACT_CACHE_SIZE 4
+#define PE_CONTACT_CACHE_SIZE 8
 
 namespace pe_phys_collision {
 

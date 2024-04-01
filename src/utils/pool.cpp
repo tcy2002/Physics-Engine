@@ -76,7 +76,7 @@ void Pool<T, BlockSize>::destroyAll() {
                 elem->~T();
             } else {
                 ///todo: check why this happens and why should not happen
-                PE_LOG_ERROR << "Pool destroy error" << std::endl;
+                //PE_LOG_ERROR << "Pool destroy error" << std::endl;
             }
         }
     }
