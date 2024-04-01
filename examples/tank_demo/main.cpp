@@ -99,6 +99,6 @@ protected:
 int main() {
     TankSimulator simulator;
     // delta time per frame, max frame
-    simulator.run(0.01, 100000);
+    simulator.run(0.016, 100000);
     return 0;
 }

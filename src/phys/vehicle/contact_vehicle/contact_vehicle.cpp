@@ -135,7 +135,6 @@ namespace pe_phys_vehicle {
 
         // get the closest point from the contact info
         pe_phys_collision::ContactPoint* closest_point = nullptr;
-        pe_phys_object::RigidBody* other_obj = nullptr;
         pe::Real maxDepth = PE_REAL_MIN;
         uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
         for (auto cr : m_world->_contact_results) {
@@ -146,7 +145,6 @@ namespace pe_phys_vehicle {
                     if (dist > maxDepth) {
                         maxDepth = dist;
                         closest_point = &cp;
-                        other_obj = cr->getObjectB();
                     }
                 }
             }
