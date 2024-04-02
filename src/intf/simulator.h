@@ -25,7 +25,7 @@ namespace pe_intf { // interface
         // Called every frame to update the physics world
         virtual void step() {}
 
-        void run(pe::Real dt = pe::Real(0.01), int max_frame = 1024);
+        void start(pe::Real dt = pe::Real(0.01), int max_frame = 1024);
 
     private:
         pe::Map<int, pe_phys_object::RigidBody*> _id_map;
@@ -36,3 +36,10 @@ namespace pe_intf { // interface
     #include "simulator.cpp"
 
 } // namespace pe_intf
+
+#define PE_SIM_MAIN(Simulator, Dt, MaxFrame) \
+int main() { \
+    Simulator sim; \
+    sim.start(Dt, MaxFrame); \
+    return 0; \
+}

@@ -1,10 +1,8 @@
-#include <iostream>
 #include "intf/simulator.h"
-#include "phys/object/rigidbody.h"
-#include "phys/object/fracturable_object.h"
 
 // true/false: simulate with/without viewer
-// if using viewer, press `r` to start simulation 
+// If using viewer, press `r` to start simulation
+// See SimpleViewer/include/opengl_viewer.h to learn the view control
 class BombSimulator : public pe_intf::Simulator<true> {
 public:
     BombSimulator() {}
@@ -22,7 +20,7 @@ public:
                                                     pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(250, 1, 250), 8);
         rb1->setKinematic(true);
-        _world.addRigidBody(rb1); // a rigidbody must be put into the _world to perform physical effects
+        _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a tower
         createTower(pe::Vector3(0, 0, -50), 4, 28, 8);
@@ -33,11 +31,13 @@ public:
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),
                                          2.0, 50);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -300));
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -300)); // give an initial velocity
         _world.addRigidBody(rb2);
     }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
+        /* This function creates a tower of cubic bricks, how it is built is not important */
+
         pe::Real angle = pe::Real(2.0) * PE_PI / pe::Real(brick_per_layer);
         pe::Real brick_length = radius * angle / pe::Real(1.25);
         pe::Real brick_width = brick_length / pe::Real(4.0);
@@ -63,6 +63,8 @@ public:
 protected:
     static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
                                                          const pe::Vector3& size, pe::Real mass) {
+        /* This function creates a box-shaped rigid body */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -77,6 +79,8 @@ protected:
 
     static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
                                                             pe::Real radius, pe::Real mass) {
+        /* This function creates a sphere-shaped rigid body */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
@@ -90,9 +94,5 @@ protected:
     }
 };
 
-int main() {
-    BombSimulator simulator;
-    // delta time per frame, max frame
-    simulator.run(0.016, 10000);
-    return 0;
-}
+// Simulator class, Delta time, Max frame
+PE_SIM_MAIN(BombSimulator, 0.016, 1000000)

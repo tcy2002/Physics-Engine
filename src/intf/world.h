@@ -13,10 +13,12 @@ namespace pe_phys_vehicle { class ContactVehicle; }
 
 namespace pe_intf { // interface
 
-    // The basic physics world manager
-    // You can get a physics instance by new World(), freely add rigidbodies to
-    // the world, and call step() to update it.
-    // NOT thread-safe
+    /*
+     * @brief The basic physics world manager
+     * You can get a physics instance by new World(), add rigidbodies to
+     * the world, and call step() to update it in each frame.
+     * NOT thread-safe
+     */
     class World {
         COMMON_MEMBER_SET_GET(pe::Vector3, gravity, Gravity);
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);
@@ -42,10 +44,12 @@ namespace pe_intf { // interface
     public:
         World();
         ~World();
-        // for performance analysis
-        pe::Real broad_phase_time = 0;
-        pe::Real narrow_phase_time = 0;
-        pe::Real constraint_solver_time = 0;
+
+        /**** for performance analysis *****/
+        pe::Real broad_phase_time = pe::Real(0.0);
+        pe::Real narrow_phase_time = pe::Real(0.0);
+        pe::Real constraint_solver_time = pe::Real(0.0);
+        /**********************************/
 
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
         pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }

@@ -1,16 +1,15 @@
-#include <iostream>
 #include "intf/simulator.h"
-#include "intf/viewer.h"
-#include "phys/object/rigidbody.h"
 #include "phys/vehicle/tank/tank_template.h"
 
 // true/false: simulate with/without viewer
-// if using viewer, press `r` to start simulation 
+// If using viewer, press `r` to start simulation
+// See SimpleViewer/include/opengl_viewer.h to learn the view control
 class TankSimulator : public pe_intf::Simulator<true> {
 protected:
     // i/j/k/l: move forward/leftward/backward/rightward
-    // u/p: rotate barrel leftward/rightward
+    // u/o: rotate barrel leftward/rightward
     // CASE sensitive
+    // do not try to drive the tank upside down, it will cause something unexpected <^v^>
     pe_phys_vehicle::TankTemplate* _tank;
 
 public:
@@ -29,7 +28,7 @@ public:
                                                     pe::Vector3(0, -0.5, 0)), 
                                       pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
-        _world.addRigidBody(rb1); // a rigidbody must be put into the _world to perform physical effects
+        _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a slope
         auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -52,7 +51,7 @@ public:
 
         // add a tank
         _tank = new pe_phys_vehicle::TankTemplate();
-        _tank->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1.5, 0)));
+        _tank->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
         _tank->init(&_world);
     }
 
@@ -82,7 +81,9 @@ public:
 
 protected:
     static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
-        const pe::Vector3& size, pe::Real mass) {
+                                                         const pe::Vector3& size, pe::Real mass) {
+        /* This function creates a box-shaped rigidbody */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -96,9 +97,5 @@ protected:
     }
 };
 
-int main() {
-    TankSimulator simulator;
-    // delta time per frame, max frame
-    simulator.run(0.016, 100000);
-    return 0;
-}
+// Simulator class, Delta time, Max frame
+PE_SIM_MAIN(TankSimulator, 0.016, 10000000)

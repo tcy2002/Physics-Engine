@@ -1,5 +1,5 @@
 template <bool UseViewer>
-void Simulator<UseViewer>::run(pe::Real dt, int max_frame) {
+void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
     _world.setDt(dt);
     init();
     if (UseViewer) {

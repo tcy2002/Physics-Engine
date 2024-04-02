@@ -105,27 +105,13 @@ namespace pe_phys_constraint {
             n_impulse = PE_MAX(n_impulse, -ci.n_applied_impulse);
             ci.n_applied_impulse += n_impulse;
 
-            // TODO: fix it: incorrect coulomb cone(2 direction)
-#           define PE_USE_COULOMB_CONE true
-#           if PE_USE_COULOMB_CONE
-                //// compute impulse
-                pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
-                pe::Real max_friction = ci.friction_coeff * ci.n_applied_impulse;
-                pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
-                t0_total_impulse = PE_MIN(t0_total_impulse, max_friction);
-                t1_total_impulse = PE_MIN(t1_total_impulse, max_friction);
-                t0_total_impulse = PE_MAX(t0_total_impulse, -max_friction);
-                t1_total_impulse = PE_MAX(t1_total_impulse, -max_friction);
-#           else
-                pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
-                pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
-                pe::Real scale = ci.friction_coeff * ci.n_applied_impulse /
-                        std::sqrt(t0_total_impulse * t0_total_impulse + t1_total_impulse * t1_total_impulse);
-                if(scale < 1) {
-                    t0_total_impulse *= scale;
-                    t1_total_impulse *= scale;
-                }
-#           endif
+            pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
+            pe::Real max_friction = ci.friction_coeff * ci.n_applied_impulse;
+            pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
+            t0_total_impulse = PE_MIN(t0_total_impulse, max_friction);
+            t1_total_impulse = PE_MIN(t1_total_impulse, max_friction);
+            t0_total_impulse = PE_MAX(t0_total_impulse, -max_friction);
+            t1_total_impulse = PE_MAX(t1_total_impulse, -max_friction);
 
             pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
                     (t1_total_impulse - ci.t1_applied_impulse) * t1;

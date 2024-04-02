@@ -1,11 +1,10 @@
-#include <iostream>
 #include "intf/simulator.h"
-#include "phys/object/rigidbody.h"
 #include "phys/object/fracturable_object.h"
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 
 // true/false: simulate with/without viewer
-// if using viewer, press `r` to start simulation 
+// If using viewer, press `r` to start simulation
+// See SimpleViewer/include/opengl_viewer.h to learn the view control
 class FractureSimulator : public pe_intf::Simulator<true> {
 public:
     FractureSimulator() {}
@@ -15,16 +14,16 @@ public:
         /* Initialize the physics world here before running */
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
-        // namely, x: right, y: up, z: outward screen)
+        // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
-        _world.addRigidBody(rb1); // a rigidbody must be put into the _world to perform physical effects
+        _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
-        // add a fracturable box and solve it
+        // add a fracturable box and solve the fracture result
         auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)),
                                            pe::Vector3(4, 4, 4), 1);
         auto fs = new pe_phys_fracture::FractureSolver();
@@ -58,7 +57,9 @@ public:
 
 protected:
     static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
-        const pe::Vector3& size, pe::Real mass) {
+                                                         const pe::Vector3& size, pe::Real mass) {
+        /* This function creates a box-shaped rigidbody */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -72,7 +73,9 @@ protected:
     }
 
     static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
-        pe::Real radius, pe::Real mass) {
+                                                            pe::Real radius, pe::Real mass) {
+        /* This function creates a sphere-shaped rigidbody */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
@@ -86,7 +89,9 @@ protected:
     }
 
     static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
-        pe::Real radius, pe::Real height, pe::Real mass) {
+                                                              pe::Real radius, pe::Real height, pe::Real mass) {
+        /* This function creates a cylinder-shaped rigidbody */
+
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
@@ -100,7 +105,9 @@ protected:
     }
 
     static pe_phys_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
-        const pe::Vector3& size, pe::Real th) {
+                                                                      const pe::Vector3& size, pe::Real th) {
+        /* This function creates a fracturable object */
+
         auto rb = new pe_phys_object::FracturableObject();
         rb->setMass(1.0);
         auto shape = new pe_phys_shape::BoxShape(size);
@@ -115,9 +122,5 @@ protected:
     }
 };
 
-int main() {
-    FractureSimulator simulator;
-    // delta time per frame, max frame
-    simulator.run(0.016, 10000);
-    return 0;
-}
+// Simulator class, Delta time, Max frame
+PE_SIM_MAIN(FractureSimulator, 0.016, 1000000)
