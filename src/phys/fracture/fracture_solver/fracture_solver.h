@@ -26,6 +26,9 @@ namespace pe_phys_fracture {
         static pe_phys_object::RigidBody* addMesh(const pe::Mesh& mesh, const pe::Transform& trans);
 
     public:
+        FractureSolver() {}
+        virtual ~FractureSolver() {}
+
         static void meshToObj(const pe::Mesh& mesh, const std::string& obj_path);
 
         virtual void solve(const pe::Array<FractureSource>& sources) = 0;

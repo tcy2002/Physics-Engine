@@ -1,11 +1,11 @@
 #include "fracture_solver.h"
-#include "phys/fracture/voronoi_calculator/voronoi_calculator.h"
+#include "phys/fracture/voronoi_calculator/bowyer_watson_voronoi_calculator.h"
 
 namespace pe_phys_fracture {
 
     class SimpleFractureSolver : public FractureSolver {
     protected:
-        VoronoiCalculator _voronoi{};
+        VoronoiCalculator* _voronoi;
 
         void cut_mesh(const pe::Mesh& mesh, pe::Array<pe::Mesh>& new_meshes);
         void cut_one_mesh(const FractureDataManager& mesh, uint32_t idx, FractureDataManager& new_mesh);
@@ -16,6 +16,9 @@ namespace pe_phys_fracture {
                                                         FractureDataManager& new_mesh);
 
     public:
+        SimpleFractureSolver() { _voronoi = new BowyerWatsonVoronoiCalculator(); }
+        virtual ~SimpleFractureSolver() { delete _voronoi;}
+
         virtual void solve(const pe::Array<FractureSource>& sources) override;
     };
 

@@ -9,7 +9,7 @@
 namespace pe_phys_fracture {
 
     void SimpleFractureSolver::cut_mesh(const pe::Mesh& mesh, pe::Array<pe::Mesh>& new_meshes) {
-        uint32_t point_count = _voronoi.point_count();
+        uint32_t point_count = _voronoi->point_count();
         FractureDataManager worker;
         worker.import_from_mesh(mesh);
 
@@ -24,13 +24,13 @@ namespace pe_phys_fracture {
 
     void SimpleFractureSolver::cut_one_mesh(const FractureDataManager &mesh, uint32_t idx,
                                           FractureDataManager &new_mesh) {
-        auto point = _voronoi.get_point(idx);
-        auto adjacent_point_ids = _voronoi.get_adjacent_points(idx);
+        auto point = _voronoi->get_point(idx);
+        auto adjacent_point_ids = _voronoi->get_adjacent_points(idx);
 
         // cut the mesh by each adjacent point
         new_mesh = mesh;
         for (auto other_id : adjacent_point_ids) {
-            auto other = _voronoi.get_point(other_id);
+            auto other = _voronoi->get_point(other_id);
             auto center = (point + other) / 2;
             auto normal = (other - point).normalized();
             FractureDataManager result;
@@ -183,7 +183,7 @@ namespace pe_phys_fracture {
 
         // generate new rigidbodies
         pe::Array<pe::Mesh> fragments;
-        _voronoi.triangulate(points);
+        _voronoi->triangulate(points);
         cut_mesh(mesh, fragments);
         for (int i = 0; i < (int)fragments.size(); i++) {
             if (!fragments[i].empty()) {
