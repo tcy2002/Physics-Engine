@@ -1,6 +1,5 @@
 #pragma once
 
-#include "phys/fracture/fracture_calculator/fracture_calculator.h"
 #include "phys/object/rigidbody.h"
 #include "phys/object/fracturable_object.h"
 
@@ -17,10 +16,9 @@ namespace pe_phys_fracture {
     };
 
     class FractureSolver {
-    private:
-        FractureCalculator _calculator{};
-
         COMMON_MEMBER_PTR_SET_GET(pe_phys_object::FracturableObject, fracturable_object, FracturableObject);
+
+    protected:
         pe::Array<pe_phys_object::RigidBody*> _result;
 
         static pe::Vector3 randomSpherePoints(pe::Real radius);
@@ -29,7 +27,8 @@ namespace pe_phys_fracture {
 
     public:
         static void meshToObj(const pe::Mesh& mesh, const std::string& obj_path);
-        void solve(const pe::Array<FractureSource>& sources);
+
+        virtual void solve(const pe::Array<FractureSource>& sources) = 0;
         pe::Array<pe_phys_object::RigidBody*>& getFragments() { return _result; }
     };
 

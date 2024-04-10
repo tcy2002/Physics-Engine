@@ -1,4 +1,4 @@
-#include "phys/fracture/fracture_solver/fracture_solver.h"
+#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include <string>
@@ -20,11 +20,11 @@ void testFracture() {
     fo->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(4, 4, 4)));
     fo->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 2, 2)));
 
-    FractureSolver solver;
-    solver.setFracturableObject(fo);
-    solver.solve({src});
+    FractureSolver* solver = new SimpleFractureSolver();
+    solver->setFracturableObject(fo);
+    solver->solve({src});
     int k = 0;
-    for (auto frag : solver.getFragments()) {
+    for (auto frag : solver->getFragments()) {
         auto shape = (pe_phys_shape::ConvexMeshShape*)(frag->getCollisionShape());
         auto mesh = shape->getMesh();
         FractureSolver::meshToObj(mesh, "test" + std::to_string(k++) + ".obj");
