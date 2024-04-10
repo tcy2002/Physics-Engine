@@ -125,6 +125,11 @@ namespace pe_phys_fracture {
     void SimpleFractureSolver::solve(const pe::Array<FractureSource>& sources) {
         if (_fracturable_object == 0 || sources.empty()) return;
 
+        // generate points
+        pe::Array<pe::Vector3> points;
+        pe::Array<pe::Vector3> forces;
+        if (!generatePoints(sources, points, forces)) return;
+
         // retrieve mesh data from different shapes
         pe_phys_shape::Shape* shape = _fracturable_object->getCollisionShape();
         pe::Mesh mesh;
@@ -135,51 +140,6 @@ namespace pe_phys_fracture {
         } else return;
 
         pe::Transform world_trans = _fracturable_object->getTransform();
-        pe::Real threshold = _fracturable_object->getThreshold();
-
-        // generate points
-        pe::Array<pe::Vector3> points;
-        for (auto& src : sources) {
-            pe::Vector3 local_impact_pos = world_trans.inverseTransform(src.position);
-            pe::Vector3 intensity = src.intensity;
-            pe::Real impact_radius = (std::abs(intensity.x) + std::abs(intensity.y) + std::abs(intensity.z))
-                                     / (3.0 * threshold);
-            if (impact_radius < 0.01) continue;
-            if (src.type == FractureType::Sphere) {
-                int point_count = (int)(impact_radius * SPHERE_DENSITY);
-                for (int i = 0; i < point_count; i++) {
-                    auto point = randomSpherePoints(impact_radius) + local_impact_pos;
-                    if (shape->localIsInside(point)) {
-                        points.push_back(point);
-                    }
-                }
-            } else if (src.type == FractureType::Cylinder) {
-                pe::Vector3 direction = (world_trans.getBasis().transposed() * intensity).normalized();
-                pe::Matrix3 rot = from_two_vectors(pe::Vector3(0, 0, 1), direction);
-                int point_count = (int)(impact_radius * CYLINDER_DENSITY);
-                for (int i = 0; i < point_count; i++) {
-                    auto point = rot * randomCylinderPoints(impact_radius / 5,
-                                                            impact_radius * 5) + local_impact_pos;
-                    if (shape->localIsInside(point)) {
-                        points.push_back(point);
-                    }
-                }
-            } else return;
-        }
-        if (points.size() <= 2) return;
-
-        // calculate intensity for each point
-        pe::Array<pe::Vector3> forces;
-        forces.assign(points.size(), pe::Vector3::zeros());
-        for (int i = 0; i < (int)points.size(); i++) {
-            pe::Vector3 pos = world_trans * points[i];
-            for (auto& src : sources) {
-                pe::Real expForce = src.intensity.norm();
-                pe::Real dist = (pos - src.position).norm();
-                pe::Vector3 dir = (pos - src.position).normalized();
-                forces[i] += (dir * (expForce / dist * EXPLOSION_RATE));
-            }
-        }
 
         // generate new rigidbodies
         pe::Array<pe::Mesh> fragments;
