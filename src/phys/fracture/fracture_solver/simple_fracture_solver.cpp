@@ -2,10 +2,6 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/box_shape.h"
 
-#define EXPLOSION_RATE 0.125
-#define SPHERE_DENSITY 50
-#define CYLINDER_DENSITY 20
-
 namespace pe_phys_fracture {
 
     void SimpleFractureSolver::cut_mesh(const pe::Mesh& mesh, pe::Array<pe::Mesh>& new_meshes) {
