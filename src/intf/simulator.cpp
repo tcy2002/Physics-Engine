@@ -9,7 +9,7 @@ void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
     }
 
     int frame = 0;
-    int dt_ms = (int)(dt * 1000);
+    int target_dt = (int)(dt * 1000);
     auto start = COMMON_GetTickCount();
     while (++frame < max_frame) {
         auto t = COMMON_GetTickCount();
@@ -23,7 +23,9 @@ void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
             }
         }
 
-        COMMON_Sleep(dt_ms - (int)(COMMON_GetTickCount() - t));
+        auto actual_dt = (int)(COMMON_GetTickCount() - t);
+        COMMON_Sleep(target_dt - actual_dt);
+        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
     }
     auto end = COMMON_GetTickCount();
     pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);

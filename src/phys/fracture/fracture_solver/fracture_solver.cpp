@@ -33,7 +33,7 @@ namespace pe_phys_fracture {
     }
 
     pe::Vector3 FractureSolver::randomSpherePoints(pe::Real radius) {
-        static std::default_random_engine e(99);
+        static std::default_random_engine e(999);
         static std::uniform_real_distribution<pe::Real> d(0., 1.);
         pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
         pe::Real cos_t = cos(theta), sin_t = sin(theta), cos_a = cos(alpha), sin_a = sin(alpha);

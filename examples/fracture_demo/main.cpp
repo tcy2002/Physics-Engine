@@ -24,13 +24,13 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a fracturable box and solve the fracture result
-        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)),
+        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
                                            pe::Vector3(4, 4, 4), 1);
         auto fs = new pe_phys_fracture::FractureSolver();
         pe_phys_fracture::FractureSource src;
         src.type = pe_phys_fracture::FractureType::Sphere;
-        src.position = pe::Vector3(1.5, 6.5, 1.5);
-        src.intensity = pe::Vector3(0.5, 0.5, 0.5);
+        src.position = pe::Vector3(1.5, 3.5, 1.5);
+        src.intensity = pe::Vector3(1.5, 1.5, 1.5);
         fs->setFracturableObject(rb3);
         fs->solve({src});
         for (auto rb : fs->getFragments()) {
@@ -39,7 +39,7 @@ public:
 
         // add some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
-        for (int i = 0; i < 99; i++) {
+        for (int i = 0; i < 0; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
                 rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * 1.1, 0)),
