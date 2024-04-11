@@ -10,8 +10,10 @@
 
 namespace pe_intf { // interface
 
+    enum class UseViewer { False = 0, True = 1 };
+
     // Simulator base class
-    template <bool UseViewer>
+    template <UseViewer UV>
     class Simulator {
     protected:
         World _world;

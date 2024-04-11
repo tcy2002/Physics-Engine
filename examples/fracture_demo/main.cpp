@@ -2,10 +2,10 @@
 #include "phys/object/fracturable_object.h"
 #include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 
-// true/false: simulate with/without viewer
+// pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `r` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class FractureSimulator : public pe_intf::Simulator<true> {
+class FractureSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 public:
     FractureSimulator() {}
     virtual ~FractureSimulator() {}

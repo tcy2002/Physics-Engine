@@ -1,9 +1,9 @@
 #include "intf/simulator.h"
 
-// true/false: simulate with/without viewer
+// pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `r` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class BombSimulator : public pe_intf::Simulator<true> {
+class BombSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 public:
     BombSimulator() {}
     virtual ~BombSimulator() {}

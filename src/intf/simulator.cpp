@@ -1,8 +1,8 @@
-template <bool UseViewer>
-void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
+template <UseViewer UV>
+void Simulator<UV>::start(pe::Real dt, int max_frame) {
     _world.setDt(dt);
     init();
-    if (UseViewer) {
+    if (UV == UseViewer::True) {
         if (!renderInit()) {
             return;
         }
@@ -17,7 +17,7 @@ void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
         _world.step();
         step();
 
-        if (UseViewer) {
+        if (UV == UseViewer::True) {
             if (!renderStep()) {
                 break;
             }
@@ -36,8 +36,8 @@ void Simulator<UseViewer>::start(pe::Real dt, int max_frame) {
     std::cout << "constraint solver time: " << _world.constraint_solver_time << "s" << std::endl;
 }
 
-template <bool UseViewer>
-bool Simulator<UseViewer>::renderInit() {
+template <UseViewer UV>
+bool Simulator<UV>::renderInit() {
     pe_intf::Viewer::open("PhysicsDemo", 800, 600, {0, 10, 20}, 0, (float)(PE_PI / 12.0));
 
     // add models and initialize transform
@@ -109,8 +109,8 @@ bool Simulator<UseViewer>::renderInit() {
     return true;
 }
 
-template <bool UseViewer>
-bool Simulator<UseViewer>::renderStep() {
+template <UseViewer UV>
+bool Simulator<UV>::renderStep() {
     if (pe_intf::Viewer::getKeyState(27) == 0) {
         pe_intf::Viewer::close();
         return false;

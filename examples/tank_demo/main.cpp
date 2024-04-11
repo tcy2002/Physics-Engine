@@ -1,10 +1,10 @@
 #include "intf/simulator.h"
 #include "phys/vehicle/tank/tank_template.h"
 
-// true/false: simulate with/without viewer
+// pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `r` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class TankSimulator : public pe_intf::Simulator<true> {
+class TankSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 protected:
     // i/j/k/l: move forward/leftward/backward/rightward
     // u/o: rotate barrel leftward/rightward
