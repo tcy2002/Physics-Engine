@@ -23,7 +23,7 @@ COMMON_FORCE_INLINE char* PE_GetTimeString() {
 #elif defined LINUX
     localtime_r(&time_seconds, &now_time);
 #endif
-    sprintf_s(str, "%04d-%02d-%02d %02d:%02d:%02d",
+    sprintf(str, "%04d-%02d-%02d %02d:%02d:%02d",
         now_time.tm_year + 1900,
         now_time.tm_mon + 1,
         now_time.tm_mday,

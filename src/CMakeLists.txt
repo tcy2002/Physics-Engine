@@ -1,6 +1,6 @@
 file(GLOB_RECURSE PHYS_SOURCES phys/*.cpp)
 
-add_library(PEngine SHARED intf/world.cpp
+add_library(PEngine STATIC intf/world.cpp
         ${PHYS_SOURCES})
 add_library(PEViewer STATIC intf/viewer.cpp)
 add_library(PEUtils STATIC
@@ -9,6 +9,13 @@ add_library(PEUtils STATIC
         utils/jacobian_entry.cpp)
 
 target_link_libraries(PEngine PEUtils)
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEViewer PRIVATE
         ${SV_LIB_DIR}/SimpleViewer.lib
         ${SV_LIB_DIR}/freeglut.lib ${SV_LIB_DIR}/glew32.lib opengl32)
+else()
+target_link_libraries(PEViewer PRIVATE
+        ${SV_LIB_DIR}/libSimpleViewer.a
+        ${SV_LIB_DIR}/libglut.a ${SV_LIB_DIR}/libGLEW.a 
+        pthread X11 Xrandr Xi Xxf86vm GL)
+endif()

@@ -1,5 +1,6 @@
 #include "box_box_collision_algorithm.h"
 #include "phys/shape/box_shape.h"
+#include <string.h>
 
 namespace pe_phys_collision {
 

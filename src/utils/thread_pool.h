@@ -30,7 +30,7 @@ namespace utils {
         ThreadPool& operator=(const ThreadPool&) = delete;
 
     private:
-        ThreadPool() = default;
+        ThreadPool() {}
         ~ThreadPool() { deinit(); }
 
         uint32_t _size = 0;
