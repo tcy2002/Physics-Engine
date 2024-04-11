@@ -6,6 +6,15 @@
 #include <map>
 #include <cstdint>
 
+//// dll export
+// you should mark PE_API for public functions that you
+// want to use in demos or other projects
+#ifdef _MSC_VER
+#define PE_API _declspec(dllexport)
+#else
+#define PE_API
+#endif
+
 //// general macros
 #include <common/general.h>
 

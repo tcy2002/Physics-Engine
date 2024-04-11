@@ -13,7 +13,8 @@ namespace pe_phys_fracture  {
     public:
         BowyerWatsonVoronoiCalculator() {}
         virtual ~BowyerWatsonVoronoiCalculator() {}
-        virtual void triangulate(const pe::Array<pe::Vector3>& points) override;
+
+        PE_API virtual void triangulate(const pe::Array<pe::Vector3>& points) override;
     };
 
 } // namespace pe_phys_fracture

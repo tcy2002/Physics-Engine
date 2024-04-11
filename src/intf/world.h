@@ -42,8 +42,8 @@ namespace pe_intf { // interface
         void applyExternalForce();
 
     public:
-        World();
-        ~World();
+        PE_API World();
+        PE_API ~World();
 
         /**** for performance analysis *****/
         pe::Real broad_phase_time = pe::Real(0.0);
@@ -53,8 +53,8 @@ namespace pe_intf { // interface
 
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
         pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
-        void addRigidBody(pe_phys_object::RigidBody* rigidbody);
-        void step();
+        PE_API void addRigidBody(pe_phys_object::RigidBody* rigidbody);
+        PE_API void step();
     };
 
 } // namespace pe_core

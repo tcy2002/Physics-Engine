@@ -1,6 +1,6 @@
 #include "intf/simulator.h"
 #include "phys/object/fracturable_object.h"
-#include "phys/fracture/fracture_solver/fracture_solver.h"
+#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 
 // true/false: simulate with/without viewer
 // If using viewer, press `r` to start simulation
@@ -26,7 +26,7 @@ public:
         // add a fracturable box and solve the fracture result
         auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
                                            pe::Vector3(4, 4, 4), 1);
-        auto fs = new pe_phys_fracture::FractureSolver();
+        auto fs = new pe_phys_fracture::SimpleFractureSolver();
         pe_phys_fracture::FractureSource src;
         src.type = pe_phys_fracture::FractureType::Sphere;
         src.position = pe::Vector3(1.5, 3.5, 1.5);

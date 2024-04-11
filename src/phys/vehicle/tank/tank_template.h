@@ -125,27 +125,27 @@ namespace pe_phys_vehicle {
 
     public:
         // refer to tank 99a: 7.6m long and 3.5m wide.
-        TankTemplate();
+        PE_API TankTemplate();
         ~TankTemplate() { delete vehicle; }
 
-        void init(pe_intf::World* dw);
+        PE_API void init(pe_intf::World* dw);
         pe_phys_object::RigidBody* getBody() { return body; }
         pe_phys_object::RigidBody* getTurret() { return turret; }
         pe_phys_object::RigidBody* getBarrel() { return barrel; }
         pe::Array<pe_phys_object::RigidBody*>& getWheels() { return wheels; }
         pe::Array<pe_phys_object::RigidBody*>& getTrackSegments() { return trackSegments; }
 
-        void advance(pe::Real step);
+        PE_API void advance(pe::Real step);
 
-        void idle();
-        void brake();
-        void moveForward();
-        void moveBackward();
-        void turnLeft();
-        void turnRight();
-        void barrelRotLeft(pe::Real step);
-        void barrelRotRight(pe::Real step);
-        pe::Real getSpeedKmHour() const;
+        PE_API void idle();
+        PE_API void brake();
+        PE_API void moveForward();
+        PE_API void moveBackward();
+        PE_API void turnLeft();
+        PE_API void turnRight();
+        PE_API void barrelRotLeft(pe::Real step);
+        PE_API void barrelRotRight(pe::Real step);
+        PE_API pe::Real getSpeedKmHour() const;
     };
 
 } // namespace pe_phys_vehicle

@@ -3,7 +3,7 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/sphere_shape.h"
 #include "phys/shape/cylinder_shape.h"
-#include "phys/fracture/fracture_solver/fracture_solver.h"
+#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 #include "phys/object/fracturable_object.h"
 #include "intf/viewer.h"
 #include <fstream>
@@ -83,7 +83,7 @@ void testWorld() {
 #ifdef PE_TEST_FRAC
     // create a fracturable object and solve it
     auto rb2 = createFracturableObject(pe::Vector3(0, 5, 0), pe::Vector3(4, 4, 4), 1);
-    auto fs = new pe_phys_fracture::FractureSolver();
+    auto fs = new pe_phys_fracture::SimpleFractureSolver();
     pe_phys_fracture::FractureSource src;
     src.type = pe_phys_fracture::FractureType::Sphere;
     src.position = pe::Vector3(1.5, 6.5, 1.5);
