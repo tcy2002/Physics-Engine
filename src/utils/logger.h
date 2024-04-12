@@ -20,7 +20,7 @@ COMMON_FORCE_INLINE char* PE_GetTimeString() {
     time_t time_seconds = time(0);
 #ifdef _WIN32
     localtime_s(&now_time, &time_seconds);
-#elif defined LINUX
+#else
     localtime_r(&time_seconds, &now_time);
 #endif
     sprintf(str, "%04d-%02d-%02d %02d:%02d:%02d",

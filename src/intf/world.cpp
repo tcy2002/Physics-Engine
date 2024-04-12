@@ -145,6 +145,7 @@ namespace pe_intf {
         narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 
 #   if PE_SHOW_DEBUG_POINTS
+        // show the contact points of given rigidbody with other rigidboies
         static pe::Array<int> debug_points;
         for (auto id : debug_points) {
             pe_intf::Viewer::removeCube(id);

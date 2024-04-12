@@ -4,16 +4,15 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#elif defined LINUX
+#else
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #endif
 
 //// inline
 #ifdef _WIN32
 #define COMMON_FORCE_INLINE __forceinline
-#elif defined LINUX
-#define COMMON_FORCE_INLINE __attribute__((always_inline))
 #else
 #define COMMON_FORCE_INLINE inline
 #endif
@@ -25,20 +24,17 @@ COMMON_FORCE_INLINE unsigned long long COMMON_GetTickCount() {
     QueryPerformanceCounter(&t);
     QueryPerformanceFrequency(&f);
     return t.QuadPart * 1000 / f.QuadPart;
-#elif defined LINUX
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 #else
-    return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (unsigned long long)(ts.tv_nsec / 1000000) + 
+           ((unsigned long long)ts.tv_sec * 1000ull);
 #endif
 }
 #ifdef _WIN32
 #define COMMON_Sleep(t) Sleep((t) > 0 ? (t) : 0)
-#elif defined LINUX
-#define COMMON_Sleep(t) usleep((t) > 0 ? (t) * 1000 : 0)
 #else
-#define COMMON_Sleep(t)
+#define COMMON_Sleep(t) usleep((t) > 0 ? (t) * 1000 : 0)
 #endif
 
 //// member getter and setter

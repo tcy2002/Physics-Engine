@@ -8,7 +8,6 @@ add_library(PEUtils STATIC
         utils/thread_pool.cpp
         utils/jacobian_entry.cpp)
 
-target_link_libraries(PEngine PEUtils)
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEViewer PRIVATE
         ${SV_LIB_DIR}/SimpleViewer.lib
