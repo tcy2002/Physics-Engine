@@ -22,12 +22,9 @@
     - Contact：根据车轮与地面的碰撞结果设置impulse和suspension，力的反馈更真实
     - 目前履带没有碰撞效果，会有穿模发生，正在寻找方案解决(3.25)
 
-| DefaultRaycastSolver                               | Contact                                   |
-|---------------------------------------|-------------------------------------------|
-| ![raycast](./screenshots/raycast.gif) | ![contact.gif](./screenshots/contact.gif) |
-
 - 坦克综合效果
-  ![tank](./screenshots/tank.gif)
+
+![tank](./screenshots/tank.gif)
 
 ### 开发日志
 
@@ -115,6 +112,8 @@
     - simulator
         - 仿真器类，用于管理整个物理引擎，负责后台管理物理引擎和前台渲染，用户只需要重写init和step函数即可
         - 已完成
+- 后续
+    - 支持linux下编译运行
 
 ### 问题日志
 
