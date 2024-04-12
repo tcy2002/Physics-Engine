@@ -9,8 +9,9 @@ add_library(PEUtils STATIC
         utils/jacobian_entry.cpp)
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+target_link_libraries(PEngine PRIVATE PEUtils)
 target_link_libraries(PEViewer PRIVATE
-        ${SV_LIB_DIR}/SimpleViewer.lib
+        ${SV_LIB_DIR}/SimpleViewer_${CMAKE_BUILD_TYPE}.lib
         ${SV_LIB_DIR}/freeglut.lib ${SV_LIB_DIR}/glew32.lib opengl32)
 else()
 target_link_libraries(PEViewer PRIVATE
