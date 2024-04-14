@@ -13,7 +13,7 @@ namespace pe_phys_shape {
         pe::Array<pe::Array<uint32_t>> _unique_faces;
 
     public:
-        pe::Vector3 setMesh(pe::Mesh mesh);
+        PE_API pe::Vector3 setMesh(pe::Mesh mesh);
         const pe::Array<pe::Vector3>& getUniqueEdges() const { return _unique_edges; }
 
         ConvexMeshShape() {}
