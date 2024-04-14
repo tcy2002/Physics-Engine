@@ -3,10 +3,6 @@
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "utils/thread_pool.h"
-#include "viewer.h"
-
-#define PE_SHOW_DEBUG_POINTS false
-#define PE_DEBUG_ID 30
 
 namespace pe_intf {
 
@@ -143,26 +139,6 @@ namespace pe_intf {
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         end = COMMON_GetTickCount();
         narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
-
-#   if PE_SHOW_DEBUG_POINTS
-        // show the contact points of given rigidbody with other rigidboies
-        static pe::Array<int> debug_points;
-        for (auto id : debug_points) {
-            pe_intf::Viewer::removeCube(id);
-        }
-        debug_points.clear();
-        for (auto& cr : _contact_results) {
-            if (cr.getObjectA()->getGlobalId() != PE_DEBUG_ID &&
-                cr.getObjectB()->getGlobalId() != PE_DEBUG_ID) continue;
-            for (int i = 0; i < cr.getPointSize(); i++) {
-                auto point = cr.getContactPoint(i).getWorldPos();
-                int id = pe_intf::Viewer::addCube({0.2, 0.2, 0.2});
-                pe_intf::Viewer::updateCubeColor(id, {1, 0, 0});
-                pe_intf::Viewer::updateCubeTransform(id, pe::Transform(pe::Matrix3::identity(), point));
-                debug_points.push_back(id);
-            }
-        }
-#   endif
 
         // constraints
         start = COMMON_GetTickCount();

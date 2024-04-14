@@ -45,10 +45,11 @@ namespace pe_intf { // interface
         PE_API World();
         PE_API ~World();
 
-        /**** for performance analysis *****/
+        /**** for performance analysis and debug *****/
         pe::Real broad_phase_time = pe::Real(0.0);
         pe::Real narrow_phase_time = pe::Real(0.0);
         pe::Real constraint_solver_time = pe::Real(0.0);
+        pe::Array<pe_phys_collision::ContactResult*>& getContactResults() { return _contact_results; }
         /**********************************/
 
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }

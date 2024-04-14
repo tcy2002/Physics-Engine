@@ -8,9 +8,10 @@
 #include "intf/viewer.h"
 #include <fstream>
 
+#define PE_SHOW_CONTACT_POINTS
 #define PE_TEST_FRAC
 //#define PE_TEST_SECOND_GROUND
-#define PE_TEST_OBJ_NUM 99
+#define PE_TEST_OBJ_NUM 0
 #define PE_TEST_FRAME_TH 1000000
 //#define PE_TEST_FRAMERATE 1000
 
@@ -184,6 +185,25 @@ void testWorld() {
             pe_intf::Viewer::updateCylinderTransform(ids[i], rbs[i]->getTransform());
         }
         world->step();
+
+#   ifdef PE_SHOW_CONTACT_POINTS
+        // show the contact points of given rigidbody with other rigidbodies
+        static pe::Array<int> debug_points;
+        for (auto id : debug_points) {
+            pe_intf::Viewer::removeSphere(id);
+        }
+        debug_points.clear();
+        for (auto cr : world->getContactResults()) {
+            for (int i = 0; i < cr->getPointSize(); i++) {
+                auto point = cr->getContactPoint(i).getWorldPos();
+                int id = pe_intf::Viewer::addSphere(0.05);
+                pe_intf::Viewer::updateSphereColor(id, {1, 0, 0});
+                pe_intf::Viewer::updateSphereTransform(id, pe::Transform(pe::Matrix3::identity(), point));
+                debug_points.push_back(id);
+            }
+        }
+#   endif
+
 #   if !defined(PE_TEST_FRAMERATE)
         if (++frame > PE_TEST_FRAME_TH) while (pe_intf::Viewer::getKeyState('r') != 1);
 #   endif

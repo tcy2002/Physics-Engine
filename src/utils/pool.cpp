@@ -60,6 +60,11 @@ void Pool<T, BlockSize>::destroyAll() {
         iter = iter->next;
     }
 
+    // TODO: check if this is necessary
+    if (free_nodes.empty()) {
+        return;
+    }
+
     static auto cmp_t_ptr = [=](T* i, T* j) { return i < j; };
     static auto cmp_v_ptr = [=](void* i, void* j) { return i < j; };
     std::sort(free_nodes.begin(), free_nodes.end(), cmp_t_ptr);
@@ -75,8 +80,13 @@ void Pool<T, BlockSize>::destroyAll() {
             } else if (free_nodes[j] > elem) {
                 elem->~T();
             } else {
-                ///todo: check why this happens and why should not happen
+                // TODO: check why this happens and why should not happen
                 //PE_LOG_ERROR << "Pool destroy error" << std::endl;
+            }
+
+            // TODO: check if this is necessary
+            if (j >= free_nodes.size()) {
+                return;
             }
         }
     }

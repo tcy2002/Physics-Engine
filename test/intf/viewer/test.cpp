@@ -9,7 +9,7 @@ void testViewer() {
     pe::Transform transform = pe::Transform::identity();
     pe::Transform rotation;
     rotation.setEulerRotation(0, 0, 0.01);
-    while (pe_intf::Viewer::getKeyState('q') != 0) {
+    while (pe_intf::Viewer::getKeyState('q') != 0 && pe_intf::Viewer::isOpen()) {
         auto t = COMMON_GetTickCount();
         transform *= rotation;
         pe_intf::Viewer::updateCylinderTransform(id, transform);

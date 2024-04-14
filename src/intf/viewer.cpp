@@ -55,10 +55,12 @@ namespace pe_intf {
     }
 
     int Viewer::getKeyState(char key) {
+        if (!isOpen()) return -1;
         return simple_viewer::getKeyState(key);
     }
 
     int Viewer::getMouseButtonState(int button) {
+        if (!isOpen()) return -1;
         return simple_viewer::getMouseState(button);
     }
 
