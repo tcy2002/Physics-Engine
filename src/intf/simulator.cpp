@@ -98,10 +98,15 @@ bool Simulator<UV>::renderInit() {
         }
     }
 
+    // wait for the window to open
+    while (!pe_intf::Viewer::isOpen()) {
+        COMMON_Sleep(10);
+    }
+
     // wait for key 'r' to start
     while (pe_intf::Viewer::getKeyState('r') != 0) {
         COMMON_Sleep(10);
-        if (pe_intf::Viewer::getKeyState(27) == 0) {
+        if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
             pe_intf::Viewer::close();
             return false;
         }
@@ -111,7 +116,7 @@ bool Simulator<UV>::renderInit() {
 
 template <UseViewer UV>
 bool Simulator<UV>::renderStep() {
-    if (pe_intf::Viewer::getKeyState(27) == 0) {
+    if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
         pe_intf::Viewer::close();
         return false;
     }

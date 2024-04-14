@@ -50,6 +50,10 @@ namespace pe_intf {
         delete viewer_thread;
     }
 
+    bool Viewer::isOpen() {
+        return simple_viewer::isOpen();
+    }
+
     int Viewer::getKeyState(char key) {
         return simple_viewer::getKeyState(key);
     }

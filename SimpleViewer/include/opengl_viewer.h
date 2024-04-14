@@ -144,6 +144,10 @@ namespace simple_viewer {
      * @brief Close the window
      */
     SV_API void close();
+    /**
+     * @brief Check if the window is open
+     */
+    SV_API bool isOpen();
 
     //// Frame rate
     /**

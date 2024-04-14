@@ -20,6 +20,7 @@ namespace pe_intf { // interface
                             const common::Vector3<float>& camera_pos,
                             float camera_yaw, float camera_pitch);
         static void close();
+        static bool isOpen();
 
         static int getKeyState(char key);
         static int getMouseButtonState(int button);

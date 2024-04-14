@@ -31,7 +31,7 @@ public:
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),
                                          2.0, 50);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -0)); // give an initial velocity
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
         _world.addRigidBody(rb2);
     }
 

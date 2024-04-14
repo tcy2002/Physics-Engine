@@ -11,7 +11,7 @@ add_library(PEUtils STATIC
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEngine PRIVATE PEUtils)
 target_link_libraries(PEViewer PRIVATE
-        ${SV_LIB_DIR}/SimpleViewer_${CMAKE_BUILD_TYPE}.lib
+        ${SV_LIB_DIR}/SimpleViewer_${CMAKE_CFG_INTDIR}.lib
         ${SV_LIB_DIR}/freeglut.lib ${SV_LIB_DIR}/glew32.lib opengl32)
 else()
 target_link_libraries(PEViewer PRIVATE
