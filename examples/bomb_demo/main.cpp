@@ -27,6 +27,10 @@ public:
         createTower(pe::Vector3(0, 0, -50), 6, 27, 12);
         createTower(pe::Vector3(0, 0, -50), 8, 26, 16);
 
+        createTower(pe::Vector3(0, 0, -80), 4, 28, 8);
+        createTower(pe::Vector3(0, 0, -80), 6, 27, 12);
+        createTower(pe::Vector3(0, 0, -80), 8, 26, 16);
+
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),

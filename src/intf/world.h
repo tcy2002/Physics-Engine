@@ -46,6 +46,7 @@ namespace pe_intf { // interface
         PE_API ~World();
 
         /**** for performance analysis and debug *****/
+        pe::Real update_status_time = pe::Real(0.0);
         pe::Real broad_phase_time = pe::Real(0.0);
         pe::Real narrow_phase_time = pe::Real(0.0);
         pe::Real constraint_solver_time = pe::Real(0.0);

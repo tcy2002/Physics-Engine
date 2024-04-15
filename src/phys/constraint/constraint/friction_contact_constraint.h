@@ -10,7 +10,9 @@ namespace pe_phys_constraint {
 
     class FrictionContactConstraint : public Constraint {
     private:
-        COMMON_MEMBER_SET_GET(pe_phys_collision::ContactResult, contact_result, ContactResult)
+        pe_phys_collision::ContactResult* _contact_result = nullptr;
+    public:
+        void setContactResult(pe_phys_collision::ContactResult& cr) { _contact_result = &cr; }
 
         struct ConstraintInfo {
             pe::Vector3 r_a;

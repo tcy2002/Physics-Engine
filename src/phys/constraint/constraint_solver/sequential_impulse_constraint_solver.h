@@ -11,7 +11,7 @@ namespace pe_phys_constraint {
     private:
         pe::Array<pe_phys_object::RigidBody*> _collision_objects;
         pe::Array<Constraint*> _constraints;
-        utils::Pool<FrictionContactConstraint, 16384> _fcc_pool;
+        utils::Pool<FrictionContactConstraint, 2048> _fcc_pool;
 
     public:
         SequentialImpulseConstraintSolver();

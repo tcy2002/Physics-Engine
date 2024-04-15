@@ -122,17 +122,20 @@ namespace pe_intf {
     }
 
     void World::step() {
+        auto start = COMMON_GetTickCount();
         // update status
         updateObjectStatus();
 
         // external force
         applyExternalForce();
+        auto end = COMMON_GetTickCount();
+        update_status_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         // collision detection
-        auto start = COMMON_GetTickCount();
+        start = COMMON_GetTickCount();
         updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
-        auto end = COMMON_GetTickCount();
+        end = COMMON_GetTickCount();
         broad_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         start = COMMON_GetTickCount();

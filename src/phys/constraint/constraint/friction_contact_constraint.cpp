@@ -3,16 +3,17 @@
 namespace pe_phys_constraint {
     
     void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& param) {
-        int point_size = PE_MIN(PE_MAX_CONTACT_POINT, _contact_result.getPointSize());
+        if (!_contact_result) return;
+        int point_size = PE_MIN(PE_MAX_CONTACT_POINT, _contact_result->getPointSize());
         _cis.resize(point_size);
 
-        _object_a = _contact_result.getObjectA();
-        _object_b = _contact_result.getObjectB();
+        _object_a = _contact_result->getObjectA();
+        _object_b = _contact_result->getObjectB();
         const pe::Transform& transform_a = _object_a->getTransform();
         const pe::Transform& transform_b = _object_b->getTransform();
 
         for (int i = 0; i < point_size; i++) {
-            const pe_phys_collision::ContactPoint& cp = _contact_result.getContactPoint(i);
+            const pe_phys_collision::ContactPoint& cp = _contact_result->getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
 
             const pe::Vector3 r_a = transform_a.getBasis() * cp.getLocalPosA();
@@ -59,7 +60,7 @@ namespace pe_phys_constraint {
                 if (std::abs(rev_vel_r) < param.restitutionVelocityThreshold) {
                     rev_vel_r = 0;
                 }
-                rev_vel_r *= _contact_result.getRestitutionCoeff();
+                rev_vel_r *= _contact_result->getRestitutionCoeff();
 
                 pe::Real penetration = cp.getDistance();
                 penetration = PE_MAX(penetration, -param.penetrationThreshold);
@@ -73,13 +74,13 @@ namespace pe_phys_constraint {
             ci.n_applied_impulse = 0;
             ci.t0_applied_impulse = 0;
             ci.t1_applied_impulse = 0;
-            ci.friction_coeff = _contact_result.getFrictionCoeff();
+            ci.friction_coeff = _contact_result->getFrictionCoeff();
         }
     }
 
     void FrictionContactConstraint::warmStart() {
         for (int i = 0; i < (int)_cis.size(); i++) {
-            auto& cp = _contact_result.getContactPoint(i);
+            auto& cp = _contact_result->getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
             ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
 
@@ -127,7 +128,7 @@ namespace pe_phys_constraint {
     void FrictionContactConstraint::afterSequentialImpulse() {
         for (int i = 0; i < (int)_cis.size(); i++) {
             const ConstraintInfo& ci = _cis[i];
-            _contact_result.getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
+            _contact_result->getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
         }
     }
     
