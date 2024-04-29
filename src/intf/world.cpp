@@ -14,7 +14,8 @@ namespace pe_intf {
         _sleep_time_threshold(0.0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
-        _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver) {
+        _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
+        _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::init(std::thread::hardware_concurrency() * 2);
 #   endif
@@ -27,6 +28,7 @@ namespace pe_intf {
         delete _broad_phase;
         delete _narrow_phase;
         delete _constraint_solver;
+        delete _fracture_solver;
     }
 
     void World::updateAABBs() {
@@ -125,6 +127,26 @@ namespace pe_intf {
         auto start = COMMON_GetTickCount();
         // update status
         updateObjectStatus();
+
+        // fracture
+        if (!_fracture_sources.empty()) {
+            for (int i = 0; i < (int)_collision_objects.size(); i++) {
+                auto rb = _collision_objects[i];
+                if (rb->isFracturable()) {
+                    _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);
+                    _fracture_solver->solve(_fracture_sources);
+                    if (!_fracture_solver->getFragments().empty()) {
+                        for (auto frag : _fracture_solver->getFragments()) {
+                            _collision_objects.push_back(frag);
+                            _rigidbodies_to_add.push_back(frag);
+                        }
+                        _collision_objects.erase(_collision_objects.begin() + i--);
+                        _rigidbodies_to_remove.push_back(rb);
+                    }
+                }
+            }
+            _fracture_sources.clear();
+        }
 
         // external force
         applyExternalForce();

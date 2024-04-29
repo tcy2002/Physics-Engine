@@ -1,3 +1,5 @@
+#pragma once
+
 #include "fracture_solver.h"
 #include "phys/fracture/voronoi_calculator/bowyer_watson_voronoi_calculator.h"
 

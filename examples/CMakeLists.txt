@@ -1,3 +1,4 @@
 add_subdirectory(fracture_demo)
 add_subdirectory(tank_demo)
 add_subdirectory(bomb_demo)
+add_subdirectory(integrated_demo)

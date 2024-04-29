@@ -30,9 +30,11 @@ namespace pe_intf { // interface
         void start(pe::Real dt = pe::Real(0.01), int max_frame = 1024);
 
     private:
-        pe::Map<int, pe_phys_object::RigidBody*> _id_map;
+        pe::Map<pe_phys_object::RigidBody*, int> _id_map;
         bool renderInit();
         bool renderStep();
+        void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
+        void removeModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
     };
 
     #include "simulator.cpp"

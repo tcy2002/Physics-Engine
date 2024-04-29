@@ -14,6 +14,13 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
     while (++frame < max_frame) {
         auto t = COMMON_GetTickCount();
 
+        if (UV == UseViewer::True) {
+            addModels(_world.getFragments());
+            _world.clearFragments();
+            removeModels(_world.getFracturedObjects());
+            _world.clearFracturedObjects();
+        }
+
         _world.step();
         step();
 
@@ -43,8 +50,58 @@ template <UseViewer UV>
 bool Simulator<UV>::renderInit() {
     pe_intf::Viewer::open("PhysicsDemo", 800, 600, {0, 10, 20}, 0, (float)(PE_PI / 12.0));
 
+    // initialize models
+    addModels(_world.getRigidBodies());
+
+    // wait for the window to open
+    while (!pe_intf::Viewer::isOpen()) {
+        COMMON_Sleep(10);
+    }
+
+    // wait for key 'r' to start
+    while (pe_intf::Viewer::getKeyState('r') != 0) {
+        COMMON_Sleep(10);
+        if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
+            pe_intf::Viewer::close();
+            return false;
+        }
+    }
+    return true;
+}
+
+template <UseViewer UV>
+bool Simulator<UV>::renderStep() {
+    if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
+        pe_intf::Viewer::close();
+        return false;
+    }
+
+    for (auto& rb : _id_map) {
+        switch (rb.first->getCollisionShape()->getType()) {
+            case pe_phys_shape::ShapeType::Box:
+                pe_intf::Viewer::updateCubeTransform(rb.second, rb.first->getTransform());
+                break;
+            case pe_phys_shape::ShapeType::Sphere:
+                pe_intf::Viewer::updateSphereTransform(rb.second, rb.first->getTransform());
+                break;
+            case pe_phys_shape::ShapeType::Cylinder:
+                pe_intf::Viewer::updateCylinderTransform(rb.second, rb.first->getTransform());
+                break;
+            case pe_phys_shape::ShapeType::ConcaveMesh:
+            case pe_phys_shape::ShapeType::ConvexMesh:
+                pe_intf::Viewer::updateMeshTransform(rb.second, rb.first->getTransform());
+                break;
+        }
+    }
+    return true;
+}
+
+template <UseViewer UV>
+void Simulator<UV>::addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) {
+    pe::Array<pe::KV<int, pe_phys_object::RigidBody*>> pairs;
+
     // add models and initialize transform
-    for (auto rb : _world.getRigidBodies()) {
+    for (auto rb : rbs) {
         int id;
         switch (rb->getCollisionShape()->getType()) {
             case pe_phys_shape::ShapeType::Box:
@@ -73,11 +130,12 @@ bool Simulator<UV>::renderInit() {
                 pe_intf::Viewer::updateMeshTransform(id, rb->getTransform());
                 break;
         }
-        _id_map[id] = rb;
+        _id_map[rb] = id;
+        pairs.emplace_back(id, rb);
     }
 
     // set color for each model
-    for (auto& rb : _id_map) {
+    for (auto& rb : pairs) {
         if (rb.second->isKinematic()) {
             pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
             pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
@@ -100,46 +158,27 @@ bool Simulator<UV>::renderInit() {
                 break;
         }
     }
-
-    // wait for the window to open
-    while (!pe_intf::Viewer::isOpen()) {
-        COMMON_Sleep(10);
-    }
-
-    // wait for key 'r' to start
-    while (pe_intf::Viewer::getKeyState('r') != 0) {
-        COMMON_Sleep(10);
-        if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
-            pe_intf::Viewer::close();
-            return false;
-        }
-    }
-    return true;
 }
 
 template <UseViewer UV>
-bool Simulator<UV>::renderStep() {
-    if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
-        pe_intf::Viewer::close();
-        return false;
-    }
-
-    for (auto& rb : _id_map) {
-        switch (rb.second->getCollisionShape()->getType()) {
-            case pe_phys_shape::ShapeType::Box:
-                pe_intf::Viewer::updateCubeTransform(rb.first, rb.second->getTransform());
-                break;
-            case pe_phys_shape::ShapeType::Sphere:
-                pe_intf::Viewer::updateSphereTransform(rb.first, rb.second->getTransform());
-                break;
-            case pe_phys_shape::ShapeType::Cylinder:
-                pe_intf::Viewer::updateCylinderTransform(rb.first, rb.second->getTransform());
-                break;
-            case pe_phys_shape::ShapeType::ConcaveMesh:
-            case pe_phys_shape::ShapeType::ConvexMesh:
-                pe_intf::Viewer::updateMeshTransform(rb.first, rb.second->getTransform());
-                break;
+void Simulator<UV>::removeModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) {
+    for (auto rb : rbs) {
+        if (_id_map.find(rb) != _id_map.end()) {
+            switch (rb->getCollisionShape()->getType()) {
+                case pe_phys_shape::ShapeType::Box:
+                    pe_intf::Viewer::removeCube(_id_map[rb]);
+                    break;
+                case pe_phys_shape::ShapeType::Sphere:
+                    pe_intf::Viewer::removeSphere(_id_map[rb]);
+                    break;
+                case pe_phys_shape::ShapeType::Cylinder:
+                    pe_intf::Viewer::removeCylinder(_id_map[rb]);
+                    break;
+                case pe_phys_shape::ShapeType::ConcaveMesh: case pe_phys_shape::ShapeType::ConvexMesh:
+                    pe_intf::Viewer::removeMesh(_id_map[rb]);
+                    break;
+            }
+            _id_map.erase(rb);
         }
     }
-    return true;
 }

@@ -36,6 +36,7 @@ namespace pe_phys_fracture {
 
         virtual void solve(const pe::Array<FractureSource>& sources) = 0;
         pe::Array<pe_phys_object::RigidBody*>& getFragments() { return _result; }
+        void clearFragments() { _result.clear(); }
     };
 
 } // namespace pe_phys_fracture
