@@ -204,6 +204,30 @@ protected:
     void createStairs(const pe::Vector3& size, const pe::Vector3& pos, pe::Real stair_num, pe::Real height, int dir) {
         /* This function creates a stair */
 
+        pe_phys_object::RigidBody* stair;
+
+        // base
+        stair = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pos + pe::Vector3(0, size.y / 2, 0)),
+                                   size, 8);
+        stair->setKinematic(true);
+        _world.addRigidBody(stair);
+
+        // stairs
+        pe::Real stair_width = size.x / pe::Real(stair_num + 1);
+        pe::Real stair_height = height / pe::Real(stair_num);
+        for (int i = 1; i <= stair_num; i++) {
+            pe::Real size_x = dir < 2 ? size.x : size.x - stair_width * i;
+            pe::Real size_z = dir < 2 ? size.z - stair_width * i : size.z;
+            pe::Real pos_x = (dir >= 2) * (stair_width * i / 2) * (dir == 2 ? 1 : -1);
+            pe::Real pos_y = size.y + stair_height * (i - 0.5);
+            pe::Real pos_z = (dir < 2) * (stair_width * i / 2) * (dir == 0 ? 1 : -1);
+            stair = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                     pos + pe::Vector3(pos_x, pos_y, pos_z)),
+                                       pe::Vector3(size_x, stair_height, size_z), 8);
+            stair->setKinematic(true);
+            _world.addRigidBody(stair);
+        }
     }
 
     void createUrbanLayout() {
@@ -225,6 +249,10 @@ protected:
         block->setKinematic(true);
         _world.addRigidBody(block);
 
+        // block [2,1]
+        createStairs(pe::Vector3(16, 2, 16), pe::Vector3(0, -2, -16),
+                     25, 6, 1);
+
         // block [3-4,1]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                  pe::Vector3(24, 2, -16)),
@@ -245,6 +273,10 @@ protected:
                                    pe::Vector3(16, 11, 32), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
+
+        // block [1,3]
+        createStairs(pe::Vector3(16, 8, 16), pe::Vector3(-16, -2, -48),
+                     25, 6, 1);
 
         // block [1-2,4]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -281,6 +313,10 @@ protected:
         block->setKinematic(true);
         _world.addRigidBody(block);
 
+        // block [1,5]
+        createStairs(pe::Vector3(16, 8, 16), pe::Vector3(-16, -2, -80),
+                     25, 6, 0);
+
         // block [2,5]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                  pe::Vector3(0, 3.5, -80)),
@@ -288,12 +324,20 @@ protected:
         block->setKinematic(true);
         _world.addRigidBody(block);
 
+        // block [3,5]
+        createStairs(pe::Vector3(16, 8, 16), pe::Vector3(16, -2, -80),
+                     25, 6, 1);
+
         // block [0-1,6-7]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                  pe::Vector3(-24, 2, -104)),
                                    pe::Vector3(32, 8, 32), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
+
+        // block [2,6]
+        createStairs(pe::Vector3(16, 8, 16), pe::Vector3(0, -2, -96),
+                     25, 6, 2);
 
         // block [2,7]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -322,6 +366,10 @@ protected:
                                    pe::Vector3(16, 17, 16), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
+
+        // block [4,8]
+        createStairs(pe::Vector3(16, 14, 16), pe::Vector3(32, -2, -128),
+                     25, 6, 1);
 
         // block [3-4,9]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
