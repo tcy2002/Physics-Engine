@@ -3,7 +3,7 @@
 #include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `r` to start simulation
+// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 class FractureSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 public:

@@ -2,7 +2,7 @@
 #include "phys/vehicle/tank/tank_template.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `r` to start simulation
+// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 class TankSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 protected:
@@ -10,11 +10,11 @@ protected:
     // u/o: rotate barrel leftward/rightward
     // CASE sensitive
     // do not try to drive the tank upside down, it will cause something unexpected <^v^>
-    pe_phys_vehicle::TankTemplate* _tank;
+    pe_phys_vehicle::TankTemplate* _tank1;
 
 public:
-    TankSimulator(): _tank(nullptr) {}
-    virtual ~TankSimulator() { delete _tank; }
+    TankSimulator(): _tank1(nullptr) {}
+    virtual ~TankSimulator() { delete _tank1; }
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -50,32 +50,32 @@ public:
         }
 
         // add a tank
-        _tank = new pe_phys_vehicle::TankTemplate();
-        _tank->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
-        _tank->init(&_world);
+        _tank1 = new pe_phys_vehicle::TankTemplate();
+        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
+        _tank1->init(&_world);
     }
 
     void step() override {
         /* Called every frame to update the physics world */
 
         // update the tank
-        _tank->advance(_world.getDt());
+        _tank1->advance(_world.getDt());
         if (pe_intf::Viewer::getKeyState('i') == 0) {
-            _tank->moveForward();
+            _tank1->moveForward();
         } else if (pe_intf::Viewer::getKeyState('k') == 0) {
-            _tank->moveBackward();
+            _tank1->moveBackward();
         } else if (pe_intf::Viewer::getKeyState('j') == 0) {
-            _tank->turnLeft();
+            _tank1->turnLeft();
         } else if (pe_intf::Viewer::getKeyState('l') == 0) {
-            _tank->turnRight();
+            _tank1->turnRight();
         } else if (pe_intf::Viewer::getKeyState('u') == 0) {
-            _tank->barrelRotLeft(_world.getDt());
+            _tank1->barrelRotLeft(_world.getDt());
         } else if (pe_intf::Viewer::getKeyState('o') == 0) {
-            _tank->barrelRotRight(_world.getDt());
+            _tank1->barrelRotRight(_world.getDt());
         } else if (pe_intf::Viewer::getKeyState(' ') == 0) {
-            _tank->brake();
+            _tank1->brake();
         } else {
-            _tank->idle();
+            _tank1->idle();
         }
     }
 

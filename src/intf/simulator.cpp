@@ -66,7 +66,7 @@ bool Simulator<UV>::renderInit() {
     }
 
     // wait for key 'r' to start
-    while (pe_intf::Viewer::getKeyState('r') != 0) {
+    while (pe_intf::Viewer::getKeyState('x') != 0) {
         COMMON_Sleep(10);
         if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
             pe_intf::Viewer::close();

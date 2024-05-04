@@ -3,7 +3,7 @@
 #include "phys/fracture/fracture_solver/fracture_solver.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `r` to start simulation
+// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 class TankSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 protected:
@@ -11,11 +11,12 @@ protected:
     // u/o: rotate barrel leftward/rightward
     // CASE sensitive
     // do not try to drive the tank upside down, it will cause something unexpected <^v^>
-    pe_phys_vehicle::TankTemplate* _tank;
+    pe_phys_vehicle::TankTemplate* _tank1;
+    pe_phys_vehicle::TankTemplate* _tank2;
 
 public:
-    TankSimulator(): _tank(nullptr) {}
-    virtual ~TankSimulator() { delete _tank; }
+    TankSimulator(): _tank1(nullptr), _tank2(nullptr) {}
+    virtual ~TankSimulator() { delete _tank1; delete _tank2; }
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -24,50 +25,79 @@ public:
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
-        // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), 
-                                                    pe::Vector3(0, -0.5, 0)), 
-                                      pe::Vector3(1000, 1, 1000), 8);
-        rb1->setKinematic(true);
-        _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
+        // tank 1
+        _tank1 = new pe_phys_vehicle::TankTemplate();
+        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-5, 5, 0)));
+        _tank1->init(&_world);
 
-        // add a tank
-        _tank = new pe_phys_vehicle::TankTemplate();
-        _tank->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
-        _tank->init(&_world);
+        // tank 2
+        _tank2 = new pe_phys_vehicle::TankTemplate();
+        _tank2->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(5, 5, 0)));
+        _tank2->init(&_world);
 
-        // add a building
-        createBuilding(pe::Vector3(8, 6, 8), pe::Vector3(0, 0, -20), 1.0);
+        // create the urban layout
+        createUrbanLayout();
     }
 
     void step() override {
         /* Called every frame to update the physics world */
 
         // update the tank
-        _tank->advance(_world.getDt());
+        _tank1->advance(_world.getDt());
+        _tank2->advance(_world.getDt());
 
-        // move
-        if (pe_intf::Viewer::getKeyState('i') == 0) {
-            _tank->moveForward();
-        } else if (pe_intf::Viewer::getKeyState('k') == 0) {
-            _tank->moveBackward();
-        } else if (pe_intf::Viewer::getKeyState('j') == 0) {
-            _tank->turnLeft();
+        // move tank1
+        if (pe_intf::Viewer::getKeyState('p') == 0) {
+            _tank1->moveForward();
+        } else if (pe_intf::Viewer::getKeyState(';') == 0) {
+            _tank1->moveBackward();
         } else if (pe_intf::Viewer::getKeyState('l') == 0) {
-            _tank->turnRight();
-        } else if (pe_intf::Viewer::getKeyState('u') == 0) {
-            _tank->barrelRotLeft(_world.getDt());
+            _tank1->turnLeft();
+        } else if (pe_intf::Viewer::getKeyState('\'') == 0) {
+            _tank1->turnRight();
         } else if (pe_intf::Viewer::getKeyState('o') == 0) {
-            _tank->barrelRotRight(_world.getDt());
-        } else if (pe_intf::Viewer::getKeyState(' ') == 0) {
-            _tank->brake();
+            _tank1->barrelRotLeft(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('[') == 0) {
+            _tank1->barrelRotRight(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('i') == 0) {
+            _tank1->barrelRotUp(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('k') == 0) {
+            _tank1->barrelRotDown(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('.') == 0) {
+            _tank1->brake();
         } else {
-            _tank->idle();
+            _tank1->idle();
+        }
+
+        // move tank2
+        if (pe_intf::Viewer::getKeyState('y') == 0) {
+            _tank2->moveForward();
+        } else if (pe_intf::Viewer::getKeyState('h') == 0) {
+            _tank2->moveBackward();
+        } else if (pe_intf::Viewer::getKeyState('g') == 0) {
+            _tank2->turnLeft();
+        } else if (pe_intf::Viewer::getKeyState('j') == 0) {
+            _tank2->turnRight();
+        } else if (pe_intf::Viewer::getKeyState('t') == 0) {
+            _tank2->barrelRotLeft(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('u') == 0) {
+            _tank2->barrelRotRight(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('r') == 0) {
+            _tank2->barrelRotUp(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('f') == 0) {
+            _tank2->barrelRotDown(_world.getDt());
+        } else if (pe_intf::Viewer::getKeyState('b') == 0) {
+            _tank2->brake();
+        } else {
+            _tank2->idle();
         }
 
         // shoot
-        if (pe_intf::Viewer::getKeyState('m') == 2) {
-            _tank->shoot(&_world, 50, 20, 0.3, 5);
+        if (pe_intf::Viewer::getKeyState(',') == 2) {
+            _tank1->shoot(&_world, 50, 20, 0.3, 5);
+        }
+        if (pe_intf::Viewer::getKeyState('v') == 2) {
+            _tank2->shoot(&_world, 50, 20, 0.3, 5);
         }
     }
 
@@ -107,6 +137,8 @@ protected:
     }
 
     void createBuilding(const pe::Vector3& size, const pe::Vector3& pos, pe::Real wall_thickness) {
+        /* This function creates a building with a ceiling and four walls */
+
         // callback function for collision
         static auto callback = [&](
                 pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
@@ -122,49 +154,181 @@ protected:
             _world.removeRigidBody(other);
         };
 
+        pe_phys_object::RigidBody* wall;
+
         // ceiling
-        auto rb1 = createBoxFracturableObject(
+        wall = createBoxFracturableObject(
                 pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y - wall_thickness / 2, 0)),
                 pe::Vector3(size.x - wall_thickness * 2, wall_thickness, size.z - wall_thickness * 2), 8, 1);
-        rb1->setKinematic(true);
-        rb1->addCollisionCallback(callback);
-        _world.addRigidBody(rb1);
+        wall->setKinematic(true);
+        wall->addCollisionCallback(callback);
+        _world.addRigidBody(wall);
 
         // front wall
-        auto rb2 = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y / 2,
-                                                                                                       size.z / 2 -
-                                                                                                       wall_thickness /
-                                                                                                       2)),
-                                              pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
-        rb2->setKinematic(true);
-        rb2->addCollisionCallback(callback);
-        _world.addRigidBody(rb2);
+        wall = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y / 2,
+                                                                                                   size.z / 2 -
+                                                                                                   wall_thickness /
+                                                                                                   2)),
+                                          pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
+        wall->setKinematic(true);
+        wall->addCollisionCallback(callback);
+        _world.addRigidBody(wall);
 
         // back wall
-        auto rb3 = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y / 2,
-                                                                                                       -size.z / 2 +
-                                                                                                       wall_thickness /
-                                                                                                       2)),
-                                              pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
-        rb3->setKinematic(true);
-        rb3->addCollisionCallback(callback);
-        _world.addRigidBody(rb3);
+        wall = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y / 2,
+                                                                                                   -size.z / 2 +
+                                                                                                   wall_thickness /
+                                                                                                   2)),
+                                          pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
+        wall->setKinematic(true);
+        wall->addCollisionCallback(callback);
+        _world.addRigidBody(wall);
 
         // left wall
-        auto rb4 = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(
-                                                      size.x / 2 - wall_thickness / 2, size.y / 2, 0)),
-                                              pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
-        rb4->setKinematic(true);
-        rb4->addCollisionCallback(callback);
-        _world.addRigidBody(rb4);
+        wall = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(
+                                                  size.x / 2 - wall_thickness / 2, size.y / 2, 0)),
+                                          pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
+        wall->setKinematic(true);
+        wall->addCollisionCallback(callback);
+        _world.addRigidBody(wall);
 
         // right wall
-        auto rb5 = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(
-                                                      -size.x / 2 + wall_thickness / 2, size.y / 2, 0)),
-                                              pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
-        rb5->setKinematic(true);
-        rb5->addCollisionCallback(callback);
-        _world.addRigidBody(rb5);
+        wall = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(
+                                                  -size.x / 2 + wall_thickness / 2, size.y / 2, 0)),
+                                          pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
+        wall->setKinematic(true);
+        wall->addCollisionCallback(callback);
+        _world.addRigidBody(wall);
+    }
+
+    void createStairs(const pe::Vector3& size, const pe::Vector3& pos, pe::Real stair_num, pe::Real height, int dir) {
+        /* This function creates a stair */
+
+    }
+
+    void createUrbanLayout() {
+        /* This function creates a 160x96 urban layout */
+
+        pe_phys_object::RigidBody* block;
+
+        // block [0-4,0]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, -1, 0)),
+                                   pe::Vector3(80, 2, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0-1,1]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-24, 2, -16)),
+                                   pe::Vector3(32, 8, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [3-4,1]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(24, 2, -16)),
+                                   pe::Vector3(32, 8, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0-4,2]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, 2, -32)),
+                                   pe::Vector3(80, 8, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0,3-4]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-32, 3.5, -56)),
+                                   pe::Vector3(16, 11, 32), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [1-2,4]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-8, 5, -64)),
+                                   pe::Vector3(32, 14, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [2-3,3]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(8, 0.5, -48)),
+                                   pe::Vector3(32, 5, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [3,4]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(16, 2, -64)),
+                                   pe::Vector3(16, 8, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [4,3-5]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(32, 2, -64)),
+                                   pe::Vector3(16, 8, 48), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0,5]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-32, 3.5, -80)),
+                                   pe::Vector3(16, 11, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [2,5]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, 3.5, -80)),
+                                   pe::Vector3(16, 11, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0-1,6-7]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-24, 2, -104)),
+                                   pe::Vector3(32, 8, 32), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [2,7]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, 3.5, -112)),
+                                   pe::Vector3(16, 11, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0-2,8-9]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(-16, 2, -136)),
+                                   pe::Vector3(48, 8, 32), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [3-4,6-9]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(24, 5, -104)),
+                                   pe::Vector3(32, 14, 32), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [3,8]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(16, 6.5, -128)),
+                                   pe::Vector3(16, 17, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [3-4,9]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(24, 8, -144)),
+                                   pe::Vector3(32, 20, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
     }
 };
 

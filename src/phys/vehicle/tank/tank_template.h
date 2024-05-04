@@ -36,6 +36,8 @@ namespace pe_phys_vehicle {
         COMMON_MEMBER_SET_GET(pe::Real, barrelRadius, BarrelRadius)
         COMMON_MEMBER_SET_GET(pe::Real, barrelLength, BarrelLength)
         COMMON_MEMBER_SET_GET(pe::Real, barrelMass, BarrelMass)
+        COMMON_MEMBER_SET_GET(pe::Real, barrelRotSpeed, BarrelRotSpeed)
+        COMMON_MEMBER_SET_GET(pe::Real, barrelMaxAngle, BarrelMaxAngle)
         COMMON_MEMBER_SET_GET(int, wheelNum, WheelNum)
         COMMON_MEMBER_SET_GET(pe::Real, powerWheelRadius, PowerWheelRadius)
         COMMON_MEMBER_SET_GET(pe::Real, drivenWheelRadius, DrivenWheelRadius)
@@ -63,6 +65,7 @@ namespace pe_phys_vehicle {
         pe::Vector3 barrelTrl;
 
         pe::Real turretAngle = 0;
+        pe::Real barrelAngle = 0;
 
         pe::Real trackOffsetLeft = 0;
         pe::Real trackOffsetRight = 0;
@@ -147,6 +150,8 @@ namespace pe_phys_vehicle {
         PE_API void turnRight();
         PE_API void barrelRotLeft(pe::Real step);
         PE_API void barrelRotRight(pe::Real step);
+        PE_API void barrelRotUp(pe::Real step);
+        PE_API void barrelRotDown(pe::Real step);
         PE_API pe::Real getSpeedKmHour() const;
     };
 

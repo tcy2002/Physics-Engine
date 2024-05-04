@@ -24,6 +24,7 @@ namespace pe_phys_vehicle {
         turret->setCollisionShape(shape_t);
         turret->setMass(_turretMass);
         turret->setLocalInertia(shape_t->calcLocalInertia(_turretMass));
+        turret->addIgnoreCollisionId(body->getGlobalId());
         dw->addRigidBody(turret);
         turretTrl = pe::Vector3(0, (_bodyHeight + _turretHeight) / 2, _bodyLength / 20);
 
@@ -34,6 +35,7 @@ namespace pe_phys_vehicle {
         barrel->setCollisionShape(shape_r);
         barrel->setMass(_barrelMass);
         barrel->setLocalInertia(shape_r->calcLocalInertia(_barrelMass));
+        barrel->addIgnoreCollisionId(turret->getGlobalId());
         dw->addRigidBody(barrel);
         barrelTrl = pe::Vector3(0, 0, -(_turretLength + _barrelLength) / 2);
 
@@ -165,7 +167,10 @@ namespace pe_phys_vehicle {
         turret->setAngularVelocity(bodyAngVel);
 
         auto rotBarrel = pe::Matrix3::identity();
-        pe::Transform transBarrel = transTurret * pe::Transform(rotBarrel, barrelTrl);
+        rotBarrel.setRotation(pe::Vector3::right(), barrelAngle);
+        auto barrelTrlUp = pe::Vector3(0, _barrelLength / 2 * std::sin(barrelAngle),
+                                         -_barrelLength / 2 * (std::cos(barrelAngle) - 1));
+        pe::Transform transBarrel = transTurret * pe::Transform(rotBarrel, barrelTrl + barrelTrlUp);
         barrel->setTransform(transBarrel);
         barrel->setLinearVelocity(bodyLinVel);
         barrel->setAngularVelocity(bodyAngVel);
@@ -358,10 +363,12 @@ namespace pe_phys_vehicle {
             _turretLength(3.5),
             _turretMass(1.),
             _turretRotSpeed(1.0),
-            _turretMaxAngle(3.141593 / 2.4),
+            _turretMaxAngle(PE_PI / pe::Real(2.4)),
             _barrelRadius(0.128),
             _barrelLength(4.2),
             _barrelMass(1.),
+            _barrelRotSpeed(1.0),
+            _barrelMaxAngle(PE_PI / pe::Real(6.)),
             _wheelNum(16),
             _powerWheelRadius(0.3),
             _drivenWheelRadius(0.4),
@@ -490,6 +497,18 @@ namespace pe_phys_vehicle {
     void TankTemplate::barrelRotRight(pe::Real step) {
         if (turretAngle > -_turretMaxAngle) {
             turretAngle -= step * _turretRotSpeed;
+        }
+    }
+
+    void TankTemplate::barrelRotUp(pe::Real step) {
+        if (barrelAngle < _barrelMaxAngle) {
+            barrelAngle += step * _barrelRotSpeed;
+        }
+    }
+
+    void TankTemplate::barrelRotDown(pe::Real step) {
+        if (barrelAngle > 0) {
+            barrelAngle -= step * _barrelRotSpeed;
         }
     }
 
