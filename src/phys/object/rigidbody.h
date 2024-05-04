@@ -1,12 +1,15 @@
 #pragma once
 
 #include <mutex>
+#include <functional>
 #include "phys/shape/shape.h"
 
 namespace pe_phys_object {
 
     class RigidBody {
         /* Base properties */
+        COMMON_MEMBER_SET_GET(std::string, name, Name)
+        COMMON_MEMBER_SET_GET(std::string, tag, Tag)
         COMMON_MEMBER_GET(uint32_t, global_id, GlobalId)
         COMMON_BOOL_SET_GET(kinematic, Kinematic)
         COMMON_BOOL_SET_GET(ignore_collision, IgnoreCollision)
@@ -23,6 +26,10 @@ namespace pe_phys_object {
         COMMON_MEMBER_GET(pe::Matrix3, world_inv_inertia, WorldInvInertia)
     protected:
         PE_API void updateWorldInertia();
+
+        /* Life Time */
+        COMMON_MEMBER_SET_GET(pe::Real, life_time, LifeTime)
+        pe::Real _last_time;
 
         /* Physical properties: friction, restitution, damping */
         COMMON_MEMBER_SET_GET(pe::Real, friction_coeff, FrictionCoeff)
@@ -61,6 +68,19 @@ namespace pe_phys_object {
         COMMON_BOOL_SET_GET(sleep, Sleep)
         COMMON_MEMBER_GET(pe::Real, sleep_time, SleepTime)
 
+        /* Collision Callback */
+    public:
+        typedef std::function<void(RigidBody*, RigidBody*,
+                const pe::Vector3&, const pe::Vector3&, const pe::Vector3&)> CollisionCallback;
+    private:
+        pe::Array<CollisionCallback> _collision_callbacks;
+    public:
+        PE_API const pe::Array<CollisionCallback>& getCollisionCallbacks() const { return _collision_callbacks; }
+        PE_API void addCollisionCallback(CollisionCallback&& callback)
+        { _collision_callbacks.push_back(std::move(callback)); }
+        PE_API void clearCollisionCallbacks() { _collision_callbacks.clear(); }
+
+        /* Constructor */
     public:
         PE_API RigidBody();
         virtual ~RigidBody() { setCollisionShape(0); }
@@ -97,7 +117,7 @@ namespace pe_phys_object {
         PE_API void applyForce(pe::Real dt);
         PE_API void applyDamping(pe::Real dt);
 
-        PE_API void step(pe::Real dt);
+        PE_API bool step(pe::Real dt);
     };
 
 } // namespace pe_phys_object

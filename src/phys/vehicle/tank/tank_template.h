@@ -137,6 +137,8 @@ namespace pe_phys_vehicle {
 
         PE_API void advance(pe::Real step);
 
+        PE_API void shoot(pe_intf::World* dw, pe::Real speed, pe::Real mass, pe::Real radius, pe::Real lifeTime);
+
         PE_API void idle();
         PE_API void brake();
         PE_API void moveForward();

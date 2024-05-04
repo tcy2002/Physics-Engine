@@ -12,15 +12,13 @@ namespace pe_phys_fracture {
         return (uint32_t)(it - _vertices.begin());
     }
 
-    void FractureDataManager::remove_vertex(uint32_t idx) {
+    void FractureDataManager::remove_vertex(uint32_t idx, bool direct) {
         _vertices.erase(_vertices.begin() + idx);
+        if (direct) return;
         TriangleHashList new_triangles;
         for (auto tri : _triangles) {
             for (auto& vert_id : tri.vert_ids) {
-                if (vert_id == idx) {
-                    vert_id = -1;
-                }
-                else if (vert_id > idx) {
+                if (vert_id > idx) {
                     vert_id--;
                 }
             }
@@ -39,13 +37,12 @@ namespace pe_phys_fracture {
         return (uint32_t)(it - _triangles.begin());
     }
 
-    void FractureDataManager::remove_triangle(uint32_t idx) {
+    void FractureDataManager::remove_triangle(uint32_t idx, bool direct) {
         _triangles.erase(_triangles.begin() + idx);
+        if (direct) return;
         for (auto& tet : _tetrahedrons) {
             for (auto& tri_id : tet.tri_ids) {
-                if (tri_id == idx) {
-                    tri_id = -1;
-                } else if (tri_id > idx) {
+                if (tri_id > idx) {
                     tri_id--;
                 }
             }
@@ -57,8 +54,8 @@ namespace pe_phys_fracture {
         pe::Vector3 center;
         pe::Real radius;
         calc_tet_bounding_sphere(_vertices[v1].pos, _vertices[v2].pos,
-                                         _vertices[v3].pos, _vertices[v4].pos,
-                                         center, radius);
+                                 _vertices[v3].pos, _vertices[v4].pos,
+                                 center, radius);
         _tetrahedrons.emplace_back(t1, t2, t3, t4, center, radius);
         return (uint32_t)_tetrahedrons.size() - 1;
     }

@@ -14,14 +14,19 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
     while (++frame < max_frame) {
         auto t = COMMON_GetTickCount();
 
+        _world.step();
+
         if (UV == UseViewer::True) {
-            addModels(_world.getFragments());
-            _world.clearFragments();
-            removeModels(_world.getFracturedObjects());
-            _world.clearFracturedObjects();
+            if (!_world.getRigidBodiesToAdd().empty()) {
+                addModels(_world.getRigidBodiesToAdd());
+                _world.clearRigidBodiesToAdd();
+            }
+            if (!_world.getRigidBodiesToRemove().empty()) {
+                removeModels(_world.getRigidBodiesToRemove());
+                _world.clearRigidBodiesToRemove();
+            }
         }
 
-        _world.step();
         step();
 
         if (UV == UseViewer::True) {
@@ -32,8 +37,9 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
         COMMON_Sleep(target_dt - actual_dt);
-        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
+//        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
     }
+
     auto end = COMMON_GetTickCount();
     pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);
     std::cout << "fps: " << (pe::Real)frame / total_time << std::endl;
@@ -51,7 +57,8 @@ bool Simulator<UV>::renderInit() {
     pe_intf::Viewer::open("PhysicsDemo", 800, 600, {0, 10, 20}, 0, (float)(PE_PI / 12.0));
 
     // initialize models
-    addModels(_world.getRigidBodies());
+    addModels(_world.getRigidBodiesToAdd());
+    _world.clearRigidBodiesToAdd();
 
     // wait for the window to open
     while (!pe_intf::Viewer::isOpen()) {
@@ -77,6 +84,9 @@ bool Simulator<UV>::renderStep() {
     }
 
     for (auto& rb : _id_map) {
+        if (rb.second == -1) {
+            continue;
+        }
         switch (rb.first->getCollisionShape()->getType()) {
             case pe_phys_shape::ShapeType::Box:
                 pe_intf::Viewer::updateCubeTransform(rb.second, rb.first->getTransform());
@@ -178,7 +188,7 @@ void Simulator<UV>::removeModels(const pe::Array<pe_phys_object::RigidBody*>& rb
                     pe_intf::Viewer::removeMesh(_id_map[rb]);
                     break;
             }
-            _id_map.erase(rb);
+            _id_map[rb] = -1;
         }
     }
 }

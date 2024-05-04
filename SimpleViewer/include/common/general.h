@@ -70,7 +70,7 @@ private:
 protected: \
 T* _##name = nullptr; \
 public: \
-void set##Name(T *t) { delete _##name; _##name = t; } \
+void set##Name(T *t) { _##name = t; } \
 T* get##Name() const { return _##name; } \
 private:
 #define COMMON_MEMBER_PTR_GET(T, name, Name) \

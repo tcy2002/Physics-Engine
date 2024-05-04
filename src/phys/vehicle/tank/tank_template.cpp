@@ -400,6 +400,31 @@ namespace pe_phys_vehicle {
         vehicle->updateVehicle(step);
     }
 
+    void TankTemplate::shoot(pe_intf::World *dw, pe::Real speed, pe::Real mass, pe::Real radius, pe::Real lifeTime) {
+        // calculate the position and direction of the bullet
+        auto pos = barrel->getTransform().getOrigin();
+        auto dir = barrel->getTransform().getBasis() * pe::Vector3(0, 0, -1);
+        pos += dir * _barrelLength / 2;
+        auto vel = dir * speed;
+
+        // create the bullet
+        auto bullet = new pe_phys_object::RigidBody();
+        auto shape = new pe_phys_shape::SphereShape(radius);
+        bullet->setCollisionShape(shape);
+        bullet->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+        bullet->setMass(mass);
+        bullet->setLocalInertia(shape->calcLocalInertia(mass));
+        bullet->setLinearVelocity(vel);
+        bullet->setLifeTime(lifeTime);
+        bullet->setTag("bullet");
+        dw->addRigidBody(bullet);
+
+        // add recoil force
+        auto recoil = dir * (-mass * speed * dw->getDt());
+        auto recoilPos = barrel->getTransform().getOrigin() - body->getTransform().getOrigin();
+        body->applyImpulse(recoilPos, recoil);
+    }
+
     void TankTemplate::idle() {
         setBrake(false);
     }

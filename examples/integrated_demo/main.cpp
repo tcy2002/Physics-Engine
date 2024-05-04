@@ -37,22 +37,7 @@ public:
         _tank->init(&_world);
 
         // add a building
-        createBuilding(pe::Vector3(8, 12, 8), pe::Vector3(0, 0, -20), 0.5);
-
-//        auto rb = createBoxFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, -20)), pe::Vector3(4, 4, 4), 1, 1);
-//        rb->setKinematic(true);
-//        _world.addRigidBody(rb);
-
-        // add a fracture source
-        pe_phys_fracture::FractureSource src;
-        src.position = pe::Vector3(0, 6, -16);
-        src.type = pe_phys_fracture::FractureType::Sphere;
-        src.intensity = pe::Vector3(1.5, 1.5, 1.5);
-        _world.addFractureSource(src);
-
-//        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), src.position), pe::Vector3(0.2, 0.2, 0.2), 0);
-//        rb2->setKinematic(true);
-//        _world.addRigidBody(rb2);
+        createBuilding(pe::Vector3(8, 6, 8), pe::Vector3(0, 0, -20), 1.0);
     }
 
     void step() override {
@@ -60,6 +45,8 @@ public:
 
         // update the tank
         _tank->advance(_world.getDt());
+
+        // move
         if (pe_intf::Viewer::getKeyState('i') == 0) {
             _tank->moveForward();
         } else if (pe_intf::Viewer::getKeyState('k') == 0) {
@@ -76,6 +63,11 @@ public:
             _tank->brake();
         } else {
             _tank->idle();
+        }
+
+        // shoot
+        if (pe_intf::Viewer::getKeyState('m') == 2) {
+            _tank->shoot(&_world, 50, 20, 0.3, 5);
         }
     }
 
@@ -115,11 +107,27 @@ protected:
     }
 
     void createBuilding(const pe::Vector3& size, const pe::Vector3& pos, pe::Real wall_thickness) {
+        // callback function for collision
+        static auto callback = [&](
+                pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
+                const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
+            if (other->getTag() != "bullet" || !self->isFracturable()) return;
+            auto fb = (pe_phys_object::FracturableObject*)self;
+            if (vel.norm() * other->getMass() < fb->getThreshold() * 800) return;
+            pe_phys_fracture::FractureSource src;
+            src.position = pos;
+            src.type = pe_phys_fracture::FractureType::Sphere;
+            src.intensity = pe::Vector3(1.5, 1.5, 1.5);
+            _world.addFractureSource(src);
+            _world.removeRigidBody(other);
+        };
+
         // ceiling
         auto rb1 = createBoxFracturableObject(
                 pe::Transform(pe::Matrix3::identity(), pos + pe::Vector3(0, size.y - wall_thickness / 2, 0)),
                 pe::Vector3(size.x - wall_thickness * 2, wall_thickness, size.z - wall_thickness * 2), 8, 1);
         rb1->setKinematic(true);
+        rb1->addCollisionCallback(callback);
         _world.addRigidBody(rb1);
 
         // front wall
@@ -129,6 +137,7 @@ protected:
                                                                                                        2)),
                                               pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
         rb2->setKinematic(true);
+        rb2->addCollisionCallback(callback);
         _world.addRigidBody(rb2);
 
         // back wall
@@ -138,6 +147,7 @@ protected:
                                                                                                        2)),
                                               pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
         rb3->setKinematic(true);
+        rb3->addCollisionCallback(callback);
         _world.addRigidBody(rb3);
 
         // left wall
@@ -145,6 +155,7 @@ protected:
                                                       size.x / 2 - wall_thickness / 2, size.y / 2, 0)),
                                               pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
         rb4->setKinematic(true);
+        rb4->addCollisionCallback(callback);
         _world.addRigidBody(rb4);
 
         // right wall
@@ -152,6 +163,7 @@ protected:
                                                       -size.x / 2 + wall_thickness / 2, size.y / 2, 0)),
                                               pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
         rb5->setKinematic(true);
+        rb5->addCollisionCallback(callback);
         _world.addRigidBody(rb5);
     }
 };

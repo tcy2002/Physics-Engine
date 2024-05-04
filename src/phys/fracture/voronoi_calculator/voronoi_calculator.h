@@ -10,7 +10,7 @@ namespace pe_phys_fracture  {
 
     class VoronoiCalculator {
     protected:
-        FractureDataManager _manager{};
+        FractureDataManager _manager;
         pe::Array<pe::Uint32HashList> _adjacency_list;
         void calc_adjacency_list();
 

@@ -45,6 +45,7 @@ namespace pe_intf { // interface
         void updateAABBs();
         void updateObjectStatus();
         void applyExternalForce();
+        void execCollisionCallbacks();
 
     public:
         PE_API World();
@@ -62,14 +63,15 @@ namespace pe_intf { // interface
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
         pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
         PE_API void addRigidBody(pe_phys_object::RigidBody* rigidbody);
+        PE_API void removeRigidBody(pe_phys_object::RigidBody* rigidbody);
+        PE_API const pe::Array<pe_phys_object::RigidBody*>& getRigidBodiesToAdd() { return _rigidbodies_to_add; }
+        PE_API void clearRigidBodiesToAdd() { _rigidbodies_to_add.clear(); }
+        PE_API const pe::Array<pe_phys_object::RigidBody*>& getRigidBodiesToRemove() { return _rigidbodies_to_remove; }
+        PE_API void clearRigidBodiesToRemove() { _rigidbodies_to_remove.clear(); }
         /*********************************************/
 
         /**** fracture *******************************/
         PE_API void addFractureSource(const pe_phys_fracture::FractureSource& source) { _fracture_sources.push_back(source); }
-        PE_API const pe::Array<pe_phys_object::RigidBody*>& getFragments() { return _rigidbodies_to_add; }
-        PE_API void clearFragments() { _rigidbodies_to_add.clear(); _fracture_solver->clearFragments(); }
-        PE_API const pe::Array<pe_phys_object::RigidBody*>& getFracturedObjects() { return _rigidbodies_to_remove; }
-        PE_API void clearFracturedObjects() { _rigidbodies_to_remove.clear(); }
         /*********************************************/
 
         /**** world advance **************************/

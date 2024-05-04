@@ -4,7 +4,6 @@ namespace pe_phys_fracture {
 
     void VoronoiCalculator::calc_adjacency_list() {
         // get adjacency list according to triangles
-        _adjacency_list.clear();
         uint32_t vert_count = _manager.vertex_count();
         if (vert_count == 0) {
             return;

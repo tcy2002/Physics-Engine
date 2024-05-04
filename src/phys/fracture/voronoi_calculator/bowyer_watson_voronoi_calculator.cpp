@@ -15,21 +15,21 @@ namespace pe_phys_fracture {
         auto center = (_min + _max) / 2;
         pe::Vector3 gap(.1, .1, .1);
         _min = center + (_min - center) * 3 - gap;
-        _max = center + (_max - center) * 4 + gap;
+        _max = center + (_max - center) * 3 + gap;
 
-        // add bounding box points
+        // add bounding points
         uint32_t v1i = _manager.add_vertex(_min);
         uint32_t v2i = _manager.add_vertex({_max.x, _max.y, _min.z});
         uint32_t v3i = _manager.add_vertex({_max.x, _min.y, _max.z});
         uint32_t v4i = _manager.add_vertex({_min.x, _max.y, _max.z});
 
-        // add bounding box triangles
+        // add bounding triangles
         uint32_t t1i = _manager.add_triangle(v1i, v2i, v3i);
         uint32_t t2i = _manager.add_triangle(v2i, v1i, v4i);
         uint32_t t3i = _manager.add_triangle(v3i, v2i, v4i);
         uint32_t t4i = _manager.add_triangle(v3i, v4i, v1i);
 
-        // add bounding box tetrahedrons
+        // add bounding tetrahedrons
         _manager.add_tetrahedron(t1i, t2i, t3i, t4i, v1i, v2i, v3i, v4i);
     }
 
@@ -106,6 +106,7 @@ namespace pe_phys_fracture {
 
     void BowyerWatsonVoronoiCalculator::triangulate(const pe::Array<pe::Vector3>& points) {
         _manager.clear();
+        _adjacency_list.clear();
         add_bounding_box(points);
         generate(points);
         remove_bounding_box();

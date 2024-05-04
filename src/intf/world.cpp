@@ -1,4 +1,5 @@
 #include "world.h"
+#include "phys/object/rigidbody.h"
 #include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
@@ -48,8 +49,9 @@ namespace pe_intf {
     void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
         auto c = this;
+        pe::Array<int> idx_to_remove;
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [&c](pe_phys_object::RigidBody* rb, int idx){
+                                   [&c, &idx_to_remove](pe_phys_object::RigidBody* rb, int idx){
                                        if (rb->isKinematic()) return;
                                        if (rb->isSleep()) {
                                            if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
@@ -57,7 +59,11 @@ namespace pe_intf {
                                                rb->setSleep(false);
                                            }
                                        } else {
-                                           rb->step(c->_dt);
+                                           if (!rb->step(c->_dt)) {
+                                               c->_rigidbodies_to_remove.push_back(rb);
+                                               idx_to_remove.push_back(idx);
+                                               return;
+                                           }
                                            rb->applyDamping(c->_dt);
                                            if (rb->getLinearVelocity().norm2() < c->_sleep_lin_vel2_threshold &&
                                                rb->getAngularVelocity().norm2() < c->_sleep_ang_vel2_threshold) {
@@ -73,8 +79,13 @@ namespace pe_intf {
                                        }
                                    });
         utils::ThreadPool::join();
+
+        for (int i = (int)idx_to_remove.size() - 1; i >= 0; i--) {
+            _collision_objects.erase(_collision_objects.begin() + idx_to_remove[i]);
+        }
 #   else
-        for (auto& rb : _collision_objects) {
+        for (int i = 0; i < (int)_collision_objects.size(); i++) {
+            auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold ||
@@ -82,7 +93,11 @@ namespace pe_intf {
                     rb->setSleep(false);
                 }
             } else {
-                rb->step(_dt);
+                if (!rb->step(_dt)) {
+                    _rigidbodies_to_remove.push_back(rb);
+                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    continue;
+                }
                 rb->applyDamping(_dt);
                 if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold &&
                     rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold) {
@@ -119,8 +134,52 @@ namespace pe_intf {
 #   endif
     }
 
+    void World::execCollisionCallbacks() {
+        // not suitable for multi-thread
+        for (auto& cr : _contact_results) {
+            if (cr->getPointSize() == 0) continue;
+            auto rb1 = cr->getObjectA();
+            auto rb2 = cr->getObjectB();
+            if (rb1->getCollisionCallbacks().empty() && rb2->getCollisionCallbacks().empty()) continue;
+
+            pe::Vector3 pos = pe::Vector3::zeros();
+            pe::Vector3 nor = pe::Vector3::zeros();
+            pe::Vector3 vel = pe::Vector3::zeros();
+            pe::Real depth = 0;
+            for (int i = 0; i < cr->getPointSize(); i++) {
+                pos += cr->getContactPoint(i).getWorldPos();
+                nor += cr->getContactPoint(i).getWorldNormal();
+                depth += cr->getContactPoint(i).getDistance();
+                vel += rb1->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosA());
+                vel -= rb2->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosB());
+            }
+            pos /= (pe::Real)cr->getPointSize();
+            nor.normalize();
+            depth /= (pe::Real)cr->getPointSize();
+            vel /= (pe::Real)cr->getPointSize();
+
+            for (auto& cb : rb1->getCollisionCallbacks()) {
+                cb(rb1, rb2, pos + nor * depth, -nor, -vel);
+            }
+            for (auto& cb : rb2->getCollisionCallbacks()) {
+                cb(rb2, rb1, pos, nor, vel);
+            }
+        }
+    }
+
     void World::addRigidBody(pe_phys_object::RigidBody* rigidbody) {
         _collision_objects.push_back(rigidbody);
+        _rigidbodies_to_add.push_back(rigidbody);
+    }
+
+    void World::removeRigidBody(pe_phys_object::RigidBody *rigidbody) {
+        for (int i = 0; i < (int)_collision_objects.size(); i++) {
+            if (_collision_objects[i] == rigidbody) {
+                _collision_objects.erase(_collision_objects.begin() + i);
+                _rigidbodies_to_remove.push_back(rigidbody);
+                break;
+            }
+        }
     }
 
     void World::step() {
@@ -140,8 +199,9 @@ namespace pe_intf {
                             _collision_objects.push_back(frag);
                             _rigidbodies_to_add.push_back(frag);
                         }
-                        _collision_objects.erase(_collision_objects.begin() + i--);
                         _rigidbodies_to_remove.push_back(rb);
+                        _collision_objects.erase(_collision_objects.begin() + i--);
+                        _fracture_solver->clearFragments();
                     }
                 }
             }
@@ -162,6 +222,7 @@ namespace pe_intf {
 
         start = COMMON_GetTickCount();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
+        execCollisionCallbacks();
         end = COMMON_GetTickCount();
         narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 

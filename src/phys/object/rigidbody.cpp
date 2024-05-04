@@ -57,6 +57,8 @@ namespace pe_phys_object {
             _local_inv_inertia(pe::Matrix3::identity()),
             _world_inertia(pe::Matrix3::identity()),
             _world_inv_inertia(pe::Matrix3::identity()),
+            _life_time(PE_REAL_MAX),
+            _last_time(0),
             _friction_coeff(0.5),
             _restitution_coeff(0.5),
             _linear_damping(0.0),
@@ -164,8 +166,13 @@ namespace pe_phys_object {
         _angular_velocity *= std::pow(1.0 - _angular_damping, dt);
     }
 
-    void RigidBody::step(pe::Real dt) {
-        if (isKinematic()) return;
+    bool RigidBody::step(pe::Real dt) {
+        if (isKinematic()) return true;
+        _last_time += dt;
+        if (_last_time >= _life_time) {
+            return false;
+        }
+
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
         pe::Matrix3 rot;
         pe::Real angle_speed = _angular_velocity.norm();
@@ -174,6 +181,8 @@ namespace pe_phys_object {
             _transform.setBasis(rot * _transform.getBasis());
         }
         updateWorldInertia();
+
+        return true;
     }
 
 } // namespace pe_phys_object
