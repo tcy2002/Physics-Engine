@@ -54,6 +54,14 @@ namespace pe_intf {
         return simple_viewer::isOpen();
     }
 
+    void Viewer::showAxis(bool show) {
+        simple_viewer::showAxis(show);
+    }
+
+    void Viewer::showLine(bool show, int width) {
+        simple_viewer::showLine(show, width);
+    }
+
     int Viewer::getKeyState(char key) {
         if (!isOpen()) return -1;
         return simple_viewer::getKeyState(key);

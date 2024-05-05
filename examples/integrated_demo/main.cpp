@@ -27,12 +27,14 @@ public:
 
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();
-        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-5, 5, 0)));
+        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
         _tank1->init(&_world);
 
         // tank 2
         _tank2 = new pe_phys_vehicle::TankTemplate();
-        _tank2->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(5, 5, 0)));
+        pe::Matrix3 mat;
+        mat.setRotation(pe::Vector3(0, 1, 0), PE_PI);
+        _tank2->setTransform(pe::Transform(mat, pe::Vector3(0, 5, -160)));
         _tank2->init(&_world);
 
         // create the urban layout
@@ -41,6 +43,11 @@ public:
 
     void step() override {
         /* Called every frame to update the physics world */
+
+        // set the color of fragments
+        for (auto rb : _world.getRigidBodiesToAdd()) {
+            rb->setTag("color:0.8,0.8,0.3");
+        }
 
         // update the tank
         _tank1->advance(_world.getDt());
@@ -115,6 +122,7 @@ protected:
         rb->setFrictionCoeff(0.5); // friction coefficient
         rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
         rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
+        rb->setTag("color:0.3,0.8,0.8");
         return rb;
     }
 
@@ -133,6 +141,7 @@ protected:
         rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
         rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
         rb->setThreshold(th);
+        rb->setTag("color:0.8,0.8,0.3");
         return rb;
     }
 
@@ -284,6 +293,9 @@ protected:
                                    pe::Vector3(32, 14, 16), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
+        createBuilding(pe::Vector3(12, 6, 12), pe::Vector3(0, 12, -64), 1.0);
+        createBuilding(pe::Vector3(12, 6, 12), pe::Vector3(0, 18, -64), 1.0);
+        createBuilding(pe::Vector3(12, 6, 12), pe::Vector3(0, 24, -64), 1.0);
 
         // block [2-3,3]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -346,12 +358,23 @@ protected:
         block->setKinematic(true);
         _world.addRigidBody(block);
 
-        // block [0-2,8-9]
+        // block [0-1,8-9]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                 pe::Vector3(-16, 2, -136)),
-                                   pe::Vector3(48, 8, 32), 8);
+                                                 pe::Vector3(-24, 2, -136)),
+                                   pe::Vector3(32, 8, 32), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
+
+        // block [2,8]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, 2, -128)),
+                                   pe::Vector3(16, 8, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [2,9]
+        createStairs(pe::Vector3(16, 2, 16), pe::Vector3(0, -2, -144),
+                     25, 6, 0);
 
         // block [3-4,6-9]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -375,6 +398,13 @@ protected:
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                  pe::Vector3(24, 8, -144)),
                                    pe::Vector3(32, 20, 16), 8);
+        block->setKinematic(true);
+        _world.addRigidBody(block);
+
+        // block [0-4,10]
+        block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                 pe::Vector3(0, -1, -160)),
+                                   pe::Vector3(80, 2, 16), 8);
         block->setKinematic(true);
         _world.addRigidBody(block);
     }

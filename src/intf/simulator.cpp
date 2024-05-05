@@ -37,7 +37,9 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
         COMMON_Sleep(target_dt - actual_dt);
-//        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
+
+        // to use the actual dt
+        //_world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
     }
 
     auto end = COMMON_GetTickCount();
@@ -50,6 +52,15 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
     std::cout << "constraint solver time: " << _world.constraint_solver_time << "s " << _world.constraint_solver_time / total_time << std::endl;
     pe::Real other_time = total_time - _world.update_status_time - _world.broad_phase_time - _world.narrow_phase_time - _world.constraint_solver_time;
     std::cout << "other time: " << other_time << "s" << " " << other_time / total_time << std::endl;
+}
+
+template <UseViewer UV>
+void Simulator<UV>::toggleLine() {
+    static bool show_line = false;
+    if (pe_intf::Viewer::getKeyState('c') == 2) {
+        show_line = !show_line;
+        pe_intf::Viewer::showLine(show_line, 1);
+    }
 }
 
 template <UseViewer UV>
@@ -72,6 +83,7 @@ bool Simulator<UV>::renderInit() {
             pe_intf::Viewer::close();
             return false;
         }
+        toggleLine();
     }
     return true;
 }
@@ -82,6 +94,8 @@ bool Simulator<UV>::renderStep() {
         pe_intf::Viewer::close();
         return false;
     }
+
+    toggleLine();
 
     for (auto& rb : _id_map) {
         if (rb.second == -1) {
@@ -146,6 +160,21 @@ void Simulator<UV>::addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) 
 
     // set color for each model
     for (auto& rb : pairs) {
+        if (rb.second->getTag().substr(0, 6) == "color:") {
+            std::stringstream ss(rb.second->getTag().substr(6));
+            pe::Real r, g, b;
+            char delim;
+            ss >> r >> delim >> g >> delim >> b;
+            if (ss.eof()) {
+                pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateCylinderColor(rb.first, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(r, g, b));
+                continue;
+            } else {
+                std::cerr << "invalid color tag: " << r << " " << g << " " << b << std::endl;
+            }
+        }
         if (rb.second->isKinematic()) {
             pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
             pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));

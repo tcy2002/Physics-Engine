@@ -7,6 +7,7 @@
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
+#include <sstream>
 
 namespace pe_intf { // interface
 
@@ -31,6 +32,7 @@ namespace pe_intf { // interface
 
     private:
         pe::Map<pe_phys_object::RigidBody*, int> _id_map;
+        void toggleLine();
         bool renderInit();
         bool renderStep();
         void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);

@@ -22,6 +22,9 @@ namespace pe_intf { // interface
         static void close();
         static bool isOpen();
 
+        static void showAxis(bool show);
+        static void showLine(bool show, int width);
+
         static int getKeyState(char key);
         static int getMouseButtonState(int button);
 

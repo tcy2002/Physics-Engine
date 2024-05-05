@@ -182,12 +182,17 @@ namespace simple_viewer {
      */
     SV_API bool updateObj(const ObjUpdateParam& param);
 
-    //// Axis
+    //// Axis and Line
     /**
      * @brief Show or hide the 3 axes
      * @param show whether to show or not (true by default)
      */
     SV_API void showAxis(bool show = true);
+    /**
+     * @brief Show or hide the lines
+     * @param show whether to show or not (true by default)
+     */
+    SV_API void showLine(bool show = true, int width = 1);
 
     //// State
     /**
