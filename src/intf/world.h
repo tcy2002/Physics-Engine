@@ -64,6 +64,7 @@ namespace pe_intf { // interface
         pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
         PE_API void addRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API void removeRigidBody(pe_phys_object::RigidBody* rigidbody);
+        PE_API void updateRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API const pe::Array<pe_phys_object::RigidBody*>& getRigidBodiesToAdd() { return _rigidbodies_to_add; }
         PE_API void clearRigidBodiesToAdd() { _rigidbodies_to_add.clear(); }
         PE_API const pe::Array<pe_phys_object::RigidBody*>& getRigidBodiesToRemove() { return _rigidbodies_to_remove; }

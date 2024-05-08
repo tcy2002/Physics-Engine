@@ -153,6 +153,7 @@ namespace pe_phys_vehicle {
         PE_API void barrelRotUp(pe::Real step);
         PE_API void barrelRotDown(pe::Real step);
         PE_API pe::Real getSpeedKmHour() const;
+        PE_API void setActive(bool active, pe_intf::World* dw);
     };
 
 } // namespace pe_phys_vehicle

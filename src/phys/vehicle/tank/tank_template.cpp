@@ -15,10 +15,11 @@ namespace pe_phys_vehicle {
         body->setTransform(_transform);
         body->setMass(_bodyMass);
         body->setLocalInertia(shape_b->calcLocalInertia(_bodyMass));
-        body->addCollisionCallback([dw](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
+        auto c = this;
+        body->addCollisionCallback([dw, c](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
                                         const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
             if (other->getTag() == "bullet") {
-                self->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -100000, 0)));
+                c->setActive(false, dw);
                 dw->removeRigidBody(other);
             }
         });
@@ -496,31 +497,66 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::barrelRotLeft(pe::Real step) {
-        if (turretAngle < _turretMaxAngle) {
+        if (turretAngle < _turretMaxAngle && !body->isKinematic()) {
             turretAngle += step * _turretRotSpeed;
         }
     }
 
     void TankTemplate::barrelRotRight(pe::Real step) {
-        if (turretAngle > -_turretMaxAngle) {
+        if (turretAngle > -_turretMaxAngle && !body->isKinematic()) {
             turretAngle -= step * _turretRotSpeed;
         }
     }
 
     void TankTemplate::barrelRotUp(pe::Real step) {
-        if (barrelAngle < _barrelMaxAngle) {
+        if (barrelAngle < _barrelMaxAngle && !body->isKinematic()) {
             barrelAngle += step * _barrelRotSpeed;
         }
     }
 
     void TankTemplate::barrelRotDown(pe::Real step) {
-        if (barrelAngle > 0) {
+        if (barrelAngle > 0 && !body->isKinematic()) {
             barrelAngle -= step * _barrelRotSpeed;
         }
     }
 
     pe::Real TankTemplate::getSpeedKmHour() const {
         return -vehicle->getCurrentSpeedKmHour();
+    }
+
+    void TankTemplate::setActive(bool active, pe_intf::World* dw) {
+        body->setKinematic(!active);
+        if (!active) {
+            body->setTag("color:0.9,0.1,0.1");
+            dw->updateRigidBody(body);
+            turret->setTag("color:0.9,0.1,0.1");
+            dw->updateRigidBody(turret);
+            barrel->setTag("color:0.9,0.1,0.1");
+            dw->updateRigidBody(barrel);
+            for (auto wheel : wheels) {
+                wheel->setTag("color:0.9,0.1,0.1");
+                dw->updateRigidBody(wheel);
+            }
+            for (auto track : trackSegments) {
+                track->setTag("color:0.9,0.1,0.1");
+                dw->updateRigidBody(track);
+            }
+        } else {
+            body->setTag("");
+            dw->updateRigidBody(body);
+            turret->setTag("");
+            dw->updateRigidBody(turret);
+            barrel->setTag("");
+            dw->updateRigidBody(barrel);
+            for (auto wheel : wheels) {
+                wheel->setTag("");
+                dw->updateRigidBody(wheel);
+            }
+            for (auto track : trackSegments) {
+                track->setTag("");
+                dw->updateRigidBody(track);
+            }
+        }
     }
 
 } // namespace pe_phys_vehicle

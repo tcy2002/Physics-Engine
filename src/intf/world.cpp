@@ -182,6 +182,11 @@ namespace pe_intf {
         }
     }
 
+    void World::updateRigidBody(pe_phys_object::RigidBody *rigidbody) {
+        _rigidbodies_to_remove.push_back(rigidbody);
+        _rigidbodies_to_add.push_back(rigidbody);
+    }
+
     void World::step() {
         auto start = COMMON_GetTickCount();
         // update status

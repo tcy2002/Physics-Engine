@@ -17,13 +17,13 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
         _world.step();
 
         if (UV == UseViewer::True) {
-            if (!_world.getRigidBodiesToAdd().empty()) {
-                addModels(_world.getRigidBodiesToAdd());
-                _world.clearRigidBodiesToAdd();
-            }
             if (!_world.getRigidBodiesToRemove().empty()) {
                 removeModels(_world.getRigidBodiesToRemove());
                 _world.clearRigidBodiesToRemove();
+            }
+            if (!_world.getRigidBodiesToAdd().empty()) {
+                addModels(_world.getRigidBodiesToAdd());
+                _world.clearRigidBodiesToAdd();
             }
         }
 
