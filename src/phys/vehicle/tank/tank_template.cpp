@@ -15,6 +15,13 @@ namespace pe_phys_vehicle {
         body->setTransform(_transform);
         body->setMass(_bodyMass);
         body->setLocalInertia(shape_b->calcLocalInertia(_bodyMass));
+        body->addCollisionCallback([dw](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
+                                        const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
+            if (other->getTag() == "bullet") {
+                self->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -100000, 0)));
+                dw->removeRigidBody(other);
+            }
+        });
         dw->addRigidBody(body);
 
         turret = new pe_phys_object::RigidBody();
