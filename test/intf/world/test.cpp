@@ -151,7 +151,7 @@ void testWorld() {
 
 #ifdef PE_TEST_SINGLE
     auto rb4 = createMeshRigidBody(pe::Vector3(0, 0, 0), 1,
-                                   CURRENT_TEST_SOURCE_DIR "\\test4.obj");
+                                   CURRENT_TEST_SOURCE_DIR "\\test.obj");
     pe::Matrix3 mat;
     mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / pe::Real(5.0));
     rb4->setTransform(pe::Transform(mat, pe::Vector3(0, 1.9, 0)));

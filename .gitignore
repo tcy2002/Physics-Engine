@@ -48,3 +48,4 @@ lib/
 !SimpleViewer/**
 !blob/
 !blob/**
+!test/**/*.obj
