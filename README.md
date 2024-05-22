@@ -26,6 +26,12 @@
 
 ![tank](./screenshots/tank.gif)
 
+- 坦克对战城镇场景
+    - 建筑物可毁伤，坦克发射的炮弹会摧毁建筑物
+    - 作为毕业设计的集成案例，用来展示引擎功能
+
+![tank](./screenshots/ruined_urban.png)
+
 ### 开发日志
 
 - 2.26-3.3
