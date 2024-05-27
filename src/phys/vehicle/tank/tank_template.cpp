@@ -51,7 +51,7 @@ namespace pe_phys_vehicle {
     }
 
     void TankTemplate::initVehicle(pe_intf::World* dw) {
-#   if PE_USE_CONTACT_VEHICLE
+#   if PE_TANK_USE_CONTACT_VEHICLE
         ContactVehicle::VehicleTuning m_tuning;
         vehicle = new ContactVehicle(m_tuning, body, dw);
 #   else
@@ -61,7 +61,7 @@ namespace pe_phys_vehicle {
 #   endif
 
         vehicle->setCoordinateSystem(0, 1, 2);
-#   if !PE_USE_CONTACT_VEHICLE
+#   if !PE_TANK_USE_CONTACT_VEHICLE
         vehicle->addRaycastExcludeId(body->getGlobalId());
         vehicle->addRaycastExcludeId(turret->getGlobalId());
         vehicle->addRaycastExcludeId(barrel->getGlobalId());
@@ -76,7 +76,7 @@ namespace pe_phys_vehicle {
         pe::Vector3 wheelAxleCS(-1, 0, 0);
         pe::Real suspensionRestLength = _bodyHeight / 2;
         pe::Real gap = _bodyLength / (pe::Real)(_wheelNum / 2 - 1); //NOLINT
-#   if PE_USE_CONTACT_VEHICLE
+#   if PE_TANK_USE_CONTACT_VEHICLE
         ContactVehicle::VehicleTuning m_tuning;
 #   else
         RaycastVehicle::VehicleTuning m_tuning;
@@ -103,7 +103,7 @@ namespace pe_phys_vehicle {
         for (int i = 0; i < _wheelNum; i++) {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
             wheel->addIgnoreCollisionId(body->getGlobalId());
-#       if PE_USE_SPHERE_WHEEL
+#       if PE_TANK_USE_SPHERE_WHEEL
             auto shape = new pe_phys_shape::SphereShape(
                     vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN);
 #       else
@@ -117,7 +117,7 @@ namespace pe_phys_vehicle {
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
-#       if !PE_USE_CONTACT_VEHICLE
+#       if !PE_TANK_USE_CONTACT_VEHICLE
             vehicle->addRaycastExcludeId(wheel->getGlobalId());
 #       endif
         }

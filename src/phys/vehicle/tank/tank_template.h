@@ -3,14 +3,14 @@
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/sphere_shape.h"
 
-#define PE_USE_CONTACT_VEHICLE true
-#define PE_USE_SPHERE_WHEEL false
+#define PE_TANK_USE_CONTACT_VEHICLE true
+#define PE_TANK_USE_SPHERE_WHEEL false
 
 namespace pe_phys_vehicle {
 
     class TankTemplate {
     private:
-#   if PE_USE_CONTACT_VEHICLE
+#   if PE_TANK_USE_CONTACT_VEHICLE
         ContactVehicle* vehicle;
 #   else
         RaycastVehicle* vehicle;

@@ -158,7 +158,7 @@ void testTank() {
 
     // add wheels to viewer
     for (auto& wheel : tank->getWheels()) {
-#   if PE_USE_SPHERE_WHEEL
+#   if PE_TANK_USE_SPHERE_WHEEL
         auto shape = dynamic_cast<pe_phys_shape::SphereShape*>(wheel->getCollisionShape());
 #   else
         auto shape = dynamic_cast<pe_phys_shape::CylinderShape*>(wheel->getCollisionShape());

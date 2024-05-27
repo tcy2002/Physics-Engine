@@ -39,7 +39,7 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
         COMMON_Sleep(target_dt - actual_dt);
 
         // to use the actual dt
-        //_world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
+        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
     }
 
     auto end = COMMON_GetTickCount();
