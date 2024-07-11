@@ -1,7 +1,5 @@
 ## 物理引擎
 
-爸爸：KD-Engine 爷爷：Bullet Physics
-
 - 碰撞检测：SAT
 
 - 约束求解：Sequential Impulse
@@ -10,15 +8,14 @@
 
 - 坦克：射线/碰撞
 
-### 使用方法
 - 构建：
 win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
 linux：cmake直接构建、编译
 
-- 使用：
-运行PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated，
+- Demo：
+PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
 按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
-PEDemoCar/PEDemoTank的操作方式请参考examples/car_demo和examples/tank_demo内的注释
+PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
 
 ### 效果
 
