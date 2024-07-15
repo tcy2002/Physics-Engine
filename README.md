@@ -1,6 +1,10 @@
 ## 物理引擎（本科毕业设计）
 
 - 参考bullet physics，kd engine
+  
+  - 重写了引擎框架：宽域+窄域+约束（主流刚体物理引擎结构）
+  
+  - 重写了大部分物理算法：基本碰撞对、射线检测、车辆封装
 
 - 碰撞检测：SAT
 
@@ -8,16 +12,20 @@
 
 - 毁伤算法：Voronoi剖分
 
-- 坦克：射线/碰撞
+- 车辆/坦克：射线/碰撞
 
 - 构建：
-  win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
-  linux：cmake直接构建、编译
+  
+  - win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
+  
+  - linux：cmake直接构建、编译
 
 - Demo：
-  PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
-  按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
-  PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
+  
+  - PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
+    按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
+  
+  - PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
 
 ### 效果
 
@@ -51,9 +59,9 @@
 
 - 2.26-3.3
   
-  - box box碰撞跑通，引擎框架搭建完成
+  - 引擎框架搭建完成，box box碰撞跑通（bullet，sat）
   
-  - 破碎算法移植完成
+  - 破碎算法完成
   
   - 单线程，可以满足基本运行帧率
 
@@ -137,9 +145,14 @@
     - 仿真器类，用于管理整个物理引擎，负责后台管理物理引擎和前台渲染，用户只需要重写init和step函数即可
     - 已完成
 
-- 后续
+- 后续：4月长沙项目进入攻坚阶段，毕设暂缓
+  
+  - 破碎优化、集成
+  
+  - 场景设计和搭建
   
   - 4.13 支持linux下编译运行
+  
   - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
 
 ### 问题日志
@@ -208,26 +221,4 @@
   - 相比KD-Engine，BombDemo的帧率明显偏低（KD-Engine 45帧左右，本引擎 24帧）
   - 将contact point max size调整为与KD-Engine相同，帧率提升到35帧左右
 
-- todo
-  
-  - code
-    
-    - friction_contact_constraint.cpp: 108
-    - contact_vehicle.cpp: 177
-    - pool.cpp: 78
-  
-  - 功能
-    
-    1. multi raycast √
-    2. simulator √
-    3. float warning
-    4. add comments
-    5. terrain
-    6. simulator class
-    7. code style consistency
-    8. composed rigidbody
-    9. lock and thread-safe
-    10. use octree in broad phase and raycast
-    11. group constraints
-    12. more constraints
-    13. use smart pointer
+- 
