@@ -1,4 +1,6 @@
-## 物理引擎
+## 物理引擎（本科毕业设计）
+
+- 参考bullet physics，kd engine
 
 - 碰撞检测：SAT
 
@@ -9,13 +11,13 @@
 - 坦克：射线/碰撞
 
 - 构建：
-win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
-linux：cmake直接构建、编译
+  win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
+  linux：cmake直接构建、编译
 
 - Demo：
-PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
-按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
-PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
+  PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
+  按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
+  PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
 
 ### 效果
 
