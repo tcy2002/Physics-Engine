@@ -1,6 +1,5 @@
 #include "raycast_mesh.h"
 #include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/concave_mesh_shape.h"
 #include "phys/raycast/raycast/raycast_box.h"
 
 namespace pe_phys_raycast {
@@ -20,8 +19,6 @@ namespace pe_phys_raycast {
         const pe::Mesh* mesh;
         if (object->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
             mesh = &((pe_phys_shape::ConvexMeshShape*)object->getCollisionShape())->getMesh();
-        } else if (object->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConcaveMesh) {
-            mesh = &((pe_phys_shape::ConcaveMeshShape*)object->getCollisionShape())->getMesh();
         } else {
             return false;
         }

@@ -36,7 +36,7 @@ namespace pe_phys_raycast {
                 case pe_phys_shape::ShapeType::Cylinder:
                     ret = r_cylinder.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
                     break;
-                case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
+                case pe_phys_shape::ShapeType::ConvexMesh:
                     ret = r_mesh.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
                     break;
             }

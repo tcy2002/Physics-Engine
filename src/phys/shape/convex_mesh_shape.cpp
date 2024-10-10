@@ -174,6 +174,7 @@ namespace pe_phys_shape {
     }
 
     pe::Vector3 ConvexMeshShape::calcMeshCentroid(const pe::Mesh &mesh) {
+        // not accurate
         pe::Vector3 centroid = pe::Vector3::zeros();
         pe::Real surface_area = 0;
         for (auto &f: mesh.faces) {

@@ -5,14 +5,24 @@
 
 namespace pe_phys_shape {
 
-    class ConcaveMeshShape: public Shape {
+    class CompoundShape: public Shape {
     protected:
-        COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
+        struct ShapeEle {
+            pe::Transform local_transform;
+            pe::Real mass_ratio;
+            Shape* shape;
+        };
+        pe::Array<ShapeEle> _shapes;
+        pe::Real _mass_ratio = 0;
 
     public:
-        PE_API explicit ConcaveMeshShape(pe::Mesh mesh): _mesh(std::move(mesh)) {}
-        virtual ~ConcaveMeshShape() override {}
-        virtual ShapeType getType() const override { return ShapeType::ConcaveMesh; }
+        PE_API void addShape(const pe::Transform& pos, pe::Real massRatio, Shape* shape);
+        PE_API const pe::Array<ShapeEle>& getShapes() const { return _shapes; }
+        PE_API void clearShapes() { _shapes.clear(); _mass_ratio = 0; }
+
+        PE_API explicit CompoundShape() {}
+        virtual ~CompoundShape() override {}
+        virtual ShapeType getType() const override { return ShapeType::Compound; }
         virtual bool isConvex() const override { return false; }
         PE_API virtual void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
         PE_API virtual bool localIsInside(const pe::Vector3& point) const override;
