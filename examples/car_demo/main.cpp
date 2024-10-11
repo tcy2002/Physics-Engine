@@ -24,8 +24,8 @@ public:
         _world.setGravity(pe::Vector3(0, -9.8, 0));
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), 
-                                                    pe::Vector3(0, -0.5, 0)), 
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                    pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(1000, 1, 1000), 8);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
@@ -39,15 +39,6 @@ public:
         mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / pe::Real(12.0));
         rb2->setTransform(pe::Transform(mat, pe::Vector3(0, 1.4, -10)));
         _world.addRigidBody(rb2);
-
-        // add some steps
-        for (int i = 0; i < 10; i++) {
-            auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                       pe::Vector3(0, 0.15 + 0.3 * i, -30 - i * 0.5)), 
-                                         pe::Vector3(10, 0.3, 10), 8);
-            rb->setKinematic(true);
-            _world.addRigidBody(rb);
-        }
 
         // add a car
         _car1 = new pe_phys_vehicle::CarTemplate();

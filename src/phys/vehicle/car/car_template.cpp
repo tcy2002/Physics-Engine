@@ -50,7 +50,6 @@ namespace pe_phys_vehicle {
 #   if !PE_USE_CONTACT_VEHICLE
         vehicle->addRaycastExcludeId(body->getGlobalId());
         vehicle->addRaycastExcludeId(cabin->getGlobalId());
-        vehicle->addRaycastExcludeId(barrel->getGlobalId());
 #   endif
     }
 

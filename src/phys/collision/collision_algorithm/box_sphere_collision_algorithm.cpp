@@ -5,24 +5,26 @@ namespace pe_phys_collision {
     bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                        pe::Transform trans_a, pe::Transform trans_b,
                                                        ContactResult& result) {
-        if (shape_a->getType() == pe_phys_shape::ShapeType::Box) {
-            std::swap(shape_a, shape_b);
-            std::swap(trans_a, trans_b);
-            result.setObjects(result.getObjectB(), result.getObjectA());
-        }
-        if (shape_a->getType() != pe_phys_shape::ShapeType::Sphere ||
-            shape_b->getType() != pe_phys_shape::ShapeType::Box) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Sphere) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::Sphere &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Box))) {
             return false;
         }
 
-        pe::Vector3 sphereCenter = trans_a.getOrigin();
-        pe::Real radius = ((pe_phys_shape::SphereShape*)shape_a)->getRadius();
+        auto shape_sph = (pe_phys_shape::SphereShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
+        auto shape_box = (pe_phys_shape::BoxShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
+        auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
+        auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
+        pe::Vector3 sphereCenter = trans_sph.getOrigin();
+        pe::Real radius = shape_sph->getRadius();
         pe::Real margin = 0.005;
 
         pe::Vector3 ptOnBox, normal;
         pe::Real dist;
-        if (getSphereDistance((pe_phys_shape::BoxShape*)shape_b, trans_b, sphereCenter, radius,
+        if (getSphereDistance(shape_box, trans_box, sphereCenter, radius,
                               ptOnBox, normal, dist)) {
+            result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
             result.addContactPoint(normal, ptOnBox - normal * margin,
                                    dist + 2 * margin);
             return true;

@@ -9,18 +9,19 @@ namespace pe_phys_collision {
     bool CylinderConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                             pe::Transform trans_a, pe::Transform trans_b,
                                                             ContactResult& result) {
-        if (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            std::swap(shape_a, shape_b);
-            std::swap(trans_a, trans_b);
-            result.setObjects(result.getObjectB(), result.getObjectA());
-        }
-        if (!(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
-              shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh)) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder))) {
             return false;
         }
 
-        auto& mesh_a = ((pe_phys_shape::CylinderShape*)shape_a)->getMesh();
-        auto& mesh_b = ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
+        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
+                       ((pe_phys_shape::CylinderShape*)shape_a)->getMesh() :
+                       ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh();
+        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
+                       ((pe_phys_shape::CylinderShape*)shape_b)->getMesh() :
+                       ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
@@ -30,8 +31,8 @@ namespace pe_phys_collision {
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                pe_phys_shape::_cylinder_unique_edges,
-                                                                ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges(),
+                                                                shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? pe_phys_shape::_cylinder_unique_edges : ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges(),
+                                                                shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ? pe_phys_shape::_cylinder_unique_edges : ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges(),
                                                                 trans_a, trans_b, sep, margin, result)) {
             return false;
         }

@@ -23,20 +23,22 @@ public:
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
-        // add a compound-shaped rigidbody
-        auto rb2 = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 9, 0)), 1);
-        _world.addRigidBody(rb2);
-
         // add some other dynamic objects
-//        auto rb3 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-//                                      pe::Vector3(1, 1, 1), 1);
-//        _world.addRigidBody(rb3);
-        auto rb4 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.1, 4, 0.1)),
+        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
+                                      pe::Vector3(1, 1, 1), 1);
+        _world.addRigidBody(rb2);
+        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.1, 4, 0.1)),
                                         0.5, 1);
+        _world.addRigidBody(rb3);
+        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 6, 0.2)),
+                                          0.5, 1, 1);
         _world.addRigidBody(rb4);
-//        auto rb5 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 6, 0.2)),
-//                                          0.2, 1, 1);
-//        _world.addRigidBody(rb5);
+
+        // add some compound-shaped rigidbodies
+        auto rb5 = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 9, 0)), 1);
+        _world.addRigidBody(rb5);
+        auto rb6 = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 13, 0)), 1);
+        _world.addRigidBody(rb6);
     }
 
 protected:

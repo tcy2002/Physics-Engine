@@ -10,18 +10,19 @@ namespace pe_phys_collision {
     bool BoxCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                          pe::Transform trans_a, pe::Transform trans_b,
                                                          ContactResult& result) {
-        if (shape_a->getType() == pe_phys_shape::ShapeType::Box) {
-            std::swap(shape_a, shape_b);
-            std::swap(trans_a, trans_b);
-            result.setObjects(result.getObjectB(), result.getObjectA());
-        }
-        if (!(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
-              shape_b->getType() == pe_phys_shape::ShapeType::Box)) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Box))) {
             return false;
         }
 
-        auto& mesh_a = ((pe_phys_shape::CylinderShape*)shape_a)->getMesh();
-        auto& mesh_b = ((pe_phys_shape::BoxShape*)shape_b)->getMesh();
+        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
+                       ((pe_phys_shape::CylinderShape*)shape_a)->getMesh() :
+                       ((pe_phys_shape::BoxShape*)shape_a)->getMesh();
+        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
+                       ((pe_phys_shape::CylinderShape*)shape_b)->getMesh() :
+                       ((pe_phys_shape::BoxShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
@@ -31,8 +32,8 @@ namespace pe_phys_collision {
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                pe_phys_shape::_cylinder_unique_edges,
-                                                                pe_phys_shape::_box_unique_edges,
+                                                                shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? pe_phys_shape::_cylinder_unique_edges : pe_phys_shape::_box_unique_edges,
+                                                                shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ? pe_phys_shape::_cylinder_unique_edges : pe_phys_shape::_box_unique_edges,
                                                                 trans_a, trans_b, sep, margin, result)) {
             return false;
         }
