@@ -24,18 +24,21 @@ namespace pe_phys_collision {
         pe::Vector3 s_pos = object_a->getTransform().inverseTransform(object_b->getTransform().getOrigin());
         pe::Real margin = 0.005;
 
-        if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
-            s_pos.x * s_pos.x + s_pos.z * s_pos.z > (c_r + s_r) * (c_r + s_r)) {
-            return false;
-        }
-
         result.clearContactPoints();
         result.setObjects(object_a, object_b);
         pe::Real r = std::sqrt(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
+        pe::Real d = std::abs(s_pos.y) - c_h;
+
+        if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
+            r * r > (c_r + s_r) * (c_r + s_r) ||
+            (r - c_r) * (r - c_r) + d * d > s_r * s_r) {
+            return false;
+        }
+
         pe::Vector3 normal;
         pe::Vector3 ptOnSph;
         pe::Real depth;
-        if (s_pos.y >= -c_h && s_pos.y <= c_h && r > 0) { // r > 0 to avoid normalizing zero vector below
+        if (s_pos.y >= -c_h && s_pos.y <= c_h && r > 0) { // r > 0 to avoid normalizing zero vector
             // hit the side
             normal = pe::Vector3(-s_pos.x, 0, -s_pos.z).normalized();
             ptOnSph = normal * s_r + s_pos;
