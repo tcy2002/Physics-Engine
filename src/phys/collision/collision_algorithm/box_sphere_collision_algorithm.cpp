@@ -2,32 +2,29 @@
 
 namespace pe_phys_collision {
 
-    bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                       pe_phys_object::RigidBody* object_b,
+    bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                       pe::Transform trans_a, pe::Transform trans_b,
                                                        ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box) {
-            std::swap(object_a, object_b);
+        if (shape_a->getType() == pe_phys_shape::ShapeType::Box) {
+            std::swap(shape_a, shape_b);
+            std::swap(trans_a, trans_b);
+            result.setObjects(result.getObjectB(), result.getObjectA());
         }
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Sphere ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::Sphere ||
+            shape_b->getType() != pe_phys_shape::ShapeType::Box) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::SphereShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
-        pe::Vector3 sphereCenter = object_a->getTransform().getOrigin();
-        pe::Real radius = shape_a->getRadius();
+        pe::Vector3 sphereCenter = trans_a.getOrigin();
+        pe::Real radius = ((pe_phys_shape::SphereShape*)shape_a)->getRadius();
         pe::Real margin = 0.005;
 
         pe::Vector3 ptOnBox, normal;
         pe::Real dist;
-        if (getSphereDistance(shape_b, object_b->getTransform(), sphereCenter, radius,
+        if (getSphereDistance((pe_phys_shape::BoxShape*)shape_b, trans_b, sphereCenter, radius,
                               ptOnBox, normal, dist)) {
-            result.clearContactPoints();
-            result.setObjects(object_a, object_b);
             result.addContactPoint(normal, ptOnBox - normal * margin,
                                    dist + 2 * margin);
-            result.sortContactPoints();
             return true;
         }
 

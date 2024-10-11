@@ -20,21 +20,33 @@ namespace pe_phys_collision {
             results.resize(new_size);
         }
 
-#   ifdef PE_MULTI_THREAD
+#   ifdef PE_MULTI_THREAD1
         auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [&](const CollisionPair& pair, int idx) {
-                                       auto type_a = pair.first->getCollisionShape()->getType();
-                                       auto type_b = pair.second->getCollisionShape()->getType();
-                                       getAlgorithm(type_a, type_b)->processCollision(pair.first, pair.second,
-                                                                             *results[idx]);
+                                       auto shape_a = pair.first->getCollisionShape();
+                                       auto shape_b = pair.second->getCollisionShape();
+                                       auto trans_a = pair.first->getTransform();
+                                       auto trans_b = pair.second->getTransform();
+                                       auto type_a = shape_a->getType();
+                                       auto type_b = shape_b->getType();
+                                       results[idx]->clearContactPoints();
+                                       results[idx]->setObjects(pairs[idx].first, pairs[idx].second);
+                                       getAlgorithm(type_a, type_b)->processCollision(shape_a, shape_b, trans_a, trans_b, *results[idx]);
                                    });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < (int)pairs.size(); i++) {
-            auto type_a = pairs[i].first->getCollisionShape()->getType();
-            auto type_b = pairs[i].second->getCollisionShape()->getType();
-            getAlgorithm(type_a, type_b)->processCollision(pairs[i].first, pairs[i].second, *results[i]);
+            auto shape_a = pairs[i].first->getCollisionShape();
+            auto shape_b = pairs[i].second->getCollisionShape();
+            auto trans_a = pairs[i].first->getTransform();
+            auto trans_b = pairs[i].second->getTransform();
+            auto type_a = shape_a->getType();
+            auto type_b = shape_b->getType();
+            results[i]->clearContactPoints();
+            results[i]->setObjects(pairs[i].first, pairs[i].second);
+            getAlgorithm(type_a, type_b)->processCollision(shape_a, shape_b, trans_a, trans_b, *results[i]);
+            results[i]->sortContactPoints();
         }
 #   endif
 

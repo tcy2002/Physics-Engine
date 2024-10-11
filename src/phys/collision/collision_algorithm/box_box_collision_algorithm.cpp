@@ -34,25 +34,20 @@ namespace pe_phys_collision {
     static pe::Real dDOT41(const pe::Vector3& a, const pe::Vector3& b) { return dDOTpq(a, b, 4, 1); }
 
     // box-box collision (bullet)
-    bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                    pe_phys_object::RigidBody* object_b, ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Box) {
+    bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                    pe::Transform trans_a, pe::Transform trans_b,
+                                                    ContactResult& result) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::Box ||
+            shape_b->getType() != pe_phys_shape::ShapeType::Box) {
             return false;
         }
-        getClosestPoint(object_a, object_b, result);
-        result.sortContactPoints();
+        getClosestPoint((pe_phys_shape::BoxShape*)shape_a, (pe_phys_shape::BoxShape*)shape_b, trans_a, trans_b, result);
         return result.getPointSize() > 0;
     }
 
-    void BoxBoxCollisionAlgorithm::getClosestPoint(pe_phys_object::RigidBody* object_a,
-                                                   pe_phys_object::RigidBody* object_b, ContactResult& result) {
-        auto& transform_a = object_a->getTransform();
-        auto& transform_b = object_b->getTransform();
-
-        auto box_a = (pe_phys_shape::BoxShape*)(object_a->getCollisionShape());
-        auto box_b = (pe_phys_shape::BoxShape*)(object_b->getCollisionShape());
-
+    void BoxBoxCollisionAlgorithm::getClosestPoint(pe_phys_shape::BoxShape* shape_a, pe_phys_shape::BoxShape* shape_b,
+                                                   pe::Transform& trans_a, pe::Transform& trans_b,
+                                                   ContactResult& result) {
         dMatrix3 R1, R2;
         pe::Vector3 normal;
         pe::Real depth;
@@ -60,8 +55,8 @@ namespace pe_phys_collision {
         int max_c = 4;
         pe::Real margin = 0.005;
 
-        auto& basis_a = transform_a.getBasis();
-        auto& basis_b = transform_b.getBasis();
+        auto& basis_a = trans_a.getBasis();
+        auto& basis_b = trans_b.getBasis();
         for (int j = 0; j < 3; j++) {
             R1[0 + 4 * j] = basis_a[j][0];
             R2[0 + 4 * j] = basis_b[j][0];
@@ -71,10 +66,8 @@ namespace pe_phys_collision {
             R2[2 + 4 * j] = basis_b[j][2];
         }
 
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
-        dBoxBox2(transform_a.getOrigin(), R1, box_a->getSize(),
-                 transform_b.getOrigin(), R2, box_b->getSize(),
+        dBoxBox2(trans_a.getOrigin(), R1, shape_a->getSize(),
+                 trans_b.getOrigin(), R2, shape_b->getSize(),
                  normal, margin, depth, return_code, max_c, result);
     }
 

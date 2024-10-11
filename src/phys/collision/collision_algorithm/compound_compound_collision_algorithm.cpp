@@ -13,55 +13,49 @@
 
 namespace pe_phys_collision {
 
-    bool CompoundCompoundCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                              pe_phys_object::RigidBody* object_b,
+    bool CompoundCompoundCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                              pe::Transform trans_a, pe::Transform trans_b,
                                                               ContactResult& result) {
-        if (object_b->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Compound) {
-            std::swap(object_a, object_b);
+        if (shape_b->getType() == pe_phys_shape::ShapeType::Compound) {
+            std::swap(shape_a, shape_b);
+            std::swap(trans_a, trans_b);
+            result.setObjects(result.getObjectB(), result.getObjectA());
         }
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Compound) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::Compound) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::CompoundShape*)object_a->getCollisionShape();
-        auto shape_b = object_b->getCollisionShape();
-
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
         bool has_contact = false;
 
-        for (auto& s : shape_a->getShapes()) {
-            pe::Transform trans_a = object_a->getTransform() * s.local_transform;
+        for (auto& s : ((pe_phys_shape::CompoundShape*)shape_a)->getShapes()) {
+            pe::Transform trans_a_w = trans_a * s.local_transform;
             if (shape_b->getType() == pe_phys_shape::ShapeType::Compound) {
                 auto compound_b = (pe_phys_shape::CompoundShape*)shape_b;
                 for (auto& s_b : compound_b->getShapes()) {
-                    pe::Transform trans_b = object_b->getTransform() * s_b.local_transform;
+                    pe::Transform trans_b_w = trans_b * s_b.local_transform;
                     has_contact |= processSubCollision(s.shape, s_b.shape,
-                                                       trans_a, trans_b, result);
+                                                       trans_a_w, trans_b_w, result);
                 }
             } else {
                 has_contact |= processSubCollision(s.shape, shape_b,
-                                                   trans_a, object_b->getTransform(), result);
+                                                   trans_a_w, trans_b, result);
             }
         }
 
-        if (has_contact) {
-            result.sortContactPoints();
-        }
         return has_contact;
     }
 
     CollisionAlgorithm* CompoundCompoundCollisionAlgorithm::getCollisionAlgorithm(int index) {
-        BoxBoxCollisionAlgorithm box_box;
-        BoxSphereCollisionAlgorithm box_sphere;
-        BoxCylinderCollisionAlgorithm box_cylinder;
-        BoxConvexCollisionAlgorithm box_convex;
-        SphereSphereCollisionAlgorithm sphere_sphere;
-        SphereCylinderCollisionAlgorithm sphere_cylinder;
-        SphereConvexCollisionAlgorithm sphere_convex;
-        CylinderCylinderCollisionAlgorithm cylinder_cylinder;
-        CylinderConvexCollisionAlgorithm cylinder_convex;
-        ConvexConvexCollisionAlgorithm convex_convex;
+        static BoxBoxCollisionAlgorithm box_box;
+        static BoxSphereCollisionAlgorithm box_sphere;
+        static BoxCylinderCollisionAlgorithm box_cylinder;
+        static BoxConvexCollisionAlgorithm box_convex;
+        static SphereSphereCollisionAlgorithm sphere_sphere;
+        static SphereCylinderCollisionAlgorithm sphere_cylinder;
+        static SphereConvexCollisionAlgorithm sphere_convex;
+        static CylinderCylinderCollisionAlgorithm cylinder_cylinder;
+        static CylinderConvexCollisionAlgorithm cylinder_convex;
+        static ConvexConvexCollisionAlgorithm convex_convex;
         static CollisionAlgorithm* algos[] = {
             &box_box, &box_sphere, &box_cylinder, &box_convex,
             &box_sphere, &sphere_sphere, &sphere_cylinder, &sphere_convex,
@@ -73,18 +67,12 @@ namespace pe_phys_collision {
 
     bool CompoundCompoundCollisionAlgorithm::processSubCollision(pe_phys_shape::Shape *shape_a,
                                                                  pe_phys_shape::Shape *shape_b,
-                                                                 const pe::Transform& trans_a,
-                                                                 const pe::Transform& trans_b,
+                                                                 pe::Transform& trans_a,
+                                                                 pe::Transform& trans_b,
                                                                  ContactResult &result) {
-        static pe_phys_object::RigidBody rb_a, rb_b;
-        rb_a.setCollisionShape(shape_a);
-        rb_b.setCollisionShape(shape_b);
-        rb_a.setTransform(trans_a);
-        rb_b.setTransform(trans_b);
-
         int algo_index = (int)shape_a->getType() * 4 + (int)shape_b->getType();
         auto algo = getCollisionAlgorithm(algo_index);
-        return algo->processCollision(&rb_a, &rb_b, result);
+        return algo->processCollision(shape_a, shape_b, trans_a, trans_b, result);
     }
 
 } // pe_phys_collision

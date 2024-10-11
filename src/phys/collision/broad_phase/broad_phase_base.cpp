@@ -7,7 +7,7 @@ namespace pe_phys_collision {
         if (co1->isSleep() && co2->isSleep()) return false;
         if (!co1->getCollisionShape() || !co2->getCollisionShape()) return false;
         if (co1->isIgnoreCollision() || co2->isIgnoreCollision()) return false;
-        if (!co1->getCollisionShape()->isConvex() || !co2->getCollisionShape()->isConvex()) return false;
+        //if (!co1->getCollisionShape()->isConvex() || !co2->getCollisionShape()->isConvex()) return false;
         if (co1->getGlobalId() == co2->getGlobalId()) return false;
         if (co1->isIgnoreCollisionId(co2->getGlobalId())) return false;
         if (co2->isIgnoreCollisionId(co1->getGlobalId())) return false;

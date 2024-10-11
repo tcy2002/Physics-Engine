@@ -4,28 +4,25 @@
 
 namespace pe_phys_collision {
 
-    bool SphereCylinderCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                            pe_phys_object::RigidBody* object_b,
+    bool SphereCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                            pe::Transform trans_a, pe::Transform trans_b,
                                                             ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Sphere) {
-            std::swap(object_a, object_b);
+        if (shape_a->getType() == pe_phys_shape::ShapeType::Sphere) {
+            std::swap(shape_a, shape_b);
+            std::swap(trans_a, trans_b);
+            result.setObjects(result.getObjectB(), result.getObjectA());
         }
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Cylinder ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Sphere) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::Cylinder ||
+            shape_b->getType() != pe_phys_shape::ShapeType::Sphere) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::CylinderShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::SphereShape*)object_b->getCollisionShape();
-        auto& c_trans = object_a->getTransform();
-        pe::Real s_r = shape_b->getRadius();
-        pe::Real c_r = shape_a->getRadius();
-        pe::Real c_h = shape_a->getHeight() * 0.5;
-        pe::Vector3 s_pos = object_a->getTransform().inverseTransform(object_b->getTransform().getOrigin());
+        pe::Real s_r = ((pe_phys_shape::CylinderShape*)shape_b)->getRadius();
+        pe::Real c_r = ((pe_phys_shape::CylinderShape*)shape_a)->getRadius();
+        pe::Real c_h = ((pe_phys_shape::CylinderShape*)shape_a)->getHeight() * 0.5;
+        pe::Vector3 s_pos = trans_a.inverseTransform(trans_b.getOrigin());
         pe::Real margin = 0.005;
 
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
         pe::Real r = std::sqrt(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
         pe::Real d = std::abs(s_pos.y) - c_h;
 
@@ -57,8 +54,8 @@ namespace pe_phys_collision {
             depth = s_r - (s_pos - ptOnCyl).norm();
         }
 
-        normal = c_trans.getBasis() * normal;
-        ptOnSph = c_trans * ptOnSph;
+        normal = trans_a.getBasis() * normal;
+        ptOnSph = trans_a * ptOnSph;
         result.addContactPoint(normal, ptOnSph - normal * margin, -depth + 2 * margin);
         result.sortContactPoints();
         return true;

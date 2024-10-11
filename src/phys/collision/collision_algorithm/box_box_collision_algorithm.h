@@ -1,6 +1,7 @@
 #pragma once
 
 #include "collision_algorithm.h"
+#include "phys/shape/box_shape.h"
 
 namespace pe_phys_collision {
 
@@ -8,11 +9,13 @@ namespace pe_phys_collision {
 
     class BoxBoxCollisionAlgorithm : public CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
+        virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                      pe::Transform trans_a, pe::Transform trans_b,
                                       ContactResult& result) override;
 
     private:
-        static void getClosestPoint(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
+        static void getClosestPoint(pe_phys_shape::BoxShape* shape_a, pe_phys_shape::BoxShape* shape_b,
+                                    pe::Transform& trans_a, pe::Transform& trans_b,
                                     ContactResult& result);
         static void dLineClosestApproach(const pe::Vector3& pa, const pe::Vector3& ua,
                                          const pe::Vector3& pb, const pe::Vector3& ub,

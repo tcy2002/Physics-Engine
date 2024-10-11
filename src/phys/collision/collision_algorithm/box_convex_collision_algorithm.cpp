@@ -7,44 +7,40 @@
 
 namespace pe_phys_collision {
 
-    bool BoxConvexCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                       pe_phys_object::RigidBody* object_b, ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box) {
-            std::swap(object_a, object_b);
+    bool BoxConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                       pe::Transform trans_a, pe::Transform trans_b,
+                                                       ContactResult& result) {
+        if (shape_a->getType() == pe_phys_shape::ShapeType::Box) {
+            std::swap(shape_a, shape_b);
+            std::swap(trans_a, trans_b);
+            result.setObjects(result.getObjectB(), result.getObjectA());
         }
-        if (!(object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
-               object_b->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Box)) {
+        if (!(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
+               shape_b->getType() == pe_phys_shape::ShapeType::Box)) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::BoxShape*)object_b->getCollisionShape();
-        auto& mesh_a = shape_a->getMesh();
-        auto& mesh_b = shape_b->getMesh();
-        auto& transA = object_a->getTransform();
-        auto& transB = object_b->getTransform();
+        auto& mesh_a = ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh();
+        auto& mesh_b = ((pe_phys_shape::BoxShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
 
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                shape_a->getUniqueEdges(),
+                                                                ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges(),
                                                                 pe_phys_shape::_box_unique_edges,
-                                                                transA, transB, sep, margin, result)) {
+                                                                trans_a, trans_b, sep, margin, result)) {
             return false;
         }
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
-                                                            mesh_a, mesh_b, transA, transB,
+                                                            mesh_a, mesh_b, trans_a, trans_b,
                                                             PE_REAL_MIN, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
-        result.sortContactPoints();
         return result.getPointSize() > 0;
     }
 

@@ -6,10 +6,12 @@ namespace pe_phys_collision {
 
     class SphereConvexCollisionAlgorithm : public CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
+        virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                      pe::Transform trans_a, pe::Transform trans_b,
                                       ContactResult& result) override;
 
-        static void getClosestPoints(pe_phys_object::RigidBody* object_a, const pe::Vector3 vertices[],
+        static void getClosestPoints(pe_phys_shape::Shape* shape_a, const pe::Transform& trans_a,
+                                     const pe::Vector3 vertices[],
                                      const pe::Transform& transTri, ContactResult& result);
         static bool collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real sphereRadius,
                                           const pe::Vector3 vertices[], pe::Vector3& point,

@@ -4,37 +4,32 @@
 namespace pe_phys_collision {
 
     // sat convex collision (bullet)
-    bool ConvexConvexCollisionAlgorithm::processCollision(pe_phys_object::RigidBody *object_a,
-                                                          pe_phys_object::RigidBody *object_b, ContactResult &result) {
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::ConvexMesh ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::ConvexMesh) {
+    bool ConvexConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                          pe::Transform trans_a, pe::Transform trans_b,
+                                                          ContactResult &result) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::ConvexMesh ||
+            shape_b->getType() != pe_phys_shape::ShapeType::ConvexMesh) {
             return false;
         }
-        auto shape_a = (pe_phys_shape::ConvexMeshShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::ConvexMeshShape*)object_b->getCollisionShape();
 
-        auto& mesh_a = shape_a->getMesh();
-        auto& mesh_b = shape_b->getMesh();
-        auto& transA = object_a->getTransform();
-        auto& transB = object_b->getTransform();
+        auto& mesh_a = ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh();
+        auto& mesh_b = ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
 
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
         if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
-                                shape_a->getUniqueEdges(), shape_b->getUniqueEdges(),
-                                transA, transB, sep, margin, result)) {
+                                ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges(),
+                                ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges(),
+                                trans_a, trans_b, sep, margin, result)) {
             return false;
         }
-        clipHullAgainstHull(sep, mesh_a, mesh_b, transA, transB,
+        clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
                             PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
                             margin, result);
-        result.sortContactPoints();
         return result.getPointSize() > 0;
     }
 

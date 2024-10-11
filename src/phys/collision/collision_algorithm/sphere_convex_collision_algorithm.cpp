@@ -4,50 +4,46 @@
 
 namespace pe_phys_collision {
 
-    bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                          pe_phys_object::RigidBody* object_b,
+    bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                          pe::Transform trans_a, pe::Transform trans_b,
                                                           ContactResult& result) {
-        if (object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            std::swap(object_a, object_b);
+        if (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
+            std::swap(shape_a, shape_b);
+            std::swap(trans_a, trans_b);
+            result.setObjects(result.getObjectB(), result.getObjectA());
         }
-        if (object_a->getCollisionShape()->getType() != pe_phys_shape::ShapeType::Sphere ||
-            object_b->getCollisionShape()->getType() != pe_phys_shape::ShapeType::ConvexMesh) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::Sphere ||
+            shape_b->getType() != pe_phys_shape::ShapeType::ConvexMesh) {
             return false;
         }
 
-        auto shape_b = (pe_phys_shape::ConvexMeshShape*)object_b->getCollisionShape();
-        auto& mesh_b = shape_b->getMesh();
-        auto& trans_b = object_b->getTransform();
+        auto& mesh_b = ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
 
         pe::Vector3 vertices[3];
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
         for (auto& f : mesh_b.faces) {
             for (int i = 0; i < (int)f.indices.size() - 2; i++) {
                 vertices[0] = mesh_b.vertices[f.indices[0]].position;
                 vertices[1] = mesh_b.vertices[f.indices[i + 1]].position;
                 vertices[2] = mesh_b.vertices[f.indices[i + 2]].position;
-                getClosestPoints(object_a, vertices, trans_b, result);
+                getClosestPoints(shape_a, trans_a, vertices, trans_b, result);
             }
         }
 
-        result.sortContactPoints();
         return result.getPointSize() > 0;
     }
 
-    void SphereConvexCollisionAlgorithm::getClosestPoints(pe_phys_object::RigidBody *object_a,
+    void SphereConvexCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape* shape_a,
+                                                          const pe::Transform& trans_a,
                                                           const pe::Vector3 vertices[],
                                                           const pe::Transform& transTri,
                                                           ContactResult &result) {
-        const pe::Transform& transSph = object_a->getTransform();
-
         pe::Vector3 point, normal;
         pe::Real depth = 0;
         pe::Real margin = 0.005;
 
         //move sphere into triangle space
-        pe::Vector3 sphereInTr = transTri.inverseTransform(transSph.getOrigin());
-        pe::Real sphereRadius = ((pe_phys_shape::SphereShape*)object_a->getCollisionShape())->getRadius();
+        pe::Vector3 sphereInTr = transTri.inverseTransform(trans_a.getOrigin());
+        pe::Real sphereRadius = ((pe_phys_shape::SphereShape*)shape_a)->getRadius();
 
         if (collideSphereTriangle(sphereInTr, sphereRadius, vertices,
                                   point, normal, depth)) {

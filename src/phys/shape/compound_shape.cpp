@@ -50,16 +50,18 @@ namespace pe_phys_shape {
     }
 
     pe::Matrix3 CompoundShape::calcLocalInertia(pe::Real mass) const {
-        pe::Matrix3 inertia;
+        pe::Matrix3 inertia = pe::Matrix3::zeros();
         for (auto& s: _shapes) {
             pe::Matrix3 s_inertia = s.shape->calcLocalInertia(mass * s.mass_ratio / _mass_ratio);
-            pe::Matrix3 t_inertia = pe::Matrix3::identity();
             pe::Vector3 pos = s.local_transform.getOrigin();
             pe::Matrix3 rot = s.local_transform.getBasis();
-            t_inertia[0][0] = pos[0] * pos[0];
-            t_inertia[1][1] = pos[1] * pos[1];
-            t_inertia[2][2] = pos[2] * pos[2];
-            inertia += (rot * s_inertia * rot.transposed() + t_inertia);
+            pe::Matrix3 t_inertia = pe::Matrix3::identity() * (pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    t_inertia[i][j] -= pos[i] * pos[j];
+                }
+            }
+            inertia += (rot * s_inertia * rot.transposed() + t_inertia * (mass * s.mass_ratio / _mass_ratio));
         }
         return inertia;
     }

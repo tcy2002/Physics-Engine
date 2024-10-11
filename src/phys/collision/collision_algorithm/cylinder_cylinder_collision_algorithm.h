@@ -6,7 +6,8 @@ namespace pe_phys_collision {
 
     class CylinderCylinderCollisionAlgorithm : public CollisionAlgorithm {
     public:
-        virtual bool processCollision(pe_phys_object::RigidBody* object_a, pe_phys_object::RigidBody* object_b,
+        virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                      pe::Transform trans_a, pe::Transform trans_b,
                                       ContactResult& result) override;
     };
 

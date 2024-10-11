@@ -23,7 +23,7 @@ public:
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
-        // add a fracturable box and solve the fracture result
+        // add a fracturable box
         auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
                                            pe::Vector3(4, 4, 4), 1);
         _world.addRigidBody(rb3);
@@ -35,7 +35,7 @@ public:
 
         // add some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
-        for (int i = 0; i < 0; i++) {
+        for (int i = 0; i < 99; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
                 rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * 1.1, 0)),

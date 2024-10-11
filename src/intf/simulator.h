@@ -37,6 +37,7 @@ namespace pe_intf { // interface
         bool renderStep();
         void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
         void removeModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
+        void updateColor(int id, pe_phys_shape::ShapeType type, const std::string& tag, bool kinematic);
     };
 
     #include "simulator.cpp"
@@ -141,7 +142,7 @@ namespace pe_intf { // interface
         toggleLine();
 
         for (auto& rb : _id_map) {
-            if (rb.second.size() == 1 && rb.second[0] == -1) {
+            if (rb.second.empty()) {
                 continue;
             }
             switch (rb.first->getCollisionShape()->getType()) {
@@ -184,8 +185,6 @@ namespace pe_intf { // interface
 
     template <UseViewer UV>
     void Simulator<UV>::addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) {
-        pe::Array<pe::KV<int, pe_phys_object::RigidBody*>> pairs;
-
         // add models and initialize transform
         for (auto rb : rbs) {
             pe::Array<int> ids;
@@ -194,22 +193,26 @@ namespace pe_intf { // interface
                     ids.push_back(pe_intf::Viewer::addCube(((pe_phys_shape::BoxShape*)rb->getCollisionShape())->getSize()));
                     pe_intf::Viewer::updateCubeColor(ids[0], pe::Vector3(0.3, 0.8, 0.8));
                     pe_intf::Viewer::updateCubeTransform(ids[0], rb->getTransform());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::Box, rb->getTag(), rb->isKinematic());
                     break;
                 case pe_phys_shape::ShapeType::Sphere:
                     ids.push_back(pe_intf::Viewer::addSphere(((pe_phys_shape::SphereShape*)rb->getCollisionShape())->getRadius()));
                     pe_intf::Viewer::updateSphereColor(ids[0], pe::Vector3(0.8, 0.3, 0.3));
                     pe_intf::Viewer::updateSphereTransform(ids[0], rb->getTransform());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::Sphere, rb->getTag(), rb->isKinematic());
                     break;
                 case pe_phys_shape::ShapeType::Cylinder:
                     ids.push_back(pe_intf::Viewer::addCylinder(((pe_phys_shape::CylinderShape*)rb->getCollisionShape())->getRadius(),
                                                       ((pe_phys_shape::CylinderShape*)rb->getCollisionShape())->getHeight()));
                     pe_intf::Viewer::updateCylinderColor(ids[0], pe::Vector3(0.3, 0.8, 0.3));
                     pe_intf::Viewer::updateCylinderTransform(ids[0], rb->getTransform());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::Cylinder, rb->getTag(), rb->isKinematic());
                     break;
                 case pe_phys_shape::ShapeType::ConvexMesh:
                     ids.push_back(pe_intf::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)rb->getCollisionShape())->getMesh()));
                     pe_intf::Viewer::updateMeshColor(ids[0], pe::Vector3(0.8, 0.8, 0.3));
                     pe_intf::Viewer::updateMeshTransform(ids[0], rb->getTransform());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::ConvexMesh, rb->getTag(), rb->isKinematic());
                     break;
                 case pe_phys_shape::ShapeType::Compound:
                     int i = 0;
@@ -218,23 +221,27 @@ namespace pe_intf { // interface
                             case pe_phys_shape::ShapeType::Box:
                                 ids.push_back(pe_intf::Viewer::addCube(((pe_phys_shape::BoxShape*)s.shape)->getSize()));
                                 pe_intf::Viewer::updateCubeColor(ids[i], pe::Vector3(0.3, 0.8, 0.8));
-                                pe_intf::Viewer::updateCubeTransform(ids[i++], rb->getTransform() * s.local_transform);
+                                pe_intf::Viewer::updateCubeTransform(ids[i], rb->getTransform() * s.local_transform);
+                                updateColor(ids[i++], pe_phys_shape::ShapeType::Box, rb->getTag(), rb->isKinematic());
                                 break;
                             case pe_phys_shape::ShapeType::Sphere:
                                 ids.push_back(pe_intf::Viewer::addSphere(((pe_phys_shape::SphereShape*)s.shape)->getRadius()));
                                 pe_intf::Viewer::updateSphereColor(ids[i], pe::Vector3(0.8, 0.3, 0.3));
-                                pe_intf::Viewer::updateSphereTransform(ids[i++], rb->getTransform() * s.local_transform);
+                                pe_intf::Viewer::updateSphereTransform(ids[i], rb->getTransform() * s.local_transform);
+                                updateColor(ids[i++], pe_phys_shape::ShapeType::Sphere, rb->getTag(), rb->isKinematic());
                                 break;
                             case pe_phys_shape::ShapeType::Cylinder:
                                 ids.push_back(pe_intf::Viewer::addCylinder(((pe_phys_shape::CylinderShape*)s.shape)->getRadius(),
                                                                   ((pe_phys_shape::CylinderShape*)s.shape)->getHeight()));
                                 pe_intf::Viewer::updateCylinderColor(ids[i], pe::Vector3(0.3, 0.8, 0.3));
-                                pe_intf::Viewer::updateCylinderTransform(ids[i++], rb->getTransform() * s.local_transform);
+                                pe_intf::Viewer::updateCylinderTransform(ids[i], rb->getTransform() * s.local_transform);
+                                updateColor(ids[i++], pe_phys_shape::ShapeType::Cylinder, rb->getTag(), rb->isKinematic());
                                 break;
                             case pe_phys_shape::ShapeType::ConvexMesh:
                                 ids.push_back(pe_intf::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)s.shape)->getMesh()));
                                 pe_intf::Viewer::updateMeshColor(ids[i], pe::Vector3(0.8, 0.8, 0.3));
-                                pe_intf::Viewer::updateMeshTransform(ids[i++], rb->getTransform() * s.local_transform);
+                                pe_intf::Viewer::updateMeshTransform(ids[i], rb->getTransform() * s.local_transform);
+                                updateColor(ids[i++], pe_phys_shape::ShapeType::ConvexMesh, rb->getTag(), rb->isKinematic());
                             default:
                                 break;
                         }
@@ -242,50 +249,49 @@ namespace pe_intf { // interface
                     break;
             }
             _id_map[rb] = ids;
-            pairs.emplace_back(id, rb);
+        }
+    }
+
+    template <UseViewer UV>
+    void Simulator<UV>::updateColor(int id, pe_phys_shape::ShapeType type, const std::string &tag, bool kinematic) {
+        if (tag.substr(0, 6) == "color:") {
+            std::stringstream ss(tag.substr(6));
+            pe::Real r, g, b;
+            char delim;
+            ss >> r >> delim >> g >> delim >> b;
+            if (ss.eof()) {
+                pe_intf::Viewer::updateCubeColor(id, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateSphereColor(id, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(r, g, b));
+                pe_intf::Viewer::updateMeshColor(id, pe::Vector3(r, g, b));
+                return;
+            } else {
+                std::cerr << "invalid color tag: " << r << " " << g << " " << b << std::endl;
+            }
         }
 
-        // set color for each model
-        for (auto& rb : pairs) {
-            if (rb.second->getTag().substr(0, 6) == "color:") {
-                std::stringstream ss(rb.second->getTag().substr(6));
-                pe::Real r, g, b;
-                char delim;
-                ss >> r >> delim >> g >> delim >> b;
-                if (ss.eof()) {
-                    pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(r, g, b));
-                    pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(r, g, b));
-                    pe_intf::Viewer::updateCylinderColor(rb.first, pe::Vector3(r, g, b));
-                    pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(r, g, b));
-                    continue;
-                } else {
-                    std::cerr << "invalid color tag: " << r << " " << g << " " << b << std::endl;
-                }
-            }
-            if (rb.second->isKinematic()) {
-                pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
-                pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
-                pe_intf::Viewer::updateCylinderColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
-                pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
-                continue;
-            }
-            switch (rb.second->getCollisionShape()->getType()) {
-                case pe_phys_shape::ShapeType::Box:
-                    pe_intf::Viewer::updateCubeColor(rb.first, pe::Vector3(0.3, 0.3, 0.8));
-                    break;
-                case pe_phys_shape::ShapeType::Sphere:
-                    pe_intf::Viewer::updateSphereColor(rb.first, pe::Vector3(0.8, 0.3, 0.3));
-                    break;
-                case pe_phys_shape::ShapeType::Cylinder:
-                    pe_intf::Viewer::updateCylinderColor(rb.first, pe::Vector3(0.3, 0.8, 0.3));
-                    break;
-                case pe_phys_shape::ShapeType::ConvexMesh:
-                    pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(0.8, 0.8, 0.3));
-                    break;
-                case pe_phys_shape::ShapeType::Compound:
-                    pe_intf::Viewer::updateMeshColor(rb.first, pe::Vector3(0.3, 0.8, 0.8));
-                    break;
-            }
+        if (kinematic) {
+            pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.8, 0.8));
+            pe_intf::Viewer::updateSphereColor(id, pe::Vector3(0.3, 0.8, 0.8));
+            pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.3, 0.8, 0.8));
+            pe_intf::Viewer::updateMeshColor(id, pe::Vector3(0.3, 0.8, 0.8));
+            return;
+        }
+
+        switch (type) {
+            case pe_phys_shape::ShapeType::Box:
+                pe_intf::Viewer::updateCubeColor(id, pe::Vector3(0.3, 0.3, 0.8));
+                break;
+            case pe_phys_shape::ShapeType::Sphere:
+                pe_intf::Viewer::updateSphereColor(id, pe::Vector3(0.8, 0.3, 0.3));
+                break;
+            case pe_phys_shape::ShapeType::Cylinder:
+                pe_intf::Viewer::updateCylinderColor(id, pe::Vector3(0.3, 0.8, 0.3));
+                break;
+            case pe_phys_shape::ShapeType::ConvexMesh:
+                pe_intf::Viewer::updateMeshColor(id, pe::Vector3(0.8, 0.8, 0.3));
+            default:
+                break;
         }
     }
 
@@ -295,38 +301,39 @@ namespace pe_intf { // interface
             if (_id_map.find(rb) != _id_map.end()) {
                 switch (rb->getCollisionShape()->getType()) {
                     case pe_phys_shape::ShapeType::Box:
-                        pe_intf::Viewer::removeCube(_id_map[rb]);
+                        pe_intf::Viewer::removeCube(_id_map[rb][0]);
                         break;
                     case pe_phys_shape::ShapeType::Sphere:
-                        pe_intf::Viewer::removeSphere(_id_map[rb]);
+                        pe_intf::Viewer::removeSphere(_id_map[rb][0]);
                         break;
                     case pe_phys_shape::ShapeType::Cylinder:
-                        pe_intf::Viewer::removeCylinder(_id_map[rb]);
+                        pe_intf::Viewer::removeCylinder(_id_map[rb][0]);
                         break;
                     case pe_phys_shape::ShapeType::ConvexMesh:
-                        pe_intf::Viewer::removeMesh(_id_map[rb]);
+                        pe_intf::Viewer::removeMesh(_id_map[rb][0]);
                         break;
                     case pe_phys_shape::ShapeType::Compound:
+                        int i = 0;
                         for (auto& s : ((pe_phys_shape::CompoundShape*)rb->getCollisionShape())->getShapes()) {
                             switch (s.shape->getType()) {
                                 case pe_phys_shape::ShapeType::Box:
-                                    pe_intf::Viewer::removeCube(_id_map[rb]);
+                                    pe_intf::Viewer::removeCube(_id_map[rb][i++]);
                                     break;
                                 case pe_phys_shape::ShapeType::Sphere:
-                                    pe_intf::Viewer::removeSphere(_id_map[rb]);
+                                    pe_intf::Viewer::removeSphere(_id_map[rb][i++]);
                                     break;
                                 case pe_phys_shape::ShapeType::Cylinder:
-                                    pe_intf::Viewer::removeCylinder(_id_map[rb]);
+                                    pe_intf::Viewer::removeCylinder(_id_map[rb][i++]);
                                     break;
                                 case pe_phys_shape::ShapeType::ConvexMesh:
-                                    pe_intf::Viewer::removeMesh(_id_map[rb]);
+                                    pe_intf::Viewer::removeMesh(_id_map[rb][i++]);
                                 default:
                                     break;
                             }
                         }
                         break;
                 }
-                _id_map[rb] = -1;
+                _id_map[rb] = {};
             }
         }
     }

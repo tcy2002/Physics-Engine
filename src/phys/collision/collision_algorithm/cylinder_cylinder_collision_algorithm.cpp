@@ -5,25 +5,19 @@
 
 namespace pe_phys_collision {
 
-    bool CylinderCylinderCollisionAlgorithm::processCollision(pe_phys_object::RigidBody* object_a,
-                                                         pe_phys_object::RigidBody* object_b,
-                                                         ContactResult& result) {
-        if (!(object_a->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Cylinder &&
-              object_b->getCollisionShape()->getType() == pe_phys_shape::ShapeType::Cylinder)) {
+    bool CylinderCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                              pe::Transform trans_a, pe::Transform trans_b,
+                                                              ContactResult& result) {
+        if (!(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
+              shape_b->getType() == pe_phys_shape::ShapeType::Cylinder)) {
             return false;
         }
 
-        auto shape_a = (pe_phys_shape::CylinderShape*)object_a->getCollisionShape();
-        auto shape_b = (pe_phys_shape::CylinderShape*)object_b->getCollisionShape();
-        auto& mesh_a = shape_a->getMesh();
-        auto& mesh_b = shape_b->getMesh();
-        auto& transA = object_a->getTransform();
-        auto& transB = object_b->getTransform();
+        auto& mesh_a = ((pe_phys_shape::CylinderShape*)shape_a)->getMesh();
+        auto& mesh_b = ((pe_phys_shape::CylinderShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = 0.005;
-        result.clearContactPoints();
-        result.setObjects(object_a, object_b);
 
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
@@ -32,15 +26,14 @@ namespace pe_phys_collision {
                                                                 mesh_a, mesh_b,
                                                                 pe_phys_shape::_cylinder_unique_edges,
                                                                 pe_phys_shape::_cylinder_unique_edges,
-                                                                transA, transB, sep, margin, result)) {
+                                                                trans_a, trans_b, sep, margin, result)) {
             return false;
         }
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
-                                                            mesh_a, mesh_b, transA, transB,
+                                                            mesh_a, mesh_b, trans_a, trans_b,
                                                             PE_REAL_MIN, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
-        result.sortContactPoints();
         return result.getPointSize() > 0;
     }
 
