@@ -26,9 +26,7 @@ namespace pe_phys_collision {
                                    [&](const CollisionPair& pair, int idx) {
                                        auto type_a = pair.first->getCollisionShape()->getType();
                                        auto type_b = pair.second->getCollisionShape()->getType();
-                                       int algo_idx = type_a * 4 + type_b;
-                                       c->_algos[algo_idx] &&
-                                       c->_algos[algo_idx]->processCollision(pair.first, pair.second,
+                                       getAlgorithm(type_a, type_b)->processCollision(pair.first, pair.second,
                                                                              *results[idx]);
                                    });
         utils::ThreadPool::join();
@@ -36,18 +34,15 @@ namespace pe_phys_collision {
         for (int i = 0; i < (int)pairs.size(); i++) {
             auto type_a = pairs[i].first->getCollisionShape()->getType();
             auto type_b = pairs[i].second->getCollisionShape()->getType();
-            int algo_idx = type_a * 4 + type_b;
-            _algos[algo_idx] &&
-            _algos[algo_idx]->processCollision(pairs[i].first, pairs[i].second, *results[i]);
+            getAlgorithm(type_a, type_b)->processCollision(pairs[i].first, pairs[i].second, *results[i]);
         }
 #   endif
 
         // remove empty contact results
-        for (int i = 0; i < (int)results.size(); i++) {
+        for (int i = (int)results.size() - 1; i >= 0; i--) {
             if (results[i]->getPointSize() == 0) {
                 _cr_pool.destroy(results[i]);
                 results.erase(results.begin() + i);
-                i--;
             }
         }
     }

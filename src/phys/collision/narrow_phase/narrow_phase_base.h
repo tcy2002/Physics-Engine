@@ -21,6 +21,9 @@ namespace pe_phys_collision {
     class NarrowPhaseBase {
     protected:
         pe::Array<CollisionAlgorithm*> _algos;
+        CollisionAlgorithm* getAlgorithm(pe_phys_shape::ShapeType type_a, pe_phys_shape::ShapeType type_b) {
+            return _algos[(int)type_a * 5 + (int)type_b];
+        }
 
     public:
         NarrowPhaseBase() {
