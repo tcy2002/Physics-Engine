@@ -57,6 +57,12 @@
 
 ![urban.gif](./screenshots/urban.gif)
 
+### 待办/优化
+
+- broadphase: 加速查找（八叉树，hash grid等）
+- narrowphase: mesh三角面片的加速查找（bvh树等）
+- 约束：增加约束类型（hinge，slider等）
+
 ### 开发日志
 
 - 2.26-3.3
