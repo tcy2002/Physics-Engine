@@ -159,6 +159,10 @@
   
   - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
 
+  - 10.9 修复sphere-cylinder碰撞的bug
+
+  - 10.12 增加复合刚体
+
 ### 问题日志
 
 - 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
