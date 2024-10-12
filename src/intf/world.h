@@ -80,4 +80,4 @@ namespace pe_intf { // interface
         /*********************************************/
     };
 
-} // namespace pe_core
+} // namespace pe_intf

@@ -138,7 +138,7 @@ namespace pe_phys_vehicle {
         pe::Real maxDepth = PE_REAL_MIN;
         uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
         for (auto cr : m_world->_contact_results) {
-            if (cr->getObjectA()->getGlobalId() == rb_id) {
+            if (cr->getObjectA()->getGlobalId() == rb_id || cr->getObjectB()->getGlobalId() == rb_id) {
                 for (int i = 0; i < PE_MIN(1, cr->getPointSize()); i++) {
                     auto& cp = cr->getContactPoint(i);
                     pe::Real dist = -cp.getDistance();

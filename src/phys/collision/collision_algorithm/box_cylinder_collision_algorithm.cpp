@@ -42,7 +42,6 @@ namespace pe_phys_collision {
                                                             PE_REAL_MIN, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
-        result.sortContactPoints();
         return result.getPointSize() > 0;
     }
 

@@ -241,4 +241,4 @@ namespace pe_intf {
         constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.001);
     }
 
-} // namespace pe_core
+} // namespace pe_intf

@@ -49,4 +49,4 @@ namespace pe_intf { // interface
         static void removeCylinder(int id);
     };
 
-} // namespace pe_core
+} // namespace pe_intf

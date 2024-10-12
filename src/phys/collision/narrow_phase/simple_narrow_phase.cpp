@@ -20,7 +20,7 @@ namespace pe_phys_collision {
             results.resize(new_size);
         }
 
-#   ifdef PE_MULTI_THREAD1
+#   ifdef PE_MULTI_THREAD
         auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [&](const CollisionPair& pair, int idx) {
@@ -33,6 +33,7 @@ namespace pe_phys_collision {
                                        results[idx]->clearContactPoints();
                                        results[idx]->setObjects(pairs[idx].first, pairs[idx].second);
                                        getAlgorithm(type_a, type_b)->processCollision(shape_a, shape_b, trans_a, trans_b, *results[idx]);
+                                       results[idx]->sortContactPoints();
                                    });
         utils::ThreadPool::join();
 #   else
