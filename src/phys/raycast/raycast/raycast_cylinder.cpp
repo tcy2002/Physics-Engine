@@ -4,12 +4,11 @@
 namespace pe_phys_raycast {
 
     bool RaycastCylinder::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
-                                         pe_phys_object::RigidBody* object,
+                                         pe_phys_shape::Shape* shape, pe::Transform trans,
                                          pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
-        auto& trans = object->getTransform();
-        auto shape = (pe_phys_shape::CylinderShape*)object->getCollisionShape();
-        pe::Real radius = shape->getRadius();
-        pe::Real height = shape->getHeight() / pe::Real(2.0);
+        auto shape_sph = (pe_phys_shape::CylinderShape*)shape;
+        pe::Real radius = shape_sph->getRadius();
+        pe::Real height = shape_sph->getHeight() / pe::Real(2.0);
         pe::Vector3 start_local = trans.inverseTransform(start);
         pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
 

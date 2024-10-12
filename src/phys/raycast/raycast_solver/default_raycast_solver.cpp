@@ -3,6 +3,7 @@
 #include "phys/raycast/raycast/raycast_sphere.h"
 #include "phys/raycast/raycast/raycast_cylinder.h"
 #include "phys/raycast/raycast/raycast_mesh.h"
+#include "phys/shape/compound_shape.h"
 
 namespace pe_phys_raycast {
 
@@ -26,18 +27,51 @@ namespace pe_phys_raycast {
             pe::Real distance;
             pe::Vector3 hit_point, hit_normal;
             bool ret;
-            switch (rb->getCollisionShape()->getType()) {
+            auto shape = rb->getCollisionShape();
+            auto trans = rb->getTransform();
+            auto type = shape->getType();
+            switch (type) {
                 case pe_phys_shape::ShapeType::Box:
-                    ret = r_box.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
+                    ret = r_box.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     break;
                 case pe_phys_shape::ShapeType::Sphere:
-                    ret = r_sphere.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
+                    ret = r_sphere.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     break;
                 case pe_phys_shape::ShapeType::Cylinder:
-                    ret = r_cylinder.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
+                    ret = r_cylinder.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     break;
                 case pe_phys_shape::ShapeType::ConvexMesh:
-                    ret = r_mesh.processRaycast(start, direction, rb, distance, hit_point, hit_normal);
+                case pe_phys_shape::ShapeType::Compound:
+                    // first, check if the ray hit the AABB of the mesh
+                    if (!RaycastBox::rayHitBox(start, direction, rb->getAABBMin(), rb->getAABBMax(),
+                                               distance, hit_point, hit_normal)) {
+                        return false;
+                    }
+                    if (type == pe_phys_shape::ShapeType::ConvexMesh) {
+                        ret = r_mesh.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
+                    } else {
+                        auto compound = (pe_phys_shape::CompoundShape*)shape;
+                        ret = false;
+                        for (auto& child: compound->getShapes()) {
+                            auto trans_chd = trans * child.local_transform;
+                            switch (child.shape->getType()) {
+                                case pe_phys_shape::ShapeType::Box:
+                                    ret |= r_box.processRaycast(start, direction, child.shape, trans_chd, distance, hit_point, hit_normal);
+                                    break;
+                                case pe_phys_shape::ShapeType::Sphere:
+                                    ret |= r_sphere.processRaycast(start, direction, child.shape, trans_chd, distance, hit_point, hit_normal);
+                                    break;
+                                case pe_phys_shape::ShapeType::Cylinder:
+                                    ret |= r_cylinder.processRaycast(start, direction, child.shape, trans_chd, distance, hit_point, hit_normal);
+                                    break;
+                                case pe_phys_shape::ShapeType::ConvexMesh:
+                                    ret |= r_mesh.processRaycast(start, direction, child.shape, trans_chd, distance, hit_point, hit_normal);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
                     break;
             }
 

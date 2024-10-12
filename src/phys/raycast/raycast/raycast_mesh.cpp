@@ -5,20 +5,13 @@
 namespace pe_phys_raycast {
 
     bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
-                                       pe_phys_object::RigidBody* object,
-                                       pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
-        // first, test the aabb box
-        if (!RaycastBox::rayHitBox(start, direction, object->getAABBMin(), object->getAABBMax(),
-                                   distance, hit_point, hit_normal)) {
-            return false;
-        }
-
-        auto& trans = object->getTransform();
+                                     pe_phys_shape::Shape* shape, pe::Transform trans,
+                                     pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         pe::Vector3 start_local = trans.inverseTransform(start);
         pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
         const pe::Mesh* mesh;
-        if (object->getCollisionShape()->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            mesh = &((pe_phys_shape::ConvexMeshShape*)object->getCollisionShape())->getMesh();
+        if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
+            mesh = &((pe_phys_shape::ConvexMeshShape*)shape)->getMesh();
         } else {
             return false;
         }

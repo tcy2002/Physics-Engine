@@ -4,10 +4,9 @@
 namespace pe_phys_raycast {
 
     bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
-                                    pe_phys_object::RigidBody* object,
+                                    pe_phys_shape::Shape* shape, pe::Transform trans,
                                     pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
-        auto& trans = object->getTransform();
-        auto& size = ((pe_phys_shape::BoxShape*)object->getCollisionShape())->getSize();
+        auto& size = ((pe_phys_shape::BoxShape*)shape)->getSize();
         pe::Vector3 start_local = trans.inverseTransform(start);
         pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
 
