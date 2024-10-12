@@ -35,10 +35,11 @@ public:
         _world.addRigidBody(rb4);
 
         // add some compound-shaped rigidbodies
-        auto rb5 = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 9, 0)), 1);
-        _world.addRigidBody(rb5);
-        auto rb6 = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 13, 0)), 1);
-        _world.addRigidBody(rb6);
+        for (int i = 0; i < 10; i++) {
+            auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                            pe::Vector3(0, 10 + i * 4, 0)), 1);
+            _world.addRigidBody(rb);
+        }
     }
 
 protected:
