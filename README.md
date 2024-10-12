@@ -31,6 +31,10 @@
 
 ![demo.gif](./screenshots/demo.gif)
 
+- 复合刚体
+
+![compound.gif](./screenshots/compound.gif)
+
 - 履带坦克
   
   - DefaultRaycastSolver：根据射线检测的深度设置impulse和suspension，表现为直接贴地
