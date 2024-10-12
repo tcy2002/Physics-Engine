@@ -1,4 +1,4 @@
-## 物理引擎（本科毕业设计）
+## 刚体物理引擎（rigidbody dynamics）
 
 - 参考bullet physics，kd engine
   
@@ -54,8 +54,6 @@
 - 坦克对战城镇场景
   
   - 建筑物实时毁伤，坦克发射的炮弹会摧毁建筑物
-  
-  - 作为毕业设计的集成案例，用来展示引擎功能
 
 ![urban.gif](./screenshots/urban.gif)
 
@@ -161,7 +159,7 @@
 
   - 10.9 修复sphere-cylinder碰撞的bug
 
-  - 10.12 增加复合刚体
+  - 10.12 增加复合刚体，修复contact vehicle的bug
 
 ### 问题日志
 
@@ -228,5 +226,3 @@
   
   - 相比KD-Engine，BombDemo的帧率明显偏低（KD-Engine 45帧左右，本引擎 24帧）
   - 将contact point max size调整为与KD-Engine相同，帧率提升到35帧左右
-
-- 
