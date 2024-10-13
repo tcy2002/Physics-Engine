@@ -14,6 +14,8 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
+        _world.setSleepLinVel2Threshold(0.04); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(0.02); // angular velocity threshold for sleep
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),

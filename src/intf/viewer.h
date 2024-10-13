@@ -2,6 +2,7 @@
 
 #include "phys/phys_general.h"
 #include "common/mesh.h"
+#include "phys/shape/shape.h"
 #include "opengl_viewer.h"
 
 namespace pe_intf { // interface
@@ -29,24 +30,13 @@ namespace pe_intf { // interface
         static int getMouseButtonState(int button);
 
         static int addCube(const pe::Vector3& size);
-        static void updateCubeTransform(int id, const pe::Transform& transform);
-        static void updateCubeColor(int id, const pe::Vector3& color);
-        static void removeCube(int id);
-
         static int addMesh(const pe::Mesh& mesh);
-        static void updateMeshTransform(int id, const pe::Transform& transform);
-        static void updateMeshColor(int id, const pe::Vector3& color);
-        static void removeMesh(int id);
-
         static int addSphere(pe::Real radius);
-        static void updateSphereTransform(int id, const pe::Transform& transform);
-        static void updateSphereColor(int id, const pe::Vector3& color);
-        static void removeSphere(int id);
-
         static int addCylinder(pe::Real radius, pe::Real height);
-        static void updateCylinderTransform(int id, const pe::Transform& transform);
-        static void updateCylinderColor(int id, const pe::Vector3& color);
-        static void removeCylinder(int id);
+
+        static void updateTransform(int id, pe_phys_shape::ShapeType type, const pe::Transform& transform);
+        static void updateColor(int id, pe_phys_shape::ShapeType type, const pe::Vector3& color);
+        static void remove(int id);
     };
 
 } // namespace pe_intf

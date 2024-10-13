@@ -72,39 +72,22 @@ namespace pe_intf {
         return simple_viewer::getMouseState(button);
     }
 
+    static simple_viewer::ObjType mapShapeType(pe_phys_shape::ShapeType type) {
+        switch (type) {
+            case pe_phys_shape::ShapeType::Box: return simple_viewer::ObjType::OBJ_CUBE;
+            case pe_phys_shape::ShapeType::Sphere: return simple_viewer::ObjType::OBJ_SPHERE;
+            case pe_phys_shape::ShapeType::Cylinder: return simple_viewer::ObjType::OBJ_CYLINDER;
+            case pe_phys_shape::ShapeType::ConvexMesh: return simple_viewer::ObjType::OBJ_MESH;
+            default: return simple_viewer::ObjType::OBJ_NONE;
+        }
+    }
+
     int Viewer::addCube(const pe::Vector3& size) {
         int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CUBE, true,
                 (float)size.x, (float)size.y, (float)size.z));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CUBE;
         return id;
-    }
-
-    void Viewer::updateCubeTransform(int id, const pe::Transform& transform) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CUBE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
-                    id, simple_viewer::ObjType::OBJ_CUBE,
-                    convertTransform(transform)));
-        }
-    }
-
-    void Viewer::updateCubeColor(int id, const pe::Vector3& color) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CUBE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
-                    id, simple_viewer::ObjType::OBJ_CUBE,
-                    convertVector3(color)));
-        }
-    }
-
-    void Viewer::removeCube(int id) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CUBE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_DEL,
-                    id, simple_viewer::ObjType::OBJ_CUBE));
-            _obj_map.erase(id);
-        }
     }
 
     int Viewer::addMesh(const pe::Mesh& mesh) {
@@ -115,66 +98,12 @@ namespace pe_intf {
         return id;
     }
 
-    void Viewer::updateMeshTransform(int id, const pe::Transform& transform) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
-                    id, simple_viewer::ObjType::OBJ_MESH,
-                    convertTransform(transform)));
-        }
-    }
-
-    void Viewer::updateMeshColor(int id, const pe::Vector3& color) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
-                    id, simple_viewer::ObjType::OBJ_MESH,
-                    convertVector3(color)));
-        }
-    }
-
-    void Viewer::removeMesh(int id) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_MESH) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_DEL,
-                    id, simple_viewer::ObjType::OBJ_MESH));
-            _obj_map.erase(id);
-        }
-    }
-
     int Viewer::addSphere(pe::Real radius) {
         int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_SPHERE, true,
                 (float)radius));
         _obj_map[id] = simple_viewer::ObjType::OBJ_SPHERE;
         return id;
-    }
-
-    void Viewer::updateSphereTransform(int id, const pe::Transform& transform) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
-                    id, simple_viewer::ObjType::OBJ_SPHERE,
-                    convertTransform(transform)));
-        }
-    }
-
-    void Viewer::updateSphereColor(int id, const pe::Vector3& color) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
-                    id, simple_viewer::ObjType::OBJ_SPHERE,
-                    convertVector3(color)));
-        }
-    }
-
-    void Viewer::removeSphere(int id) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_SPHERE) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_DEL,
-                    id, simple_viewer::ObjType::OBJ_SPHERE));
-            _obj_map.erase(id);
-        }
     }
 
     int Viewer::addCylinder(pe::Real radius, pe::Real height) {
@@ -185,31 +114,30 @@ namespace pe_intf {
         return id;
     }
 
-    void Viewer::updateCylinderTransform(int id, const pe::Transform& transform) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
+    void Viewer::updateTransform(int id, pe_phys_shape::ShapeType type, const pe::Transform &transform) {
+        if (_obj_map[id] == mapShapeType(type)) {
             simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
-                    id, simple_viewer::ObjType::OBJ_CYLINDER,
+                    id, mapShapeType(type),
                     convertTransform(transform)));
         }
     }
 
-    void Viewer::updateCylinderColor(int id, const pe::Vector3& color) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
+    void Viewer::updateColor(int id, pe_phys_shape::ShapeType type, const pe::Vector3 &color) {
+        if (_obj_map[id] == mapShapeType(type)) {
             simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
-                    id, simple_viewer::ObjType::OBJ_CYLINDER,
+                    id, mapShapeType(type),
                     convertVector3(color)));
         }
     }
 
-    void Viewer::removeCylinder(int id) {
-        if (_obj_map[id] == simple_viewer::ObjType::OBJ_CYLINDER) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
-                    simple_viewer::ObjUpdateType::OBJ_DEL,
-                    id, simple_viewer::ObjType::OBJ_CYLINDER));
-            _obj_map.erase(id);
-        }
+    void Viewer::remove(int id) {
+        if (_obj_map.find(id) == _obj_map.end()) return;
+        simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+                simple_viewer::ObjUpdateType::OBJ_DEL,
+                id, _obj_map[id]));
+        _obj_map.erase(id);
     }
 
 } // namespace pe_intf
