@@ -57,6 +57,7 @@ namespace pe_intf {
                                            if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
                                                rb->getAngularVelocity().norm2() >= c->_sleep_ang_vel2_threshold) {
                                                rb->setSleep(false);
+                                               rb->resetSleepTime();
                                            }
                                        } else {
                                            if (!rb->step(c->_dt)) {
@@ -233,7 +234,8 @@ namespace pe_intf {
 
         // constraints
         start = COMMON_GetTickCount();
-        _constraint_solver->setupSolver(_collision_objects,
+        _constraint_solver->setupSolver(_dt,
+                                        _collision_objects,
                                         _contact_results,
                                         _constraints);
         _constraint_solver->solve();

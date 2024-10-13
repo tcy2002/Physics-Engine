@@ -17,7 +17,8 @@ namespace pe_phys_constraint {
         SequentialImpulseConstraintSolver();
         virtual ~SequentialImpulseConstraintSolver() {};
 
-        void setupSolver(const pe::Array<pe_phys_object::RigidBody*>& objects,
+        void setupSolver(pe::Real dt,
+                         const pe::Array<pe_phys_object::RigidBody*>& objects,
                          const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
                          const pe::Array<Constraint*>& constraints) override;
         void solve() override;

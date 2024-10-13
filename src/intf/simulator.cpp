@@ -39,7 +39,7 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
         COMMON_Sleep(target_dt - actual_dt);
 
         // to use the actual dt
-        _world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
+        //_world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
     }
 
     auto end = COMMON_GetTickCount();
@@ -103,11 +103,18 @@ bool Simulator<UV>::renderStep() {
         }
         auto type = rb.first->getCollisionShape()->getType();
         if (type != pe_phys_shape::ShapeType::Compound) {
-            pe_intf::Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
+            updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+            if (!rb.first->isSleep()) {
+                pe_intf::Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
+            }
         } else {
             int i = 0;
             for (auto& s : ((pe_phys_shape::CompoundShape*)rb.first->getCollisionShape())->getShapes()) {
-                pe_intf::Viewer::updateTransform(rb.second[i++], s.shape->getType(), rb.first->getTransform() * s.local_transform);
+                updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                if (!rb.first->isSleep()) {
+                    pe_intf::Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
+                }
+                i++;
             }
         }
     }

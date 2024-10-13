@@ -64,11 +64,7 @@ namespace pe_phys_constraint {
 
                 pe::Real penetration = cp.getDistance();
                 penetration = PE_MAX(penetration, -param.penetrationThreshold);
-                if (param.splitPenetrationConstraintFlag) {
-                    ci.n_rhs = rev_vel_r * ci.n_denom_inv;
-                } else {
-                    ci.n_rhs = (rev_vel_r - param.kerp * penetration / param.dt) * ci.n_denom_inv;
-                }
+                ci.n_rhs = (rev_vel_r - param.kerp * penetration / param.dt) * ci.n_denom_inv;
             }
 
             ci.n_applied_impulse = 0;

@@ -8,6 +8,7 @@ namespace pe_phys_constraint {
     }
 
     void SequentialImpulseConstraintSolver::setupSolver(
+            pe::Real dt,
             const pe::Array<pe_phys_object::RigidBody*>& objects,
             const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
             const pe::Array<Constraint*>& constraints) {
@@ -34,6 +35,7 @@ namespace pe_phys_constraint {
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
 #   ifdef PE_MULTI_THREAD
         auto c = this;
+        c->_param.dt = dt;
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
                                    [&c](pe_phys_collision::ContactResult* cr, int idx){
                                        auto fcc = (FrictionContactConstraint*)(c->_constraints[idx]);
