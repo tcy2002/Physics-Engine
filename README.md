@@ -43,7 +43,7 @@
 
   - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
     - sequential impulse不并行化的情况下，能达到kd-engine使用taskflow的帧率水平（40+）
-    - sequential impulse并行化的情况下，帧率提升明显，bomb demo能跑满60帧，约束求解不再是单一的瓶颈
+    - sequential impulse并行化的情况下，帧率提升明显，bomb demo能跑满60帧，约束求解不再是单一的瓶颈。但是sequential impulse并行化会破坏计算稳定性，目前还没有解决方案（算法本身限制？）
 
 ### 效果
 
