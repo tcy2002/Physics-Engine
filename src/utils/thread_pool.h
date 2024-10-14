@@ -24,6 +24,9 @@ namespace utils {
         template <typename Iterator, typename Function>
         static void forEach(Iterator first, Iterator last, Function&& fn);
 
+        template <typename Function>
+        static void forLoop(uint32_t count, Function&& fn);
+
     public:
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
@@ -48,9 +51,9 @@ namespace utils {
         auto& inst = getInstance();
         if (inst._size == -1) return;
         std::unique_lock<std::mutex> lock(inst._mtx);
-        inst._tasks.emplace([&]{ fn(std::forward<Args>(args)...); });
+        inst._tasks.emplace([fn, &args...]{ fn(std::forward<Args>(args)...); });
         inst._task_count++;
-        inst._cv.notify_one();
+        inst._cv.notify_all();
     }
 
     template <typename Iterator, typename Function>
@@ -62,9 +65,22 @@ namespace utils {
         std::unique_lock<std::mutex> lock(inst._mtx);
         auto p = first;
         while (p != last) {
-            inst._tasks.emplace([&fn, p, first]{ fn(*p, (int)(p - first)); });
+            inst._tasks.emplace([fn, p, first]{ fn(*p, (int)(p - first)); }); // tricky: cannot use &fn
             inst._task_count++;
             p++;
+        }
+        inst._cv.notify_all();
+    }
+
+    template <typename Function>
+    void ThreadPool::forLoop(uint32_t count, Function&& fn) {
+        if (count == 0) return;
+        auto& inst = getInstance();
+        if (inst._size == -1) return;
+        std::unique_lock<std::mutex> lock(inst._mtx);
+        for (uint32_t i = 0; i < count; i++) {
+            inst._tasks.emplace([fn, i]{ fn(i); });
+            inst._task_count++;
         }
         inst._cv.notify_all();
     }

@@ -4,7 +4,7 @@
 
 using namespace utils;
 
-#define K 1000000000.0
+#define K 100000000.0
 
 void test(int i, int idx) {
     double n = idx;
@@ -20,14 +20,13 @@ void test(int i, int idx) {
 void testThreadPool() {
     utils::ThreadPool::init();
 
-    utils::ThreadPool::addTask([]{ std::cout << "Hello, world!" << std::endl; });
+    int a = 1;
+    utils::ThreadPool::addTask([](int& b){ std::cout << "Hello, world!" << std::endl; b = 2; }, a);
     utils::ThreadPool::join();
+    std::cout << a << std::endl;
     std::vector<int> v(100);
     utils::ThreadPool::forEach(v.begin(), v.end(), test);
     utils::ThreadPool::join();
-    std::cout << "end" << std::endl;
-
-    utils::ThreadPool::deinit();
 }
 
 int main() {

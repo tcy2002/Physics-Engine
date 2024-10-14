@@ -55,17 +55,13 @@ namespace pe_phys_constraint {
 
     void SequentialImpulseConstraintSolver::solve() {
         // solve contact constraints: the execution order is significant, so we use single-thread
-        static unsigned long start;
-        start = COMMON_GetTickCount();
         for (int i = 0; i < _iteration; i++) {
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
         }
-        //printf("%lld ms\n", COMMON_GetTickCount() - start);
 
         // sync velocity
-        start = COMMON_GetTickCount();
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
                                    [](pe_phys_object::RigidBody* rb, int idx){
@@ -77,7 +73,6 @@ namespace pe_phys_constraint {
             rb->syncTempVelocity();
         }
 #   endif
-//        printf("%lld ms\n", COMMON_GetTickCount() - start);
 
         // after solving
 #   ifdef PE_MULTI_THREAD
