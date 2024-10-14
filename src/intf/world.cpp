@@ -18,14 +18,11 @@ namespace pe_intf {
         _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::init(std::thread::hardware_concurrency() * 2);
+        utils::ThreadPool::init();
 #   endif
     }
 
     World::~World() {
-#   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::deinit();
-#   endif
         delete _broad_phase;
         delete _narrow_phase;
         delete _constraint_solver;
@@ -47,44 +44,6 @@ namespace pe_intf {
     }
 
     void World::updateObjectStatus() {
-#   ifdef PE_MULTI_THREAD
-        auto c = this;
-        pe::Array<int> idx_to_remove;
-        utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [&c, &idx_to_remove](pe_phys_object::RigidBody* rb, int idx){
-                                       if (rb->isKinematic()) return;
-                                       if (rb->isSleep()) {
-                                           if (rb->getLinearVelocity().norm2() >= c->_sleep_lin_vel2_threshold ||
-                                               rb->getAngularVelocity().norm2() >= c->_sleep_ang_vel2_threshold) {
-                                               rb->setSleep(false);
-                                               rb->resetSleepTime();
-                                           }
-                                       } else {
-                                           if (!rb->step(c->_dt)) {
-                                               c->_rigidbodies_to_remove.push_back(rb);
-                                               idx_to_remove.push_back(idx);
-                                               return;
-                                           }
-                                           rb->applyDamping(c->_dt);
-                                           if (rb->getLinearVelocity().norm2() < c->_sleep_lin_vel2_threshold &&
-                                               rb->getAngularVelocity().norm2() < c->_sleep_ang_vel2_threshold) {
-                                               rb->updateSleepTime(c->_dt);
-                                               if (rb->getSleepTime() >= c->_sleep_time_threshold) {
-                                                   rb->setSleep(true);
-                                                   rb->setLinearVelocity(pe::Vector3::zeros());
-                                                   rb->setAngularVelocity(pe::Vector3::zeros());
-                                               }
-                                           } else {
-                                               rb->resetSleepTime();
-                                           }
-                                       }
-                                   });
-        utils::ThreadPool::join();
-
-        for (int i = (int)idx_to_remove.size() - 1; i >= 0; i--) {
-            _collision_objects.erase(_collision_objects.begin() + idx_to_remove[i]);
-        }
-#   else
         for (int i = 0; i < (int)_collision_objects.size(); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
@@ -92,6 +51,7 @@ namespace pe_intf {
                 if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold ||
                     rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold) {
                     rb->setSleep(false);
+                    rb->resetSleepTime();
                 }
             } else {
                 if (!rb->step(_dt)) {
@@ -113,26 +73,14 @@ namespace pe_intf {
                 }
             }
         }
-#   endif
     }
 
     void World::applyExternalForce() {
-#   ifdef PE_MULTI_THREAD
-        auto c = this;
-        utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [&c](pe_phys_object::RigidBody* rb, int idx){
-                                       if (rb->isKinematic()) return;
-                                       rb->addCentralForce(c->_gravity * rb->getMass());
-                                       rb->applyForce(c->_dt);
-                                   });
-        utils::ThreadPool::join();
-#   else
         for (auto& rb : _collision_objects) {
             if (rb->isKinematic()) continue;
             rb->addCentralForce(_gravity * rb->getMass());
             rb->applyForce(_dt);
         }
-#   endif
     }
 
     void World::execCollisionCallbacks() {

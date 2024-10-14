@@ -33,49 +33,64 @@ namespace pe_phys_constraint {
         }
 
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
+        _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        auto c = this;
-        c->_param.dt = dt;
         utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
-                                   [&c](pe_phys_collision::ContactResult* cr, int idx){
-                                       auto fcc = (FrictionContactConstraint*)(c->_constraints[idx]);
+                                   [&](pe_phys_collision::ContactResult* cr, int idx){
+                                       auto fcc = (FrictionContactConstraint*)(_constraints[idx]);
                                        fcc->setContactResult(*cr);
-                                       fcc->initSequentialImpulse(c->_param);
+                                       fcc->initSequentialImpulse(_param);
                                        fcc->warmStart();
                                    });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < contact_results.size(); i++) {
-            auto fcc = new FrictionContactConstraint();
+            auto fcc = (FrictionContactConstraint*)(_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
-            _constraints[i] = fcc;
         }
 #   endif
     }
 
     void SequentialImpulseConstraintSolver::solve() {
         // solve contact constraints: the execution order is significant, so we use single-thread
+        static unsigned long start;
+        start = COMMON_GetTickCount();
         for (int i = 0; i < _iteration; i++) {
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
         }
+        //printf("%lld ms\n", COMMON_GetTickCount() - start);
 
         // sync velocity
+        start = COMMON_GetTickCount();
+#   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
                                    [](pe_phys_object::RigidBody* rb, int idx){
                                        rb->syncTempVelocity();
                                    });
         utils::ThreadPool::join();
+#   else
+        for (auto rb : _collision_objects) {
+            rb->syncTempVelocity();
+        }
+#   endif
+//        printf("%lld ms\n", COMMON_GetTickCount() - start);
 
         // after solving
+#   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
                                    [](Constraint* constraint, int idx){
                                        constraint->afterSequentialImpulse();
                                    });
         utils::ThreadPool::join();
+#   else
+        for (auto constraint : _constraints) {
+            constraint->afterSequentialImpulse();
+        }
+#   endif
     }
 
 } // namespace pe_phys_constraint

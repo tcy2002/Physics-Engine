@@ -27,22 +27,22 @@ namespace pe_phys_object {
     }
 
     pe::Vector3 RigidBody::getTempLinearVelocity() {
-        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
+//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         return _temp_linear_velocity;
     }
 
     pe::Vector3 RigidBody::getTempAngularVelocity() {
-        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
+//        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
         return _temp_angular_velocity;
     }
 
     void RigidBody::setTempLinearVelocity(const pe::Vector3 &v) {
-        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
+//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         _temp_linear_velocity = v;
     }
 
     void RigidBody::setTempAngularVelocity(const pe::Vector3 &v) {
-        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
+//        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
         _temp_angular_velocity = v;
     }
 

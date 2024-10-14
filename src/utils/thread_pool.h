@@ -16,7 +16,6 @@ namespace utils {
     class ThreadPool {
     public:
         static void init(uint32_t pool_size = 0);
-        static void deinit();
         static void join();
 
         template<typename Function, typename... Args>
@@ -31,17 +30,15 @@ namespace utils {
 
     private:
         ThreadPool() {}
-        ~ThreadPool() { deinit(); }
+        ~ThreadPool() { join(); }
 
         uint32_t _size = 0;
         std::vector<std::thread*> _pool;
         using Task = std::function<void()>;
         std::queue<Task> _tasks;
-        int _task_num;
+        int _task_count = 0;
         std::mutex _mtx;
         std::condition_variable _cv;
-        std::condition_variable _cv_join;
-        std::atomic<bool> _stop;
 
         static ThreadPool& getInstance();
     };
@@ -52,12 +49,13 @@ namespace utils {
         if (inst._size == -1) return;
         std::unique_lock<std::mutex> lock(inst._mtx);
         inst._tasks.emplace([&]{ fn(std::forward<Args>(args)...); });
-        inst._task_num++;
+        inst._task_count++;
         inst._cv.notify_one();
     }
 
     template <typename Iterator, typename Function>
     void ThreadPool::forEach(Iterator first, Iterator last, Function&& fn) {
+        std::vector<int> a(0);
         if (first == last) return;
         auto& inst = getInstance();
         if (inst._size == -1) return;
@@ -65,8 +63,8 @@ namespace utils {
         auto p = first;
         while (p != last) {
             inst._tasks.emplace([&fn, p, first]{ fn(*p, (int)(p - first)); });
-            inst._task_num++;
-            ++p;
+            inst._task_count++;
+            p++;
         }
         inst._cv.notify_all();
     }

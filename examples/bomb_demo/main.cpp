@@ -14,7 +14,7 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
-        _world.setSleepLinVel2Threshold(0.02); // linear velocity threshold for sleep
+        _world.setSleepLinVel2Threshold(0.01); // linear velocity threshold for sleep
         _world.setSleepAngVel2Threshold(0.01); // angular velocity threshold for sleep
         _world.setSleepTimeThreshold(1.0);     // sleep time threshold
 

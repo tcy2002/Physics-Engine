@@ -21,7 +21,6 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        auto c = this;
         utils::ThreadPool::forEach(pairs.begin(), pairs.end(),
                                    [&](const CollisionPair& pair, int idx) {
                                        auto shape_a = pair.first->getCollisionShape();
@@ -30,10 +29,12 @@ namespace pe_phys_collision {
                                        auto trans_b = pair.second->getTransform();
                                        auto type_a = shape_a->getType();
                                        auto type_b = shape_b->getType();
-                                       results[idx]->clearContactPoints();
-                                       results[idx]->setObjects(pairs[idx].first, pairs[idx].second);
-                                       getAlgorithm(type_a, type_b)->processCollision(shape_a, shape_b, trans_a, trans_b, *results[idx]);
-                                       results[idx]->sortContactPoints();
+                                       auto result = results[idx];
+                                       auto algo = getAlgorithm(type_a, type_b);
+                                       result->clearContactPoints();
+                                       result->setObjects(pair.first, pair.second);
+                                       algo->processCollision(shape_a, shape_b, trans_a, trans_b, *result);
+                                       result->sortContactPoints();
                                    });
         utils::ThreadPool::join();
 #   else
@@ -44,10 +45,12 @@ namespace pe_phys_collision {
             auto trans_b = pairs[i].second->getTransform();
             auto type_a = shape_a->getType();
             auto type_b = shape_b->getType();
-            results[i]->clearContactPoints();
-            results[i]->setObjects(pairs[i].first, pairs[i].second);
-            getAlgorithm(type_a, type_b)->processCollision(shape_a, shape_b, trans_a, trans_b, *results[i]);
-            results[i]->sortContactPoints();
+            auto result = results[i];
+            auto algo = getAlgorithm(type_a, type_b);
+            result->clearContactPoints();
+            result->setObjects(pairs[i].first, pairs[i].second);
+            algo->processCollision(shape_a, shape_b, trans_a, trans_b, *result);
+            result->sortContactPoints();
         }
 #   endif
 

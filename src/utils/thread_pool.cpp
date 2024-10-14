@@ -9,20 +9,15 @@ namespace utils {
 
     void ThreadPool::init(uint32_t pool_size) {
         auto& inst = getInstance();
-        inst._stop.store(false);
-        inst._task_num = 0;
         inst._size = pool_size > 0 ? pool_size : std::thread::hardware_concurrency();
+        inst._task_count = 0;
 
         for (uint32_t i = 0; i < inst._size; i++) {
             inst._pool.push_back(new std::thread([]{
                 auto& inst = getInstance();
                 while(true) {
                     std::unique_lock<std::mutex> lock(inst._mtx);
-                    if (inst._tasks.empty()) {
-                        if (inst._stop.load()) return;
-                        inst._cv.wait(lock, [&]{ return inst._stop || !inst._tasks.empty(); });
-                        if (inst._stop.load()) return;
-                    }
+                    inst._cv.wait(lock, [&]{ return !inst._tasks.empty(); });
                     Task task(std::move(inst._tasks.front()));
                     inst._tasks.pop();
                     lock.unlock();
@@ -30,33 +25,18 @@ namespace utils {
                     task();
 
                     lock.lock();
-                    inst._task_num--;
-                    inst._cv_join.notify_one();
+                    inst._task_count--;
+                    inst._cv.notify_all();
                 }
             }));
         }
-    }
-
-    void ThreadPool::deinit() {
-        auto& inst = getInstance();
-        if (inst._size == 0) return; // not initialized
-        join();
-        inst._stop.store(true);
-        inst._cv.notify_all();
-        for (auto th : inst._pool) {
-            if (th->joinable())
-                th->join();
-            delete th;
-        }
-        inst._pool.clear();
     }
 
     void ThreadPool::join() {
         auto& inst = getInstance();
         if (inst._size == 0) return; // not initialized
         std::unique_lock<std::mutex> lock(inst._mtx);
-        if (inst._task_num == 0) return;
-        inst._cv_join.wait(lock, [&]{ return inst._task_num == 0; });
+        inst._cv.wait(lock, [&]{ return inst._task_count == 0; });
     }
 
 } // namespace common
