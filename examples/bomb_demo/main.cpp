@@ -34,9 +34,14 @@ public:
         createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
         // add tower2
-        createTower(pe::Vector3(0, 0, -70), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -70), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -70), 8, 26, 16);
+        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
+        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
+
+//        // add tower3 // reach the bottleneck of performance
+//        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+//        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+//        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
