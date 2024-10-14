@@ -167,6 +167,9 @@
 
   - 10.12 增加复合刚体，修复contact vehicle的bug
 
+  - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
+    - 目前能达到kd-engine使用taskflow的帧率水平
+
 ### 问题日志
 
 - 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
