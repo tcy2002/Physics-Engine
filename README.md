@@ -27,23 +27,23 @@
   
   - PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
 
-  - 后续开发
+- 后续开发
 
-    - 破碎优化、集成
+  - 破碎优化、集成
 
-    - 场景设计和搭建
+  - 场景设计和搭建
 
-    - 4.13 支持linux下编译运行
+  - 4.13 支持linux下编译运行
 
-    - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
+  - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
 
-    - 10.9 修复sphere-cylinder碰撞的bug
+  - 10.9 修复sphere-cylinder碰撞的bug
 
-    - 10.12 增加复合刚体，修复contact vehicle的bug
+  - 10.12 增加复合刚体，修复contact vehicle的bug
 
-    - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
-      - sequential impulse不并行化的情况下，能达到kd-engine使用taskflow的帧率水平（40+）
-      - sequential impulse并行化的情况下，帧率提升明显，bomb demo能跑满60帧，约束求解不再是单一的瓶颈
+  - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
+    - sequential impulse不并行化的情况下，能达到kd-engine使用taskflow的帧率水平（40+）
+    - sequential impulse并行化的情况下，帧率提升明显，bomb demo能跑满60帧，约束求解不再是单一的瓶颈
 
 ### 效果
 
