@@ -26,12 +26,12 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add tower1
-        createTower(pe::Vector3(0, 0, -50), 4, 12, 8);
-        createTower(pe::Vector3(0, 0, -50), 6, 12, 12);
-        createTower(pe::Vector3(0, 0, -50), 8, 11, 16);
-        createTower(pe::Vector3(0, 0, -50), 10, 10, 20);
-        createTower(pe::Vector3(0, 0, -50), 12, 9, 24);
-        createTower(pe::Vector3(0, 0, -50), 14, 8, 28);
+//        createTower(pe::Vector3(0, 0, -50), 4, 12, 8);
+//        createTower(pe::Vector3(0, 0, -50), 6, 12, 12);
+//        createTower(pe::Vector3(0, 0, -50), 8, 11, 16);
+//        createTower(pe::Vector3(0, 0, -50), 10, 10, 20);
+//        createTower(pe::Vector3(0, 0, -50), 12, 9, 24);
+//        createTower(pe::Vector3(0, 0, -50), 14, 8, 28);
 
         // add tower2
         createTower(pe::Vector3(0, 0, -100), 4, 28, 8);

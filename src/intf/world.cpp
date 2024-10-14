@@ -17,7 +17,7 @@ namespace pe_intf {
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
         _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
-#   ifdef PE_MULTI_THREAD
+#   ifdef PE_USE_DOUBLE
         utils::ThreadPool::init();
 #   endif
     }
@@ -31,10 +31,9 @@ namespace pe_intf {
 
     void World::updateAABBs() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [](pe_phys_object::RigidBody* rb, int idx) {
-                                       rb->computeAABB();
-                                   });
+        utils::ThreadPool::forBatchedLoop(_collision_objects.size(), 0,[&](int i) {
+            _collision_objects[i]->computeAABB();
+        });
         utils::ThreadPool::join();
 #   else
         for (auto& co : _collision_objects) {

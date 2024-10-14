@@ -35,13 +35,12 @@ namespace pe_phys_constraint {
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forEach(contact_results.begin(), contact_results.end(),
-                                   [&](pe_phys_collision::ContactResult* cr, int idx){
-                                       auto fcc = (FrictionContactConstraint*)(_constraints[idx]);
-                                       fcc->setContactResult(*cr);
-                                       fcc->initSequentialImpulse(_param);
-                                       fcc->warmStart();
-                                   });
+        utils::ThreadPool::forBatchedLoop(contact_results.size(), 0, [&](int i){
+            auto fcc = (FrictionContactConstraint*)(_constraints[i]);
+            fcc->setContactResult(*contact_results[i]);
+            fcc->initSequentialImpulse(_param);
+            fcc->warmStart();
+        });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < contact_results.size(); i++) {
@@ -63,10 +62,9 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forEach(_collision_objects.begin(), _collision_objects.end(),
-                                   [](pe_phys_object::RigidBody* rb, int idx){
-                                       rb->syncTempVelocity();
-                                   });
+        utils::ThreadPool::forBatchedLoop(_collision_objects.size(), 0,[&](int i){
+            _collision_objects[i]->syncTempVelocity();
+        });
         utils::ThreadPool::join();
 #   else
         for (auto rb : _collision_objects) {
@@ -76,10 +74,9 @@ namespace pe_phys_constraint {
 
         // after solving
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forEach(_constraints.begin(), _constraints.end(),
-                                   [](Constraint* constraint, int idx){
-                                       constraint->afterSequentialImpulse();
-                                   });
+        utils::ThreadPool::forBatchedLoop(_constraints.size(), 0,[&](int i){
+            _constraints[i]->afterSequentialImpulse();
+        });
         utils::ThreadPool::join();
 #   else
         for (auto constraint : _constraints) {

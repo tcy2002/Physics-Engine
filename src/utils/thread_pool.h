@@ -27,6 +27,9 @@ namespace utils {
         template <typename Function>
         static void forLoop(uint32_t count, Function&& fn);
 
+        template <typename Function>
+        static void forBatchedLoop(uint32_t count, uint32_t batchSize, Function&& fn);
+
     public:
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
@@ -80,6 +83,24 @@ namespace utils {
         std::unique_lock<std::mutex> lock(inst._mtx);
         for (uint32_t i = 0; i < count; i++) {
             inst._tasks.emplace([fn, i]{ fn(i); });
+            inst._task_count++;
+        }
+        inst._cv.notify_all();
+    }
+
+    template <typename Function>
+    void ThreadPool::forBatchedLoop(uint32_t count, uint32_t batchSize, Function&& fn) {
+        if (count == 0) return;
+        auto& inst = getInstance();
+        if (inst._size == -1) return;
+        if (batchSize == 0) batchSize = count / inst._size / 3 + 1;
+        std::unique_lock<std::mutex> lock(inst._mtx);
+        for (uint32_t i = 0; i < count; i += batchSize) {
+            inst._tasks.emplace([fn, i, count, batchSize]{
+                for (uint32_t j = i; j < i + batchSize && j < count; j++) {
+                    fn(j);
+                }
+            });
             inst._task_count++;
         }
         inst._cv.notify_all();
