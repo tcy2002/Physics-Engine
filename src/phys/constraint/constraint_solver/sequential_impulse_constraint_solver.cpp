@@ -55,9 +55,15 @@ namespace pe_phys_constraint {
     void SequentialImpulseConstraintSolver::solve() {
         // solve contact constraints: the execution order is significant, so we use single-thread
         for (int i = 0; i < _iteration; i++) {
+#   ifdef PE_MULTI_THREAD
+            utils::ThreadPool::forBatchedLoop(_constraints.size(), 0,[&](int i){
+                _constraints[i]->iterateSequentialImpulse(i);
+            });
+#   else
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
+#   endif
         }
 
         // sync velocity

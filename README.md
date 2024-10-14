@@ -27,6 +27,24 @@
   
   - PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
 
+  - 后续开发
+
+    - 破碎优化、集成
+
+    - 场景设计和搭建
+
+    - 4.13 支持linux下编译运行
+
+    - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
+
+    - 10.9 修复sphere-cylinder碰撞的bug
+
+    - 10.12 增加复合刚体，修复contact vehicle的bug
+
+    - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
+      - sequential impulse不并行化的情况下，能达到kd-engine使用taskflow的帧率水平（40+）
+      - sequential impulse并行化的情况下，帧率提升明显，bomb demo能跑满60帧，约束求解不再是单一的瓶颈
+
 ### 效果
 
 ![demo.gif](./screenshots/demo.gif)
@@ -152,23 +170,6 @@
     
     - 仿真器类，用于管理整个物理引擎，负责后台管理物理引擎和前台渲染，用户只需要重写init和step函数即可
     - 已完成
-
-- 后续：4月长沙项目进入攻坚阶段，毕设暂缓
-  
-  - 破碎优化、集成
-  
-  - 场景设计和搭建
-  
-  - 4.13 支持linux下编译运行
-  
-  - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
-
-  - 10.9 修复sphere-cylinder碰撞的bug
-
-  - 10.12 增加复合刚体，修复contact vehicle的bug
-
-  - 10.14 使用batched-loop多线程，否则由于单个task开销较小，大部分情况下并没有提升效率
-    - 目前能达到kd-engine使用taskflow的帧率水平
 
 ### 问题日志
 
