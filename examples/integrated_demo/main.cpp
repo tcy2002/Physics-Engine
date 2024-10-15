@@ -450,4 +450,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(TankSimulator, 0.016, 10000000)
+PE_SIM_MAIN(TankSimulator, 60)

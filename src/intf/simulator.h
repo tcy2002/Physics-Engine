@@ -2,6 +2,7 @@
 
 #include "world.h"
 #include "viewer.h"
+#include "utils/logger.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/sphere_shape.h"
 #include "phys/shape/cylinder_shape.h"
@@ -28,7 +29,7 @@ namespace pe_intf { // interface
         // Called every frame to update the physics world
         virtual void step() {}
 
-        void start(pe::Real dt = pe::Real(0.01), int max_frame = 1024);
+        void start(int target_frame_rate = 60);
 
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;
@@ -44,9 +45,9 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
-#define PE_SIM_MAIN(Simulator, Dt, MaxFrame) \
+#define PE_SIM_MAIN(Simulator, TargetFrameRate) \
 int main() { \
     Simulator sim; \
-    sim.start(Dt, MaxFrame); \
+    sim.start(TargetFrameRate); \
     return 0; \
 }

@@ -46,5 +46,6 @@ extern const char* PE_LOG_COLOR_RESET;
 #define PE_LOG_WARN PE_LOG_(PE_LogType::Warn) << " WARN: "
 #define PE_LOG_ERROR PE_LOG_(PE_LogType::Error) << " ERROR: "
 #define PE_LOG_FATAL PE_LOG_(PE_LogType::Fatal) << " FATAL: "
+#define PE_ENDL std::endl
 
 enum PE_LogType { Debug = 0, Info, Warn, Error, Fatal };

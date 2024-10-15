@@ -15,30 +15,30 @@ public:
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
         _world.setSleepLinVel2Threshold(0.01); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(0.01); // angular velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(0.02); // angular velocity threshold for sleep
         _world.setSleepTimeThreshold(1.0);     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                    pe::Vector3(0, -0.5, 0)),
-                                      pe::Vector3(250, 1, 250), 10000);
+                                                    pe::Vector3(0, -5, 0)),
+                                      pe::Vector3(250, 10, 250), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add tower1
-        createTower(pe::Vector3(0, 0, -20), 4, 12, 8);
-        createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
-        createTower(pe::Vector3(0, 0, -20), 8, 11, 16);
-        createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
-        createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
-        createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
+//        createTower(pe::Vector3(0, 0, -20), 4, 12, 8);
+//        createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
+//        createTower(pe::Vector3(0, 0, -20), 8, 11, 16);
+//        createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
+//        createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
+//        createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
         // add tower2
-        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
+        createTower(pe::Vector3(0, 0, -60), 4, 10, 8);
+//        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+//        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
-//        // add tower3 // reach the bottleneck of performance
+        // add tower3
 //        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
 //        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
 //        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
@@ -111,4 +111,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(BombSimulator, 0.016, 1000000)
+PE_SIM_MAIN(BombSimulator, 60)

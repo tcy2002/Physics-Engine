@@ -22,7 +22,6 @@ namespace pe_phys_collision {
 
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forBatchedLoop(pairs.size(), 0, [&](int i) {
-            if (i >= pairs.size()) return;
             auto shape_a = pairs[i].first->getCollisionShape();
             auto shape_b = pairs[i].second->getCollisionShape();
             auto trans_a = pairs[i].first->getTransform();
@@ -50,11 +49,28 @@ namespace pe_phys_collision {
         }
 #   endif
 
-        // remove empty contact results
+        // remove empty contact results and update dynamic/static count
         for (int i = (int)results.size() - 1; i >= 0; i--) {
             if (results[i]->getPointSize() == 0) {
                 _cr_pool.destroy(results[i]);
                 results.erase(results.begin() + i);
+            } else {
+                auto obj_a = results[i]->getObjectA();
+                auto obj_b = results[i]->getObjectB();
+                if (!obj_b->isKinematic()) {
+                    if (obj_a->isSleep() || obj_a->isKinematic()) {
+                        obj_b->incStaticCount();
+                    } else {
+                        obj_b->incDynamicCount();
+                    }
+                }
+                if (!obj_a->isKinematic()) {
+                    if (obj_b->isSleep() || obj_b->isKinematic()) {
+                        obj_a->incStaticCount();
+                    } else {
+                        obj_a->incDynamicCount();
+                    }
+                }
             }
         }
     }

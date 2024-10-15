@@ -34,20 +34,20 @@ namespace pe_phys_constraint {
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.n);
                 pe::Vector3 rxn_b = r_b.cross(ci.n);
-                ci.n_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.n_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                         (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             //// tangent denom
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t0);
                 pe::Vector3 rxn_b = r_b.cross(ci.t0);
-                ci.t0_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t0_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t1);
                 pe::Vector3 rxn_b = r_b.cross(ci.t1);
-                ci.t1_denom_inv = 1.0 / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t1_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
 
@@ -57,7 +57,7 @@ namespace pe_phys_constraint {
             //// normal rhs
             {
                 pe::Real rev_vel_r = -ci.n.dot(vel_a - vel_b);
-                if (std::abs(rev_vel_r) < param.restitutionVelocityThreshold) {
+                if (PE_ABS(rev_vel_r) < param.restitutionVelocityThreshold) {
                     rev_vel_r = 0;
                 }
                 rev_vel_r *= _contact_result->getRestitutionCoeff();
@@ -78,7 +78,7 @@ namespace pe_phys_constraint {
         for (int i = 0; i < (int)_cis.size(); i++) {
             auto& cp = _contact_result->getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
-            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * 0.9;
+            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * pe::Real(0.9);
 
             _object_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
             _object_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
@@ -102,6 +102,7 @@ namespace pe_phys_constraint {
             n_impulse = PE_MAX(n_impulse, -ci.n_applied_impulse);
             ci.n_applied_impulse += n_impulse;
 
+#       if true
             pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
             pe::Real max_friction = ci.friction_coeff * ci.n_applied_impulse;
             pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
@@ -109,6 +110,17 @@ namespace pe_phys_constraint {
             t1_total_impulse = PE_MIN(t1_total_impulse, max_friction);
             t0_total_impulse = PE_MAX(t0_total_impulse, -max_friction);
             t1_total_impulse = PE_MAX(t1_total_impulse, -max_friction);
+#       else
+            pe::Real t0_total_impulse = ci.t0_applied_impulse - t0.dot(vel_r) * ci.t0_denom_inv;
+            pe::Real t1_total_impulse = ci.t1_applied_impulse - t1.dot(vel_r) * ci.t1_denom_inv;
+            const pe::Real scale = ci.friction_coeff * ci.n_applied_impulse /
+                    PE_SQRT(PE_SQR(t0_total_impulse) + PE_SQR(t1_total_impulse));
+            if (scale < 1) {
+                t0_total_impulse *= scale;
+                t1_total_impulse *= scale;
+            }
+#       endif
+
 
             pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
                     (t1_total_impulse - ci.t1_applied_impulse) * t1;

@@ -27,17 +27,26 @@
 #define PE_REAL_MIN pe::Real(-1e30)
 #endif
 
-//// min max
+//// math
 #define PE_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define PE_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define PE_MAX3(a, b, c) PE_MAX(PE_MAX(a, b), c)
 #define PE_MIN3(a, b, c) PE_MIN(PE_MIN(a, b), c)
+#define PE_CLAMP(x, min, max) PE_MAX(PE_MIN(x, max), min)
+#define PE_SQR(x) ((x) * (x))
+#define PE_SQRT(x) std::sqrt(x)
+#define PE_ABS(x) std::abs(x)
+#define PE_SIGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
+#define PE_LERP(a, b, t) ((a) + (t) * ((b) - (a)))
+#define PE_DEG_TO_RAD(x) ((x) * PE_PI / 180)
+#define PE_RAD_TO_DEG(x) ((x) * 180 / PE_PI)
 
 //// geometry types
 #include <common/mesh.h>
 #include <common/vector3.h>
 #include <common/matrix3x3.h>
 #include <common/transform.h>
+#include <common/quaternion.h>
 namespace pe {
 #ifdef PE_USE_DOUBLE
     using Real = double;
@@ -48,6 +57,7 @@ namespace pe {
     using Vector3 = common::Vector3<Real>;
     using Matrix3 = common::Matrix3x3<Real>;
     using Transform = common::Transform<Real>;
+    using Quaternion = common::Quaternion<Real>;
 } // namespace pe
 
 //// vector3
@@ -64,6 +74,9 @@ namespace pe {
 namespace pe {
     template <typename T>
     using Array = std::vector<T>;
+
+    template <typename T>
+    using Queue = std::queue<T>;
 
     template <typename K, typename V>
     using Map = std::map<K, V>;

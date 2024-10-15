@@ -12,6 +12,7 @@ namespace pe_intf {
         _dt(0.01),
         _sleep_lin_vel2_threshold(0.00),
         _sleep_ang_vel2_threshold(0.00),
+        _sleep_pos_threshold(0.0),
         _sleep_time_threshold(0.0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
@@ -46,9 +47,10 @@ namespace pe_intf {
         for (int i = 0; i < (int)_collision_objects.size(); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
+            auto ratio = (rb->getStaticCount() + 1) / (pe::Real)(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
-                if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold ||
-                    rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold) {
+                if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
+                    rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
                     rb->setSleep(false);
                     rb->resetSleepTime();
                 }
@@ -59,8 +61,8 @@ namespace pe_intf {
                     continue;
                 }
                 rb->applyDamping(_dt);
-                if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold &&
-                    rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold) {
+                if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold * ratio &&
+                    rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold * ratio) {
                     rb->updateSleepTime(_dt);
                     if (rb->getSleepTime() >= _sleep_time_threshold) {
                         rb->setSleep(true);
@@ -71,6 +73,8 @@ namespace pe_intf {
                     rb->resetSleepTime();
                 }
             }
+            rb->resetStaticCount();
+            rb->resetDynamicCount();
         }
     }
 
@@ -136,9 +140,11 @@ namespace pe_intf {
     }
 
     void World::step() {
-        auto start = COMMON_GetTickCount();
         // update status
+        auto start = COMMON_GetTickCount();
         updateObjectStatus();
+        auto end = COMMON_GetTickCount();
+        update_status_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         // fracture
         if (!_fracture_sources.empty()) {
@@ -163,8 +169,6 @@ namespace pe_intf {
 
         // external force
         applyExternalForce();
-        auto end = COMMON_GetTickCount();
-        update_status_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         // collision detection
         start = COMMON_GetTickCount();

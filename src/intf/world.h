@@ -25,6 +25,7 @@ namespace pe_intf { // interface
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_lin_vel2_threshold, SleepLinVel2Threshold);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_ang_vel2_threshold, SleepAngVel2Threshold);
+        COMMON_MEMBER_SET_GET(pe::Real, sleep_pos_threshold, SleepPosThreshold);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_time_threshold, SleepTimeThreshold);
 
     protected:

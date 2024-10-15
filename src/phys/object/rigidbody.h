@@ -68,6 +68,15 @@ namespace pe_phys_object {
         COMMON_BOOL_SET_GET(sleep, Sleep)
         COMMON_MEMBER_GET(pe::Real, sleep_time, SleepTime)
 
+        /* Adjacency */
+        COMMON_MEMBER_GET(int, static_count, StaticCount)
+        COMMON_MEMBER_GET(int, dynamic_count, DynamicCount)
+    public:
+        PE_API void incStaticCount() { _static_count++; }
+        PE_API void incDynamicCount() { _dynamic_count++; }
+        PE_API void resetStaticCount() { _static_count = 0; }
+        PE_API void resetDynamicCount() { _dynamic_count = 0; }
+
         /* Collision Callback */
     public:
         typedef std::function<void(RigidBody*, RigidBody*,

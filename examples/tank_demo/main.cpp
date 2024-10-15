@@ -25,8 +25,8 @@ public:
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                    pe::Vector3(0, -0.5, 0)),
-                                      pe::Vector3(1000, 1, 1000), 8);
+                                                    pe::Vector3(0, -5, 0)),
+                                      pe::Vector3(250, 10, 250), 8);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
@@ -89,4 +89,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(TankSimulator, 0.016, 10000000)
+PE_SIM_MAIN(TankSimulator, 60)

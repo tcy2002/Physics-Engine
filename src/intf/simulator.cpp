@@ -1,5 +1,11 @@
 template <UseViewer UV>
-void Simulator<UV>::start(pe::Real dt, int max_frame) {
+void Simulator<UV>::start(int target_frame_rate) {
+    if (target_frame_rate <= 0) {
+        PE_LOG_ERROR << "Invalid target frame rate: " << target_frame_rate << PE_ENDL;
+        return;
+    }
+
+    pe::Real dt = 1.0 / (pe::Real)target_frame_rate;
     _world.setDt(dt);
     init();
     if (UV == UseViewer::True) {
@@ -11,10 +17,26 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
     int frame = 0;
     int target_dt = (int)(dt * 1000);
     auto start = COMMON_GetTickCount();
-    while (++frame < max_frame) {
+    while (true) {
         auto t = COMMON_GetTickCount();
 
         _world.step();
+
+#   if false
+        static pe::Array<int> ids;
+        for (auto id : ids) {
+            pe_intf::Viewer::remove(id);
+        }
+        ids.clear();
+        for (auto cr : _world.getContactResults()) {
+            for (int i = 0; i < cr->getPointSize(); i++) {
+                auto p = cr->getContactPoint(i).getWorldPos();
+                auto id = pe_intf::Viewer::addSphere(0.03);
+                pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                ids.push_back(id);
+            }
+        }
+#   endif
 
         if (UV == UseViewer::True) {
             if (!_world.getRigidBodiesToRemove().empty()) {
@@ -37,9 +59,7 @@ void Simulator<UV>::start(pe::Real dt, int max_frame) {
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
         COMMON_Sleep(target_dt - actual_dt);
-
-        // to use the actual dt
-        //_world.setDt(actual_dt < target_dt ? dt : (pe::Real)(actual_dt) * pe::Real(0.001));
+        frame++;
     }
 
     auto end = COMMON_GetTickCount();

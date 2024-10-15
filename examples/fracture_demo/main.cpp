@@ -16,10 +16,13 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, -9.8, 0));
+        _world.setSleepLinVel2Threshold(0.01); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(0.01); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(1.0);     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)),
-                                      pe::Vector3(1000, 1, 1000), 8);
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+                                      pe::Vector3(250, 10, 250), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
@@ -64,7 +67,7 @@ protected:
         rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
         rb->setFrictionCoeff(0.5); // friction coefficient
         rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
+//        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -119,4 +122,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(FractureSimulator, 0.016, 1000000)
+PE_SIM_MAIN(FractureSimulator, 60)

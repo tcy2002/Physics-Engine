@@ -174,12 +174,21 @@ namespace pe_phys_object {
         }
 
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
+#   if false
         pe::Matrix3 rot;
         pe::Real angle_speed = _angular_velocity.norm();
         if (angle_speed > PE_EPS) {
             rot.setRotation(_angular_velocity.normalized(), angle_speed * dt);
             _transform.setBasis(rot * _transform.getBasis());
         }
+#   else
+        auto q = pe::Quaternion::fromRotationMatrix(_transform.getBasis());
+        pe::Vector3 dr = _angular_velocity * dt * pe::Real(0.5);
+        auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
+        q += dq;
+        q.normalize();
+        _transform.setBasis(q.toRotationMatrix());
+#   endif
         updateWorldInertia();
 
         return true;
