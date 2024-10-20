@@ -144,7 +144,7 @@ namespace pe_intf {
         auto start = COMMON_GetMicroseconds();
         updateObjectStatus();
         auto end = COMMON_GetMicroseconds();
-        update_status_time += (pe::Real)(end - start) * pe::Real(0.001);
+        update_status_time += (pe::Real)(end - start) * pe::Real(0.000001);
 
         // fracture
         if (!_fracture_sources.empty()) {
@@ -175,13 +175,13 @@ namespace pe_intf {
         updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
         end = COMMON_GetMicroseconds();
-        broad_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
+        broad_phase_time += (pe::Real)(end - start) * pe::Real(0.000001);
 
         start = COMMON_GetMicroseconds();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         execCollisionCallbacks();
         end = COMMON_GetMicroseconds();
-        narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
+        narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.000001);
 
         // constraints
         start = COMMON_GetMicroseconds();
@@ -191,7 +191,7 @@ namespace pe_intf {
                                         _constraints);
         _constraint_solver->solve();
         end = COMMON_GetMicroseconds();
-        constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.001);
+        constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.000001);
     }
 
 } // namespace pe_intf
