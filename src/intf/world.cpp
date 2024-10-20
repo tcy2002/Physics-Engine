@@ -141,9 +141,9 @@ namespace pe_intf {
 
     void World::step() {
         // update status
-        auto start = COMMON_GetTickCount();
+        auto start = COMMON_GetMicroseconds();
         updateObjectStatus();
-        auto end = COMMON_GetTickCount();
+        auto end = COMMON_GetMicroseconds();
         update_status_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         // fracture
@@ -171,26 +171,26 @@ namespace pe_intf {
         applyExternalForce();
 
         // collision detection
-        start = COMMON_GetTickCount();
+        start = COMMON_GetMicroseconds();
         updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
-        end = COMMON_GetTickCount();
+        end = COMMON_GetMicroseconds();
         broad_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 
-        start = COMMON_GetTickCount();
+        start = COMMON_GetMicroseconds();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         execCollisionCallbacks();
-        end = COMMON_GetTickCount();
+        end = COMMON_GetMicroseconds();
         narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.001);
 
         // constraints
-        start = COMMON_GetTickCount();
+        start = COMMON_GetMicroseconds();
         _constraint_solver->setupSolver(_dt,
                                         _collision_objects,
                                         _contact_results,
                                         _constraints);
         _constraint_solver->solve();
-        end = COMMON_GetTickCount();
+        end = COMMON_GetMicroseconds();
         constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.001);
     }
 
