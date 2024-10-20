@@ -6,6 +6,11 @@ namespace pe_phys_collision {
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
                                                pe::Array<ContactResult*>& results) {
         // clear old contact results
+        static pe::Real total_time = 0;
+        static int frame = 0;
+        frame++;
+        auto start = COMMON_GetMicroseconds();
+
         const int old_size = (int)results.size();
         const int new_size = (int)pairs.size();
         if (old_size < new_size) {
@@ -74,12 +79,11 @@ namespace pe_phys_collision {
             }
         }
 
-        /*if (frame >= 300) {
-            std::cout << "total_time_1: " << total_time_1 / pe::Real(1000) << "ms" << std::endl;
-            std::cout << "total_time_2: " << total_time_2 / pe::Real(1000) << "ms" << std::endl;
-			std::cout << "total_time_3: " << total_time_3 / pe::Real(1000) << "ms" << std::endl;
-            exit(0);
-        }*/
+        auto end = COMMON_GetMicroseconds();
+        total_time += end - start;
+        if (frame >= 2000) {
+            std::cout << "total_time: " << total_time / pe::Real(1000) << "ms" << std::endl;
+        }
     }
 
 } // namespace pe_phys_collision

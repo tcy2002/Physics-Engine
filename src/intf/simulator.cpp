@@ -17,10 +17,14 @@ void Simulator<UV>::start(int target_frame_rate) {
     int frame = 0;
     int target_dt = (int)(dt * 1000);
     auto start = COMMON_GetTickCount();
+	pe::Real total_step_time = 0;
     while (true) {
         auto t = COMMON_GetTickCount();
 
+		auto step_start = COMMON_GetMicroseconds();
         _world.step();
+		auto step_end = COMMON_GetMicroseconds();
+		total_step_time += (pe::Real)(step_end - step_start);
 
 #   if false
         static pe::Array<int> ids;
@@ -58,12 +62,14 @@ void Simulator<UV>::start(int target_frame_rate) {
         }
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
-        COMMON_Sleep(target_dt - actual_dt);
+        //COMMON_Sleep(target_dt - actual_dt);
         frame++;
+		if (frame >= 2000) break;
     }
 
     auto end = COMMON_GetTickCount();
     pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);
+	std::cout << "step time: " << total_step_time * pe::Real(0.000001) << "s" << std::endl;
     std::cout << "frame count: " << frame << ", fps: " << (pe::Real)frame / total_time << std::endl;
     std::cout << "total time: " << total_time << "s" << std::endl;
     std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
