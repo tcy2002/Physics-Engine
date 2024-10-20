@@ -15,7 +15,7 @@ namespace pe_phys_collision {
             }
         } else {
             for (int i = new_size; i < old_size; i++) {
-                _cr_pool.destroy(results[i]);
+				_cr_pool.destroy(results[i]);
             }
             results.resize(new_size);
         }
@@ -48,12 +48,12 @@ namespace pe_phys_collision {
             results[i]->sortContactPoints();
         }
 #   endif
-
+        
         // remove empty contact results and update dynamic/static count
         for (int i = (int)results.size() - 1; i >= 0; i--) {
             if (results[i]->getPointSize() == 0) {
-                _cr_pool.destroy(results[i]);
-                results.erase(results.begin() + i);
+				/*delete results[i];
+                results.erase(results.begin() + i);*/
             } else {
                 auto obj_a = results[i]->getObjectA();
                 auto obj_b = results[i]->getObjectB();
@@ -73,6 +73,13 @@ namespace pe_phys_collision {
                 }
             }
         }
+
+        /*if (frame >= 300) {
+            std::cout << "total_time_1: " << total_time_1 / pe::Real(1000) << "ms" << std::endl;
+            std::cout << "total_time_2: " << total_time_2 / pe::Real(1000) << "ms" << std::endl;
+			std::cout << "total_time_3: " << total_time_3 / pe::Real(1000) << "ms" << std::endl;
+            exit(0);
+        }*/
     }
 
 } // namespace pe_phys_collision

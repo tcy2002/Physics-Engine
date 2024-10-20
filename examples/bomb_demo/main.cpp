@@ -44,11 +44,11 @@ public:
 //        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
-        //auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
-        //                                               pe::Vector3(0, 2, 50)),
-        //                                 1.2, 50);
-        //rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
-        //_world.addRigidBody(rb2);
+        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                                       pe::Vector3(0, 2, 50)),
+                                         1.2, 50);
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
+        _world.addRigidBody(rb2);
     }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
@@ -111,4 +111,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(BombSimulator, 60)
+PE_SIM_MAIN(BombSimulator, 100)

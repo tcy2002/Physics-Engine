@@ -18,8 +18,8 @@ namespace pe_intf {
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
         _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
-#   ifdef PE_USE_DOUBLE
-        utils::ThreadPool::init(16);
+#   ifdef PE_MULTI_THREAD
+        utils::ThreadPool::init();
 #   endif
     }
 

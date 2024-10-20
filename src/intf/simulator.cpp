@@ -64,7 +64,7 @@ void Simulator<UV>::start(int target_frame_rate) {
 
     auto end = COMMON_GetTickCount();
     pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);
-    std::cout << "fps: " << (pe::Real)frame / total_time << std::endl;
+    std::cout << "frame count: " << frame << ", fps: " << (pe::Real)frame / total_time << std::endl;
     std::cout << "total time: " << total_time << "s" << std::endl;
     std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
     std::cout << "broad phase time: " << _world.broad_phase_time << "s " << _world.broad_phase_time / total_time << std::endl;

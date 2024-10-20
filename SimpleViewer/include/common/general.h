@@ -31,6 +31,19 @@ COMMON_FORCE_INLINE unsigned long long COMMON_GetTickCount() {
            ((unsigned long long)ts.tv_sec * 1000ull);
 #endif
 }
+COMMON_FORCE_INLINE double COMMON_GetMicroseconds() {
+#ifdef _WIN32
+    LARGE_INTEGER t, f;
+    QueryPerformanceCounter(&t);
+    QueryPerformanceFrequency(&f);
+    return (double)t.QuadPart * 1000000.0 / (double)f.QuadPart;
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)(ts.tv_nsec / 1000.0) +
+        ((double)ts.tv_sec * 1000000.0);
+#endif
+}
 #ifdef _WIN32
 #define COMMON_Sleep(t) Sleep((t) > 0 ? (t) : 0)
 #else
