@@ -39,9 +39,9 @@ public:
         createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
         // add tower3
-//        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-//        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-//        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -111,4 +111,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(BombSimulator, 200)
+PE_SIM_MAIN(BombSimulator, 100)

@@ -62,7 +62,7 @@ void Simulator<UV>::start(int target_frame_rate) {
         }
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
-        //COMMON_Sleep(target_dt - actual_dt);
+        COMMON_Sleep(target_dt - actual_dt);
         frame++;
 		if (frame >= 2000) break;
     }
