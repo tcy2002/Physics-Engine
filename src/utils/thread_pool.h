@@ -52,7 +52,7 @@ namespace utils {
     template<typename Function, typename... Args>
     void ThreadPool::addTask(Function&& fn, Args&&... args) {
         auto& inst = getInstance();
-        if (inst._size == -1) return;
+        if (inst._size <= 0) return;
         std::unique_lock<std::mutex> lock(inst._mtx);
         inst._tasks.emplace([fn, &args...]{ fn(std::forward<Args>(args)...); });
         inst._task_count++;
@@ -64,7 +64,7 @@ namespace utils {
         std::vector<int> a(0);
         if (first == last) return;
         auto& inst = getInstance();
-        if (inst._size == -1) return;
+        if (inst._size <= 0) return;
         std::unique_lock<std::mutex> lock(inst._mtx);
         auto p = first;
         while (p != last) {
@@ -79,7 +79,7 @@ namespace utils {
     void ThreadPool::forLoop(uint32_t count, Function&& fn) {
         if (count == 0) return;
         auto& inst = getInstance();
-        if (inst._size == -1) return;
+        if (inst._size <= 0) return;
         std::unique_lock<std::mutex> lock(inst._mtx);
         for (uint32_t i = 0; i < count; i++) {
             inst._tasks.emplace([fn, i]{ fn(i); });
@@ -92,8 +92,8 @@ namespace utils {
     void ThreadPool::forBatchedLoop(uint32_t count, uint32_t batchSize, Function&& fn) {
         if (count == 0) return;
         auto& inst = getInstance();
-        if (inst._size == -1) return;
-        if (batchSize == 0) batchSize = count / inst._size / 3 + 1;
+        if (inst._size <= 0) return;
+        if (batchSize == 0) batchSize = count / inst._size + 1;
         std::unique_lock<std::mutex> lock(inst._mtx);
         for (uint32_t i = 0; i < count; i += batchSize) {
             inst._tasks.emplace([fn, i, count, batchSize]{
