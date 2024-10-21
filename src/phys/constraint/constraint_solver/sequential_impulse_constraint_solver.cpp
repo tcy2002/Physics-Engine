@@ -54,6 +54,10 @@ namespace pe_phys_constraint {
 
     void SequentialImpulseConstraintSolver::solve() {
         // solve contact constraints: the execution order is significant, so we use single-thread
+        static pe::Real total_time = 0;
+        static int frame = 0;
+        frame++;
+        auto start = COMMON_GetMicroseconds();
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
             utils::ThreadPool::forBatchedLoop(_constraints.size(), 0,[&](int i){
@@ -64,6 +68,11 @@ namespace pe_phys_constraint {
                 constraint->iterateSequentialImpulse(i);
             }
 #   endif
+        }
+        auto end = COMMON_GetMicroseconds();
+        total_time += end - start;
+        if (frame >= 2000) {
+            std::cout << "constraint solver interate: " << total_time / pe::Real(1000) << "ms" << std::endl;
         }
 
         // sync velocity

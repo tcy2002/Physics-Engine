@@ -82,7 +82,7 @@ namespace pe_phys_collision {
         auto end = COMMON_GetMicroseconds();
         total_time += end - start;
         if (frame >= 2000) {
-            std::cout << "total_time: " << total_time / pe::Real(1000) << "ms" << std::endl;
+            std::cout << "narrow phase calc: " << total_time / pe::Real(1000) << "ms" << std::endl;
         }
     }
 
