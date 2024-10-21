@@ -3,6 +3,7 @@
 #include "world.h"
 #include "viewer.h"
 #include "utils/logger.h"
+#include "utils/thread_pool.h"
 #include "phys/shape/box_shape.h"
 #include "phys/shape/sphere_shape.h"
 #include "phys/shape/cylinder_shape.h"

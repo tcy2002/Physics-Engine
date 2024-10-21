@@ -6,11 +6,6 @@ namespace pe_phys_collision {
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
                                                pe::Array<ContactResult*>& results) {
         // clear old contact results
-        static pe::Real total_time = 0;
-        static int frame = 0;
-        frame++;
-        auto start = COMMON_GetMicroseconds();
-
         const int old_size = (int)results.size();
         const int new_size = (int)pairs.size();
         if (old_size < new_size) {
@@ -77,12 +72,6 @@ namespace pe_phys_collision {
                     }
                 }
             }
-        }
-
-        auto end = COMMON_GetMicroseconds();
-        total_time += end - start;
-        if (frame >= 2000) {
-            std::cout << "narrow phase calc: " << total_time / pe::Real(1000) << "ms" << std::endl;
         }
     }
 

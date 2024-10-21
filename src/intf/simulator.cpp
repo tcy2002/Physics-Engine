@@ -4,6 +4,7 @@ void Simulator<UV>::start(int target_frame_rate) {
         PE_LOG_ERROR << "Invalid target frame rate: " << target_frame_rate << PE_ENDL;
         return;
     }
+    utils::ThreadPool::init();
 
     pe::Real dt = 1.0 / (pe::Real)target_frame_rate;
     _world.setDt(dt);
@@ -16,7 +17,9 @@ void Simulator<UV>::start(int target_frame_rate) {
 
     int frame = 0;
     int target_dt = (int)(dt * 1000);
+    int overhead_time = 0;
     auto start = COMMON_GetTickCount();
+
 	pe::Real total_step_time = 0;
     while (true) {
         auto t = COMMON_GetTickCount();
@@ -62,9 +65,15 @@ void Simulator<UV>::start(int target_frame_rate) {
         }
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
-        COMMON_Sleep(target_dt - actual_dt);
+        if (target_dt > actual_dt) {
+            COMMON_Sleep(target_dt - actual_dt - overhead_time);
+			overhead_time = overhead_time > target_dt - actual_dt ? overhead_time - target_dt + actual_dt : 0;
+        }
+        else {
+			overhead_time += actual_dt - target_dt;
+        }
         frame++;
-		if (frame >= 2000) break;
+		if (frame >= 1000) break;
     }
 
     auto end = COMMON_GetTickCount();
@@ -123,6 +132,32 @@ bool Simulator<UV>::renderStep() {
 
     toggleLine();
 
+#ifdef PE_MULTI_THREAD1
+	utils::ThreadPool::forBatchedLoop(_id_map.size(), 50, [&](int i) {
+        auto& rb = *std::next(_id_map.begin(), i);
+        if (rb.second.empty()) {
+            return;
+        }
+        auto type = rb.first->getCollisionShape()->getType();
+        if (type != pe_phys_shape::ShapeType::Compound) {
+            updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+            if (!rb.first->isSleep()) {
+                pe_intf::Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
+            }
+        }
+        else {
+            int i = 0;
+            for (auto& s : ((pe_phys_shape::CompoundShape*)rb.first->getCollisionShape())->getShapes()) {
+                updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                if (!rb.first->isSleep()) {
+                    pe_intf::Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
+                }
+                i++;
+            }
+        }
+    });
+	utils::ThreadPool::join();
+#else
     for (auto& rb : _id_map) {
         if (rb.second.empty()) {
             continue;
@@ -144,6 +179,7 @@ bool Simulator<UV>::renderStep() {
             }
         }
     }
+#endif
     return true;
 }
 

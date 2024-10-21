@@ -9,6 +9,7 @@ namespace utils {
 
     void ThreadPool::init(uint32_t pool_size) {
         auto& inst = getInstance();
+		if (inst._size > 0) return; // already initialized
         inst._size = pool_size > 0 ? pool_size : std::thread::hardware_concurrency();
         inst._task_count = 0;
 
