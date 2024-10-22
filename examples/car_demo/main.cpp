@@ -87,4 +87,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(CarSimulator, 60)
+PE_SIM_MAIN(CarSimulator, 100)

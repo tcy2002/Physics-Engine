@@ -122,4 +122,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(FractureSimulator, 300)
+PE_SIM_MAIN(FractureSimulator, 100)
