@@ -35,7 +35,7 @@ namespace pe_phys_constraint {
         // init contact constraints: the start order doesn't matter, so we can use multi-thread
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(contact_results.size(), 0, [&](int i){
+        utils::ThreadPool::forBatchedLoop((int)contact_results.size(), 0, [&](int i){
             auto fcc = (FrictionContactConstraint*)(_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
@@ -56,7 +56,7 @@ namespace pe_phys_constraint {
         // solve contact constraints: the execution order is significant, so we use single-thread
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forBatchedLoop(_constraints.size(), 0,[&](int i){
+            utils::ThreadPool::forBatchedLoop((int)_constraints.size(), 0,[&](int i){
                 _constraints[i]->iterateSequentialImpulse(i);
             });
 #   else
@@ -68,7 +68,7 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(_collision_objects.size(), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop((int)_collision_objects.size(), 0,[&](int i){
             _collision_objects[i]->syncTempVelocity();
         });
         utils::ThreadPool::join();
@@ -80,7 +80,7 @@ namespace pe_phys_constraint {
 
         // after solving
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(_constraints.size(), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop((int)_constraints.size(), 0,[&](int i){
             _constraints[i]->afterSequentialImpulse();
         });
         utils::ThreadPool::join();

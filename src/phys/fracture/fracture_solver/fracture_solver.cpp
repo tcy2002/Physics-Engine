@@ -49,7 +49,7 @@ namespace pe_phys_fracture {
         return { roa * cos_t, roa * sin_t, L2 };
     }
 
-#   define EXPLOSION_RATE 0.125
+#   define EXPLOSION_RATE pe::Real(0.125)
 #   define SPHERE_DENSITY 50
 #   define CYLINDER_DENSITY 20
 
@@ -62,9 +62,9 @@ namespace pe_phys_fracture {
         for (auto& src : sources) {
             pe::Vector3 local_impact_pos = world_trans.inverseTransform(src.position);
             pe::Vector3 intensity = src.intensity;
-            pe::Real impact_radius = (std::abs(intensity.x) + std::abs(intensity.y) + std::abs(intensity.z))
-                                     / (3.0 * threshold);
-            if (impact_radius < 0.01) continue;
+            pe::Real impact_radius = (PE_ABS(intensity.x) + PE_ABS(intensity.y) + PE_ABS(intensity.z))
+                                     / (pe::Real(3.0) * threshold);
+            if (impact_radius < pe::Real(0.01)) continue;
             if (src.type == FractureType::Sphere) {
                 int point_count = (int)(impact_radius * SPHERE_DENSITY);
                 for (int i = 0; i < point_count; i++) {
@@ -110,8 +110,8 @@ namespace pe_phys_fracture {
         rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));
         rb->setMass(pe_phys_shape::ConvexMeshShape::calcMeshVolume(mesh));
         rb->setLocalInertia(convexMesh->calcLocalInertia(rb->getMass()));
-        rb->setFrictionCoeff(0.3);
-        rb->setRestitutionCoeff(0.8);
+        rb->setFrictionCoeff(pe::Real(0.3));
+        rb->setRestitutionCoeff(pe::Real(0.8));
         return rb;
     }
 

@@ -53,7 +53,7 @@ namespace pe_phys_collision {
         pe::Real depth;
         int return_code;
         int max_c = 4;
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
         auto& basis_a = trans_a.getBasis();
         auto& basis_b = trans_b.getBasis();
@@ -84,7 +84,7 @@ namespace pe_phys_collision {
             alpha = 0;
             beta = 0;
         } else {
-            d = 1.0 / d;
+            d = pe::Real(1.0) / d;
             alpha = (q1 + ua_ub * q2) * d;
             beta = (ua_ub * q1 + q2) * d;
         }
@@ -151,8 +151,8 @@ namespace pe_phys_collision {
             cx = p[0];
             cy = p[1];
         } else if (n == 2) {
-            cx = 0.5 * (p[0] + p[2]);
-            cy = 0.5 * (p[1] + p[3]);
+            cx = pe::Real(0.5) * (p[0] + p[2]);
+            cy = pe::Real(0.5) * (p[1] + p[3]);
         } else {
             a = 0;
             cx = 0;
@@ -167,7 +167,7 @@ namespace pe_phys_collision {
             pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
             q = pm2 * p1 - p0 * pm1;
             if (std::abs(a + q) > PE_EPS) {
-                a = 1.f / (3.0 * (a + q));
+                a = pe::Real(1.0) / (pe::Real(3.0) * (a + q));
             } else {
                 a = PE_REAL_MAX;
             }
@@ -211,7 +211,7 @@ namespace pe_phys_collision {
                                            const pe::Vector3& p2, const dMatrix3 R2, const pe::Vector3& side2,
                                            pe::Vector3& normal, pe::Real margin, pe::Real& depth, int& return_code,
                                            int max_c, ContactResult& result) {
-        const pe::Real fudge_factor = 1.05;
+        const pe::Real fudge_factor = pe::Real(1.05);
         pe::Vector3 p, pp, normalC{0,0,0};
         const pe::Real* normalR = 0;
         pe::Real A[3], B[3], R11, R12, R13, R21, R22, R23, R31, R32, R33,
@@ -223,12 +223,12 @@ namespace pe_phys_collision {
         dMULTIPLY1_331(pp, R1, p)  // get pp = p relative to body 1
 
         // get side lengths / 2
-        A[0] = side1[0] * 0.5;
-        A[1] = side1[1] * 0.5;
-        A[2] = side1[2] * 0.5;
-        B[0] = side2[0] * 0.5;
-        B[1] = side2[1] * 0.5;
-        B[2] = side2[2] * 0.5;
+        A[0] = side1[0] * pe::Real(0.5);
+        A[1] = side1[1] * pe::Real(0.5);
+        A[2] = side1[2] * pe::Real(0.5);
+        B[0] = side2[0] * pe::Real(0.5);
+        B[1] = side2[1] * pe::Real(0.5);
+        B[2] = side2[2] * pe::Real(0.5);
 
         // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
         R11 = dDOT44(R1 + 0, R2 + 0);
@@ -367,7 +367,7 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = (dDOT14(normal, R1 + j) > 0) ? 1.0 : -1.0;
+                sign = (dDOT14(normal, R1 + j) > 0) ? pe::Real(1.0) : pe::Real(-1.0);
                 pa[0] += sign * A[j] * R1[0 * 4 + j];
                 pa[1] += sign * A[j] * R1[1 * 4 + j];
                 pa[2] += sign * A[j] * R1[2 * 4 + j];
@@ -377,7 +377,7 @@ namespace pe_phys_collision {
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = (dDOT14(normal, R2 + j) > 0) ? -1.0 : 1.0;
+                sign = (dDOT14(normal, R2 + j) > 0) ? pe::Real(-1.0) : pe::Real(1.0);
                 pb[0] += sign * B[j] * R2[0 * 4 + j];
                 pb[1] += sign * B[j] * R2[1 * 4 + j];
                 pb[2] += sign * B[j] * R2[2 * 4 + j];

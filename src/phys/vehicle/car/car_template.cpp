@@ -1,8 +1,8 @@
 #include "car_template.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
 
-#define PE_CAR_SUS_OFFSET 0.15
-#define PE_CAR_WHEEL_MARGIN 0.025
+#define PE_CAR_SUS_OFFSET pe::Real(0.15)
+#define PE_CAR_WHEEL_MARGIN pe::Real(0.025)
 
 namespace pe_phys_vehicle {
 
@@ -66,13 +66,13 @@ namespace pe_phys_vehicle {
 #   endif
 
         for (int i = 0; i < 2; i++) {
-            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (0.5 * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (pe::Real(0.5) * _wheelWidth),
                                              connectionHeight,
                                              (_bodyLength / 2 - _bodyLength * i) * (pe::Real(5.0) / 7));
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
                               suspensionRestLength, _wheelRadius,
                               m_tuning, false);
-            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (0.5 * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (pe::Real(0.5) * _wheelWidth),
                                              connectionHeight,
                                              (_bodyLength / 2 - _bodyLength * i) * (pe::Real(5.0) / 7));
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
@@ -162,26 +162,26 @@ namespace pe_phys_vehicle {
 
     CarTemplate::CarTemplate():
             _transform(pe::Transform::identity()),
-            _bodyWidth(2.3),
-            _bodyLength(7.),
-            _bodyHeight(1.0),
-            _bodyMass(30.0),
-            _cabinWidth(2.3),
-            _cabinHeight(0.8),
-            _cabinLength(3.5),
-            _cabinMass(1.),
-            _wheelRadius(0.55),
-            _wheelWidth(0.4),
-            _wheelFriction(0.9),
-            _wheelRollInfluence(0.1),
-            _wheelRollDamping(0.03),
-            _wheelMass(1.),
-            _suspensionStiffness(25.0),
-            _suspensionDamping(2.0),
-            _suspensionCompression(2.0),
-            _engineForce(50.),
-            _maxSpeed(50.0),
-            _maxRotSpeed(2.0) {}
+            _bodyWidth(pe::Real(2.3)),
+            _bodyLength(pe::Real(7.)),
+            _bodyHeight(pe::Real(1.0)),
+            _bodyMass(pe::Real(30.0)),
+            _cabinWidth(pe::Real(2.3)),
+            _cabinHeight(pe::Real(0.8)),
+            _cabinLength(pe::Real(3.5)),
+            _cabinMass(pe::Real(1.)),
+            _wheelRadius(pe::Real(0.55)),
+            _wheelWidth(pe::Real(0.4)),
+            _wheelFriction(pe::Real(0.9)),
+            _wheelRollInfluence(pe::Real(0.1)),
+            _wheelRollDamping(pe::Real(0.03)),
+            _wheelMass(pe::Real(1.)),
+            _suspensionStiffness(pe::Real(25.0)),
+            _suspensionDamping(pe::Real(2.0)),
+            _suspensionCompression(pe::Real(2.0)),
+            _engineForce(pe::Real(50.)),
+            _maxSpeed(pe::Real(50.0)),
+            _maxRotSpeed(pe::Real(2.0)) {}
 
     void CarTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;
@@ -242,14 +242,14 @@ namespace pe_phys_vehicle {
 
     void CarTemplate::turnLeft() {
         setBrake(false);
-        vehicle->setSteeringValue(0.6, 2);
-        vehicle->setSteeringValue(0.6, 3);
+        vehicle->setSteeringValue(pe::Real(0.6), 2);
+        vehicle->setSteeringValue(pe::Real(0.6), 3);
     }
 
     void CarTemplate::turnRight() {
         setBrake(false);
-        vehicle->setSteeringValue(-0.6, 2);
-        vehicle->setSteeringValue(-0.6, 3);
+        vehicle->setSteeringValue(pe::Real(-0.6), 2);
+        vehicle->setSteeringValue(pe::Real(-0.6), 3);
     }
 
     void CarTemplate::turnStraight() {

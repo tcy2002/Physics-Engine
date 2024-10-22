@@ -21,7 +21,7 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(pairs.size(), 0, [&](int i) {
+        utils::ThreadPool::forBatchedLoop((int)pairs.size(), 0, [&](int i) {
             auto shape_a = pairs[i].first->getCollisionShape();
             auto shape_b = pairs[i].second->getCollisionShape();
             auto trans_a = pairs[i].first->getTransform();

@@ -119,7 +119,7 @@ namespace pe_phys_shape {
             center_face /= (pe::Real)face.size();
 
             for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
-                pe::Real m = i * i;
+                pe::Real m = pe::Real(i * i);
                 for (int j = 1; j < INERTIA_SURFACE_ITER; j++) {
                     for (auto& v : face) {
                         sum += m * j;
@@ -130,7 +130,7 @@ namespace pe_phys_shape {
             }
         }
         for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
-            pe::Real m = i * i * INERTIA_SURFACE_ITER;
+            pe::Real m = pe::Real(i * i * INERTIA_SURFACE_ITER);
             for (auto& v : _unique_verts) {
                 sum += m;
                 elements.push_back({v * ((pe::Real)i / INERTIA_INTERNAL_ITER), m});

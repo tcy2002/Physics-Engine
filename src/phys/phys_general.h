@@ -27,6 +27,9 @@
 #define PE_REAL_MIN pe::Real(-1e30)
 #endif
 
+//// phys
+#define PE_MARGIN pe::Real(0.005)
+
 //// math
 #define PE_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define PE_MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -34,6 +37,7 @@
 #define PE_MIN3(a, b, c) PE_MIN(PE_MIN(a, b), c)
 #define PE_CLAMP(x, min, max) PE_MAX(PE_MIN(x, max), min)
 #define PE_SQR(x) ((x) * (x))
+#define PE_POW(x, n) std::pow(x, n)
 #define PE_SQRT(x) std::sqrt(x)
 #define PE_ABS(x) std::abs(x)
 #define PE_SIGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))

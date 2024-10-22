@@ -1,9 +1,9 @@
 #include "tank_template.h"
 #include "phys/fracture/fracture_utils/fracture_data.h"
 
-#define PE_TANK_SUS_OFFSET 0.15
-#define PE_TANK_WHEEL_MARGIN 0.025
-#define PE_TANK_TRACK_MARGIN 0.01
+#define PE_TANK_SUS_OFFSET pe::Real(0.15)
+#define PE_TANK_WHEEL_MARGIN pe::Real(0.025)
+#define PE_TANK_TRACK_MARGIN pe::Real(0.01)
 
 namespace pe_phys_vehicle {
 
@@ -84,14 +84,14 @@ namespace pe_phys_vehicle {
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
-            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (0.5 * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (pe::Real(0.5) * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
                               suspensionRestLength, wheelRadius,
                               m_tuning, false);
-            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (0.5 * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (pe::Real(0.5) * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
@@ -362,38 +362,38 @@ namespace pe_phys_vehicle {
 
     TankTemplate::TankTemplate():
             _transform(pe::Transform::identity()),
-            _bodyWidth(2.3),
-            _bodyLength(7.),
-            _bodyHeight(1.0),
-            _bodyMass(30.0),
-            _turretWidth(2.7),
-            _turretHeight(0.8),
-            _turretLength(3.5),
-            _turretMass(1.),
-            _turretRotSpeed(1.0),
+            _bodyWidth(pe::Real(2.3)),
+            _bodyLength(pe::Real(7.)),
+            _bodyHeight(pe::Real(1.0)),
+            _bodyMass(pe::Real(30.0)),
+            _turretWidth(pe::Real(2.7)),
+            _turretHeight(pe::Real(0.8)),
+            _turretLength(pe::Real(3.5)),
+            _turretMass(pe::Real(1.)),
+            _turretRotSpeed(pe::Real(1.0)),
             _turretMaxAngle(PE_PI / pe::Real(2.4)),
-            _barrelRadius(0.128),
-            _barrelLength(4.2),
-            _barrelMass(1.),
-            _barrelRotSpeed(1.0),
+            _barrelRadius(pe::Real(0.128)),
+            _barrelLength(pe::Real(4.2)),
+            _barrelMass(pe::Real(1.)),
+            _barrelRotSpeed(pe::Real(1.0)),
             _barrelMaxAngle(PE_PI / pe::Real(6.)),
             _wheelNum(16),
-            _powerWheelRadius(0.3),
-            _drivenWheelRadius(0.4),
-            _wheelWidth(0.6),
-            _wheelFriction(0.9),
-            _wheelRollInfluence(0.1),
-            _wheelRollDamping(0.03),
-            _wheelMass(1.),
-            _trackThickness(0.1),
+            _powerWheelRadius(pe::Real(0.3)),
+            _drivenWheelRadius(pe::Real(0.4)),
+            _wheelWidth(pe::Real(0.6)),
+            _wheelFriction(pe::Real(0.9)),
+            _wheelRollInfluence(pe::Real(0.1)),
+            _wheelRollDamping(pe::Real(0.03)),
+            _wheelMass(pe::Real(1.)),
+            _trackThickness(pe::Real(0.1)),
             _trackSegmentNum(80),
-            _trackSegmentWidth(0.18),
-            _suspensionStiffness(25.0),
-            _suspensionDamping(2.0),
-            _suspensionCompression(2.0),
-            _engineForce(50.),
-            _maxSpeed(50.0),
-            _maxRotSpeed(2.0) {}
+            _trackSegmentWidth(pe::Real(0.18)),
+            _suspensionStiffness(pe::Real(25.0)),
+            _suspensionDamping(pe::Real(2.0)),
+            _suspensionCompression(pe::Real(2.0)),
+            _engineForce(pe::Real(50.)),
+            _maxSpeed(pe::Real(50.0)),
+            _maxRotSpeed(pe::Real(2.0)) {}
 
     void TankTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;

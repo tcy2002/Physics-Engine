@@ -5,7 +5,7 @@ void Simulator<UV>::start(int target_frame_rate) {
         return;
     }
 
-    pe::Real dt = 1.0 / (pe::Real)target_frame_rate;
+    pe::Real dt = pe::Real(1.0) / (pe::Real)target_frame_rate;
     _world.setDt(dt);
     init();
     if (UV == UseViewer::True) {
@@ -234,22 +234,22 @@ void Simulator<UV>::updateColor(int id, pe_phys_shape::ShapeType type, const std
     }
 
     if (kinematic) {
-        pe_intf::Viewer::updateColor(id, type, pe::Vector3(0.3, 0.8, 0.8));
+        pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.3), pe::Real(0.8), pe::Real(0.8)));
         return;
     }
 
     switch (type) {
         case pe_phys_shape::ShapeType::Box:
-            pe_intf::Viewer::updateColor(id, type, pe::Vector3(0.3, 0.3, 0.8));
+            pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.3), pe::Real(0.3), pe::Real(0.8)));
             break;
         case pe_phys_shape::ShapeType::Sphere:
-            pe_intf::Viewer::updateColor(id, type, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.8), pe::Real(0.3), pe::Real(0.3)));
             break;
         case pe_phys_shape::ShapeType::Cylinder:
-            pe_intf::Viewer::updateColor(id, type, pe::Vector3(0.3, 0.8, 0.3));
+            pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.3), pe::Real(0.8), pe::Real(0.3)));
             break;
         case pe_phys_shape::ShapeType::ConvexMesh:
-            pe_intf::Viewer::updateColor(id, type, pe::Vector3(0.8, 0.8, 0.3));
+            pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.8), pe::Real(0.8), pe::Real(0.3)));
         default:
             break;
     }

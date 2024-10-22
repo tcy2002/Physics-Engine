@@ -13,7 +13,7 @@ namespace pe_phys_fracture {
 
         // dilate to include all possible points
         auto center = (_min + _max) / 2;
-        pe::Vector3 gap(.1, .1, .1);
+        pe::Vector3 gap(pe::Real(.1), pe::Real(.1), pe::Real(.1));
         _min = center + (_min - center) * 3 - gap;
         _max = center + (_max - center) * 3 + gap;
 

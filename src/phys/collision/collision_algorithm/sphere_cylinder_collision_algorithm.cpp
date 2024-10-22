@@ -21,12 +21,12 @@ namespace pe_phys_collision {
 
         pe::Real s_r = shape_sph->getRadius();
         pe::Real c_r = shape_cyl->getRadius();
-        pe::Real c_h = shape_cyl->getHeight() * 0.5;
+        pe::Real c_h = shape_cyl->getHeight() * pe::Real(0.5);
         pe::Vector3 s_pos = trans_cyl.inverseTransform(trans_sph.getOrigin());
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
-        pe::Real r = std::sqrt(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
-        pe::Real d = std::abs(s_pos.y) - c_h;
+        pe::Real r = PE_SQRT(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
+        pe::Real d = PE_ABS(s_pos.y) - c_h;
 
         if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
             r * r > (c_r + s_r) * (c_r + s_r) ||
@@ -46,7 +46,7 @@ namespace pe_phys_collision {
             // hit the bottom or top
             normal = s_pos.y > 0 ? -pe::Vector3::up() : pe::Vector3::up();
             ptOnSph = s_pos + normal * s_r;
-            depth = s_r + c_h - std::abs(s_pos.y);
+            depth = s_r + c_h - PE_ABS(s_pos.y);
         } else {
             // hit at the edge
             pe::Vector3 ptOnCyl = pe::Vector3(s_pos.x, 0, s_pos.z).normalized() * c_r;

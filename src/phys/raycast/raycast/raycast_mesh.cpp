@@ -53,15 +53,15 @@ namespace pe_phys_raycast {
         if (det > -PE_EPS && det < PE_EPS) {
             return false;
         }
-        pe::Real inv_det = 1.0 / det;
+        pe::Real inv_det = pe::Real(1.0) / det;
         pe::Vector3 t_vec = start - v0;
         pe::Real u = t_vec.dot(p_vec) * inv_det;
-        if (u < 0.0 || u > 1.0) {
+        if (u < 0 || u > pe::Real(1.0)) {
             return false;
         }
         pe::Vector3 q_vec = t_vec.cross(edge1);
         pe::Real v = direction.dot(q_vec) * inv_det;
-        if (v < 0.0 || u + v > 1.0) {
+        if (v < 0 || u + v > pe::Real(1.0)) {
             return false;
         }
         distance = edge2.dot(q_vec) * inv_det;

@@ -5,10 +5,10 @@ namespace pe_phys_collision {
 
     void ContactPoint::getOrthoUnits(pe::Vector3 normal, pe::Vector3 &tangent1, pe::Vector3 &tangent2) {
         normal.normalize();
-        if (std::abs(normal.z) > 0.7071) {
+        if (PE_ABS(normal.z) > pe::Real(0.7071)) {
             // choose tangent in y-z plane
             pe::Real a = normal.y * normal.y + normal.z * normal.z;
-            pe::Real k = 1.0 / std::sqrt(a);
+            pe::Real k = pe::Real(1.0) / std::sqrt(a);
             tangent1.x = 0;
             tangent1.y = -normal.z * k;
             tangent1.z = normal.y * k;
@@ -18,7 +18,7 @@ namespace pe_phys_collision {
         } else {
             // choose tangent in x-y plane
             pe::Real a = normal.x * normal.x + normal.y * normal.y;
-            pe::Real k = 1.0 / std::sqrt(a);
+            pe::Real k = pe::Real(1.0) / std::sqrt(a);
             tangent1.x = -normal.y * k;
             tangent1.y = normal.x * k;
             tangent1.z = 0;
@@ -143,7 +143,7 @@ namespace pe_phys_collision {
     pe::Real ContactResult::getSameContactPointDistanceThreshold() const {
         pe::Real a_scale = _object_a->getAABBScale();
         pe::Real b_scale = _object_b->getAABBScale();
-        return PE_MIN(a_scale, b_scale) * 0.02;
+        return PE_MIN(a_scale, b_scale) * pe::Real(0.02);
     }
 
 } // pe_phys_collision

@@ -15,10 +15,10 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, -9.8, 0));
-        _world.setSleepLinVel2Threshold(0.01); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(0.01); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(1.0);     // sleep time threshold
+        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setSleepLinVel2Threshold(pe::Real(0.01)); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
@@ -30,17 +30,17 @@ public:
         auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
                                       pe::Vector3(1, 1, 1), 1);
         _world.addRigidBody(rb2);
-        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.1, 4, 0.1)),
-                                        0.5, 1);
+        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.1), 4, pe::Real(0.1))),
+                                         pe::Real(0.5), 1);
         _world.addRigidBody(rb3);
-        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 6, 0.2)),
-                                          0.5, 1, 1);
+        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.2), 6, pe::Real(0.2))),
+                                           pe::Real(0.5), 1, 1);
         _world.addRigidBody(rb4);
 
         // add some compound-shaped rigidbodies
         for (int i = 0; i < 10; i++) {
             auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                            pe::Vector3(0, 10 + i * 4, 0)), 1);
+                                                            pe::Vector3(0, pe::Real(10 + i * 4), 0)), 1);
             _world.addRigidBody(rb);
         }
     }
@@ -66,21 +66,21 @@ protected:
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape1 = new pe_phys_shape::BoxShape(pe::Vector3(1, 1, 1));
-        auto shape2 = new pe_phys_shape::CylinderShape(0.2, 1);
-        auto shape3 = new pe_phys_shape::CylinderShape(0.2, 1);
-        auto shape4 = new pe_phys_shape::CylinderShape(0.2, 1);
-        auto shape5 = new pe_phys_shape::CylinderShape(0.2, 1);
-        auto shape6 = new pe_phys_shape::CylinderShape(0.2, 1);
-        auto shape7 = new pe_phys_shape::CylinderShape(0.2, 1);
+        auto shape2 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
+        auto shape3 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
+        auto shape4 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
+        auto shape5 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
+        auto shape6 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
+        auto shape7 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
         auto shapeBox = new pe_phys_shape::BoxShape(pe::Vector3(3, 3, 3));
         auto shape = new pe_phys_shape::CompoundShape();
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)), 0.4, shape1);
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)), 0.1, shape2);
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -1, 0)), 0.1, shape3);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(1, 0, 0)), 0.1, shape4);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(-1, 0, 0)), 0.1, shape5);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, 1)), 0.1, shape6);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, -1)), 0.1, shape7);
+        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
+        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);
+        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -1, 0)), pe::Real(0.1), shape3);
+        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(1, 0, 0)), pe::Real(0.1), shape4);
+        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(-1, 0, 0)), pe::Real(0.1), shape5);
+        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, 1)), pe::Real(0.1), shape6);
+        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, -1)), pe::Real(0.1), shape7);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shapeBox->calcLocalInertia(mass));
@@ -100,9 +100,9 @@ protected:
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
-        rb->setFrictionCoeff(0.5); // friction coefficient
-        rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -116,9 +116,9 @@ protected:
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
+        rb->setFrictionCoeff(pe::Real(0.5));
+        rb->setRestitutionCoeff(pe::Real(0.5));
+        rb->setAngularDamping(pe::Real(0.8));
         return rb;
     }
 
@@ -132,9 +132,9 @@ protected:
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
+        rb->setFrictionCoeff(pe::Real(0.5));
+        rb->setRestitutionCoeff(pe::Real(0.5));
+        rb->setAngularDamping(pe::Real(0.8));
         return rb;
     }
 };

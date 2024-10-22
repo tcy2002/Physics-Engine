@@ -25,7 +25,7 @@ namespace pe_phys_shape {
     }
 
     pe::Matrix3 SphereShape::calcLocalInertia(pe::Real mass) const {
-        pe::Real i = 2.0 / 5.0 * mass * _radius * _radius;
+        pe::Real i = pe::Real(2.0) / pe::Real(5.0) * mass * _radius * _radius;
         return {
                 i, 0, 0,
                 0, i, 0,

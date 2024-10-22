@@ -8,18 +8,18 @@
 namespace pe_intf {
 
     World::World():
-        _gravity(0, -9.8, 0),
-        _dt(0.01),
-        _sleep_lin_vel2_threshold(0.00),
-        _sleep_ang_vel2_threshold(0.00),
-        _sleep_pos_threshold(0.0),
-        _sleep_time_threshold(0.0),
+        _gravity(0, pe::Real(-9.8), 0),
+        _dt(pe::Real(0.01)),
+        _sleep_lin_vel2_threshold(0),
+        _sleep_ang_vel2_threshold(0),
+        _sleep_pos_threshold(0),
+        _sleep_time_threshold(0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
         _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::init(8);
+        utils::ThreadPool::init(32);
 #   endif
     }
 
@@ -32,7 +32,7 @@ namespace pe_intf {
 
     void World::updateAABBs() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(_collision_objects.size(), 0,[&](int i) {
+        utils::ThreadPool::forBatchedLoop((int)_collision_objects.size(), 0,[&](int i) {
             _collision_objects[i]->computeAABB();
         });
         utils::ThreadPool::join();

@@ -11,10 +11,10 @@ namespace pe_intf { // interface
     protected:
         static pe::HashMap<int, simple_viewer::ObjType> _obj_map;
 
-        static common::Vector3<float> convertVector3(pe::Vector3 vector);
-        static common::Matrix3x3<float> convertMatrix3(pe::Matrix3 matrix);
-        static common::Transform<float> convertTransform(pe::Transform transform);
-        static common::Mesh<float> convertMesh(const pe::Mesh& mesh);
+        static COMMON_FORCE_INLINE common::Vector3<float> convertVector3(pe::Vector3 vector);
+        static COMMON_FORCE_INLINE common::Matrix3x3<float> convertMatrix3(pe::Matrix3 matrix);
+        static COMMON_FORCE_INLINE common::Transform<float> convertTransform(pe::Transform transform);
+        static COMMON_FORCE_INLINE common::Mesh<float> convertMesh(const pe::Mesh& mesh);
 
     public:
         static void open(const std::string& title, int width, int height,

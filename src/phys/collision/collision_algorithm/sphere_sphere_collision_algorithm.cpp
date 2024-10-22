@@ -15,7 +15,7 @@ namespace pe_phys_collision {
         pe::Real radius_b = ((pe_phys_shape::SphereShape*)shape_b)->getRadius();
         pe::Vector3 rel = trans_a.getOrigin() - trans_b.getOrigin();
         pe::Real dist = rel.norm();
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
         if (dist > radius_a + radius_b || PE_APPROX_EQUAL(dist, 0)) {
             return false;

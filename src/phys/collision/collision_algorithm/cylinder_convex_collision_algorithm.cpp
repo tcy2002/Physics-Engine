@@ -24,7 +24,7 @@ namespace pe_phys_collision {
                        ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
 
         pe::Vector3 sep;
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;

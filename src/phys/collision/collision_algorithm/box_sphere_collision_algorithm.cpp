@@ -18,7 +18,7 @@ namespace pe_phys_collision {
         auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
         pe::Vector3 sphereCenter = trans_sph.getOrigin();
         pe::Real radius = shape_sph->getRadius();
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
         pe::Vector3 ptOnBox, normal;
         pe::Real dist;

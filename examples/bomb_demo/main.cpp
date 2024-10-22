@@ -13,10 +13,10 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, -9.8, 0));
-        _world.setSleepLinVel2Threshold(0.04); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(0.08); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(1.0);     // sleep time threshold
+        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setSleepLinVel2Threshold(pe::Real(0.04)); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(pe::Real(0.08)); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -87,9 +87,9 @@ protected:
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
-        rb->setFrictionCoeff(0.5); // friction coefficient
-        rb->setRestitutionCoeff(0.5); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(0.8); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -103,9 +103,9 @@ protected:
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setLocalInertia(shape->calcLocalInertia(mass));
-        rb->setFrictionCoeff(0.5);
-        rb->setRestitutionCoeff(0.5);
-        rb->setAngularDamping(0.8);
+        rb->setFrictionCoeff(pe::Real(0.5));
+        rb->setRestitutionCoeff(pe::Real(0.5));
+        rb->setAngularDamping(pe::Real(0.8));
         return rb;
     }
 };

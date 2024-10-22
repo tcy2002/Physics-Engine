@@ -42,7 +42,7 @@ namespace pe_phys_collision {
                                                           ContactResult &result) {
         pe::Vector3 point, normal;
         pe::Real depth = 0;
-        pe::Real margin = 0.005;
+        pe::Real margin = PE_MARGIN;
 
         //move sphere into triangle space
         pe::Vector3 sphereInTr = transTri.inverseTransform(trans_a.getOrigin());

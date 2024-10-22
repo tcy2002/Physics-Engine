@@ -7,7 +7,7 @@ namespace pe_phys_object {
 
     void RigidBody::setMass(pe::Real mass) {
         _mass = mass;
-        _inv_mass = mass > 0 ? 1.0 / mass : 0;
+        _inv_mass = mass > 0 ? pe::Real(1.0) / mass : 0;
     }
 
     void RigidBody::setLocalInertia(const pe::Matrix3& local_inertia) {
@@ -87,7 +87,7 @@ namespace pe_phys_object {
     pe::Real RigidBody::getAABBScale() const {
         pe::Real scale = (_aabb_max - _aabb_min).norm();
         pe::Real diff = (_aabb_max + _aabb_min - _transform.getOrigin() * 2).norm();
-        return (scale + diff) * 0.5;
+        return (scale + diff) * pe::Real(0.5);
     }
 
     void RigidBody::removeIgnoreCollisionId(uint32_t id) {
@@ -111,7 +111,7 @@ namespace pe_phys_object {
 
     pe::Real RigidBody::getKineticEnergy() {
         return (_linear_velocity.dot(_mass * _linear_velocity) +
-            _angular_velocity.dot(_local_inertia * _angular_velocity)) * 0.5;
+            _angular_velocity.dot(_local_inertia * _angular_velocity)) * pe::Real(0.5);
     }
 
     pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
@@ -162,8 +162,8 @@ namespace pe_phys_object {
 
     void RigidBody::applyDamping(pe::Real dt) {
         if (isKinematic()) return;
-        _linear_velocity *= std::pow(1.0 - _linear_damping, dt);
-        _angular_velocity *= std::pow(1.0 - _angular_damping, dt);
+        _linear_velocity *= PE_POW(pe::Real(1.0) - _linear_damping, dt);
+        _angular_velocity *= PE_POW(pe::Real(1.0) - _angular_damping, dt);
     }
 
     bool RigidBody::step(pe::Real dt) {
