@@ -4,7 +4,6 @@ void Simulator<UV>::start(int target_frame_rate) {
         PE_LOG_ERROR << "Invalid target frame rate: " << target_frame_rate << PE_ENDL;
         return;
     }
-    utils::ThreadPool::init();
 
     pe::Real dt = 1.0 / (pe::Real)target_frame_rate;
     _world.setDt(dt);
@@ -112,14 +111,14 @@ bool Simulator<UV>::renderInit() {
     }
 
     // wait for key 'r' to start
-    while (pe_intf::Viewer::getKeyState('x') != 0) {
+    /*while (pe_intf::Viewer::getKeyState('x') != 0) {
         COMMON_Sleep(10);
         if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
             pe_intf::Viewer::close();
             return false;
         }
         toggleLine();
-    }
+    }*/
     return true;
 }
 
@@ -132,32 +131,6 @@ bool Simulator<UV>::renderStep() {
 
     toggleLine();
 
-#ifdef PE_MULTI_THREAD1
-	utils::ThreadPool::forBatchedLoop(_id_map.size(), 50, [&](int i) {
-        auto& rb = *std::next(_id_map.begin(), i);
-        if (rb.second.empty()) {
-            return;
-        }
-        auto type = rb.first->getCollisionShape()->getType();
-        if (type != pe_phys_shape::ShapeType::Compound) {
-            updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
-            if (!rb.first->isSleep()) {
-                pe_intf::Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
-            }
-        }
-        else {
-            int i = 0;
-            for (auto& s : ((pe_phys_shape::CompoundShape*)rb.first->getCollisionShape())->getShapes()) {
-                updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
-                if (!rb.first->isSleep()) {
-                    pe_intf::Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
-                }
-                i++;
-            }
-        }
-    });
-	utils::ThreadPool::join();
-#else
     for (auto& rb : _id_map) {
         if (rb.second.empty()) {
             continue;
@@ -179,7 +152,6 @@ bool Simulator<UV>::renderStep() {
             }
         }
     }
-#endif
     return true;
 }
 

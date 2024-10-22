@@ -50,5 +50,6 @@ namespace pe_intf { // interface
 int main() { \
     Simulator sim; \
     sim.start(TargetFrameRate); \
+	system("PAUSE"); \
     return 0; \
 }
