@@ -166,7 +166,7 @@ namespace pe_phys_collision {
             }
             pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
             q = pm2 * p1 - p0 * pm1;
-            if (std::abs(a + q) > PE_EPS) {
+            if (PE_ABS(a + q) > PE_EPS) {
                 a = pe::Real(1.0) / (pe::Real(3.0) * (a + q));
             } else {
                 a = PE_REAL_MAX;
@@ -194,7 +194,7 @@ namespace pe_phys_collision {
 
             for (i = 0; i < n; i++) {
                 if (avail[i]) {
-                    diff = std::abs(A[i] - a);
+                    diff = PE_ABS(A[i] - a);
                     if (diff > PE_PI) diff = 2 * PE_PI - diff;
                     if (diff < max_diff) {
                         max_diff = diff;
@@ -241,15 +241,15 @@ namespace pe_phys_collision {
         R32 = dDOT44(R1 + 2, R2 + 1);
         R33 = dDOT44(R1 + 2, R2 + 2);
 
-        Q11 = std::abs(R11);
-        Q12 = std::abs(R12);
-        Q13 = std::abs(R13);
-        Q21 = std::abs(R21);
-        Q22 = std::abs(R22);
-        Q23 = std::abs(R23);
-        Q31 = std::abs(R31);
-        Q32 = std::abs(R32);
-        Q33 = std::abs(R33);
+        Q11 = PE_ABS(R11);
+        Q12 = PE_ABS(R12);
+        Q13 = PE_ABS(R13);
+        Q21 = PE_ABS(R21);
+        Q22 = PE_ABS(R22);
+        Q23 = PE_ABS(R23);
+        Q31 = PE_ABS(R31);
+        Q32 = PE_ABS(R32);
+        Q33 = PE_ABS(R33);
 
         // for all 15 possible separating axes:
         //   * see if the axis separates the boxes. if so, return 0.
@@ -262,7 +262,7 @@ namespace pe_phys_collision {
         // the normal should be flipped.
 
 #   define TST(expr1, expr2, norm, cc)      \
-        s2 = std::abs(expr1) - (expr2);     \
+        s2 = PE_ABS(expr1) - (expr2);     \
         if (s2 > 0) return 0;               \
         if (s2 > s) {                       \
             s = s2;                         \
@@ -289,7 +289,7 @@ namespace pe_phys_collision {
         // normal (n1,n2,n3) is relative to box 1.
 #   undef TST
 #   define TST(expr1, expr2, n1, n2, n3, cc)                    \
-        s2 = std::abs(expr1) - (expr2);                         \
+        s2 = PE_ABS(expr1) - (expr2);                         \
         if (s2 > PE_EPS) return 0;                              \
         l = std::sqrt((n1) * (n1) + (n2) * (n2) + (n3) * (n3)); \
         if (l > PE_EPS) {                                       \
@@ -451,9 +451,9 @@ namespace pe_phys_collision {
             normal2[2] = -normal[2];
         }
         dMULTIPLY1_331(nr, Rb, normal2)
-        anr[0] = std::abs(nr[0]);
-        anr[1] = std::abs(nr[1]);
-        anr[2] = std::abs(nr[2]);
+        anr[0] = PE_ABS(nr[0]);
+        anr[1] = PE_ABS(nr[1]);
+        anr[2] = PE_ABS(nr[2]);
 
         // find the largest component of anr: this corresponds to the normal
         // for the incident face. the other axis numbers of the indicent face

@@ -72,7 +72,6 @@ void Simulator<UV>::start(int target_frame_rate) {
 			overhead_time += actual_dt - target_dt;
         }
         frame++;
-		if (frame >= 1000) break;
     }
 
     auto end = COMMON_GetTickCount();

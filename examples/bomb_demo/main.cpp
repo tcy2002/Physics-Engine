@@ -111,4 +111,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(BombSimulator, 200)
+PE_SIM_MAIN(BombSimulator, 100)

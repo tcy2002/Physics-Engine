@@ -75,7 +75,10 @@ void testMeshMesh() {
 
     auto alg = new ConvexConvexCollisionAlgorithm();
     ContactResult result;
-    alg->processCollision(rb1, rb2, result);
+    result.setObjectA(rb1);
+	result.setObjectB(rb2);
+    alg->processCollision(rb1->getCollisionShape(), rb2->getCollisionShape(), rb1->getTransform(), rb2->getTransform(), result);
+    result.sortContactPoints();
 
     std::cout << result.getPointSize() << std::endl;
     for (int i = 0; i < result.getPointSize(); i++) {

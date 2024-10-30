@@ -23,7 +23,7 @@ void testRaycastBox() {
     obj->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
     start = pe::Vector3(0, 0.7, 0);
     direction = pe::Vector3(0, -1, 0).normalized();
-    ret = rb.processRaycast(start, direction, obj, distance, hit_point, hit_normal);
+    ret = rb.processRaycast(start, direction, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
     std::cout << ret << hit_point << hit_normal << distance << std::endl;
 }
 

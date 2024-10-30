@@ -27,6 +27,5 @@ void testNarrowPhase() {
 int main() {
     utils::ThreadPool::init();
     testNarrowPhase();
-    utils::ThreadPool::deinit();
     return 0;
 }

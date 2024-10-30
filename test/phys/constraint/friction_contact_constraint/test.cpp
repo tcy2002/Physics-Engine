@@ -54,5 +54,4 @@ void testFrictionContactConstraint() {
 int main() {
     utils::ThreadPool::init();
     testFrictionContactConstraint();
-    utils::ThreadPool::deinit();
 }

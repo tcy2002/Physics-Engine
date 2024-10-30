@@ -16,7 +16,7 @@ void testRaycastSphere() {
     auto obj = new pe_phys_object::RigidBody();
     obj->setCollisionShape(new pe_phys_shape::SphereShape(1.0));
     obj->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(1, 1, 1)));
-    ret = rs.processRaycast(start, direction, obj, distance, hit_point, hit_normal);
+    ret = rs.processRaycast(start, direction, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
     std::cout << ret << hit_point << hit_normal << distance << std::endl;
 }
 
