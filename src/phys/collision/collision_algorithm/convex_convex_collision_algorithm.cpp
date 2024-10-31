@@ -137,9 +137,10 @@ namespace pe_phys_collision {
                     pe::Vector3 point = pVtxIn->at(i);
                     result.addContactPoint(separatingNormal, point - separatingNormal * margin,
                                            depth + margin * 2);
+                    std::cout << separatingNormal << std::endl;
+                    exit(0);
                 }
             }
-            result.sortContactPoints();
         }
     }
 
@@ -180,7 +181,7 @@ namespace pe_phys_collision {
         }
     }
 
-    void segmentsClosestPoints(
+    void ConvexConvexCollisionAlgorithm::segmentsClosestPoints(
             pe::Vector3& ptsVector,
             pe::Vector3& offsetA,
             pe::Vector3& offsetB,
@@ -194,10 +195,10 @@ namespace pe_phys_collision {
         pe::Real dirA_dot_trans = dirA.dot(translation);
         pe::Real dirB_dot_trans = dirB.dot(translation);
 
-        pe::Real denom = 1.0f - dirA_dot_dirB * dirA_dot_dirB;
+        pe::Real denom = pe::Real(1.0) - dirA_dot_dirB * dirA_dot_dirB;
 
-        if (denom == 0.0f) {
-            tA = 0.0f;
+        if (denom == 0) {
+            tA = 0;
         } else {
             tA = (dirA_dot_trans - dirB_dot_trans * dirA_dot_dirB) / denom;
             if (tA < -hLenA) tA = -hLenA;
@@ -228,11 +229,12 @@ namespace pe_phys_collision {
         ptsVector = translation - offsetA + offsetB;
     }
 
-    static bool testSepAxis(const pe_phys_shape::Shape* object_a,
-                            const pe_phys_shape::Shape* object_b,
-                            const pe::Transform& transA, const pe::Transform& transB,
-                            const pe::Vector3& sep_axis, pe::Real& depth,
-                            pe::Vector3& witnessPointA, pe::Vector3& witnessPointB) {
+    bool ConvexConvexCollisionAlgorithm::testSepAxis(
+            const pe_phys_shape::Shape* object_a,
+            const pe_phys_shape::Shape* object_b,
+            const pe::Transform& transA, const pe::Transform& transB,
+            const pe::Vector3& sep_axis, pe::Real& depth,
+            pe::Vector3& witnessPointA, pe::Vector3& witnessPointB) {
         pe::Real Min0, Max0;
         pe::Real Min1, Max1;
         pe::Vector3 witnessPtMinA, witnessPtMaxA;
@@ -278,7 +280,7 @@ namespace pe_phys_collision {
             const pe::Vector3 Normal = meshA.faces[i].normal;
             pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
             if (DeltaC2.dot(faceANormalWS) < 0)
-                faceANormalWS *= -1.f;
+                faceANormalWS *= pe::Real(-1.0);
 
             pe::Real d;
             pe::Vector3 wA, wB;
@@ -300,7 +302,7 @@ namespace pe_phys_collision {
             const pe::Vector3 Normal = meshB.faces[i].normal;
             pe::Vector3 WorldNormal = transB.getBasis() * Normal;
             if (DeltaC2.dot(WorldNormal) < 0) {
-                WorldNormal *= -1.f;
+                WorldNormal *= pe::Real(-1.0);
             }
 
             pe::Real d;
@@ -343,7 +345,7 @@ namespace pe_phys_collision {
                 if (!PE_APPROX_EQUAL(Cross.norm(), 0)) {
                     Cross = Cross.normalized();
                     if (DeltaC2.dot(Cross) < 0) {
-                        Cross *= -1.f;
+                        Cross *= pe::Real(-1.0);
                     }
 
                     pe::Real dist;
@@ -389,9 +391,9 @@ namespace pe_phys_collision {
             pe::Real nlSqrt = ptsVector.norm2();
             if (nlSqrt > PE_EPS) {
                 pe::Real nl = std::sqrt(nlSqrt);
-                ptsVector *= 1.f / nl;
-                if (ptsVector.dot(DeltaC2) < 0.f) {
-                    ptsVector *= -1.f;
+                ptsVector *= pe::Real(1.0) / nl;
+                if (ptsVector.dot(DeltaC2) < 0) {
+                    ptsVector *= pe::Real(-1.0);
                 }
                 pe::Vector3 ptOnB = witnessPointB + offsetB;
                 pe::Real distance = nl;
@@ -401,7 +403,7 @@ namespace pe_phys_collision {
             }
         }
 
-        if ((DeltaC2.dot(sep)) < 0.0f) {
+        if (DeltaC2.dot(sep) < 0) {
             sep = -sep;
         }
 

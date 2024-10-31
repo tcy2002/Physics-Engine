@@ -10,6 +10,7 @@
 #include "cylinder_convex_collision_algorithm.h"
 #include "convex_convex_collision_algorithm.h"
 #include "concave_sphere_collision_algorithm.h"
+#include "concave_box_collision_algorithm.h"
 #include "phys/shape/compound_shape.h"
 
 namespace pe_phys_collision {
@@ -58,12 +59,13 @@ namespace pe_phys_collision {
         static CylinderConvexCollisionAlgorithm cylinder_convex;
         static ConvexConvexCollisionAlgorithm convex_convex;
         static ConcaveSphereCollisionAlgorithm concave_sphere;
+        static ConcaveBoxCollisionAlgorithm concave_box;
         static CollisionAlgorithm* algos[] = {
-            &box_box, &box_sphere, &box_cylinder, &box_convex, nullptr,
+            &box_box, &box_sphere, &box_cylinder, &box_convex, &concave_box,
             &box_sphere, &sphere_sphere, &sphere_cylinder, &sphere_convex, &concave_sphere,
             &box_cylinder, &sphere_cylinder, &cylinder_cylinder, &cylinder_convex, nullptr,
             &box_convex, &sphere_convex, &cylinder_convex, &convex_convex, nullptr,
-            nullptr, &concave_sphere, nullptr, nullptr, nullptr
+            &concave_box, &concave_sphere, nullptr, nullptr, nullptr
         };
         return algos[index];
     }

@@ -16,7 +16,7 @@ namespace pe_phys_shape {
         }
 
         // build the bvh search tree
-        int node_size = PE_MAX((int)_mesh.faces.size() / 1023, 1);
+        int node_size = PE_MAX((int)_mesh.faces.size() / 2047, 1);
         _bvh.setMesh(_mesh, node_size);
 
         // calculate unique edges: each edge is represented by two vertices,

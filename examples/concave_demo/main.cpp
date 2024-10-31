@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-void objToMesh(pe::Mesh& mesh, const std::string& filename) {
+void objToMesh(pe::Mesh& mesh, const std::string& filename, pe::Real size) {
     std::fstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open file " << filename << std::endl;
@@ -20,7 +20,7 @@ void objToMesh(pe::Mesh& mesh, const std::string& filename) {
         if (str == "v") {
             pe::Real x, y, z;
             ss >> x >> y >> z;
-            mesh.vertices.push_back({ {x, y, z}, {0, 0, 0} });
+            mesh.vertices.push_back({ {x * size, y * size, z * size}, {0, 0, 0} });
         }
         else if (str == "f") {
             std::string vert;
@@ -34,12 +34,7 @@ void objToMesh(pe::Mesh& mesh, const std::string& filename) {
     }
 
     pe::Mesh::perFaceNormal(mesh);
-    for (auto& face : mesh.faces) {
-        for (auto i : face.indices) {
-            mesh.vertices[i].normal = face.normal;
-        }
-    }
-
+    pe::Mesh::perVertexNormal(mesh);
     file.close();
 }
 
@@ -68,28 +63,26 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a concave rigidbody
-        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj", pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1.2, 0)), 100);
+        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
+            pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100);
         _world.addRigidBody(rb);
 
-        // add some other dynamic objects
-        /*auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-                                      pe::Vector3(1, 1, 1), 1);
-        _world.addRigidBody(rb2);*/
-        for (int i = 0; i < 30; i++) {
-            auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(-0.2), 8 + i, 0)),
-                pe::Real(0.3), 1);
-            _world.addRigidBody(rb3);
-        }
-        /*auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.2), 6, pe::Real(0.2))),
-                                           pe::Real(0.5), 1, 1);
-        _world.addRigidBody(rb4);*/
-
-        //// add some compound-shaped rigidbodies
-        //for (int i = 0; i < 10; i++) {
-        //    auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
-        //                                                    pe::Vector3(0, pe::Real(10 + i * 4), 0)), 1);
-        //    _world.addRigidBody(rb);
-        //}
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3( -2.3, 8.5, 1)),
+        pe::Vector3(0.8, 0.8, 0.8), 1);
+        _world.addRigidBody(rb);
+        // for (int i = 0; i < 9; i++) {
+        //     for (int j = 0; j < 6; j++) {
+        //         pe_phys_object::RigidBody* rb = nullptr;
+        //         if ((i + j) % 2 == 0) {
+        //             rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+        //             pe::Vector3(0.8, 0.8, 0.8), 1);
+        //         } else {
+        //             rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+        //             0.4, 1);
+        //         }
+        //         _world.addRigidBody(rb);
+        //     }
+        // }
     }
 
 protected:
@@ -109,7 +102,7 @@ protected:
 
     static pe_phys_object::RigidBody* createConcaveRigidBody(const std::string& obj_path, const pe::Transform& trans, pe::Real mass) {
         pe::Mesh mesh;
-        objToMesh(mesh, obj_path);
+        objToMesh(mesh, obj_path, 3.0);
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::ConcaveMeshShape();
