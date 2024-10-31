@@ -4,30 +4,35 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/default_mesh.h"
 #include <fstream>
+#include <sstream>
 
 using namespace pe_phys_collision;
 
-void objToMesh(pe::Mesh& mesh, const std::string &filename) {
-    std::ifstream file(filename);
+void objToMesh(pe::Mesh& mesh, const std::string& filename) {
+    std::fstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open file " << filename << std::endl;
         return;
     }
 
-    std::string c;
-    while (file >> c) {
-        if (c == "v") {
+    char buf[1024];
+    while (file.getline(buf, 1024)) {
+        std::stringstream ss(buf);
+        std::string str;
+        ss >> str;
+        if (str == "v") {
             pe::Real x, y, z;
-            file >> x >> y >> z;
-            mesh.vertices.push_back({{x, y, z}, {0, 0, 0}});
-        } else if (c == "f") {
-            int i;
+            ss >> x >> y >> z;
+            mesh.vertices.push_back({ {x, y, z}, {0, 0, 0} });
+        }
+        else if (str == "f") {
+            std::string vert;
             pe::Mesh::Face face;
-            while (file >> i) {
-                face.indices.push_back(i - 1);
+            while (ss >> vert) {
+                int vi = std::atoi(vert.substr(0, vert.find_first_of('/')).c_str());
+                face.indices.push_back(vi - 1);
             }
             mesh.faces.push_back(face);
-            file.clear();
         }
     }
 

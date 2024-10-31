@@ -6,7 +6,8 @@ add_library(PEViewer STATIC intf/viewer.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp
         utils/thread_pool.cpp
-        utils/jacobian_entry.cpp)
+        utils/jacobian_entry.cpp
+        utils/bvh.cpp)
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEngine PRIVATE PEUtils PEViewer)

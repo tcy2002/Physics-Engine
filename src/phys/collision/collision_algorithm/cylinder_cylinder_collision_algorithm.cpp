@@ -34,7 +34,7 @@ namespace pe_phys_collision {
                                                             PE_REAL_MIN, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
-        return result.getPointSize() > 0;
+        return true;
     }
 
 } // pe_phys_collision

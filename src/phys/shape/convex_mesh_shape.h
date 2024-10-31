@@ -2,19 +2,23 @@
 
 #include "phys/phys_general.h"
 #include "shape.h"
+#include "utils/bvh.h"
 
 namespace pe_phys_shape {
 
     class ConvexMeshShape: public Shape {
     protected:
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
+    protected:
+        utils::BVH _bvh;
         pe::Array<pe::Vector3> _unique_edges;
         pe::Array<pe::Vector3> _unique_verts;
         pe::Array<pe::Array<uint32_t>> _unique_faces;
 
     public:
-        PE_API pe::Vector3 setMesh(pe::Mesh mesh);
+        PE_API virtual pe::Vector3 setMesh(pe::Mesh mesh);
         const pe::Array<pe::Vector3>& getUniqueEdges() const { return _unique_edges; }
+        void getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const;
 
         ConvexMeshShape() {}
         virtual ~ConvexMeshShape() override {}

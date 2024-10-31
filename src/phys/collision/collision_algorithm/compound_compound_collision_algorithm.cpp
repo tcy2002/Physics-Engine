@@ -9,6 +9,7 @@
 #include "cylinder_cylinder_collision_algorithm.h"
 #include "cylinder_convex_collision_algorithm.h"
 #include "convex_convex_collision_algorithm.h"
+#include "concave_sphere_collision_algorithm.h"
 #include "phys/shape/compound_shape.h"
 
 namespace pe_phys_collision {
@@ -56,11 +57,13 @@ namespace pe_phys_collision {
         static CylinderCylinderCollisionAlgorithm cylinder_cylinder;
         static CylinderConvexCollisionAlgorithm cylinder_convex;
         static ConvexConvexCollisionAlgorithm convex_convex;
+        static ConcaveSphereCollisionAlgorithm concave_sphere;
         static CollisionAlgorithm* algos[] = {
-            &box_box, &box_sphere, &box_cylinder, &box_convex,
-            &box_sphere, &sphere_sphere, &sphere_cylinder, &sphere_convex,
-            &box_cylinder, &sphere_cylinder, &cylinder_cylinder, &cylinder_convex,
-            &box_convex, &sphere_convex, &cylinder_convex, &convex_convex
+            &box_box, &box_sphere, &box_cylinder, &box_convex, nullptr,
+            &box_sphere, &sphere_sphere, &sphere_cylinder, &sphere_convex, &concave_sphere,
+            &box_cylinder, &sphere_cylinder, &cylinder_cylinder, &cylinder_convex, nullptr,
+            &box_convex, &sphere_convex, &cylinder_convex, &convex_convex, nullptr,
+            nullptr, &concave_sphere, nullptr, nullptr, nullptr
         };
         return algos[index];
     }
@@ -70,8 +73,9 @@ namespace pe_phys_collision {
                                                                  pe::Transform& trans_a,
                                                                  pe::Transform& trans_b,
                                                                  ContactResult &result) {
-        int algo_index = (int)shape_a->getType() * 4 + (int)shape_b->getType();
+        int algo_index = (int)shape_a->getType() * 5 + (int)shape_b->getType();
         auto algo = getCollisionAlgorithm(algo_index);
+        if (algo == nullptr) return false;
         return algo->processCollision(shape_a, shape_b, trans_a, trans_b, result);
     }
 

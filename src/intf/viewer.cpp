@@ -77,7 +77,8 @@ namespace pe_intf {
             case pe_phys_shape::ShapeType::Box: return simple_viewer::ObjType::OBJ_CUBE;
             case pe_phys_shape::ShapeType::Sphere: return simple_viewer::ObjType::OBJ_SPHERE;
             case pe_phys_shape::ShapeType::Cylinder: return simple_viewer::ObjType::OBJ_CYLINDER;
-            case pe_phys_shape::ShapeType::ConvexMesh: return simple_viewer::ObjType::OBJ_MESH;
+            case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:  
+                return simple_viewer::ObjType::OBJ_MESH;
             default: return simple_viewer::ObjType::OBJ_NONE;
         }
     }

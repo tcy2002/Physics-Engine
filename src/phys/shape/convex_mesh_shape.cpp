@@ -9,10 +9,15 @@ namespace pe_phys_shape {
     // Returns the relocation vector.
     pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
+        
         pe::Vector3 centroid = calcMeshCentroid(_mesh);
         for (auto &v: _mesh.vertices) {
             v.position -= centroid;
         }
+
+        // build the bvh search tree
+        int node_size = PE_MAX((int)_mesh.faces.size() / 1023, 1);
+        _bvh.setMesh(_mesh, node_size);
 
         // calculate unique edges: each edge is represented by two vertices,
         // and each edge does not appear more than once in the list
@@ -40,6 +45,10 @@ namespace pe_phys_shape {
         _unique_verts = std::move(vert_map.to_vector());
 
         return centroid;
+    }
+
+    void ConvexMeshShape::getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const {
+        _bvh.search(AA, BB, intersect);
     }
 
     void ConvexMeshShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {

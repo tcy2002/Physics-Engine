@@ -15,6 +15,7 @@
 #include "phys/collision/collision_algorithm/box_cylinder_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/cylinder_cylinder_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/compound_compound_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/concave_sphere_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
@@ -22,17 +23,18 @@ namespace pe_phys_collision {
     protected:
         pe::Array<CollisionAlgorithm*> _algos;
         CollisionAlgorithm* getAlgorithm(pe_phys_shape::ShapeType type_a, pe_phys_shape::ShapeType type_b) {
-            return _algos[(int)type_a * 5 + (int)type_b];
+            return _algos[(int)type_a * 6 + (int)type_b];
         }
 
     public:
         NarrowPhaseBase() {
             _algos = {
-                    new BoxBoxCollisionAlgorithm(), new BoxSphereCollisionAlgorithm(), new BoxCylinderCollisionAlgorithm(), new BoxConvexCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
-                    new BoxSphereCollisionAlgorithm(), new SphereSphereCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
-                    new BoxCylinderCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new CylinderCylinderCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
-                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
-                    new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm()
+                    new BoxBoxCollisionAlgorithm(), new BoxSphereCollisionAlgorithm(), new BoxCylinderCollisionAlgorithm(), new BoxConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
+                    new BoxSphereCollisionAlgorithm(), new SphereSphereCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new ConcaveSphereCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
+                    new BoxCylinderCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new CylinderCylinderCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
+                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
+                    nullptr, new ConcaveSphereCollisionAlgorithm(), nullptr, nullptr, nullptr, nullptr,
+                    new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm()
             };
         }
         virtual ~NarrowPhaseBase() {

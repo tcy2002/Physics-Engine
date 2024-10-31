@@ -30,7 +30,7 @@ namespace pe_phys_collision {
         clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
                             PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
                             margin, result);
-        return result.getPointSize() > 0;
+        return true;
     }
 
     void ConvexConvexCollisionAlgorithm::clipHullAgainstHull(const pe::Vector3 &separatingNormal,

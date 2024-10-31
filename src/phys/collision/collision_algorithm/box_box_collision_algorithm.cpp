@@ -42,7 +42,7 @@ namespace pe_phys_collision {
             return false;
         }
         getClosestPoint((pe_phys_shape::BoxShape*)shape_a, (pe_phys_shape::BoxShape*)shape_b, trans_a, trans_b, result);
-        return result.getPointSize() > 0;
+        return true;
     }
 
     void BoxBoxCollisionAlgorithm::getClosestPoint(pe_phys_shape::BoxShape* shape_a, pe_phys_shape::BoxShape* shape_b,

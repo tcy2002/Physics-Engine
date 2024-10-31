@@ -177,7 +177,7 @@ void Simulator<UV>::addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) 
                 pe_intf::Viewer::updateTransform(ids[0], type, rb->getTransform());
                 updateColor(ids[0], pe_phys_shape::ShapeType::Cylinder, rb->getTag(), rb->isKinematic());
                 break;
-            case pe_phys_shape::ShapeType::ConvexMesh:
+            case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
                 ids.push_back(pe_intf::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)rb->getCollisionShape())->getMesh()));
                 pe_intf::Viewer::updateTransform(ids[0], type, rb->getTransform());
                 updateColor(ids[0], pe_phys_shape::ShapeType::ConvexMesh, rb->getTag(), rb->isKinematic());
@@ -203,7 +203,7 @@ void Simulator<UV>::addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs) 
                             pe_intf::Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                             updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
                             break;
-                        case pe_phys_shape::ShapeType::ConvexMesh:
+                        case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
                             ids.push_back(pe_intf::Viewer::addMesh(((pe_phys_shape::ConvexMeshShape*)s.shape)->getMesh()));
                             pe_intf::Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                             updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
@@ -247,7 +247,7 @@ void Simulator<UV>::updateColor(int id, pe_phys_shape::ShapeType type, const std
         case pe_phys_shape::ShapeType::Cylinder:
             pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.3), pe::Real(0.8), pe::Real(0.3)));
             break;
-        case pe_phys_shape::ShapeType::ConvexMesh:
+        case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
             pe_intf::Viewer::updateColor(id, type, pe::Vector3(pe::Real(0.8), pe::Real(0.8), pe::Real(0.3)));
         default:
             break;
