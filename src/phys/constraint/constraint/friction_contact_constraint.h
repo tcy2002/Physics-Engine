@@ -4,7 +4,7 @@
 #include "phys/collision/narrow_phase/contact_result.h"
 #include "constraint.h"
 
-#define PE_MAX_CONTACT_POINT 6
+#define PE_MAX_CONTACT_POINT 16
 
 namespace pe_phys_constraint {
 

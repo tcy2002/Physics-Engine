@@ -30,9 +30,9 @@ namespace pe_phys_shape {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
                 uint32_t id0 = (uint32_t)(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
-                if (id0 == (uint32_t)vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
+                if (id0 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
                 uint32_t id1 = (uint32_t)(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
-                if (id1 == (uint32_t)vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
+                if (id1 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
                 if (i == 0) _unique_faces.back().push_back(id0);
                 if (i != (int)f.indices.size() - 1) _unique_faces.back().push_back(id1);
                 if (id0 > id1) std::swap(id0, id1);

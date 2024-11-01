@@ -36,7 +36,7 @@ namespace pe_phys_collision {
                                        const pe::Array<pe::Vector3>& uniqueEdgesA,
                                        const pe::Array<pe::Vector3>& uniqueEdgesB,
                                        const pe::Transform& transA, const pe::Transform& transB,
-                                       pe::Vector3& sep, pe::Real margin, ContactResult& resultOut);
+                                       pe::Vector3& sep, pe::Real margin, ContactResult& result);
         static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,
                                         const pe::Mesh& meshA, const pe::Transform& transA,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,

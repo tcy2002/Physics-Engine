@@ -38,7 +38,7 @@ public:
 
         // add some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
-        for (int i = 0; i < 0; i++) {
+        for (int i = 0; i < 30; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
                 rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),

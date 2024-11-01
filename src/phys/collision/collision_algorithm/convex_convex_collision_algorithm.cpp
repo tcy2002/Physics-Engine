@@ -137,8 +137,6 @@ namespace pe_phys_collision {
                     pe::Vector3 point = pVtxIn->at(i);
                     result.addContactPoint(separatingNormal, point - separatingNormal * margin,
                                            depth + margin * 2);
-                    std::cout << separatingNormal << std::endl;
-                    exit(0);
                 }
             }
         }
@@ -320,12 +318,12 @@ namespace pe_phys_collision {
             }
         }
 
-        // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB))) ||
-            (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB)))) {
-            result.addContactPoint(sep, dMinPtOnB - sep * margin,
-                                   -dMin + margin * 2);
-        }
+        // // To prevent one corner case: the actual deepest penetration point is not on the witness face
+        // if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB))) ||
+        //     (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB)))) {
+        //     result.addContactPoint(sep, dMinPtOnB - sep * margin,
+        //                            -dMin + margin * 2);
+        // }
 
         int edgeA = -1;
         int edgeB = -1;

@@ -17,6 +17,7 @@
 #include "phys/collision/collision_algorithm/compound_compound_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/concave_sphere_collision_algorithm.h"
 #include "phys/collision/collision_algorithm/concave_box_collision_algorithm.h"
+#include "phys/collision/collision_algorithm/concave_convex_collision_algorithm.h"
 
 namespace pe_phys_collision {
 
@@ -33,8 +34,8 @@ namespace pe_phys_collision {
                     new BoxBoxCollisionAlgorithm(), new BoxSphereCollisionAlgorithm(), new BoxCylinderCollisionAlgorithm(), new BoxConvexCollisionAlgorithm(), new ConcaveBoxCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
                     new BoxSphereCollisionAlgorithm(), new SphereSphereCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new ConcaveSphereCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
                     new BoxCylinderCollisionAlgorithm(), new SphereCylinderCollisionAlgorithm(), new CylinderCylinderCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
-                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
-                    new ConcaveBoxCollisionAlgorithm(), new ConcaveSphereCollisionAlgorithm(), nullptr, nullptr, nullptr, nullptr,
+                    new BoxConvexCollisionAlgorithm(), new SphereConvexCollisionAlgorithm(), new CylinderConvexCollisionAlgorithm(), new ConvexConvexCollisionAlgorithm(), new ConcaveConvexCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(),
+                    new ConcaveBoxCollisionAlgorithm(), new ConcaveSphereCollisionAlgorithm(), nullptr, new ConcaveConvexCollisionAlgorithm(), nullptr, nullptr,
                     new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm()
             };
         }

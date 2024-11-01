@@ -34,15 +34,15 @@ namespace pe_phys_collision {
         pe::Array<int> intersect;
         ((pe_phys_shape::ConvexMeshShape*)shape_concave)->getIntersetFaces(convex_AA, convex_BB, intersect);
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {
             auto& f = mesh_concave.faces[fi];
             pe::Array<pe::Vector3> concave_unique_edges;
             getUniqueEdges(mesh_concave, f, concave_unique_edges);
-            if (!findSeparatingAxis(f.normal, shape_convex, mesh_concave, f, mesh_convex,
-                                    concave_unique_edges,
+            if (!findSeparatingAxis(shape_convex, f.normal, mesh_convex, mesh_concave, f,
                                     ((pe_phys_shape::ConvexMeshShape*)shape_convex)->getUniqueEdges(),
-                                    trans_concave, trans_convex, sep, margin, result)) {
+                                    concave_unique_edges,
+                                    trans_convex, trans_concave, sep, margin, result)) {
                 continue;
             }
 
@@ -95,12 +95,11 @@ namespace pe_phys_collision {
             auto v2 = mesh.vertices[face.indices[(i + 1) % count]].position;
             uniqueEdges.push_back((v2 - v1).normalized());
         }
-        uniqueEdges.push_back(face.normal);
     }
 
     bool ConcaveConvexCollisionAlgorithm::testSepAxis(
-            const pe::Mesh& meshA, const pe::Mesh::Face& faceA,
-            const pe_phys_shape::Shape* object_b,
+            const pe_phys_shape::Shape* object_a,
+            const pe::Mesh& meshB, const pe::Mesh::Face& faceB,
             const pe::Transform& transA, const pe::Transform& transB,
             const pe::Vector3& sep_axis, pe::Real& depth,
             pe::Vector3& witnessPointA, pe::Vector3& witnessPointB) {
@@ -109,8 +108,8 @@ namespace pe_phys_collision {
         pe::Vector3 witnessPtMinA, witnessPtMaxA;
         pe::Vector3 witnessPtMinB, witnessPtMaxB;
 
-        projectFace(meshA, faceA, transA, sep_axis, Min0, Max0, witnessPtMinA, witnessPtMaxA);
-        object_b->project(transB, sep_axis, Min1, Max1, witnessPtMinB, witnessPtMaxB);
+        object_a->project(transA, sep_axis, Min0, Max0, witnessPtMinA, witnessPtMaxA);
+        projectFace(meshB, faceB, transB, sep_axis, Min1, Max1, witnessPtMinB, witnessPtMaxB);
 
         if (Max0 < Min1 || Max1 < Min0) return false;
 
@@ -130,9 +129,9 @@ namespace pe_phys_collision {
     }
 
     bool ConcaveConvexCollisionAlgorithm::findSeparatingAxis(
-            const pe::Vector3& normA,
-            const pe_phys_shape::Shape* shapeB,
-            const pe::Mesh& meshA, const pe::Mesh::Face& faceA, const pe::Mesh& meshB,
+            const pe_phys_shape::Shape* shapeA,
+            const pe::Vector3& normB,
+            const pe::Mesh& meshA, const pe::Mesh& meshB, const pe::Mesh::Face& faceB,
             const pe::Array<pe::Vector3>& uniqueEdgesA,
             const pe::Array<pe::Vector3>& uniqueEdgesB,
             const pe::Transform& transA, const pe::Transform& transB,
@@ -142,49 +141,58 @@ namespace pe_phys_collision {
         const pe::Vector3 DeltaC2 = c0 - c1;
 
         pe::Real dMin = PE_REAL_MAX;
+        pe::Vector3 dMinPtOnB;
+        bool ptOnA = false;
 
-        // Test normal of triA
-        {
-            pe::Vector3 faceANormalWS = transA.getBasis() * normA;
-            if (DeltaC2.dot(faceANormalWS) < 0) {
-                faceANormalWS *= pe::Real(-1.0);
-            }
-
-            pe::Real d;
-            pe::Vector3 wA, wB;
-            if (!testSepAxis(meshA, faceA, shapeB, transA, transB,
-                             faceANormalWS, d, wA, wB)) {
-                return false;
-            }
-
-            if (d < dMin) {
-                dMin = d;
-                sep = faceANormalWS;
-            }
-        }
-
-        // Test normals from hullB
-        for (int i = 0; i < (int)meshB.faces.size(); i++) {
-            const pe::Vector3 Normal = meshB.faces[i].normal;
-            pe::Vector3 WorldNormal = transB.getBasis() * Normal;
+        // Test normals from hullA
+        for (int i = 0; i < (int)meshA.faces.size(); i++) {
+            const pe::Vector3 Normal = meshA.faces[i].normal;
+            pe::Vector3 WorldNormal = transA.getBasis() * Normal;
             if (DeltaC2.dot(WorldNormal) < 0) {
                 WorldNormal *= pe::Real(-1.0);
             }
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(meshA, faceA, shapeB, transA, transB,
+            if (!testSepAxis(shapeA, meshB, faceB, transA, transB,
                              WorldNormal, d, wA, wB)) {
                 return false;
-                             }
+            }
 
             if (d < dMin) {
                 dMin = d;
+                dMinPtOnB = wB;
+                ptOnA = false;
                 sep = WorldNormal;
             }
         }
 
-        // no need to test corner case
+        // Test normal of faceB
+        {
+            pe::Vector3 WorldNormal = transB.getBasis() * normB;
+            if (DeltaC2.dot(WorldNormal) < 0) {
+                WorldNormal *= pe::Real(-1.0);
+            }
+
+            pe::Real d;
+            pe::Vector3 wA, wB;
+            if (!testSepAxis(shapeA, meshB, faceB, transA, transB,
+                             WorldNormal, d, wA, wB)) {
+                return false;
+            }
+
+            if (d < dMin) {
+                dMin = d;
+                ptOnA = true;
+                sep = WorldNormal;
+            }
+        }
+
+        // // test corner case?
+        // if (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB))) {
+        //     result.addContactPoint(sep, dMinPtOnB - sep * margin,
+        //                            -dMin + margin * 2);
+        // }
 
         int edgeA = -1;
         int edgeB = -1;
@@ -209,10 +217,10 @@ namespace pe_phys_collision {
 
                     pe::Real dist;
                     pe::Vector3 wA, wB;
-                    if (!testSepAxis(meshA, faceA, shapeB, transA, transB,
+                    if (!testSepAxis(shapeA, meshB, faceB, transA, transB,
                                      Cross, dist, wA, wB)) {
                         return false;
-                                     }
+                    }
 
                     if (dist < dMin) {
                         dMin = dist;

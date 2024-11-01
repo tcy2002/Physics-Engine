@@ -91,11 +91,28 @@ namespace pe_phys_collision {
             _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
         } else {
             // otherwise, find an empty slot and replace it
+            bool found = false;
             for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                 if (!_points[i].isValid()) {
                     _points[i] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
                     _points[i].setAppliedImpulse(pe::Vector3::zeros());
+                    found = true;
                     break;
+                }
+            }
+            // if no empty slot found, replace point with the minimum depth
+            if (!found) {
+                pe::Real max_dist = PE_REAL_MIN;
+                int idx = -1;
+                for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
+                    if (_points[i].getDistance() > max_dist) {
+                        max_dist = _points[i].getDistance();
+                        idx = i;
+                    }
+                }
+                if (idx >= 0) {
+                    _points[idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+                    _points[idx].setAppliedImpulse(pe::Vector3::zeros());
                 }
             }
         }

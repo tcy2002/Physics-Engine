@@ -37,16 +37,16 @@ namespace pe_phys_collision {
         pe::Array<int> intersect;
         ((pe_phys_shape::ConcaveMeshShape*)shape_concave)->getIntersetFaces(convex_AA, convex_BB, intersect);
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {
             auto& f = mesh_concave.faces[fi];
             pe::Array<pe::Vector3> concave_unique_edges;
             ConcaveConvexCollisionAlgorithm::getUniqueEdges(mesh_concave, f, concave_unique_edges);
             if (!ConcaveConvexCollisionAlgorithm::findSeparatingAxis(
-                f.normal, shape_box, mesh_concave, f, mesh_box,
-                concave_unique_edges,
+                shape_box, f.normal, mesh_box, mesh_concave, f,
                 pe_phys_shape::_box_unique_edges,
-                trans_concave, trans_box, sep, margin, result)) {
+                concave_unique_edges,
+                trans_box, trans_concave, sep, margin, result)) {
                 continue;
             }
 

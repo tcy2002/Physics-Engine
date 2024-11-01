@@ -11,14 +11,14 @@ namespace pe_phys_collision {
 			                          ContactResult& result) override;
 		static void getUniqueEdges(const pe::Mesh& mesh, const pe::Mesh::Face& face,
 			                       pe::Array<pe::Vector3>& uniqueEdges);
-		static bool testSepAxis(const pe::Mesh& meshA, const pe::Mesh::Face& faceA,
-		                        const pe_phys_shape::Shape* object_b,
-								const pe::Transform& transA, const pe::Transform& transB,
+		static bool testSepAxis(const pe_phys_shape::Shape* object_a,
+		                        const pe::Mesh& meshB, const pe::Mesh::Face& faceB,
+								const pe::Transform& trans_a, const pe::Transform& trans_b,
 								const pe::Vector3& sep_axis, pe::Real& depth,
 								pe::Vector3& witnessPointA, pe::Vector3& witnessPointB);
-		static bool findSeparatingAxis(const pe::Vector3& normA,
-			                           const pe_phys_shape::Shape* shapeB,
-								       const pe::Mesh& meshA, const pe::Mesh::Face& faceA, const pe::Mesh& meshB,
+		static bool findSeparatingAxis(const pe_phys_shape::Shape* shapeA,
+		                               const pe::Vector3& normB,
+								       const pe::Mesh& meshA, const pe::Mesh& meshB, const pe::Mesh::Face& faceB,
 								       const pe::Array<pe::Vector3>& uniqueEdgesA,
 								       const pe::Array<pe::Vector3>& uniqueEdgesB,
 						       		   const pe::Transform& transA, const pe::Transform& transB,

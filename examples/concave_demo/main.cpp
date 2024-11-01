@@ -1,7 +1,6 @@
 #include "intf/simulator.h"
-#include "phys/object/fracturable_object.h"
 #include "phys/shape/concave_mesh_shape.h"
-#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
+#include "phys/shape/default_mesh.h"
 #include <fstream>
 #include <sstream>
 
@@ -63,26 +62,39 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a concave rigidbody
-        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
-            pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100);
+        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/dragon.obj",
+            pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100, 5);
         _world.addRigidBody(rb);
 
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3( -2.3, 8.5, 1)),
-        pe::Vector3(0.8, 0.8, 0.8), 1);
-        _world.addRigidBody(rb);
-        // for (int i = 0; i < 9; i++) {
-        //     for (int j = 0; j < 6; j++) {
-        //         pe_phys_object::RigidBody* rb = nullptr;
-        //         if ((i + j) % 2 == 0) {
-        //             rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
-        //             pe::Vector3(0.8, 0.8, 0.8), 1);
-        //         } else {
-        //             rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
-        //             0.4, 1);
-        //         }
-        //         _world.addRigidBody(rb);
-        //     }
-        // }
+        // rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 10, 0)),
+        // pe::Vector3(.8, 0.8, .8), 1);
+        // _world.addRigidBody(rb);
+
+        // rb = new pe_phys_object::RigidBody();
+        // rb->setMass(1);
+        // auto shape = new pe_phys_shape::ConvexMeshShape();
+        // shape->setMesh(PE_CYLINDER_DEFAULT_MESH);
+        // rb->setCollisionShape(shape);
+        // rb->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.7, 8.2, 0)));
+        // rb->setLocalInertia(shape->calcLocalInertia(rb->getMass())); // inertia tensor matrix
+        // rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
+        // rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        // rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
+        // _world.addRigidBody(rb);
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 6; j++) {
+                pe_phys_object::RigidBody* rb = nullptr;
+                if ((i + j) % 2 == 0) {
+                    rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+                    pe::Vector3(0.8, 0.8, 0.8), 1);
+                } else {
+                    rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+                    0.4, 1);
+                }
+                _world.addRigidBody(rb);
+            }
+        }
     }
 
 protected:
@@ -100,9 +112,9 @@ protected:
                            t * x * z - s * y, t * y * z + s * x, t * z * z + c);
     }
 
-    static pe_phys_object::RigidBody* createConcaveRigidBody(const std::string& obj_path, const pe::Transform& trans, pe::Real mass) {
+    static pe_phys_object::RigidBody* createConcaveRigidBody(const std::string& obj_path, const pe::Transform& trans, pe::Real mass, pe::Real size) {
         pe::Mesh mesh;
-        objToMesh(mesh, obj_path, 3.0);
+        objToMesh(mesh, obj_path, size);
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::ConcaveMeshShape();
