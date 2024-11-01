@@ -49,3 +49,4 @@ lib/
 !blob/
 !blob/**
 !test/**/*.obj
+!examples/**/*.obj

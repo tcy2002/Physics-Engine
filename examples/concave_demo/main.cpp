@@ -66,9 +66,9 @@ public:
             pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100, 5);
         _world.addRigidBody(rb);
 
-        // rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 10, 0)),
-        // pe::Vector3(.8, 0.8, .8), 1);
-        // _world.addRigidBody(rb);
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 7.5, -0.5)),
+        pe::Vector3(.2, 0.2, .2), 1);
+        _world.addRigidBody(rb);
 
         // rb = new pe_phys_object::RigidBody();
         // rb->setMass(1);
@@ -82,19 +82,19 @@ public:
         // rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
         // _world.addRigidBody(rb);
 
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 6; j++) {
-                pe_phys_object::RigidBody* rb = nullptr;
-                if ((i + j) % 2 == 0) {
-                    rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
-                    pe::Vector3(0.8, 0.8, 0.8), 1);
-                } else {
-                    rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
-                    0.4, 1);
-                }
-                _world.addRigidBody(rb);
-            }
-        }
+        // for (int i = 0; i < 9; i++) {
+        //     for (int j = 0; j < 6; j++) {
+        //         pe_phys_object::RigidBody* rb = nullptr;
+        //         if ((i + j) % 2 == 0) {
+        //             rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+        //             pe::Vector3(0.8, 0.8, 0.8), 1);
+        //         } else {
+        //             rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 3, 11, j - 2)),
+        //             0.4, 1);
+        //         }
+        //         _world.addRigidBody(rb);
+        //     }
+        // }
     }
 
 protected:
