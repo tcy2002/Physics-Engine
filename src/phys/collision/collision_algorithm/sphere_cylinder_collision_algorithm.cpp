@@ -29,8 +29,8 @@ namespace pe_phys_collision {
         pe::Real d = PE_ABS(s_pos.y) - c_h;
 
         if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
-            r * r > (c_r + s_r) * (c_r + s_r) ||
-            (d > 0 && ((r - c_r) * (r - c_r) + d * d > s_r * s_r))) {
+        r * r > (c_r + s_r) * (c_r + s_r) ||
+        (d > 0 && r > c_r && (r - c_r) * (r - c_r) + d * d > s_r * s_r)) {
             return false;
         }
 

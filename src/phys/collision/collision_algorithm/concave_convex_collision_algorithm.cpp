@@ -54,7 +54,7 @@ namespace pe_phys_collision {
                 shape_face.getUniqueEdges(),
                 trans_convex, trans_concave, sep, margin, result)) {
                 continue;
-                }
+            }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_convex, mesh_face, trans_convex, trans_concave,
                 PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,

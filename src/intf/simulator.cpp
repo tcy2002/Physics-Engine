@@ -16,7 +16,6 @@ void Simulator<UV>::start(int target_frame_rate) {
 
     int frame = 0;
     int target_dt = (int)(dt * 1000);
-    int overhead_time = 0;
     auto start = COMMON_GetTickCount();
 
 	pe::Real total_step_time = 0;
@@ -35,13 +34,18 @@ void Simulator<UV>::start(int target_frame_rate) {
         }
         ids.clear();
         for (auto cr : _world.getContactResults()) {
+            if (cr->getObjectA()->getGlobalId() == 1 || cr->getObjectB()->getGlobalId() == 1) continue;
             for (int i = 0; i < cr->getPointSize(); i++) {
                 auto p = cr->getContactPoint(i).getWorldPos();
+                auto n = cr->getContactPoint(i).getWorldNormal();
+                auto d = cr->getContactPoint(i).getDistance();
+                std::cout << "contact point: " << p << " normal: " << n << " dist: " << d << std::endl;
                 auto id = pe_intf::Viewer::addSphere(0.03);
                 pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
                 ids.push_back(id);
             }
         }
+        std::cout << "###############" << std::endl;
 #   endif
 
         if (UV == UseViewer::True) {
@@ -65,11 +69,7 @@ void Simulator<UV>::start(int target_frame_rate) {
 
         auto actual_dt = (int)(COMMON_GetTickCount() - t);
         if (target_dt > actual_dt) {
-            COMMON_Sleep(target_dt - actual_dt - overhead_time);
-			overhead_time = overhead_time > target_dt - actual_dt ? overhead_time - target_dt + actual_dt : 0;
-        }
-        else {
-			overhead_time += actual_dt - target_dt;
+            COMMON_Sleep(target_dt - actual_dt);
         }
         frame++;
     }

@@ -66,21 +66,25 @@ public:
             pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100, 5);
         _world.addRigidBody(rb);
 
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 7.5, -0.5)),
-        pe::Vector3(.2, 0.2, .2), 1);
-        _world.addRigidBody(rb);
-
-        // rb = new pe_phys_object::RigidBody();
+        // auto rb = new pe_phys_object::RigidBody();
+        // rb->setKinematic(true);
         // rb->setMass(1);
-        // auto shape = new pe_phys_shape::ConvexMeshShape();
+        // auto shape = new pe_phys_shape::ConcaveMeshShape();
         // shape->setMesh(PE_CYLINDER_DEFAULT_MESH);
         // rb->setCollisionShape(shape);
-        // rb->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.7, 8.2, 0)));
-        // rb->setLocalInertia(shape->calcLocalInertia(rb->getMass())); // inertia tensor matrix
+        // rb->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 0.5, -0.7)));
         // rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
         // rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
         // rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
         // _world.addRigidBody(rb);
+
+        // auto rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 0.5, -0.7)),
+        //     0.5, 1, 1);
+        // _world.addRigidBody(rb);
+
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 9, -0.7)),
+        pe::Vector3(0.4, 0.4, 0.4), 1);
+        _world.addRigidBody(rb);
 
         // for (int i = 0; i < 9; i++) {
         //     for (int j = 0; j < 6; j++) {

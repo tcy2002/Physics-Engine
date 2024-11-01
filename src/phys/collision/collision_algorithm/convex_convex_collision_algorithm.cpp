@@ -341,7 +341,7 @@ namespace pe_phys_collision {
 
                 pe::Vector3 Cross = WorldEdge0.cross(WorldEdge1);
                 if (!PE_APPROX_EQUAL(Cross.norm(), 0)) {
-                    Cross = Cross.normalized();
+                    Cross.normalize();
                     if (DeltaC2.dot(Cross) < 0) {
                         Cross *= pe::Real(-1.0);
                     }
@@ -397,7 +397,7 @@ namespace pe_phys_collision {
                 pe::Real distance = nl;
 
                 result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
-                                       -distance + margin * 2);
+                -distance + margin * 2);
             }
         }
 

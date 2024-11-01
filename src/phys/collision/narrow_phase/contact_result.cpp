@@ -100,7 +100,7 @@ namespace pe_phys_collision {
                     break;
                 }
             }
-            // if no empty slot found, replace point with the minimum depth
+            // if no empty slot found, replace point with the minimum (abs) depth
             if (!found) {
                 pe::Real max_dist = PE_REAL_MIN;
                 int idx = -1;
