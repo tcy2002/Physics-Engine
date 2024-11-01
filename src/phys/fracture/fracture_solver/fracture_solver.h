@@ -23,7 +23,7 @@ namespace pe_phys_fracture {
 
         static pe::Vector3 randomSpherePoints(pe::Real radius);
         static pe::Vector3 randomCylinderPoints(pe::Real radius, pe::Real height);
-        static pe_phys_object::RigidBody* addMesh(const pe::Mesh& mesh, const pe::Transform& trans);
+        static pe_phys_object::RigidBody* addMesh(pe::Mesh& mesh, const pe::Transform& trans);
 
         bool generatePoints(const pe::Array<FractureSource>& sources,
                             pe::Array<pe::Vector3>& points, pe::Array<pe::Vector3>& forces);

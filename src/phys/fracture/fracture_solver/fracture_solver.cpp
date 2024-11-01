@@ -102,12 +102,16 @@ namespace pe_phys_fracture {
         return true;
     }
 
-    pe_phys_object::RigidBody* FractureSolver::addMesh(const pe::Mesh& mesh, const pe::Transform& trans) {
+    pe_phys_object::RigidBody* FractureSolver::addMesh(pe::Mesh& mesh, const pe::Transform& trans) {
         auto rb = new pe_phys_object::RigidBody();
         auto convexMesh = new pe_phys_shape::ConvexMeshShape();
-        pe::Vector3 offset = convexMesh->setMesh(mesh);
+        pe::Vector3 centroid = pe_phys_shape::ConvexMeshShape::calcMeshCentroid(mesh);
+        for (auto& v : mesh.vertices) {
+            v.position -= centroid;
+        }
+        convexMesh->setMesh(mesh);
         rb->setCollisionShape(convexMesh);
-        rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));
+        rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + centroid));
         rb->setMass(pe_phys_shape::ConvexMeshShape::calcMeshVolume(mesh));
         rb->setLocalInertia(convexMesh->calcLocalInertia(rb->getMass()));
         rb->setFrictionCoeff(pe::Real(0.3));

@@ -40,23 +40,28 @@ namespace pe_phys_collision {
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {
             auto& f = mesh_concave.faces[fi];
-            pe::Array<pe::Vector3> concave_unique_edges;
-            ConcaveConvexCollisionAlgorithm::getUniqueEdges(mesh_concave, f, concave_unique_edges);
-            if (!ConcaveConvexCollisionAlgorithm::findSeparatingAxis(
-                shape_box, f.normal, mesh_box, mesh_concave, f,
+            pe::Mesh mesh_face;
+            pe::Mesh::Face face_face;
+            for (int i = 0; i < (int)f.indices.size(); i++) {
+                mesh_face.vertices.push_back(mesh_concave.vertices[f.indices[i]]);
+                face_face.indices.push_back(i);
+            }
+            face_face.normal = f.normal;
+            mesh_face.faces.push_back(face_face);
+            pe_phys_shape::ConvexMeshShape shape_face;
+            shape_face.setMesh(mesh_face);
+
+            if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(
+                shape_box, &shape_face, mesh_box, mesh_face,
                 pe_phys_shape::_box_unique_edges,
-                concave_unique_edges,
+                shape_face.getUniqueEdges(),
                 trans_box, trans_concave, sep, margin, result)) {
                 continue;
             }
-
-            world_verts_b1.resize(0);
-            for (auto e0 : f.indices) {
-                world_verts_b1.push_back(trans_concave * mesh_concave.vertices[e0].position);
-            }
-            ConvexConvexCollisionAlgorithm::clipFaceAgainstHull(sep, mesh_box, trans_box,
-                world_verts_b1, world_verts_b2,
-                PE_REAL_MIN, margin, margin, result);
+            ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
+                sep, mesh_box, mesh_face, trans_box, trans_concave,
+                PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
+                margin, result);
         }
 
         return true;

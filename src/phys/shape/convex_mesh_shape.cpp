@@ -7,13 +7,8 @@ namespace pe_phys_shape {
     // The mesh must be convex, and has complete properties (vertices, faces, normals).
     // The mesh will be relocated to the centroid of the mesh.
     // Returns the relocation vector.
-    pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
+    void ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
-        
-        pe::Vector3 centroid = calcMeshCentroid(_mesh);
-        for (auto &v: _mesh.vertices) {
-            v.position -= centroid;
-        }
 
         // build the bvh search tree
         int node_size = PE_MAX((int)_mesh.faces.size() / 2047, 1);
@@ -43,8 +38,6 @@ namespace pe_phys_shape {
             }
         }
         _unique_verts = std::move(vert_map.to_vector());
-
-        return centroid;
     }
 
     void ConvexMeshShape::getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const {
