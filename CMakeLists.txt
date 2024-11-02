@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(TEST_ENABLED ON)
 
 set(ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(EXTERN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ThirdParty)
 set(SV_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/SimpleViewer/include)
 set(SV_LIB_DIR ${CMAKE_SOURCE_DIR}/SimpleViewer/lib)
 set(SV_BIN_DIR ${CMAKE_SOURCE_DIR}/SimpleViewer/bin)
@@ -17,6 +18,7 @@ add_definitions(-DPE_USE_DOUBLE)
 add_definitions(-DPE_MULTI_THREAD)
 
 include_directories(${ENGINE_INCLUDE_DIR})
+include_directories(${EXTERN_INCLUDE_DIR})
 include_directories(${SV_INCLUDE_DIR})
 
 add_subdirectory(src)

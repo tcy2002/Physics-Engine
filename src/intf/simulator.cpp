@@ -1,3 +1,9 @@
+template<UseViewer UV>
+bool Simulator<UV>::loadScene(const std::string &json_file) {
+    return false;
+}
+
+
 template <UseViewer UV>
 void Simulator<UV>::start(int target_frame_rate) {
     if (target_frame_rate <= 0) {

@@ -10,6 +10,7 @@
 #include "phys/shape/compound_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
+#include "json/json.hpp"
 #include <sstream>
 
 namespace pe_intf { // interface
