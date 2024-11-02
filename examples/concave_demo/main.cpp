@@ -1,6 +1,4 @@
 #include "intf/simulator.h"
-#include "phys/shape/concave_mesh_shape.h"
-#include "phys/shape/default_mesh.h"
 #include <fstream>
 #include <sstream>
 
@@ -40,10 +38,10 @@ void objToMesh(pe::Mesh& mesh, const std::string& filename, pe::Real size) {
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class FractureSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class ConcaveSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 public:
-    FractureSimulator() {}
-    virtual ~FractureSimulator() {}
+    ConcaveSimulator() {}
+    virtual ~ConcaveSimulator() {}
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -62,14 +60,14 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a concave rigidbody (stanford dragon)
-        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/dragon.obj",
-            pe::Transform(pe::Matrix3::identity(), pe::Vector3(1, 5, 0)), 100, 6);
-        _world.addRigidBody(rb);
+        // auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/dragon.obj",
+            // pe::Transform(pe::Matrix3::identity(), pe::Vector3(1, 5, 0)), 100, 6);
+        // _world.addRigidBody(rb);
 
         // add a concave rigidbody (stanford bunny)
-        // auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
-        //     pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 1, 0)), 100, 3);
-        // _world.addRigidBody(rb);
+        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
+            pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 1, 0)), 100, 3);
+        _world.addRigidBody(rb);
 
         // rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 9, -0.7)),
         //     pe::Vector3(0.6, 0.6, 0.6), 1);
@@ -196,4 +194,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(FractureSimulator, 100)
+PE_CUSTOM_MAIN(ConcaveSimulator, 100)

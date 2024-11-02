@@ -1,14 +1,12 @@
 #include "intf/simulator.h"
-#include "phys/object/fracturable_object.h"
-#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class FractureSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class ConcaveSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
 public:
-    FractureSimulator() {}
-    virtual ~FractureSimulator() {}
+    ConcaveSimulator() {}
+    virtual ~ConcaveSimulator() {}
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -118,4 +116,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(FractureSimulator, 100)
+PE_CUSTOM_MAIN(ConcaveSimulator, 100)

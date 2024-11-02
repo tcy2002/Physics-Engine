@@ -1,6 +1,4 @@
 #include "intf/simulator.h"
-#include "phys/object/fracturable_object.h"
-#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
@@ -136,4 +134,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(CompoundSimulator, 100)
+PE_CUSTOM_MAIN(CompoundSimulator, 100)

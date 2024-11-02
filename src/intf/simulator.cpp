@@ -85,8 +85,7 @@ void Simulator<UV>::start(int target_frame_rate) {
     std::cout << "other time: " << other_time << "s" << " " << other_time / total_time << std::endl;
 }
 
-template<UseViewer UV>
-void Simulator<UV>::toggleLine() {
+static void toggleLine() {
     static bool show_line = false;
     if (pe_intf::Viewer::getKeyState('c') == 2) {
         show_line = !show_line;

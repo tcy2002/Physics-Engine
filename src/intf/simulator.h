@@ -9,6 +9,7 @@
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/compound_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
+#include "phys/shape/concave_mesh_shape.h"
 #include <sstream>
 
 namespace pe_intf { // interface
@@ -25,6 +26,8 @@ namespace pe_intf { // interface
         Simulator() {}
         virtual ~Simulator() {}
 
+        // Load a config file
+        bool loadScene(const std::string& json_file);
         // Initialize the physics world here before running
         virtual void init() {}
         // Called every frame to update the physics world
@@ -34,7 +37,6 @@ namespace pe_intf { // interface
 
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;
-        void toggleLine();
         bool renderInit();
         bool renderStep();
         void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
@@ -46,10 +48,18 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
-#define PE_SIM_MAIN(Simulator, TargetFrameRate) \
+#define PE_MAIN(ScenePath, TargetFrameRate) \
+int main() { \
+    pe_intf::Simulator<pe_intf::UseViewer::True> sim; \
+    if (sim.loadScene(ScenePath)) { \
+        sim.start(TargetFrameRate); \
+    } \
+    return 0; \
+}
+
+#define PE_CUSTOM_MAIN(Simulator, TargetFrameRate) \
 int main() { \
     Simulator sim; \
     sim.start(TargetFrameRate); \
-	system("PAUSE"); \
     return 0; \
 }

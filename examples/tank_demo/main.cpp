@@ -80,7 +80,6 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
         rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
         rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
         rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
@@ -89,4 +88,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_SIM_MAIN(TankSimulator, 100)
+PE_CUSTOM_MAIN(TankSimulator, 100)
