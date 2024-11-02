@@ -1,10 +1,8 @@
 #include "concave_box_collision_algorithm.h"
 #include "concave_convex_collision_algorithm.h"
-#include <phys/shape/concave_mesh_shape.h>
-#include <phys/shape/convex_mesh_shape.h>
-#include <phys/shape/box_shape.h>
-#include <phys/shape/default_mesh.h>
 #include "convex_convex_collision_algorithm.h"
+#include "phys/shape/box_shape.h"
+#include "phys/shape/concave_mesh_shape.h"
 
 namespace pe_phys_collision {
 

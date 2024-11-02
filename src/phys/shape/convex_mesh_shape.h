@@ -6,12 +6,14 @@
 
 namespace pe_phys_collision {
     class ConcaveBoxCollisionAlgorithm;
+    class ConcaveCylinderCollisionAlgorithm;
 }
 
 namespace pe_phys_shape {
 
     class ConvexMeshShape: public Shape {
         friend class pe_phys_collision::ConcaveBoxCollisionAlgorithm;
+        friend class pe_phys_collision::ConcaveCylinderCollisionAlgorithm;
 
     protected:
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
