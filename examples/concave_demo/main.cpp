@@ -62,14 +62,14 @@ public:
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a concave rigidbody (stanford dragon)
-        // auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/dragon.obj",
-        //     pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 4, 0)), 100, 5);
-        // _world.addRigidBody(rb);
+        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/dragon.obj",
+            pe::Transform(pe::Matrix3::identity(), pe::Vector3(1, 5, 0)), 100, 6);
+        _world.addRigidBody(rb);
 
         // add a concave rigidbody (stanford bunny)
-        auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
-            pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 1, 0)), 100, 3);
-        _world.addRigidBody(rb);
+        // auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
+        //     pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 1, 0)), 100, 3);
+        // _world.addRigidBody(rb);
 
         // rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 9, -0.7)),
         //     pe::Vector3(0.6, 0.6, 0.6), 1);
