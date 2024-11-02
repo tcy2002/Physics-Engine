@@ -29,6 +29,8 @@
 
 //// phys
 #define PE_MARGIN pe::Real(0.005)
+#define PE_DIST_REF_RADIO pe::Real(0.01)
+#define PE_USE_QUATERNION
 
 //// math
 #define PE_MAX(a, b) ((a) > (b) ? (a) : (b))

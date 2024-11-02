@@ -28,7 +28,6 @@ namespace pe_phys_shape {
         PE_API virtual bool localIsInside(const pe::Vector3& point) const override;
         PE_API virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                                     pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
-        PE_API virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const override;
     };
 
 } // namespace pe_phys_shape

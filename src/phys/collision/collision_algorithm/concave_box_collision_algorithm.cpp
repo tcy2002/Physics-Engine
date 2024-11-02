@@ -9,8 +9,8 @@
 namespace pe_phys_collision {
 
     bool ConcaveBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
-                                                           pe::Transform trans_a, pe::Transform trans_b,
-                                                           ContactResult& result) {
+                                                        pe::Transform trans_a, pe::Transform trans_b,
+                                                        pe::Real refScale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
             shape_b->getType() == pe_phys_shape::ShapeType::ConcaveMesh) ||
             (shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh &&
@@ -24,6 +24,7 @@ namespace pe_phys_collision {
         auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
         auto& mesh_concave = ((pe_phys_shape::ConcaveMeshShape*)shape_concave)->getMesh();
         auto& mesh_box = ((pe_phys_shape::BoxShape*)shape_box)->getMesh();
+        auto& edges_box = ((pe_phys_shape::BoxShape*)shape_box)->getUniqueEdges();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;
@@ -49,18 +50,17 @@ namespace pe_phys_collision {
             face_face.normal = f.normal;
             mesh_face.faces.push_back(face_face);
             pe_phys_shape::ConvexMeshShape shape_face;
-            shape_face.setMesh(mesh_face);
+            shape_face._mesh = mesh_face;
 
             if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(
                 shape_box, &shape_face, mesh_box, mesh_face,
-                pe_phys_shape::_box_unique_edges,
-                shape_face.getUniqueEdges(),
+                edges_box, shape_face.getUniqueEdges(),
                 trans_box, trans_concave, sep, margin, result)) {
                 continue;
             }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_box, mesh_face, trans_box, trans_concave,
-                PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
+                -refScale, 0, world_verts_b1, world_verts_b2,
                 margin, result);
         }
 

@@ -7,7 +7,7 @@ namespace pe_phys_collision {
 
     bool ConcaveConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                            pe::Transform trans_a, pe::Transform trans_b,
-                                                           ContactResult& result) {
+                                                           pe::Real refScale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
             shape_b->getType() == pe_phys_shape::ShapeType::ConcaveMesh) ||
             (shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh &&
@@ -57,7 +57,7 @@ namespace pe_phys_collision {
             }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_convex, mesh_face, trans_convex, trans_concave,
-                PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
+                -refScale, 0, world_verts_b1, world_verts_b2,
                 margin, result);
         }
 

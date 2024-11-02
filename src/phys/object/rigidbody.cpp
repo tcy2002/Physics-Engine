@@ -5,14 +5,27 @@ namespace pe_phys_object {
 
     std::atomic<uint32_t> RigidBody::_globalIdCounter(0);
 
-    void RigidBody::setMass(pe::Real mass) {
-        _mass = mass;
-        _inv_mass = mass > 0 ? pe::Real(1.0) / mass : 0;
+    void RigidBody::setCollisionShape(pe_phys_shape::Shape *shape) {
+        if (shape == nullptr) {
+            throw std::runtime_error("Collision shape cannot be null.");
+        }
+        _collision_shape = shape;
+        _local_inertia = _collision_shape->getLocalInertia() * _mass;
+        _local_inv_inertia = _local_inertia.inverse();
+        updateWorldInertia();
     }
 
-    void RigidBody::setLocalInertia(const pe::Matrix3& local_inertia) {
-        _local_inertia = local_inertia;
-        _local_inv_inertia = local_inertia.inverse();
+
+    void RigidBody::setMass(pe::Real mass) {
+        _mass = mass;
+        _inv_mass = mass > PE_EPS ? pe::Real(1.0) / mass : 0;
+        _local_inertia = pe::Matrix3::identity() * mass;
+        if (_collision_shape != nullptr) {
+            _local_inertia = _collision_shape->getLocalInertia() * mass;
+        }
+        if (_mass > PE_EPS) {
+            _local_inv_inertia = _local_inertia.inverse();
+        }
         updateWorldInertia();
     }
 
@@ -50,7 +63,6 @@ namespace pe_phys_object {
             _global_id(++_globalIdCounter),
             _kinematic(false),
             _ignore_collision(false),
-            _collision_shape(nullptr),
             _mass(1.),
             _inv_mass(1.),
             _local_inertia(pe::Matrix3::identity()),
@@ -76,7 +88,7 @@ namespace pe_phys_object {
     }
 
     void RigidBody::computeAABB() {
-        if (_collision_shape) {
+        if (_collision_shape != nullptr) {
             _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
         } else {
             _aabb_min = pe::Vector3::zeros();
@@ -109,7 +121,7 @@ namespace pe_phys_object {
         return _linear_velocity + _angular_velocity.cross(local_p);
     }
 
-    pe::Real RigidBody::getKineticEnergy() {
+    pe::Real RigidBody::getKineticEnergy() const {
         return (_linear_velocity.dot(_mass * _linear_velocity) +
             _angular_velocity.dot(_local_inertia * _angular_velocity)) * pe::Real(0.5);
     }
@@ -174,20 +186,20 @@ namespace pe_phys_object {
         }
 
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
-#   if false
-        pe::Matrix3 rot;
-        pe::Real angle_speed = _angular_velocity.norm();
-        if (angle_speed > PE_EPS) {
-            rot.setRotation(_angular_velocity.normalized(), angle_speed * dt);
-            _transform.setBasis(rot * _transform.getBasis());
-        }
-#   else
+#   ifdef PE_USE_QUATERNION
         auto q = pe::Quaternion::fromRotationMatrix(_transform.getBasis());
         pe::Vector3 dr = _angular_velocity * dt * pe::Real(0.5);
         auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
         q += dq;
         q.normalize();
         _transform.setBasis(q.toRotationMatrix());
+#   else
+        pe::Matrix3 rot;
+        pe::Real angle_speed = _angular_velocity.norm();
+        if (angle_speed > PE_EPS) {
+            rot.setRotation(_angular_velocity.normalized(), angle_speed * dt);
+            _transform.setBasis(rot * _transform.getBasis());
+        }
 #   endif
         updateWorldInertia();
 

@@ -9,7 +9,7 @@ namespace pe_phys_collision {
 
     bool BoxConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                        pe::Transform trans_a, pe::Transform trans_b,
-                                                       ContactResult& result) {
+                                                       pe::Real refScale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
               shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh) ||
               (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
@@ -23,6 +23,12 @@ namespace pe_phys_collision {
         auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
                        ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh() :
                        ((pe_phys_shape::BoxShape*)shape_b)->getMesh();
+        auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+                        ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges() :
+                        ((pe_phys_shape::BoxShape*)shape_a)->getUniqueEdges();
+        auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+                        ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges() :
+                        ((pe_phys_shape::BoxShape*)shape_b)->getUniqueEdges();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;
@@ -32,14 +38,13 @@ namespace pe_phys_collision {
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges() : pe_phys_shape::_box_unique_edges,
-                                                                shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh ? ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges() : pe_phys_shape::_box_unique_edges,
+                                                                edges_a, edges_b,
                                                                 trans_a, trans_b, sep, margin, result)) {
             return false;
         }
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
                                                             mesh_a, mesh_b, trans_a, trans_b,
-                                                            PE_REAL_MIN, 0,
+                                                            -refScale, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
         return true;

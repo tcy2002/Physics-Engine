@@ -9,7 +9,14 @@ namespace pe_phys_shape {
     };
 
     class Shape {
+    protected:
+        pe::Matrix3 _local_inertia; // assume the density is 1 and the center of mass is at the origin
+        pe::Real _volume;
+
     public:
+        const pe::Matrix3& getLocalInertia() const { return _local_inertia; }
+        pe::Real getVolume() const { return _volume; }
+
         Shape() = default;
         virtual ~Shape() = default;
         virtual ShapeType getType() const = 0;
@@ -18,7 +25,6 @@ namespace pe_phys_shape {
         virtual bool localIsInside(const pe::Vector3 &point) const = 0;
         virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                              pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const = 0;
-        virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const = 0;
     };
 
 } // namespace pe_phys_shape

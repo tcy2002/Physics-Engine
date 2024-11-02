@@ -4,40 +4,130 @@
 //#define INERTIA_USE_AABB
 
 namespace pe_phys_shape {
+
     // The mesh must be convex, and has complete properties (vertices, faces, normals).
-    // The mesh will be relocated to the centroid of the mesh.
+    // The mesh will be relocated to the center of mass.
     // Returns the relocation vector.
-    void ConvexMeshShape::setMesh(pe::Mesh mesh) {
+    pe::Vector3 ConvexMeshShape::setMesh(pe::Mesh mesh) {
         _mesh = std::move(mesh);
+
+#   ifdef PE_MESH_PROPERTIES_USE_LOCAL_AABB
+        pe::Vector3 aabb_min, aabb_max;
+        getAABB(pe::Transform::identity(), aabb_min, aabb_max);
+        pe::Vector3 size = aabb_max - aabb_min;
+        pe::Real x2 = size.x * size.x, y2 = size.y * size.y, z2 = size.z * size.z;
+        _volume = size.x * size.y * size.z;
+        _local_inertia = {
+                (y2 + z2) / 12, 0, 0,
+                0, (x2 + z2) / 12, 0,
+                0, 0, (x2 + y2) / 12
+        };
+        pe::Vector3 cm = (aabb_max + aabb_min) / 2;
+#   else
+
+#   define SUB_EXPRESSIONS(w0, w1, w2, f1, f2, f3, g0, g1, g2) do { \
+        pe::Real tmp0 = (w0) + (w1); \
+        f1 = tmp0 + (w2); \
+        pe::Real tmp1 = (w0) * (w0); \
+        pe::Real tmp2 = tmp1 + (w1) * tmp0; \
+        f2 = tmp2 + (w2) * f1; \
+        f3 = (w0) * tmp1 + (w1) * tmp2 + (w2) * f2; \
+        g0 = f2 + (w0) * (f1 + (w0)); \
+        g1 = f2 + (w1) * (f1 + (w1)); \
+        g2 = f2 + (w2) * (f1 + (w2)); \
+    } while (0)
+
+        const pe::Real mult[10] = {
+            pe::Real(1.0) / 6, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 60,
+            pe::Real(1.0) / 60, pe::Real(1.0) / 60, pe::Real(1.0) / 120, pe::Real(1.0) / 120, pe::Real(1.0) / 120
+        };
+        pe::Real intg[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        for (auto& face : _mesh.faces) {
+            auto& v0 = _mesh.vertices[face.indices[0]].position;
+            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
+                auto& v1 = _mesh.vertices[face.indices[i + 1]].position;
+                auto& v2 = _mesh.vertices[face.indices[i + 2]].position;
+
+                // get vertices of triangle t
+                pe::Real x0 = v0.x, y0 = v0.y, z0 = v0.z;
+                pe::Real x1 = v1.x, y1 = v1.y, z1 = v1.z;
+                pe::Real x2 = v2.x, y2 = v2.y, z2 = v2.z;
+
+                // get edges and cross product of edges
+                pe::Real a1 = x1 - x0, b1 = y1 - y0, c1 = z1 - z0;
+                pe::Real a2 = x2 - x0, b2 = y2 - y0, c2 = z2 - z0;
+                pe::Real d0 = b1 * c2 - b2 * c1;
+                pe::Real d1 = a2 * c1 - a1 * c2;
+                pe::Real d2 = a1 * b2 - a2 * b1;
+
+                // compute integral terms
+                pe::Real f1x, f2x, f3x, g0x, g1x, g2x;
+                SUB_EXPRESSIONS(x0, x1, x2, f1x, f2x, f3x, g0x, g1x, g2x);
+                pe::Real f1y, f2y, f3y, g0y, g1y, g2y;
+                SUB_EXPRESSIONS(y0, y1, y2, f1y, f2y, f3y, g0y, g1y, g2y);
+                pe::Real f1z, f2z, f3z, g0z, g1z, g2z;
+                SUB_EXPRESSIONS(z0, z1, z2, f1z, f2z, f3z, g0z, g1z, g2z);
+
+                // update integrals
+                intg[0] += d0 * f1x;
+                intg[1] += d0 * f2x;
+                intg[2] += d1 * f2y;
+                intg[3] += d2 * f2z;
+                intg[4] += d0 * f3x;
+                intg[5] += d1 * f3y;
+                intg[6] += d2 * f3z;
+                intg[7] += d0 * (y0 * g0x + y1 * g1x + y2 * g2x);
+                intg[8] += d1 * (z0 * g0y + z1 * g1y + z2 * g2y);
+                intg[9] += d2 * (x0 * g0z + x1 * g1z + x2 * g2z);
+            }
+        }
+        for (int i = 0; i < 10; i++) {
+            intg[i] *= mult[i];
+        }
+
+        _volume = intg[0];
+        pe::Vector3 cm = {intg[1] / _volume, intg[2] / _volume, intg[3] / _volume};
+
+        // inertia tensor relative to center of mass
+        _local_inertia[0][0] = intg[5] + intg[6] - _volume * (cm.y * cm.y + cm.z * cm.z);
+        _local_inertia[1][1] = intg[4] + intg[6] - _volume * (cm.z * cm.z + cm.x * cm.x);
+        _local_inertia[2][2] = intg[4] + intg[5] - _volume * (cm.x * cm.x + cm.y * cm.y);
+        _local_inertia[0][1] = _local_inertia[1][0] = -intg[7] + _volume * cm.x * cm.y;
+        _local_inertia[1][2] = _local_inertia[2][1] = -intg[8] + _volume * cm.y * cm.z;
+        _local_inertia[0][2] = _local_inertia[2][0] = -intg[9] + _volume * cm.z * cm.x;
+        _local_inertia /= _volume;
+#   endif
+        for (auto& v : _mesh.vertices) {
+            v.position -= cm;
+        }
 
         // build the bvh search tree
         int node_size = PE_MAX((int)_mesh.faces.size() / 2047, 1);
         _bvh.setMesh(_mesh, node_size);
 
         // calculate unique edges: each edge is represented by two vertices,
-        // and each edge does not appear more than once in the list
         _unique_edges.clear();
         pe::Vector3HashList vert_map((uint32_t)_mesh.vertices.size());
         pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
-            _unique_faces.push_back({});
             for (int i = 0; i < (int)f.indices.size(); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
-                uint32_t id0 = (uint32_t)(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
+                int id0 = (int)(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
                 if (id0 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
-                uint32_t id1 = (uint32_t)(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
+                int id1 = (int)(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
                 if (id1 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
-                if (i == 0) _unique_faces.back().push_back(id0);
-                if (i != (int)f.indices.size() - 1) _unique_faces.back().push_back(id1);
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
                     edge_map[{id0, id1}] = true;
-                    _unique_edges.push_back((_mesh.vertices[v0].position - _mesh.vertices[v1].position).normalized());
+                    _unique_edges.emplace_back(_mesh.vertices[v0].position, _mesh.vertices[v1].position);
                 }
             }
         }
-        _unique_verts = std::move(vert_map.to_vector());
+
+        // return the relocation vector
+        return cm;
     }
 
     void ConvexMeshShape::getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const {
@@ -90,108 +180,5 @@ namespace pe_phys_shape {
         maxProj += offset;
         minPoint = transform * minPoint;
         maxPoint = transform * maxPoint;
-    }
-
-    pe::Matrix3 ConvexMeshShape::calcLocalInertia(pe::Real mass) const {
-#   ifdef INERTIA_USE_AABB
-        pe::Vector3 aabb_min, aabb_max;
-        getAABB(pe::Transform::identity(), aabb_min, aabb_max);
-        pe::Vector3 size = aabb_max - aabb_min;
-        pe::Real x2 = size.x * size.x, y2 = size.y * size.y, z2 = size.z * size.z;
-        pe::Real mass_12 = mass / 12.0;
-        return {
-                mass_12 * (y2 + z2), 0, 0,
-                0, mass_12 * (x2 + z2), 0,
-                0, 0, mass_12 * (x2 + y2)
-        };
-#   else
-#   define INERTIA_INTERNAL_ITER 4
-#   define INERTIA_SURFACE_ITER 4
-
-        pe::Array<pe::KV<pe::Vector3, pe::Real>> elements;
-        elements.reserve(_unique_edges.size() * INERTIA_SURFACE_ITER * 2 *
-                         _unique_verts.size() * INERTIA_SURFACE_ITER);
-
-        pe::Real sum = 0;
-        for (auto& face : _unique_faces) {
-            pe::Vector3 center_face = pe::Vector3::zeros();
-            for (auto& v : face) {
-                center_face += _unique_verts[v];
-            }
-            center_face /= (pe::Real)face.size();
-
-            for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
-                pe::Real m = pe::Real(i * i);
-                for (int j = 1; j < INERTIA_SURFACE_ITER; j++) {
-                    for (auto& v : face) {
-                        sum += m * j;
-                        elements.push_back({center_face.lerp(_unique_verts[v],
-                                                             (pe::Real)j / INERTIA_SURFACE_ITER), m * j});
-                    }
-                }
-            }
-        }
-        for (int i = 1; i <= INERTIA_INTERNAL_ITER; i++) {
-            pe::Real m = pe::Real(i * i * INERTIA_SURFACE_ITER);
-            for (auto& v : _unique_verts) {
-                sum += m;
-                elements.push_back({v * ((pe::Real)i / INERTIA_INTERNAL_ITER), m});
-            }
-        }
-
-        pe::Matrix3 inertia = pe::Matrix3::zeros();
-        for (auto& e : elements) {
-            pe::Real x2 = e.first.x * e.first.x;
-            pe::Real y2 = e.first.y * e.first.y;
-            pe::Real z2 = e.first.z * e.first.z;
-            pe::Real xy = e.first.x * e.first.y;
-            pe::Real xz = e.first.x * e.first.z;
-            pe::Real yz = e.first.y * e.first.z;
-            pe::Real m = e.second;
-            inertia[0][0] += m * (y2 + z2);
-            inertia[1][1] += m * (x2 + z2);
-            inertia[2][2] += m * (x2 + y2);
-            inertia[0][1] -= m * xy;
-            inertia[0][2] -= m * xz;
-            inertia[1][2] -= m * yz;
-        }
-        inertia[1][0] = inertia[0][1];
-        inertia[2][0] = inertia[0][2];
-        inertia[2][1] = inertia[1][2];
-        return inertia * (mass / (2 * sum));
-#   endif
-    }
-
-    pe::Real ConvexMeshShape::calcMeshVolume(const pe::Mesh &mesh) {
-        pe::Real volume = 0;
-        for (auto& face : mesh.faces) {
-            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
-                const pe::Vector3 &v0 = mesh.vertices[face.indices[0]].position;
-                const pe::Vector3 &v1 = mesh.vertices[face.indices[i + 1]].position;
-                const pe::Vector3 &v2 = mesh.vertices[face.indices[i + 2]].position;
-                volume += v0.dot(v1.cross(v2));
-            }
-        }
-        return volume / pe::Real(6.0);
-    }
-
-    pe::Vector3 ConvexMeshShape::calcMeshCentroid(const pe::Mesh &mesh) {
-        // not accurate
-        pe::Vector3 centroid = pe::Vector3::zeros();
-        pe::Real surface_area = 0;
-        for (auto &f: mesh.faces) {
-            pe::Vector3 face_centroid = pe::Vector3::zeros();
-            pe::Vector3 face_area = pe::Vector3::zeros();
-            for (int i = 0; i < (int)f.indices.size(); i++) {
-                auto &p0 = mesh.vertices[f.indices[i]].position;
-                auto &p1 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
-                face_area += p0.cross(p1);
-                face_centroid += p0;
-            }
-            pe::Real face_area_ = face_area.norm();
-            surface_area += face_area_;
-            centroid += face_centroid / (pe::Real) f.indices.size() * face_area_;
-        }
-        return centroid / surface_area;
     }
 }

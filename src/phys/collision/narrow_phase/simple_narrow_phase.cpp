@@ -31,7 +31,8 @@ namespace pe_phys_collision {
             results[i]->setObjects(pairs[i].first, pairs[i].second);
             auto algo = getAlgorithm(type_a, type_b);
             if (algo == nullptr) return;
-            algo->processCollision(shape_a, shape_b, trans_a, trans_b, *results[i]);
+            pe::Real refScale = (pairs[i].first->getAABBScale() + pairs[i].second->getAABBScale()) * PE_DIST_REF_RADIO;
+            algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, *results[i]);
             results[i]->sortContactPoints();
         });
         utils::ThreadPool::join();

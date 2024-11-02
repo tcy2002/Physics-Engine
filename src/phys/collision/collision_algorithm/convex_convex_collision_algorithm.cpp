@@ -6,7 +6,7 @@ namespace pe_phys_collision {
     // sat convex collision (bullet)
     bool ConvexConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
-                                                          ContactResult &result) {
+                                                          pe::Real refScale, ContactResult &result) {
         if (shape_a->getType() != pe_phys_shape::ShapeType::ConvexMesh ||
             shape_b->getType() != pe_phys_shape::ShapeType::ConvexMesh) {
             return false;
@@ -28,7 +28,7 @@ namespace pe_phys_collision {
             return false;
         }
         clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
-                            PE_REAL_MIN, margin, world_verts_b1, world_verts_b2,
+                            -refScale, 0, world_verts_b1, world_verts_b2,
                             margin, result);
         return true;
     }
@@ -129,11 +129,11 @@ namespace pe_phys_collision {
             for (int i = 0; i < (int)pVtxIn->size(); i++) {
                 pe::Vector3 vtx = pVtxIn->at(i);
                 pe::Real depth = localPlaneNormal.dot(transA.inverseTransform(vtx) - planeV);
-                if (depth <= minDist) {
-                    depth = minDist;
-                }
+                // if (depth <= minDist) {
+                //     depth = minDist;
+                // }
 
-                if (depth <= maxDist) {
+                if (depth <= maxDist && depth >= minDist) {
                     pe::Vector3 point = pVtxIn->at(i);
                     result.addContactPoint(separatingNormal, point - separatingNormal * margin,
                                            depth + margin * 2);
@@ -179,7 +179,7 @@ namespace pe_phys_collision {
         }
     }
 
-    void ConvexConvexCollisionAlgorithm::segmentsClosestPoints(
+    static void segmentsClosestPoints(
             pe::Vector3& ptsVector,
             pe::Vector3& offsetA,
             pe::Vector3& offsetB,
@@ -227,7 +227,7 @@ namespace pe_phys_collision {
         ptsVector = translation - offsetA + offsetB;
     }
 
-    bool ConvexConvexCollisionAlgorithm::testSepAxis(
+    static bool testSepAxis(
             const pe_phys_shape::Shape* object_a,
             const pe_phys_shape::Shape* object_b,
             const pe::Transform& transA, const pe::Transform& transB,
@@ -258,13 +258,20 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(const pe_phys_shape::Shape* shapeA,
-                                                            const pe_phys_shape::Shape* shapeB,
-                                                            const pe::Mesh& meshA, const pe::Mesh& meshB,
-                                                            const pe::Array<pe::Vector3>& uniqueEdgesA,
-                                                            const pe::Array<pe::Vector3>& uniqueEdgesB,
-                                                            const pe::Transform &transA, const pe::Transform &transB,
-                                                            pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
+    static bool isOnLine(const pe::Vector3& v0, const pe::Vector3& v1, const pe::Vector3& v2) {
+        pe::Vector3 edge = v1 - v0;
+        pe::Vector3 normal = edge.cross(v2 - v0);
+        return normal.norm2() < PE_EPS;
+    }
+
+    bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(
+            const pe_phys_shape::Shape* shapeA,
+            const pe_phys_shape::Shape* shapeB,
+            const pe::Mesh& meshA, const pe::Mesh& meshB,
+            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesA,
+            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesB,
+            const pe::Transform &transA, const pe::Transform &transB,
+            pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
         const pe::Vector3 c0 = transA.getOrigin();
         const pe::Vector3 c1 = transB.getOrigin();
         const pe::Vector3 DeltaC2 = c0 - c1;
@@ -319,8 +326,7 @@ namespace pe_phys_collision {
         }
 
         // // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        // if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB))) ||
-        //     (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB)))) {
+        // if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB)))) {
         //     result.addContactPoint(sep, dMinPtOnB - sep * margin,
         //                            -dMin + margin * 2);
         // }
@@ -333,10 +339,10 @@ namespace pe_phys_collision {
 
         // Test edges
         for (int e0 = 0; e0 < (int)uniqueEdgesA.size(); e0++) {
-            const pe::Vector3 edge0 = uniqueEdgesA[e0];
+            const pe::Vector3 edge0 = (uniqueEdgesA[e0].first - uniqueEdgesA[e0].second).normalized();
             const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
             for (int e1 = 0; e1 < (int)uniqueEdgesB.size(); e1++) {
-                const pe::Vector3 edge1 = uniqueEdgesB[e1];
+                const pe::Vector3 edge1 = (uniqueEdgesB[e1].first - uniqueEdgesB[e1].second).normalized();
                 const pe::Vector3 WorldEdge1 = transB.getBasis() * edge1;
 
                 pe::Vector3 Cross = WorldEdge0.cross(WorldEdge1);
@@ -354,6 +360,10 @@ namespace pe_phys_collision {
                     }
 
                     if (dist < dMin) {
+                        if (!isOnLine(uniqueEdgesA[e0].first, uniqueEdgesA[e0].second, transA.inverseTransform(wA)) ||
+                            !isOnLine(uniqueEdgesB[e1].first, uniqueEdgesB[e1].second, transB.inverseTransform(wB))) {
+                            continue;
+                        }
                         dMin = dist;
                         sep = Cross;
                         edgeA = e0;
@@ -396,8 +406,11 @@ namespace pe_phys_collision {
                 pe::Vector3 ptOnB = witnessPointB + offsetB;
                 pe::Real distance = nl;
 
-                result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
+                if (distance < 0.1) {
+                    result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
                 -distance + margin * 2);
+                }
+
             }
         }
 

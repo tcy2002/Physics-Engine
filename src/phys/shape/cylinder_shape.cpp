@@ -11,6 +11,25 @@ namespace pe_phys_shape {
             v.position.z *= r2;
             v.position.y *= height;
         }
+        _unique_edges = _cylinder_unique_edges;
+        for (auto& edge : _unique_edges) {
+            edge.first.x *= r2;
+            edge.first.z *= r2;
+            edge.first.y *= height;
+            edge.second.x *= r2;
+            edge.second.z *= r2;
+            edge.second.y *= height;
+        }
+        pe::Real r_2 = _radius * _radius;
+        pe::Real h_2 = _height * _height;
+        pe::Real axis = r_2 * pe::Real(0.5);
+        pe::Real diag = r_2 / pe::Real(4.0) + h_2 / pe::Real(12.0);
+        _volume = PE_PI * r_2 * height;
+        _local_inertia = {
+            diag, 0, 0,
+            0, axis, 0,
+            0, 0, diag
+        };
     }
 
     void CylinderShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
@@ -58,18 +77,6 @@ namespace pe_phys_shape {
             minProj = offset - ext_l;
             maxProj = offset + ext_l;
         }
-    }
-
-    pe::Matrix3 CylinderShape::calcLocalInertia(pe::Real mass) const {
-        pe::Real r2 = _radius * _radius;
-        pe::Real h2 = _height * _height;
-        pe::Real axis = mass * (r2 * pe::Real(0.5));
-        pe::Real diag = mass * (r2 / pe::Real(4.0) + h2 / pe::Real(12.0));
-        return {
-                diag, 0, 0,
-                0, axis, 0,
-                0, 0, diag
-        };
     }
 
 }

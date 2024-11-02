@@ -7,7 +7,7 @@ namespace pe_phys_collision {
 
     bool CylinderCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                               pe::Transform trans_a, pe::Transform trans_b,
-                                                              ContactResult& result) {
+                                                              pe::Real refScale, ContactResult& result) {
         if (!(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder)) {
             return false;
@@ -31,7 +31,7 @@ namespace pe_phys_collision {
         }
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
                                                             mesh_a, mesh_b, trans_a, trans_b,
-                                                            PE_REAL_MIN, 0,
+                                                            -refScale, 0,
                                                             world_verts_b1, world_verts_b2,
                                                             margin, result);
         return true;

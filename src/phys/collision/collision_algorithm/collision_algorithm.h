@@ -12,7 +12,7 @@ namespace pe_phys_collision {
         virtual ~CollisionAlgorithm() {}
         virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                       pe::Transform trans_a, pe::Transform trans_b,
-                                      ContactResult& result) = 0;
+                                      pe::Real refScale, ContactResult& result) = 0;
     };
 
 } // pe_phys_collision

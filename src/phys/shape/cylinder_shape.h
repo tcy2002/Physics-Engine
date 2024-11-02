@@ -9,6 +9,12 @@ namespace pe_phys_shape {
         COMMON_MEMBER_GET(pe::Real, height, Height);
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh);
 
+    protected:
+        pe::Array<pe::KV<pe::Vector3, pe::Vector3>> _unique_edges;
+
+    public:
+        const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& getUniqueEdges() const { return _unique_edges; }
+
     public:
         PE_API CylinderShape(pe::Real radius, pe::Real height);
         virtual ~CylinderShape() override {}
@@ -18,7 +24,6 @@ namespace pe_phys_shape {
         PE_API virtual bool localIsInside(const pe::Vector3& point) const override;
         PE_API virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                                     pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
-        PE_API virtual pe::Matrix3 calcLocalInertia(pe::Real mass) const override;
     };
 
 } // namespace pe_phys_shape

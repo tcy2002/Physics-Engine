@@ -38,7 +38,7 @@ public:
 
         // add some other dynamic objects
         pe::Array<pe_phys_object::RigidBody*> rbs;
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 0; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
                 rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
@@ -64,7 +64,6 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass)); // inertia tensor matrix
         rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
         rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
         rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
@@ -80,7 +79,6 @@ protected:
         auto shape = new pe_phys_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass));
         rb->setFrictionCoeff(pe::Real(0.5));
         rb->setRestitutionCoeff(pe::Real(0.5));
         rb->setAngularDamping(pe::Real(0.8));
@@ -96,7 +94,6 @@ protected:
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(mass));
         rb->setFrictionCoeff(pe::Real(0.5));
         rb->setRestitutionCoeff(pe::Real(0.5));
         rb->setAngularDamping(pe::Real(0.8));
@@ -112,7 +109,6 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setLocalInertia(shape->calcLocalInertia(1.0));
         rb->setFrictionCoeff(pe::Real(0.5));
         rb->setRestitutionCoeff(pe::Real(0.5));
         rb->setAngularDamping(pe::Real(0.8));

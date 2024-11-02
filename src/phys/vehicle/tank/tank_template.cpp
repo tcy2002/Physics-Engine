@@ -14,7 +14,6 @@ namespace pe_phys_vehicle {
         body->setCollisionShape(shape_b);
         body->setTransform(_transform);
         body->setMass(_bodyMass);
-        body->setLocalInertia(shape_b->calcLocalInertia(_bodyMass));
         auto c = this;
         body->addCollisionCallback([dw, c](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
                                         const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
@@ -31,7 +30,6 @@ namespace pe_phys_vehicle {
                 _turretWidth, _turretHeight, _turretLength));
         turret->setCollisionShape(shape_t);
         turret->setMass(_turretMass);
-        turret->setLocalInertia(shape_t->calcLocalInertia(_turretMass));
         turret->addIgnoreCollisionId(body->getGlobalId());
         dw->addRigidBody(turret);
         turretTrl = pe::Vector3(0, (_bodyHeight + _turretHeight) / 2, _bodyLength / 20);
@@ -42,7 +40,6 @@ namespace pe_phys_vehicle {
                 _barrelRadius * 2, _barrelRadius * 2, _barrelLength));
         barrel->setCollisionShape(shape_r);
         barrel->setMass(_barrelMass);
-        barrel->setLocalInertia(shape_r->calcLocalInertia(_barrelMass));
         barrel->addIgnoreCollisionId(turret->getGlobalId());
         dw->addRigidBody(barrel);
         barrelTrl = pe::Vector3(0, 0, -(_turretLength + _barrelLength) / 2);
@@ -113,7 +110,6 @@ namespace pe_phys_vehicle {
 #       endif
             wheel->setCollisionShape(shape);
             wheel->setMass(_wheelMass);
-            wheel->setLocalInertia(shape->calcLocalInertia(_wheelMass));
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;
@@ -428,7 +424,6 @@ namespace pe_phys_vehicle {
         bullet->setCollisionShape(shape);
         bullet->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
         bullet->setMass(mass);
-        bullet->setLocalInertia(shape->calcLocalInertia(mass));
         bullet->setLinearVelocity(vel);
         bullet->setLifeTime(lifeTime);
         bullet->setTag("bullet");

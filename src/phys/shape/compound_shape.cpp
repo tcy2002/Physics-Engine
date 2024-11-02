@@ -7,8 +7,30 @@ namespace pe_phys_shape {
         if (shape->getType() == ShapeType::Compound) {
             throw std::runtime_error("CompoundShape cannot contain another CompoundShape");
         }
+        if (shape->getType() == ShapeType::ConcaveMesh) {
+            throw std::runtime_error("CompoundShape cannot contain ConcaveMeshShape");
+        }
+        if (massRatio < PE_EPS) {
+            throw std::runtime_error("mass ratio must be greater than 0");
+        }
         _shapes.push_back({pos, massRatio, shape});
         _mass_ratio += massRatio;
+        _volume += shape->getVolume();
+
+        // update local inertia and volume
+        _local_inertia = pe::Matrix3::zeros();
+        for (auto& s: _shapes) {
+            pe::Matrix3 s_inertia = s.shape->getLocalInertia();
+            pe::Vector3 p = s.local_transform.getOrigin();
+            pe::Matrix3 rot = s.local_transform.getBasis();
+            pe::Matrix3 t_inertia = pe::Matrix3::identity() * (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    t_inertia[i][j] -= p[i] * p[j];
+                }
+            }
+            _local_inertia += (rot * s_inertia * rot.transposed() + t_inertia) * (s.mass_ratio / _mass_ratio);
+        }
     }
 
     void CompoundShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
@@ -49,20 +71,4 @@ namespace pe_phys_shape {
         }
     }
 
-    pe::Matrix3 CompoundShape::calcLocalInertia(pe::Real mass) const {
-        pe::Matrix3 inertia = pe::Matrix3::zeros();
-        for (auto& s: _shapes) {
-            pe::Matrix3 s_inertia = s.shape->calcLocalInertia(mass * s.mass_ratio / _mass_ratio);
-            pe::Vector3 pos = s.local_transform.getOrigin();
-            pe::Matrix3 rot = s.local_transform.getBasis();
-            pe::Matrix3 t_inertia = pe::Matrix3::identity() * (pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    t_inertia[i][j] -= pos[i] * pos[j];
-                }
-            }
-            inertia += (rot * s_inertia * rot.transposed() + t_inertia * (mass * s.mass_ratio / _mass_ratio));
-        }
-        return inertia;
-    }
 }

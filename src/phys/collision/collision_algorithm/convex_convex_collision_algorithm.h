@@ -10,7 +10,7 @@ namespace pe_phys_collision {
     public:
         virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                       pe::Transform trans_a, pe::Transform trans_b,
-                                      ContactResult& result) override;
+                                      pe::Real refScale, ContactResult& result) override;
 
         static void clipHullAgainstHull(const pe::Vector3& separatingNormal1,
                                         const pe::Mesh& meshA, const pe::Mesh& meshB,
@@ -18,23 +18,11 @@ namespace pe_phys_collision {
                                         pe::Real minDist, pe::Real maxDist,
                                         VertexArray& worldVertsB1, VertexArray& worldVertsB2,
                                         pe::Real margin, ContactResult& result);
-        static void segmentsClosestPoints(pe::Vector3& ptsVector,
-                                          pe::Vector3& offsetA,
-                                          pe::Vector3& offsetB,
-                                          pe::Real& tA, pe::Real& tB,
-                                          const pe::Vector3& translation,
-                                          const pe::Vector3& dirA, pe::Real hLenA,
-                                          const pe::Vector3& dirB, pe::Real hLenB);
-        static bool testSepAxis(const pe_phys_shape::Shape* object_a,
-                                const pe_phys_shape::Shape* object_b,
-                                const pe::Transform& transA, const pe::Transform& transB,
-                                const pe::Vector3& sep_axis, pe::Real& depth,
-                                pe::Vector3& witnessPointA, pe::Vector3& witnessPointB);
         static bool findSeparatingAxis(const pe_phys_shape::Shape* shapeA,
                                        const pe_phys_shape::Shape* shapeB,
                                        const pe::Mesh& meshA, const pe::Mesh& meshB,
-                                       const pe::Array<pe::Vector3>& uniqueEdgesA,
-                                       const pe::Array<pe::Vector3>& uniqueEdgesB,
+                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesA,
+                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesB,
                                        const pe::Transform& transA, const pe::Transform& transB,
                                        pe::Vector3& sep, pe::Real margin, ContactResult& result);
         static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,

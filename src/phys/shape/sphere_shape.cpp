@@ -2,7 +2,15 @@
 
 namespace pe_phys_shape {
 
-    SphereShape::SphereShape(pe::Real radius): _radius(radius) {}
+    SphereShape::SphereShape(pe::Real radius): _radius(radius) {
+        _volume = pe::Real(4.0 / 3.0) * PE_PI * radius * radius * radius;
+        pe::Real i = pe::Real(2.0 / 5.0) * _radius * _radius;
+        _local_inertia = {
+            i, 0, 0,
+            0, i, 0,
+            0, 0, i
+        };
+    }
 
     void SphereShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
         pe::Vector3 center = transform.getOrigin();
@@ -22,15 +30,6 @@ namespace pe_phys_shape {
         maxProj = offset + _radius;
         minPoint = trans - axis * _radius;
         maxPoint = trans + axis * _radius;
-    }
-
-    pe::Matrix3 SphereShape::calcLocalInertia(pe::Real mass) const {
-        pe::Real i = pe::Real(2.0) / pe::Real(5.0) * mass * _radius * _radius;
-        return {
-                i, 0, 0,
-                0, i, 0,
-                0, 0, i
-        };
     }
 
 }

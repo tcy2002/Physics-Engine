@@ -30,7 +30,6 @@ namespace pe_phys_vehicle {
         s_fixed.setCollisionShape(new pe_phys_shape::SphereShape(0.0));
         s_fixed.setTransform(pe::Transform::identity());
         s_fixed.setMass(0.0);
-        s_fixed.setLocalInertia(pe::Matrix3::zeros());
         return s_fixed;
     }
 

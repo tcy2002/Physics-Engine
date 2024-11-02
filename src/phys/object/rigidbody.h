@@ -13,15 +13,15 @@ namespace pe_phys_object {
         COMMON_MEMBER_GET(uint32_t, global_id, GlobalId)
         COMMON_BOOL_SET_GET(kinematic, Kinematic)
         COMMON_BOOL_SET_GET(ignore_collision, IgnoreCollision)
-        COMMON_MEMBER_PTR_SET_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
+        COMMON_MEMBER_PTR_GET(pe_phys_shape::Shape, collision_shape, CollisionShape)
+    public:
+        PE_API void setCollisionShape(pe_phys_shape::Shape* shape);
         COMMON_MEMBER_GET(pe::Real, mass, Mass)
         COMMON_MEMBER_GET(pe::Real, inv_mass, InvMass)
     public:
         PE_API void setMass(pe::Real mass);
         COMMON_MEMBER_GET(pe::Matrix3, local_inertia, LocalInertia)
         COMMON_MEMBER_GET(pe::Matrix3, local_inv_inertia, LocalInvInertia)
-    public:
-        PE_API void setLocalInertia(const pe::Matrix3& local_inertia);
         COMMON_MEMBER_GET(pe::Matrix3, world_inertia, WorldInertia)
         COMMON_MEMBER_GET(pe::Matrix3, world_inv_inertia, WorldInvInertia)
     protected:
@@ -92,7 +92,7 @@ namespace pe_phys_object {
         /* Constructor */
     public:
         PE_API RigidBody();
-        virtual ~RigidBody() { setCollisionShape(0); }
+        virtual ~RigidBody() {}
 
         virtual bool isDeformable() const { return false; }
         virtual bool isFracturable() const { return false; }
@@ -110,7 +110,7 @@ namespace pe_phys_object {
         pe::Vector3 getWorldLinearMomentum() const { return _linear_velocity * _mass; }
         pe::Vector3 getWorldAngularMomentum() const { return _world_inertia * _angular_velocity; }
         PE_API pe::Vector3 getLinearVelocityAtLocalPoint(const pe::Vector3& local_p) const;
-        PE_API pe::Real getKineticEnergy();
+        PE_API pe::Real getKineticEnergy() const;
         PE_API pe::Real getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const;
 
         PE_API void syncTempVelocity();

@@ -10,6 +10,24 @@ namespace pe_phys_shape {
             v.position.y *= size.y;
             v.position.z *= size.z;
         }
+        _unique_edges = _box_unique_edges;
+        for (auto& edge : _unique_edges) {
+            edge.first.x *= size.x;
+            edge.first.y *= size.y;
+            edge.first.z *= size.z;
+            edge.first.x *= size.x;
+            edge.first.y *= size.y;
+            edge.first.z *= size.z;
+        }
+        pe::Real x2 = _size.x * _size.x;
+        pe::Real y2 = _size.y * _size.y;
+        pe::Real z2 = _size.z * _size.z;
+        _local_inertia = {
+            (y2 + z2) / 12, 0, 0,
+            0, (x2 + z2) / 12, 0,
+            0, 0, (x2 + y2) / 12
+        };
+        _volume = _size.x * _size.y * _size.z;
     }
 
     void BoxShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
@@ -53,18 +71,6 @@ namespace pe_phys_shape {
         maxProj = offset + half_ext;
         minPoint = transform * -ext;
         maxPoint = transform * ext;
-    }
-
-    pe::Matrix3 BoxShape::calcLocalInertia(pe::Real mass) const {
-        pe::Real x2 = _size.x * _size.x;
-        pe::Real y2 = _size.y * _size.y;
-        pe::Real z2 = _size.z * _size.z;
-        pe::Real mass_12 = mass / pe::Real(12.0);
-        return {
-                mass_12 * (y2 + z2), 0, 0,
-                0, mass_12 * (x2 + z2), 0,
-                0, 0, mass_12 * (x2 + y2)
-        };
     }
 
 }

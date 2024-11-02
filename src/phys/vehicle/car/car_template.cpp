@@ -13,7 +13,6 @@ namespace pe_phys_vehicle {
         body->setCollisionShape(shape_b);
         body->setTransform(_transform);
         body->setMass(_bodyMass);
-        body->setLocalInertia(shape_b->calcLocalInertia(_bodyMass));
         auto c = this;
         body->addCollisionCallback([dw, c](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
                                         const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
@@ -30,7 +29,6 @@ namespace pe_phys_vehicle {
                 _cabinWidth, _cabinHeight, _cabinLength));
         cabin->setCollisionShape(shape_t);
         cabin->setMass(_cabinMass);
-        cabin->setLocalInertia(shape_t->calcLocalInertia(_cabinMass));
         cabin->addIgnoreCollisionId(body->getGlobalId());
         dw->addRigidBody(cabin);
         cabinTrl = pe::Vector3(0, (_bodyHeight + _cabinHeight) / 2, _bodyLength / 20);
@@ -93,7 +91,6 @@ namespace pe_phys_vehicle {
 #       endif
             wheel->setCollisionShape(shape);
             wheel->setMass(_wheelMass);
-            wheel->setLocalInertia(shape->calcLocalInertia(_wheelMass));
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;

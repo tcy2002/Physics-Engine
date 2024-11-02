@@ -41,8 +41,19 @@ namespace pe_phys_shape {
             }\
     }
 
-    const pe::Array<pe::Vector3> _box_unique_edges = { //NOLINT
-            {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
+    const pe::Array<pe::KV<pe::Vector3, pe::Vector3>> _box_unique_edges = { //NOLINT
+            {pe::Vector3(-0.5, 0.5, 0.5), pe::Vector3(0.5, 0.5, 0.5)},
+            {pe::Vector3(-0.5, -0.5, 0.5), pe::Vector3(0.5, -0.5, 0.5)},
+            {pe::Vector3(-0.5, -0.5, -0.5), pe::Vector3(0.5, -0.5, 0.5)},
+            {pe::Vector3(-0.5, 0.5, -0.5), pe::Vector3(0.5, 0.5, -0.5)},
+            {pe::Vector3(0.5, -0.5, 0.5), pe::Vector3(0.5, 0.5, 0.5)},
+            {pe::Vector3(-0.5, -0.5, 0.5), pe::Vector3(-0.5, 0.5, 0.5)},
+            {pe::Vector3(-0.5, -0.5, -0.5), pe::Vector3(-0.5, 0.5, -0.5)},
+            {pe::Vector3(0.5, -0.5, -0.5), pe::Vector3(0.5, 0.5, -0.5)},
+            {pe::Vector3(0.5, 0.5, -0.5), pe::Vector3(0.5, 0.5, -0.5)},
+            {pe::Vector3(-0.5, 0.5, -0.5), pe::Vector3(-0.5, 0.5, -0.5)},
+            {pe::Vector3(-0.5, -0.5, -0.5), pe::Vector3(-0.5, -0.5, -0.5)},
+            {pe::Vector3(0.5, -0.5, -0.5), pe::Vector3(0.5, -0.5, -0.5)}
     };
 
 #   define PE_CYLINDER_DEFAULT_MESH {\
@@ -178,47 +189,8 @@ namespace pe_phys_shape {
             }\
     }
 
-    const pe::Array<pe::Vector3> _cylinder_unique_edges = { //NOLINT
-            {pe::Real(0.156437), 0, pe::Real(0.987688)}, {pe::Real(0.453989), 0, pe::Real(0.891007)},
-            {pe::Real(0.707107), 0, pe::Real(0.707107)}, {pe::Real(0.891007), 0, pe::Real(0.453989)},
-            {pe::Real(0.987688), 0, pe::Real(0.156437)}, {pe::Real(0.987688), 0, pe::Real(-0.156437)},
-            {pe::Real(0.891007), 0, pe::Real(-0.453989)}, {pe::Real(0.707107), 0, pe::Real(-0.707107)},
-            {pe::Real(0.453989), 0, pe::Real(-0.891007)}, {pe::Real(0.156437), 0, pe::Real(-0.987688)},
-            {pe::Real(-0.156437), 0, pe::Real(-0.987688)}, {pe::Real(-0.453989), 0, pe::Real(-0.891007)},
-            {pe::Real(-0.707107), 0, pe::Real(-0.707107)}, {pe::Real(-0.891007), 0, pe::Real(-0.453989)},
-            {pe::Real(-0.987688), 0, pe::Real(-0.156437)}, {pe::Real(-0.987688), 0, pe::Real(0.156437)},
-            {pe::Real(-0.891007), 0, pe::Real(0.453989)}, {pe::Real(-0.707107), 0, pe::Real(0.707107)},
-            {pe::Real(-0.453989), 0, pe::Real(0.891007)}, {pe::Real(-0.156437), 0, pe::Real(0.987688)},
-            {pe::Real(0.309018), 0, pe::Real(-0.951056)}, {pe::Real(0.587786), 0, pe::Real(-0.809016)},
-            {pe::Real(0.809016), 0, pe::Real(-0.587786)}, {pe::Real(0.951056), 0, pe::Real(-0.309018)},
-            {1, 0, 0}, {pe::Real(0.951056), 0, pe::Real(0.309018)},
-            {pe::Real(0.809016), 0, pe::Real(0.587786)}, {pe::Real(0.587786), 0, pe::Real(0.809016)},
-            {pe::Real(0.309018), 0, pe::Real(0.951056)}, {0, 0, 1},
-            {pe::Real(-0.309018), 0, pe::Real(0.951056)}, {pe::Real(-0.587786), 0, pe::Real(0.809016)},
-            {pe::Real(-0.809016), 0, pe::Real(0.587786)}, {pe::Real(-0.951056), 0, pe::Real(0.309018)},
-            {-1, 0, 0}, {pe::Real(-0.951056), 0, pe::Real(-0.309018)},
-            {pe::Real(-0.809016), 0, pe::Real(-0.587786)}, {pe::Real(-0.587786), 0, pe::Real(-0.809016)},
-            {pe::Real(-0.309018), 0, pe::Real(-0.951056)}, {0, 0, -1},
-            {pe::Real(0.0182599), pe::Real(-0.996936), pe::Real(0.0760573)}, {pe::Real(0.00613714), pe::Real(0.996936), pe::Real(0.0779774)},
-            {pe::Real(0.0408694), pe::Real(-0.996936), pe::Real(0.066693)}, {pe::Real(0.029933), pe::Real(0.996936), pe::Real(0.0722649)},
-            {pe::Real(0.0594772), pe::Real(-0.996936), pe::Real(0.0507989)}, {pe::Real(0.0507989), pe::Real(0.996936), pe::Real(0.0594772)},
-            {pe::Real(0.0722649), pe::Real(-0.996936), pe::Real(0.029933)}, {pe::Real(0.066693), pe::Real(0.996936), pe::Real(0.0408694)},
-            {pe::Real(0.0779774), pe::Real(-0.996936), pe::Real(0.00613714)}, {pe::Real(0.0760573), pe::Real(0.996936), pe::Real(0.0182599)},
-            {pe::Real(0.0760573), pe::Real(-0.996936), pe::Real(-0.0182599)}, {pe::Real(0.0779774), pe::Real(0.996936), pe::Real(-0.00613714)},
-            {pe::Real(0.066693), pe::Real(-0.996936), pe::Real(-0.0408694)}, {pe::Real(0.0722649), pe::Real(0.996936), pe::Real(-0.029933)},
-            {pe::Real(0.0507989), pe::Real(-0.996936), pe::Real(-0.0594772)}, {pe::Real(0.0594772), pe::Real(0.996936), pe::Real(-0.0507989)},
-            {pe::Real(0.029933), pe::Real(-0.996936), pe::Real(-0.0722649)}, {pe::Real(0.0408694), pe::Real(0.996936), pe::Real(-0.066693)},
-            {pe::Real(0.00613714), pe::Real(-0.996936), pe::Real(-0.0779774)}, {pe::Real(0.0182599), pe::Real(0.996936), pe::Real(-0.0760573)},
-            {pe::Real(-0.0182599), pe::Real(-0.996936), pe::Real(-0.0760573)}, {pe::Real(-0.00613714), pe::Real(0.996936), pe::Real(-0.0779774)},
-            {pe::Real(-0.0408694), pe::Real(-0.996936), pe::Real(-0.066693)}, {pe::Real(-0.029933), pe::Real(0.996936), pe::Real(-0.0722649)},
-            {pe::Real(-0.0594772), pe::Real(-0.996936), pe::Real(-0.0507989)}, {pe::Real(-0.0507989), pe::Real(0.996936), pe::Real(-0.0594772)},
-            {pe::Real(-0.0722649), pe::Real(-0.996936), pe::Real(-0.029933)}, {pe::Real(-0.066693), pe::Real(0.996936), pe::Real(-0.0408694)},
-            {pe::Real(-0.0779774), pe::Real(-0.996936), pe::Real(-0.00613714)}, {pe::Real(-0.0760573), pe::Real(0.996936), pe::Real(-0.0182599)},
-            {pe::Real(-0.0760573), pe::Real(-0.996936), pe::Real(0.0182599)}, {pe::Real(-0.0779774), pe::Real(0.996936), pe::Real(0.00613714)},
-            {pe::Real(-0.066693), pe::Real(-0.996936), pe::Real(0.0408694)}, {pe::Real(-0.0722649), pe::Real(0.996936), pe::Real(0.029933)},
-            {pe::Real(-0.0507989), pe::Real(-0.996936), pe::Real(0.0594772)}, {pe::Real(-0.0594772), pe::Real(0.996936), pe::Real(0.0507989)},
-            {pe::Real(-0.029933), pe::Real(-0.996936), pe::Real(0.0722649)}, {pe::Real(-0.0408694), pe::Real(0.996936), pe::Real(0.066693)},
-            {pe::Real(-0.00613714), pe::Real(-0.996936), pe::Real(0.0779774)}, {pe::Real(-0.0182599), pe::Real(0.996936), pe::Real(0.0760573)},
+    const pe::Array<pe::KV<pe::Vector3, pe::Vector3>> _cylinder_unique_edges = { //NOLINT
+
     };
 
 } // namespace pe_phys_fracture

@@ -27,27 +27,6 @@ void Simulator<UV>::start(int target_frame_rate) {
 		auto step_end = COMMON_GetMicroseconds();
 		total_step_time += (pe::Real)(step_end - step_start);
 
-#   if false
-        static pe::Array<int> ids;
-        for (auto id : ids) {
-            pe_intf::Viewer::remove(id);
-        }
-        ids.clear();
-        for (auto cr : _world.getContactResults()) {
-            if (cr->getObjectA()->getGlobalId() == 1 || cr->getObjectB()->getGlobalId() == 1) continue;
-            for (int i = 0; i < cr->getPointSize(); i++) {
-                auto p = cr->getContactPoint(i).getWorldPos();
-                auto n = cr->getContactPoint(i).getWorldNormal();
-                auto d = cr->getContactPoint(i).getDistance();
-                std::cout << "contact point: " << p << " normal: " << n << " dist: " << d << std::endl;
-                auto id = pe_intf::Viewer::addSphere(0.03);
-                pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
-                ids.push_back(id);
-            }
-        }
-        std::cout << "###############" << std::endl;
-#   endif
-
         if (UV == UseViewer::True) {
             if (!_world.getRigidBodiesToRemove().empty()) {
                 removeModels(_world.getRigidBodiesToRemove());
@@ -72,6 +51,25 @@ void Simulator<UV>::start(int target_frame_rate) {
             COMMON_Sleep(target_dt - actual_dt);
         }
         frame++;
+
+#   if false
+        static pe::Array<int> ids;
+        for (auto id : ids) {
+            pe_intf::Viewer::remove(id);
+        }
+        ids.clear();
+        for (auto cr : _world.getContactResults()) {
+            if (cr->getObjectA()->getGlobalId() == 1 || cr->getObjectB()->getGlobalId() == 1) continue;
+            for (int i = 0; i < cr->getPointSize(); i++) {
+                auto p = cr->getContactPoint(i).getWorldPos();
+                auto n = cr->getContactPoint(i).getWorldNormal();
+                auto d = cr->getContactPoint(i).getDistance();
+                auto id = pe_intf::Viewer::addSphere(0.03);
+                pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                ids.push_back(id);
+            }
+        }
+#   endif
     }
 
     auto end = COMMON_GetTickCount();
@@ -87,7 +85,7 @@ void Simulator<UV>::start(int target_frame_rate) {
     std::cout << "other time: " << other_time << "s" << " " << other_time / total_time << std::endl;
 }
 
-template <UseViewer UV>
+template<UseViewer UV>
 void Simulator<UV>::toggleLine() {
     static bool show_line = false;
     if (pe_intf::Viewer::getKeyState('c') == 2) {
@@ -95,6 +93,7 @@ void Simulator<UV>::toggleLine() {
         pe_intf::Viewer::showLine(show_line, 1);
     }
 }
+
 
 template <UseViewer UV>
 bool Simulator<UV>::renderInit() {
@@ -109,15 +108,6 @@ bool Simulator<UV>::renderInit() {
         COMMON_Sleep(10);
     }
 
-    // wait for key 'r' to start
-    while (pe_intf::Viewer::getKeyState('x') != 0) {
-        COMMON_Sleep(10);
-        if (!pe_intf::Viewer::isOpen() || pe_intf::Viewer::getKeyState(27) == 0) {
-            pe_intf::Viewer::close();
-            return false;
-        }
-        toggleLine();
-    }
     return true;
 }
 
@@ -127,8 +117,22 @@ bool Simulator<UV>::renderStep() {
         pe_intf::Viewer::close();
         return false;
     }
-
-    toggleLine();
+    static bool blocking = true;
+    if (blocking) {
+        while (pe_intf::Viewer::getKeyState('r') != 0 && pe_intf::Viewer::getKeyState('t') != 0) {
+            COMMON_Sleep(1);
+            toggleLine();
+            if (pe_intf::Viewer::getKeyState('x') == 2) {
+                blocking = false;
+                break;
+            }
+        }
+        if (pe_intf::Viewer::getKeyState('t') == 0) {
+            COMMON_Sleep(300);
+        }
+    } else {
+        toggleLine();
+    }
 
     for (auto& rb : _id_map) {
         if (rb.second.empty()) {
