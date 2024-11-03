@@ -34,10 +34,6 @@ public:
             pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 1, 0)), 100, 3);
         _world.addRigidBody(rb);
 
-        // rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-2.5, 9, -0.7)),
-        //     pe::Vector3(0.6, 0.6, 0.6), 1);
-        // _world.addRigidBody(rb);
-
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 6; j++) {
                 pe_phys_object::RigidBody* rb = nullptr;
@@ -51,6 +47,8 @@ public:
                 _world.addRigidBody(rb);
             }
         }
+
+        //saveScene();
     }
 
 protected:

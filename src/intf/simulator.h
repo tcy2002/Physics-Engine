@@ -56,7 +56,7 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
-#define PE_MAIN(TargetFrameRate) \
+#define PE_CONFIG_MAIN(TargetFrameRate) \
 int main(int argc, char** argv) { \
     pe_intf::Simulator<pe_intf::UseViewer::True> sim; \
     if (sim.loadScene(argc, argv)) { \
@@ -70,6 +70,16 @@ int main(int argc, char** argv) { \
 int main() { \
     Simulator sim; \
     sim.start(TargetFrameRate); \
+    if (WIN32) system("pause"); \
+    return 0; \
+}
+
+#define PE_CONFIG_CUSTOM_MAIN(Simulator, TargetFrameRate) \
+int main(int argc, char** argv) { \
+    Simulator sim; \
+    if (sim.loadScene(argc, argv)) { \
+        sim.start(TargetFrameRate); \
+    } \
     if (WIN32) system("pause"); \
     return 0; \
 }

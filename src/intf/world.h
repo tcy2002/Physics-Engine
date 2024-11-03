@@ -72,6 +72,8 @@ namespace pe_intf { // interface
 
         /**** fracture *******************************/
         PE_API void addFractureSource(const pe_phys_fracture::FractureSource& source) { _fracture_sources.push_back(source); }
+        PE_API const pe::Array<pe_phys_fracture::FractureSource>& getFractureSources() const { return _fracture_sources; }
+        PE_API void clearFractureSources() { _fracture_sources.clear(); }
         /*********************************************/
 
         /**** world advance **************************/

@@ -50,6 +50,8 @@ public:
             }
             _world.addRigidBody(rb);
         }
+
+        //saveScene();
     }
 
 protected:

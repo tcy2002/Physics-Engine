@@ -42,7 +42,7 @@ public:
             _world.addRigidBody(rb);
         }
 
-        saveScene();
+        //saveScene();
     }
 
 protected:

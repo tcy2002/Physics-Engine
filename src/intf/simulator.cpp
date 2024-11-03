@@ -1,3 +1,69 @@
+static bool isNodeTypeEqual(nlohmann::json::value_t type, nlohmann::json::value_t target) {
+    static std::unordered_map<nlohmann::json::value_t, int> type_map = {
+        {nlohmann::json::value_t::null, 0},
+        {nlohmann::json::value_t::object, 1},
+        {nlohmann::json::value_t::array, 2},
+        {nlohmann::json::value_t::string, 3},
+        {nlohmann::json::value_t::boolean, 4},
+        {nlohmann::json::value_t::number_integer, 5},
+        {nlohmann::json::value_t::number_unsigned, 5},
+        {nlohmann::json::value_t::number_float, 5}
+    };
+    return type_map[type] == type_map[target];
+}
+
+static bool jsonNodeExists(const nlohmann::json& node, const std::string& name, nlohmann::json::value_t type) {
+    static std::unordered_map<nlohmann::json::value_t, std::string> type_str = {
+        {nlohmann::json::value_t::null, "null"},
+        {nlohmann::json::value_t::object, "object"},
+        {nlohmann::json::value_t::array, "array"},
+        {nlohmann::json::value_t::string, "string"},
+        {nlohmann::json::value_t::boolean, "boolean"},
+        {nlohmann::json::value_t::number_integer, "number (integer or float)"},
+        {nlohmann::json::value_t::number_unsigned, "number (integer or float)"},
+        {nlohmann::json::value_t::number_float, "number (integer or float)"}
+    };
+    if (node.find(name) == node.end() || node[name].is_null()) {
+        return false;
+    }
+    if (!isNodeTypeEqual(node[name].type(), type)) {
+        PE_LOG_ERROR << "Node " << name << " should be a " << type_str[type] << "." << PE_ENDL;
+        throw std::runtime_error("Node type error.");
+    }
+    return true;
+}
+
+static bool jsonArrayExists(const nlohmann::json& node, const std::string& name, int size, nlohmann::json::value_t item_type) {
+    static std::unordered_map<nlohmann::json::value_t, std::string> type_str = {
+        {nlohmann::json::value_t::null, "null"},
+        {nlohmann::json::value_t::object, "object"},
+        {nlohmann::json::value_t::array, "array"},
+        {nlohmann::json::value_t::string, "string"},
+        {nlohmann::json::value_t::boolean, "boolean"},
+        {nlohmann::json::value_t::number_integer, "number_integer"},
+        {nlohmann::json::value_t::number_unsigned, "number_unsigned"},
+        {nlohmann::json::value_t::number_float, "number_float"}
+    };
+    if (node.find(name) == node.end() || node[name].is_null()) {
+        return false;
+    }
+    if (node[name].type() != nlohmann::json::value_t::array) {
+        PE_LOG_ERROR << "Node " << name << " should be an array." << PE_ENDL;
+        throw std::runtime_error("Node type error.");
+    }
+    if (size != 0 && node[name].size() != size) {
+        PE_LOG_ERROR << "Node " << name << " should have " << size << " elements." << PE_ENDL;
+        throw std::runtime_error("Node size error.");
+    }
+    for (auto& item : node[name]) {
+        if (!isNodeTypeEqual(item.type(), item_type)) {
+            PE_LOG_ERROR << "Node " << name << " should have elements of type " << type_str[item_type] << "." << PE_ENDL;
+            throw std::runtime_error("Node item type error.");
+        }
+    }
+    return true;
+}
+
 template<UseViewer UV>
 void Simulator<UV>::saveScene() {
     std::string json_file = utils::FileSystem::fileDialog(1, PE_DATA_PATH, "Scene Files", "json");
@@ -35,6 +101,10 @@ void Simulator<UV>::saveScene() {
             rb_data["angular_velocity"] = {rb->getAngularVelocity().x, rb->getAngularVelocity().y, rb->getAngularVelocity().z};
         }
         rb_data["lifetime"] = rb->getLifeTime();
+        rb_data["fracturable"] = rb->isFracturable();
+        if (rb->isFracturable()) {
+            rb_data["fracture_threshold"] = static_cast<pe_phys_object::FracturableObject*>(rb)->getThreshold();
+        }
         auto transform = rb->getTransform();
         rb_data["position"] = {transform.getOrigin().x, transform.getOrigin().y, transform.getOrigin().z};
         auto rot = transform.getBasis();
@@ -68,11 +138,13 @@ void Simulator<UV>::saveScene() {
             case pe_phys_shape::ShapeType::ConvexMesh: {
                 rb_data["type"] = "convex";
                 rb_data["mesh"] = ""; // user should change this in the json file
+                rb_data["scale"] = {1, 1, 1}; // user should change this in the json file
                 break;
             }
             case pe_phys_shape::ShapeType::ConcaveMesh: {
                 rb_data["type"] = "concave";
                 rb_data["mesh"] = ""; // user should change this in the json file
+                rb_data["scale"] = {1, 1, 1}; // user should change this in the json file
                 break;
             }
             case pe_phys_shape::ShapeType::Compound: {
@@ -111,6 +183,7 @@ void Simulator<UV>::saveScene() {
                         case pe_phys_shape::ShapeType::ConvexMesh: {
                             shape_data["type"] = "convex";
                             shape_data["mesh"] = ""; // user should change this in the json file
+                            shape_data["scale"] = {1, 1, 1}; // user should change this in the json file
                             break;
                         }
                         default:
@@ -123,6 +196,19 @@ void Simulator<UV>::saveScene() {
         rbs.push_back(rb_data);
     }
     PE_LOG_INFO << "Saved " << rbs.size() << " rigidbodies." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // save damage sources
+    //////////////////////////////////////////////////////////////////////////
+    auto& dss = data["DamageSources"];
+    for (auto ds : _world.getFractureSources()) {
+        nlohmann::json ds_data;
+        ds_data["type"] = ds.type == pe_phys_fracture::FractureType::Sphere ? "sphere" : "cylinder";
+        ds_data["position"] = {ds.position.x, ds.position.y, ds.position.z};
+        ds_data["intensity"] = {ds.intensity.x, ds.intensity.y, ds.intensity.z};
+        dss.push_back(ds_data);
+    }
+    PE_LOG_INFO << "Saved " << dss.size() << " damage sources." << PE_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // save constraints
@@ -170,18 +256,18 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
     //////////////////////////////////////////////////////////////////////////
     // read configuration
     //////////////////////////////////////////////////////////////////////////
-    if (data.find("Configuration") != data.end()) {
+    if (jsonNodeExists(data, "Configuration", nlohmann::json::value_t::object)) {
         auto& config = data["Configuration"];
-        if (config.find("gravity") != config.end()) {
+        if (jsonArrayExists(config, "gravity", 3, nlohmann::json::value_t::number_float)) {
             _world.setGravity(pe::Vector3(config["gravity"][0], config["gravity"][1], config["gravity"][2]));
         }
-        if (config.find("sleep_linear_velocity2_threshold") != config.end()) {
+        if (jsonNodeExists(config, "sleep_linear_velocity2_threshold", nlohmann::json::value_t::number_float)) {
             _world.setSleepLinVel2Threshold(config["sleep_linear_velocity2_threshold"]);
         }
-        if (config.find("sleep_angular_velocity2_threshold") != config.end()) {
+        if (jsonNodeExists(config, "sleep_angular_velocity2_threshold", nlohmann::json::value_t::number_float)) {
             _world.setSleepAngVel2Threshold(config["sleep_angular_velocity2_threshold"]);
         }
-        if (config.find("sleep_time_threshold") != config.end()) {
+        if (jsonNodeExists(config, "sleep_time_threshold", nlohmann::json::value_t::number_float)) {
             _world.setSleepTimeThreshold(config["sleep_time_threshold"]);
         }
     }
@@ -191,128 +277,172 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
     // read rigidbodies
     //////////////////////////////////////////////////////////////////////////
     int k = 0;
-    if (data.find("RigidBodies") != data.end()) {
+    if (jsonArrayExists(data, "RigidBodies", 0, nlohmann::json::value_t::object)) {
         auto& rbs = data["RigidBodies"];
-        if (rbs.type() != nlohmann::json::value_t::array) {
-            PE_LOG_ERROR << "RigidBodies should be an array." << PE_ENDL;
-            return false;
-        }
         for (auto& rb : rbs) {
-            auto rb_obj = new pe_phys_object::RigidBody();
-            if (rb.find("name") != rb.end()) rb_obj->setName(rb["name"]);
-            if (rb.find("tag") != rb.end()) rb_obj->setTag(rb["tag"]);
-            if (rb.find("ignore_collision") != rb.end()) rb_obj->setIgnoreCollision(rb["ignore_collision"]);
-            if (rb.find("kinematic") != rb.end()) rb_obj->setKinematic(rb["kinematic"]);
+            pe_phys_object::RigidBody* rb_obj;
+            if (jsonNodeExists(rb, "fracturable", nlohmann::json::value_t::boolean) && rb["fracturable"].get<bool>()) {
+                rb_obj = new pe_phys_object::FracturableObject();
+                if (jsonNodeExists(rb, "fracture_threshold", nlohmann::json::value_t::number_float))
+                    static_cast<pe_phys_object::FracturableObject*>(rb_obj)->setThreshold(rb["fracture_threshold"]);
+            } else {
+                rb_obj = new pe_phys_object::RigidBody();
+            }
+            if (jsonNodeExists(rb, "name", nlohmann::json::value_t::string)) rb_obj->setName(rb["name"]);
+            if (jsonNodeExists(rb, "tag", nlohmann::json::value_t::string)) rb_obj->setTag(rb["tag"]);
+            if (jsonNodeExists(rb, "ignore_collision", nlohmann::json::value_t::boolean)) rb_obj->setIgnoreCollision(rb["ignore_collision"]);
+            if (jsonNodeExists(rb, "kinematic", nlohmann::json::value_t::boolean)) rb_obj->setKinematic(rb["kinematic"]);
             if (!rb_obj->isKinematic()) {
-                if (rb.find("linear_damping") != rb.end()) rb_obj->setLinearDamping(rb["linear_damping"]);
-                if (rb.find("angular_damping") != rb.end()) rb_obj->setAngularDamping(rb["angular_damping"]);
-                if (rb.find("linear_velocity") != rb.end())
+                if (jsonNodeExists(rb, "linear_damping", nlohmann::json::value_t::number_float)) rb_obj->setLinearDamping(rb["linear_damping"]);
+                if (jsonNodeExists(rb, "angular_damping", nlohmann::json::value_t::number_float)) rb_obj->setAngularDamping(rb["angular_damping"]);
+                if (jsonArrayExists(rb, "linear_velocity", 3, nlohmann::json::value_t::number_float))
                     rb_obj->setLinearVelocity(pe::Vector3(rb["linear_velocity"][0], rb["linear_velocity"][1], rb["linear_velocity"][2]));
-                if (rb.find("angular_velocity") != rb.end())
+                if (jsonArrayExists(rb, "angular_velocity", 3, nlohmann::json::value_t::number_float))
                     rb_obj->setAngularVelocity(pe::Vector3(rb["angular_velocity"][0], rb["angular_velocity"][1], rb["angular_velocity"][2]));
             }
-            if (rb.find("lifetime") != rb.end()) {
+            if (jsonNodeExists(rb, "lifetime", nlohmann::json::value_t::number_float)) {
                 auto lifetime = rb["lifetime"].get<pe::Real>();
                 lifetime = lifetime < 0 ? PE_REAL_MAX : lifetime;
                 rb_obj->setLifeTime(lifetime);
             }
             auto transform = pe::Transform::identity();
-            if (rb.find("position") != rb.end())
+            if (jsonArrayExists(rb, "position", 0, nlohmann::json::value_t::number_float))
                 transform.setOrigin(pe::Vector3(rb["position"][0], rb["position"][1], rb["position"][2]));
-            if (rb.find("rotation") != rb.end()) {
-                if (rb.find("rotation").value().size() == 4) {
-                    auto q = pe::Quaternion(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2], rb["rotation"][3]);
-                    transform.setBasis(q.toRotationMatrix());
-                } else if (rb.find("rotation").value().size() == 9) {
+            if (jsonArrayExists(rb, "rotation", 0, nlohmann::json::value_t::number_float)) {
+                if (rb["rotation"].size() >= 9) {
                     auto m = pe::Matrix3(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2],
                                          rb["rotation"][3], rb["rotation"][4], rb["rotation"][5],
                                          rb["rotation"][6], rb["rotation"][7], rb["rotation"][8]);
                     transform.setBasis(m);
+                } else if (rb["rotation"].size() >= 4) {
+                    auto q = pe::Quaternion(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2], rb["rotation"][3]);
+                    transform.setBasis(q.toRotationMatrix());
+                } else {
+                    throw std::runtime_error("Invalid rotation data.");
                 }
             }
             rb_obj->setTransform(transform);
-            if (rb.find("mass") != rb.end()) rb_obj->setMass(rb["mass"]);
-            if (rb.find("friction") != rb.end()) rb_obj->setFrictionCoeff(rb["friction"]);
-            if (rb.find("restitution") != rb.end()) rb_obj->setRestitutionCoeff(rb["restitution"]);
-            if (rb.find("type") != rb.end()) {
+            if (jsonNodeExists(rb, "mass", nlohmann::json::value_t::number_float)) rb_obj->setMass(rb["mass"]);
+            if (jsonNodeExists(rb, "friction", nlohmann::json::value_t::number_float)) rb_obj->setFrictionCoeff(rb["friction"]);
+            if (jsonNodeExists(rb, "restitution", nlohmann::json::value_t::number_float)) rb_obj->setRestitutionCoeff(rb["restitution"]);
+            if (jsonNodeExists(rb, "type", nlohmann::json::value_t::string)) {
                 auto type = rb["type"].get<std::string>();
                 pe_phys_shape::Shape* shape;
                 if (type == "box") {
-                    auto size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
+                    pe::Vector3 size = {1, 1, 1};
+                    if (jsonArrayExists(rb, "scale", 3, nlohmann::json::value_t::number_float)) size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
                     shape = new pe_phys_shape::BoxShape(size);
                 } else if (type == "sphere") {
-                    auto radius = rb["scale"][0].get<pe::Real>();
+                    pe::Real radius = 1;
+                    if (jsonArrayExists(rb, "scale", 1, nlohmann::json::value_t::number_float)) radius = rb["scale"][0].get<pe::Real>();
                     shape = new pe_phys_shape::SphereShape(radius);
                 } else if (type == "cylinder") {
-                    auto radius = rb["scale"][0].get<pe::Real>();
-                    auto height = rb["scale"][1].get<pe::Real>();
+                    pe::Real radius = 0.5, height = 1;
+                    if (jsonArrayExists(rb, "scale", 2, nlohmann::json::value_t::number_float)) {
+                        radius = rb["scale"][0].get<pe::Real>();
+                        height = rb["scale"][1].get<pe::Real>();
+                    }
                     shape = new pe_phys_shape::CylinderShape(radius, height);
                 } else if (type == "convex" || type == "concave") {
-                    auto obj_path = rb["mesh"].get<std::string>();
-                    auto size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
-                    pe::Mesh mesh;
-                    pe::Mesh::loadFromObj(obj_path, mesh, size);
-                    if (type == "convex") {
-                        shape = new pe_phys_shape::ConvexMeshShape();
-                        ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
+                    if (jsonNodeExists(rb, "mesh", nlohmann::json::value_t::string)) {
+                        auto obj_path = rb["mesh"].get<std::string>();
+                        pe::Vector3 size = {1, 1, 1};
+                        if (jsonArrayExists(rb, "scale", 3, nlohmann::json::value_t::number_float)) size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
+                        pe::Mesh mesh;
+                        pe::Mesh::loadFromObj(obj_path, mesh, size);
+                        if (type == "convex") {
+                            shape = new pe_phys_shape::ConvexMeshShape();
+                            ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
+                        } else {
+                            shape = new pe_phys_shape::ConcaveMeshShape();
+                            ((pe_phys_shape::ConcaveMeshShape*)shape)->setMesh(mesh);
+                        }
                     } else {
-                        shape = new pe_phys_shape::ConcaveMeshShape();
-                        ((pe_phys_shape::ConcaveMeshShape*)shape)->setMesh(mesh);
-                    }
-                } else if (type == "compound") {
-                    shape = new pe_phys_shape::CompoundShape();
-                    auto& shapes = rb["shapes"];
-                    if (shapes.type() != nlohmann::json::value_t::array) {
-                        PE_LOG_ERROR << "Compound sub-shapes should be an array." << PE_ENDL;
+                        PE_LOG_ERROR << "Mesh path not specified." << PE_ENDL;
                         delete rb_obj;
                         continue;
                     }
-                    for (auto& s : shapes) {
-                        pe::Real mass_ratio = 1.0;
-                        pe::Transform local_transform = pe::Transform::identity();
-                        if (s.find("mass_ratio") != s.end()) mass_ratio = s["mass_ratio"];
-                        if (s.find("position") != s.end())
-                            local_transform.setOrigin(pe::Vector3(s["position"][0], s["position"][1], s["position"][2]));
-                        if (s.find("rotation") != s.end()) {
-                            if (s.find("rotation").value().size() == 4) {
-                                auto q = pe::Quaternion(s["rotation"][0], s["rotation"][1], s["rotation"][2], s["rotation"][3]);
-                                local_transform.setBasis(q.toRotationMatrix());
-                            } else if (s.find("rotation").value().size() == 9) {
-                                auto m = pe::Matrix3(s["rotation"][0], s["rotation"][1], s["rotation"][2],
-                                                     s["rotation"][3], s["rotation"][4], s["rotation"][5],
-                                                     s["rotation"][6], s["rotation"][7], s["rotation"][8]);
-                                local_transform.setBasis(m);
+                } else if (type == "compound") {
+                    if (jsonArrayExists(rb, "shapes", 0, nlohmann::json::value_t::object)) {
+                        shape = new pe_phys_shape::CompoundShape();
+                        auto& shapes = rb["shapes"];
+                        if (shapes.type() != nlohmann::json::value_t::array) {
+                            PE_LOG_ERROR << "Compound sub-shapes should be an array." << PE_ENDL;
+                            delete rb_obj;
+                            continue;
+                        }
+                        for (auto& s : shapes) {
+                            pe::Real mass_ratio = 1.0;
+                            pe::Transform local_transform = pe::Transform::identity();
+                            if (jsonNodeExists(s, "mass_ratio", nlohmann::json::value_t::number_float)) mass_ratio = s["mass_ratio"];
+                            if (jsonArrayExists(s, "position", 3, nlohmann::json::value_t::number_float))
+                                local_transform.setOrigin(pe::Vector3(s["position"][0], s["position"][1], s["position"][2]));
+                            if (jsonArrayExists(s, "rotation", 0, nlohmann::json::value_t::number_float)) {
+                                if (s["rotation"].size() >= 9) {
+                                    auto m = pe::Matrix3(s["rotation"][0], s["rotation"][1], s["rotation"][2],
+                                                         s["rotation"][3], s["rotation"][4], s["rotation"][5],
+                                                         s["rotation"][6], s["rotation"][7], s["rotation"][8]);
+                                    local_transform.setBasis(m);
+                                } else if (s["rotation"].size() >= 4) {
+                                    auto q = pe::Quaternion(s["rotation"][0], s["rotation"][1], s["rotation"][2], s["rotation"][3]);
+                                    local_transform.setBasis(q.toRotationMatrix());
+                                } else  {
+                                    throw std::runtime_error("Invalid rotation data.");
+                                }
+                            }
+                            pe_phys_shape::Shape* sub_shape;
+                            if (jsonNodeExists(s, "type", nlohmann::json::value_t::string)) {
+                                auto sub_type = s["type"].get<std::string>();
+                                if (sub_type == "box") {
+                                    pe::Vector3 size = {1, 1, 1};
+                                    if (jsonArrayExists(s, "scale", 3, nlohmann::json::value_t::number_float))
+                                        size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
+                                    sub_shape = new pe_phys_shape::BoxShape(size);
+                                } else if (sub_type == "sphere") {
+                                    pe::Real radius = 1;
+                                    if (jsonArrayExists(s, "scale", 1, nlohmann::json::value_t::number_float))
+                                        radius = s["scale"][0].get<pe::Real>();
+                                    sub_shape = new pe_phys_shape::SphereShape(radius);
+                                } else if (sub_type == "cylinder") {
+                                    pe::Real radius = 0.5, height = 1;
+                                    if (jsonArrayExists(s, "scale", 2, nlohmann::json::value_t::number_float)) {
+                                        radius = s["scale"][0].get<pe::Real>();
+                                        height = s["scale"][1].get<pe::Real>();
+                                    }
+                                    sub_shape = new pe_phys_shape::CylinderShape(radius, height);
+                                } else if (sub_type == "convex") {
+                                    if (jsonNodeExists(s, "mesh", nlohmann::json::value_t::string)) {
+                                        auto obj_path = s["mesh"].get<std::string>();
+                                        auto size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
+                                        pe::Mesh mesh;
+                                        pe::Mesh::loadFromObj(obj_path, mesh, size);
+                                        sub_shape = new pe_phys_shape::ConvexMeshShape();
+                                        ((pe_phys_shape::ConvexMeshShape*)sub_shape)->setMesh(mesh);
+                                    } else {
+                                        PE_LOG_ERROR << "Convex sub-shape mesh path not specified." << PE_ENDL;
+                                        delete rb_obj;
+                                        continue;
+                                    }
+                                } else if (sub_type == "compound" || sub_type == "concave") {
+                                    PE_LOG_ERROR << "Compound sub-shapes cannot be compound or concave." << PE_ENDL;
+                                    delete rb_obj;
+                                    continue;
+                                } else {
+                                    PE_LOG_ERROR << "Invalid compound sub-shape type: " << sub_type << PE_ENDL;
+                                    delete rb_obj;
+                                    continue;
+                                }
+                                ((pe_phys_shape::CompoundShape*)shape)->addShape(local_transform, mass_ratio, sub_shape);
+                            } else {
+                                PE_LOG_ERROR << "Compound sub-shape type not specified." << PE_ENDL;
+                                delete rb_obj;
+                                continue;
                             }
                         }
-                        pe_phys_shape::Shape* sub_shape;
-                        auto sub_type = s["type"].get<std::string>();
-                        if (sub_type == "box") {
-                            auto size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
-                            sub_shape = new pe_phys_shape::BoxShape(size);
-                        } else if (sub_type == "sphere") {
-                            auto radius = s["scale"][0].get<pe::Real>();
-                            sub_shape = new pe_phys_shape::SphereShape(radius);
-                        } else if (sub_type == "cylinder") {
-                            auto radius = s["scale"][0].get<pe::Real>();
-                            auto height = s["scale"][1].get<pe::Real>();
-                            sub_shape = new pe_phys_shape::CylinderShape(radius, height);
-                        } else if (sub_type == "convex") {
-                            auto obj_path = s["mesh"].get<std::string>();
-                            auto size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
-                            pe::Mesh mesh;
-                            pe::Mesh::loadFromObj(obj_path, mesh, size);
-                            shape = new pe_phys_shape::ConvexMeshShape();
-                            ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
-                        } else if (sub_type == "compound" || sub_type == "concave") {
-                            PE_LOG_ERROR << "Compound sub-shapes cannot be compound or concave." << PE_ENDL;
-                            delete rb_obj;
-                            continue;
-                        } else {
-                            PE_LOG_ERROR << "Invalid compound sub-shape type: " << sub_type << PE_ENDL;
-                            delete rb_obj;
-                            continue;
-                        }
-                        ((pe_phys_shape::CompoundShape*)shape)->addShape(local_transform, mass_ratio, sub_shape);
+                    } else {
+                        PE_LOG_ERROR << "Compound sub-shapes not specified." << PE_ENDL;
+                        delete rb_obj;
+                        continue;
                     }
                 } else {
                     PE_LOG_ERROR << "Invalid rigidbody type: " << type << PE_ENDL;
@@ -330,6 +460,41 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
         }
     }
     PE_LOG_INFO << "Loaded " << k << " rigidbodies." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // read damage sources
+    //////////////////////////////////////////////////////////////////////////
+    k = 0;
+    if (jsonArrayExists(data, "DamageSources", 0, nlohmann::json::value_t::object)) {
+        auto& dss = data["DamageSources"];
+        if (dss.type() != nlohmann::json::value_t::array) {
+            PE_LOG_ERROR << "DamageSources should be an array." << PE_ENDL;
+            return false;
+        }
+        for (auto& ds : dss) {
+            pe_phys_fracture::FractureSource source;
+            if (jsonNodeExists(ds, "type", nlohmann::json::value_t::string)) {
+                auto type = ds["type"].get<std::string>();
+                if (type == "sphere") {
+                    source.type = pe_phys_fracture::FractureType::Sphere;
+                } else if (type == "cylinder") {
+                    source.type = pe_phys_fracture::FractureType::Cylinder;
+                } else {
+                    PE_LOG_ERROR << "Invalid damage source type: " << type << PE_ENDL;
+                    continue;
+                }
+            } else {
+                PE_LOG_ERROR << "Damage source type not specified." << PE_ENDL;
+                continue;
+            }
+            if (jsonArrayExists(ds, "position", 3, nlohmann::json::value_t::number_float))
+                source.position = pe::Vector3(ds["position"][0], ds["position"][1], ds["position"][2]);
+            if (jsonArrayExists(ds, "intensity", 3, nlohmann::json::value_t::number_float))
+                source.intensity = pe::Vector3(ds["intensity"][0], ds["intensity"][1], ds["intensity"][2]);
+            _world.addFractureSource(source);
+            k++;
+        }
+    }
 
     //////////////////////////////////////////////////////////////////////////
     // read constraints
@@ -416,8 +581,9 @@ void Simulator<UV>::start(int target_frame_rate) {
 
     auto end = COMMON_GetTickCount();
     pe::Real total_time = (pe::Real)(end - start) * pe::Real(0.001);
-	std::cout << "step time: " << total_step_time * pe::Real(0.000001) << "s" << std::endl;
-    std::cout << "frame count: " << frame << ", fps: " << (pe::Real)frame / total_time << std::endl;
+    pe::Real step_time = total_step_time * pe::Real(0.000001);
+	std::cout << "step time: " << step_time << "s" << std::endl;
+    std::cout << "frame count: " << frame << ", simulation fps: " << (pe::Real)frame / step_time << std::endl;
     std::cout << "total time: " << total_time << "s" << std::endl;
     std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
     std::cout << "broad phase time: " << _world.broad_phase_time << "s " << _world.broad_phase_time / total_time << std::endl;

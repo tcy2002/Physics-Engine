@@ -24,6 +24,11 @@ public:
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
 
+        // create the urban layout
+        createUrbanLayout();
+
+        //saveScene();
+
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();
         _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
@@ -35,9 +40,6 @@ public:
         mat.setRotation(pe::Vector3(0, 1, 0), PE_PI);
         _tank2->setTransform(pe::Transform(mat, pe::Vector3(0, 5, -160)));
         _tank2->init(&_world);
-
-        // create the urban layout
-        createUrbanLayout();
     }
 
     void step() override {
