@@ -41,6 +41,8 @@ public:
                                                             pe::Vector3(0, pe::Real(10 + i * 4), 0)), 1);
             _world.addRigidBody(rb);
         }
+
+        saveScene();
     }
 
 protected:

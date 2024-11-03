@@ -32,8 +32,6 @@ namespace pe_phys_fracture {
         FractureSolver() {}
         virtual ~FractureSolver() {}
 
-        static void meshToObj(const pe::Mesh& mesh, const std::string& obj_path);
-
         virtual void solve(const pe::Array<FractureSource>& sources) = 0;
         pe::Array<pe_phys_object::RigidBody*>& getFragments() { return _result; }
         void clearFragments() { _result.clear(); }

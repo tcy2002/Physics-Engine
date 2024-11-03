@@ -10,6 +10,8 @@ add_library(PEUtils STATIC
         utils/bvh.cpp
         utils/file_system.cpp)
 
+target_link_libraries(PEUtils PRIVATE nfd)
+
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEngine PRIVATE PEUtils PEViewer)
 target_link_libraries(PEViewer PRIVATE

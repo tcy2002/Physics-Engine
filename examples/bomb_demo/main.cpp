@@ -49,6 +49,8 @@ public:
                                          1.2, 50);
         rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
         _world.addRigidBody(rb2);
+
+        //saveScene();
     }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {

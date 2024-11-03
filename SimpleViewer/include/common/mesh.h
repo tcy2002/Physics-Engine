@@ -2,6 +2,8 @@
 
 #include "vector3.h"
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 namespace common {
 
@@ -28,6 +30,8 @@ namespace common {
 
         static void perFaceNormal(Mesh<Scalar>& mesh);
         static void perVertexNormal(Mesh<Scalar>& mesh);
+        static void loadFromObj(const std::string &filename, Mesh<Scalar> &mesh, const Vector3<Scalar>& size);
+        static void saveToObj(const std::string &filename, const Mesh<Scalar> &mesh, const Vector3<Scalar>& size);
     };
 
     #include "mesh.cpp"

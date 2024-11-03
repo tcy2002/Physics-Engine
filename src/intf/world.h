@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common/vector3.h"
 #include "phys/phys_general.h"
 #include "phys/object/rigidbody.h"
 #include "phys/collision/broad_phase/broad_phase_base.h"
@@ -25,7 +24,6 @@ namespace pe_intf { // interface
         COMMON_MEMBER_SET_GET(pe::Real, dt, Dt);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_lin_vel2_threshold, SleepLinVel2Threshold);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_ang_vel2_threshold, SleepAngVel2Threshold);
-        COMMON_MEMBER_SET_GET(pe::Real, sleep_pos_threshold, SleepPosThreshold);
         COMMON_MEMBER_SET_GET(pe::Real, sleep_time_threshold, SleepTimeThreshold);
 
     protected:

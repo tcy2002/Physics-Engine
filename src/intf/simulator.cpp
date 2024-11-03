@@ -1,8 +1,344 @@
 template<UseViewer UV>
-bool Simulator<UV>::loadScene(const std::string &json_file) {
-    return false;
+void Simulator<UV>::saveScene() {
+    std::string json_file = utils::FileSystem::fileDialog(1, PE_DATA_PATH, "Scene Files", "json");
+    if (json_file.empty()) {
+        PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+        return;
+    }
+
+    PE_LOG_INFO << "Save scene to: " << json_file << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // save configuration
+    //////////////////////////////////////////////////////////////////////////
+    nlohmann::json data;
+    data["Configuration"]["gravity"] = {_world.getGravity().x, _world.getGravity().y, _world.getGravity().z};
+    data["Configuration"]["sleep_linear_velocity2_threshold"] = _world.getSleepLinVel2Threshold();
+    data["Configuration"]["sleep_angular_velocity2_threshold"] = _world.getSleepAngVel2Threshold();
+    data["Configuration"]["sleep_time_threshold"] = _world.getSleepTimeThreshold();
+    PE_LOG_INFO << "Saved configuration." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // save rigidbodies
+    //////////////////////////////////////////////////////////////////////////
+    auto& rbs = data["RigidBodies"];
+    for (auto rb : _world.getRigidBodies()) {
+        nlohmann::json rb_data;
+        rb_data["name"] = rb->getName();
+        rb_data["tag"] = rb->getTag();
+        rb_data["ignore_collision"] = rb->isIgnoreCollision();
+        rb_data["kinematic"] = rb->isKinematic();
+        if (!rb->isKinematic()) {
+            rb_data["linear_damping"] = rb->getLinearDamping();
+            rb_data["angular_damping"] = rb->getAngularDamping();
+            rb_data["linear_velocity"] = {rb->getLinearVelocity().x, rb->getLinearVelocity().y, rb->getLinearVelocity().z};
+            rb_data["angular_velocity"] = {rb->getAngularVelocity().x, rb->getAngularVelocity().y, rb->getAngularVelocity().z};
+        }
+        rb_data["lifetime"] = rb->getLifeTime();
+        auto transform = rb->getTransform();
+        rb_data["position"] = {transform.getOrigin().x, transform.getOrigin().y, transform.getOrigin().z};
+        auto rot = transform.getBasis();
+        rb_data["rotation"] = {rot[0][0], rot[0][1], rot[0][2],
+                                 rot[1][0], rot[1][1], rot[1][2],
+                                 rot[2][0], rot[2][1], rot[2][2]};
+        rb_data["mass"] = rb->getMass();
+        rb_data["friction"] = rb->getFrictionCoeff();
+        rb_data["restitution"] = rb->getRestitutionCoeff();
+        auto shape = rb->getCollisionShape();
+        switch (shape->getType()) {
+            case pe_phys_shape::ShapeType::Box: {
+                rb_data["type"] = "box";
+                auto size = static_cast<pe_phys_shape::BoxShape*>(shape)->getSize();
+                rb_data["scale"] = {size.x, size.y, size.z};
+                break;
+            }
+            case pe_phys_shape::ShapeType::Sphere: {
+                rb_data["type"] = "sphere";
+                auto radius = static_cast<pe_phys_shape::SphereShape*>(shape)->getRadius();
+                rb_data["scale"] = {radius};
+                break;
+            }
+            case pe_phys_shape::ShapeType::Cylinder: {
+                rb_data["type"] = "cylinder";
+                auto radius = static_cast<pe_phys_shape::CylinderShape*>(shape)->getRadius();
+                auto height = static_cast<pe_phys_shape::CylinderShape*>(shape)->getHeight();
+                rb_data["scale"] = {radius, height};
+                break;
+            }
+            case pe_phys_shape::ShapeType::ConvexMesh: {
+                rb_data["type"] = "convex";
+                rb_data["mesh"] = ""; // user should change this in the json file
+                break;
+            }
+            case pe_phys_shape::ShapeType::ConcaveMesh: {
+                rb_data["type"] = "concave";
+                rb_data["mesh"] = ""; // user should change this in the json file
+                break;
+            }
+            case pe_phys_shape::ShapeType::Compound: {
+                rb_data["type"] = "compound";
+                auto compound = static_cast<pe_phys_shape::CompoundShape*>(shape);
+                auto& shapes = compound->getShapes();
+                auto& shapes_data = rb_data["shapes"];
+                for (auto& s : shapes) {
+                    nlohmann::json shape_data;
+                    shape_data["mass_ratio"] = s.mass_ratio;
+                    shape_data["position"] = {s.local_transform.getOrigin().x, s.local_transform.getOrigin().y, s.local_transform.getOrigin().z};
+                    auto rot = s.local_transform.getBasis();
+                    shape_data["rotation"] = {rot[0][0], rot[0][1], rot[0][2],
+                                              rot[1][0], rot[1][1], rot[1][2],
+                                              rot[2][0], rot[2][1], rot[2][2]};
+                    switch (s.shape->getType()) {
+                        case pe_phys_shape::ShapeType::Box: {
+                            shape_data["type"] = "box";
+                            auto size = static_cast<pe_phys_shape::BoxShape*>(s.shape)->getSize();
+                            shape_data["scale"] = {size.x, size.y, size.z};
+                            break;
+                        }
+                        case pe_phys_shape::ShapeType::Sphere: {
+                            shape_data["type"] = "sphere";
+                            auto radius = static_cast<pe_phys_shape::SphereShape*>(s.shape)->getRadius();
+                            shape_data["scale"] = {radius};
+                            break;
+                        }
+                        case pe_phys_shape::ShapeType::Cylinder: {
+                            shape_data["type"] = "cylinder";
+                            auto radius = static_cast<pe_phys_shape::CylinderShape*>(s.shape)->getRadius();
+                            auto height = static_cast<pe_phys_shape::CylinderShape*>(s.shape)->getHeight();
+                            shape_data["scale"] = {radius, height};
+                            break;
+                        }
+                        case pe_phys_shape::ShapeType::ConvexMesh: {
+                            shape_data["type"] = "convex";
+                            shape_data["mesh"] = ""; // user should change this in the json file
+                            break;
+                        }
+                        default:
+                            break; // concave and compound shapes are not supported for compound sub-shapes
+                    }
+                    shapes_data.push_back(shape_data);
+                }
+            }
+        }
+        rbs.push_back(rb_data);
+    }
+    PE_LOG_INFO << "Saved " << rbs.size() << " rigidbodies." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // save constraints
+    //////////////////////////////////////////////////////////////////////////
+    // not implemented
+
+    std::ofstream file(json_file);
+    file << data.dump(4);
+    file.close();
+    PE_LOG_INFO << "Scene saved." << PE_ENDL;
 }
 
+template<UseViewer UV>
+bool Simulator<UV>::loadScene(int argc, char** argv) {
+    std::string json_file;
+    if (argc == 2) {
+        json_file = argv[1];
+    } else if (argc == 1) {
+        json_file = utils::FileSystem::fileDialog(0, PE_DATA_PATH, "Scene Files", "json");
+        if (json_file.empty()) {
+            PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+            return false;
+        }
+    } else {
+        PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+        return false;
+    }
+
+    PE_LOG_INFO << "Load scene: " << json_file << PE_ENDL;
+
+    std::ifstream file(json_file);
+    if (!file.is_open()) {
+        PE_LOG_ERROR << "Failed to open file: " << json_file << PE_ENDL;
+        return false;
+    }
+
+    nlohmann::json data;
+    try {
+        data = nlohmann::json::parse(file);
+    } catch (const std::exception& e) {
+        PE_LOG_ERROR << "Failed to parse json file: " << e.what() << PE_ENDL;
+        return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // read configuration
+    //////////////////////////////////////////////////////////////////////////
+    if (data.find("Configuration") != data.end()) {
+        auto& config = data["Configuration"];
+        if (config.find("gravity") != config.end()) {
+            _world.setGravity(pe::Vector3(config["gravity"][0], config["gravity"][1], config["gravity"][2]));
+        }
+        if (config.find("sleep_linear_velocity2_threshold") != config.end()) {
+            _world.setSleepLinVel2Threshold(config["sleep_linear_velocity2_threshold"]);
+        }
+        if (config.find("sleep_angular_velocity2_threshold") != config.end()) {
+            _world.setSleepAngVel2Threshold(config["sleep_angular_velocity2_threshold"]);
+        }
+        if (config.find("sleep_time_threshold") != config.end()) {
+            _world.setSleepTimeThreshold(config["sleep_time_threshold"]);
+        }
+    }
+    PE_LOG_INFO << "Loaded configuration." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // read rigidbodies
+    //////////////////////////////////////////////////////////////////////////
+    int k = 0;
+    if (data.find("RigidBodies") != data.end()) {
+        auto& rbs = data["RigidBodies"];
+        if (rbs.type() != nlohmann::json::value_t::array) {
+            PE_LOG_ERROR << "RigidBodies should be an array." << PE_ENDL;
+            return false;
+        }
+        for (auto& rb : rbs) {
+            auto rb_obj = new pe_phys_object::RigidBody();
+            if (rb.find("name") != rb.end()) rb_obj->setName(rb["name"]);
+            if (rb.find("tag") != rb.end()) rb_obj->setTag(rb["tag"]);
+            if (rb.find("ignore_collision") != rb.end()) rb_obj->setIgnoreCollision(rb["ignore_collision"]);
+            if (rb.find("kinematic") != rb.end()) rb_obj->setKinematic(rb["kinematic"]);
+            if (!rb_obj->isKinematic()) {
+                if (rb.find("linear_damping") != rb.end()) rb_obj->setLinearDamping(rb["linear_damping"]);
+                if (rb.find("angular_damping") != rb.end()) rb_obj->setAngularDamping(rb["angular_damping"]);
+                if (rb.find("linear_velocity") != rb.end())
+                    rb_obj->setLinearVelocity(pe::Vector3(rb["linear_velocity"][0], rb["linear_velocity"][1], rb["linear_velocity"][2]));
+                if (rb.find("angular_velocity") != rb.end())
+                    rb_obj->setAngularVelocity(pe::Vector3(rb["angular_velocity"][0], rb["angular_velocity"][1], rb["angular_velocity"][2]));
+            }
+            if (rb.find("lifetime") != rb.end()) {
+                auto lifetime = rb["lifetime"].get<pe::Real>();
+                lifetime = lifetime < 0 ? PE_REAL_MAX : lifetime;
+                rb_obj->setLifeTime(lifetime);
+            }
+            auto transform = pe::Transform::identity();
+            if (rb.find("position") != rb.end())
+                transform.setOrigin(pe::Vector3(rb["position"][0], rb["position"][1], rb["position"][2]));
+            if (rb.find("rotation") != rb.end()) {
+                if (rb.find("rotation").value().size() == 4) {
+                    auto q = pe::Quaternion(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2], rb["rotation"][3]);
+                    transform.setBasis(q.toRotationMatrix());
+                } else if (rb.find("rotation").value().size() == 9) {
+                    auto m = pe::Matrix3(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2],
+                                         rb["rotation"][3], rb["rotation"][4], rb["rotation"][5],
+                                         rb["rotation"][6], rb["rotation"][7], rb["rotation"][8]);
+                    transform.setBasis(m);
+                }
+            }
+            rb_obj->setTransform(transform);
+            if (rb.find("mass") != rb.end()) rb_obj->setMass(rb["mass"]);
+            if (rb.find("friction") != rb.end()) rb_obj->setFrictionCoeff(rb["friction"]);
+            if (rb.find("restitution") != rb.end()) rb_obj->setRestitutionCoeff(rb["restitution"]);
+            if (rb.find("type") != rb.end()) {
+                auto type = rb["type"].get<std::string>();
+                pe_phys_shape::Shape* shape;
+                if (type == "box") {
+                    auto size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
+                    shape = new pe_phys_shape::BoxShape(size);
+                } else if (type == "sphere") {
+                    auto radius = rb["scale"][0].get<pe::Real>();
+                    shape = new pe_phys_shape::SphereShape(radius);
+                } else if (type == "cylinder") {
+                    auto radius = rb["scale"][0].get<pe::Real>();
+                    auto height = rb["scale"][1].get<pe::Real>();
+                    shape = new pe_phys_shape::CylinderShape(radius, height);
+                } else if (type == "convex" || type == "concave") {
+                    auto obj_path = rb["mesh"].get<std::string>();
+                    auto size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
+                    pe::Mesh mesh;
+                    pe::Mesh::loadFromObj(obj_path, mesh, size);
+                    if (type == "convex") {
+                        shape = new pe_phys_shape::ConvexMeshShape();
+                        ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
+                    } else {
+                        shape = new pe_phys_shape::ConcaveMeshShape();
+                        ((pe_phys_shape::ConcaveMeshShape*)shape)->setMesh(mesh);
+                    }
+                } else if (type == "compound") {
+                    shape = new pe_phys_shape::CompoundShape();
+                    auto& shapes = rb["shapes"];
+                    if (shapes.type() != nlohmann::json::value_t::array) {
+                        PE_LOG_ERROR << "Compound sub-shapes should be an array." << PE_ENDL;
+                        delete rb_obj;
+                        continue;
+                    }
+                    for (auto& s : shapes) {
+                        pe::Real mass_ratio = 1.0;
+                        pe::Transform local_transform = pe::Transform::identity();
+                        if (s.find("mass_ratio") != s.end()) mass_ratio = s["mass_ratio"];
+                        if (s.find("position") != s.end())
+                            local_transform.setOrigin(pe::Vector3(s["position"][0], s["position"][1], s["position"][2]));
+                        if (s.find("rotation") != s.end()) {
+                            if (s.find("rotation").value().size() == 4) {
+                                auto q = pe::Quaternion(s["rotation"][0], s["rotation"][1], s["rotation"][2], s["rotation"][3]);
+                                local_transform.setBasis(q.toRotationMatrix());
+                            } else if (s.find("rotation").value().size() == 9) {
+                                auto m = pe::Matrix3(s["rotation"][0], s["rotation"][1], s["rotation"][2],
+                                                     s["rotation"][3], s["rotation"][4], s["rotation"][5],
+                                                     s["rotation"][6], s["rotation"][7], s["rotation"][8]);
+                                local_transform.setBasis(m);
+                            }
+                        }
+                        pe_phys_shape::Shape* sub_shape;
+                        auto sub_type = s["type"].get<std::string>();
+                        if (sub_type == "box") {
+                            auto size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
+                            sub_shape = new pe_phys_shape::BoxShape(size);
+                        } else if (sub_type == "sphere") {
+                            auto radius = s["scale"][0].get<pe::Real>();
+                            sub_shape = new pe_phys_shape::SphereShape(radius);
+                        } else if (sub_type == "cylinder") {
+                            auto radius = s["scale"][0].get<pe::Real>();
+                            auto height = s["scale"][1].get<pe::Real>();
+                            sub_shape = new pe_phys_shape::CylinderShape(radius, height);
+                        } else if (sub_type == "convex") {
+                            auto obj_path = s["mesh"].get<std::string>();
+                            auto size = pe::Vector3(s["scale"][0], s["scale"][1], s["scale"][2]);
+                            pe::Mesh mesh;
+                            pe::Mesh::loadFromObj(obj_path, mesh, size);
+                            shape = new pe_phys_shape::ConvexMeshShape();
+                            ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
+                        } else if (sub_type == "compound" || sub_type == "concave") {
+                            PE_LOG_ERROR << "Compound sub-shapes cannot be compound or concave." << PE_ENDL;
+                            delete rb_obj;
+                            continue;
+                        } else {
+                            PE_LOG_ERROR << "Invalid compound sub-shape type: " << sub_type << PE_ENDL;
+                            delete rb_obj;
+                            continue;
+                        }
+                        ((pe_phys_shape::CompoundShape*)shape)->addShape(local_transform, mass_ratio, sub_shape);
+                    }
+                } else {
+                    PE_LOG_ERROR << "Invalid rigidbody type: " << type << PE_ENDL;
+                    delete rb_obj;
+                    continue;
+                }
+                rb_obj->setCollisionShape(shape);
+            } else {
+                PE_LOG_ERROR << "RigidBody type not specified." << PE_ENDL;
+                delete rb_obj;
+                continue;
+            }
+            _world.addRigidBody(rb_obj);
+            k++;
+        }
+    }
+    PE_LOG_INFO << "Loaded " << k << " rigidbodies." << PE_ENDL;
+
+    //////////////////////////////////////////////////////////////////////////
+    // read constraints
+    //////////////////////////////////////////////////////////////////////////
+    // not implemented
+
+    PE_LOG_INFO << "Scene loaded." << PE_ENDL;
+    return true;
+}
 
 template <UseViewer UV>
 void Simulator<UV>::start(int target_frame_rate) {

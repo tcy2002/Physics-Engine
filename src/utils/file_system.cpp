@@ -1,7 +1,6 @@
 #include "file_system.h"
 
 namespace utils {
-
     void StringTools::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters)
     {
         std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -288,18 +287,38 @@ namespace utils {
     }
 
 #ifdef WIN32
-    const std::string FileSystem::fileDialog(int dialogType,
-            const std::string &initialDir,
-            const std::string &filter)
+    const std::string FileSystem::fileDialog(
+        int dialogType,
+        const std::string &initialDir,
+        const std::string &filterName,
+        const std::string &filter)
     {
         std::string initDir = normalizePath(initialDir);
         std::replace(initDir.begin(), initDir.end(), '/', '\\');
-
+#   ifdef PE_UTILS_USE_NFD
+        std::string filename = "";
+        NFD_Init();
+        nfdchar_t* outPath;
+        nfdfilteritem_t filterItem[1] = { { filterName.c_str(), filter.c_str() } };
+        nfdresult_t result;
+        if (dialogType == 0) {
+            result = NFD_OpenDialog(&outPath, filterItem, 1, initDir.c_str());
+        } else {
+            result = NFD_SaveDialog(&outPath, filterItem, 1, initDir.c_str(), "");
+        }
+        if (result == NFD_OKAY)
+        {
+            filename = outPath;
+            NFD_FreePath(outPath);
+        }
+        NFD_Quit();
+        return filename;
+#   else
         OPENFILENAME ofn;       // common dialog box structure
         char fileNameBuffer[512];
         fileNameBuffer[0] = '\0';
 
-        const std::string filterWithEscape = filter + '\0';
+        const std::string filterWithEscape = filterName + " (*." + filter + ")" + '\0' + "*." + filter + '\0';
 
         ZeroMemory(&ofn, sizeof(ofn));
         ofn.lStructSize = sizeof(ofn);
@@ -321,6 +340,7 @@ namespace utils {
                 return std::string(fileNameBuffer);
         }
         return "";
+#   endif
     }
 #endif
 

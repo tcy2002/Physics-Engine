@@ -1,39 +1,4 @@
 #include "intf/simulator.h"
-#include <fstream>
-#include <sstream>
-
-void objToMesh(pe::Mesh& mesh, const std::string& filename, pe::Real size) {
-    std::fstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file " << filename << std::endl;
-        return;
-    }
-
-    char buf[1024];
-    while (file.getline(buf, 1024)) {
-        std::stringstream ss(buf);
-        std::string str;
-        ss >> str;
-        if (str == "v") {
-            pe::Real x, y, z;
-            ss >> x >> y >> z;
-            mesh.vertices.push_back({ {x * size, y * size, z * size}, {0, 0, 0} });
-        }
-        else if (str == "f") {
-            std::string vert;
-            pe::Mesh::Face face;
-            while (ss >> vert) {
-                int vi = std::atoi(vert.substr(0, vert.find_first_of('/')).c_str());
-                face.indices.push_back(vi - 1);
-            }
-            mesh.faces.push_back(face);
-        }
-    }
-
-    pe::Mesh::perFaceNormal(mesh);
-    pe::Mesh::perVertexNormal(mesh);
-    file.close();
-}
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
@@ -105,7 +70,7 @@ protected:
 
     static pe_phys_object::RigidBody* createConcaveRigidBody(const std::string& obj_path, const pe::Transform& trans, pe::Real mass, pe::Real size) {
         pe::Mesh mesh;
-        objToMesh(mesh, obj_path, size);
+        pe::Mesh::loadFromObj(obj_path, mesh, pe::Vector3(size, size, size));
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::ConcaveMeshShape();

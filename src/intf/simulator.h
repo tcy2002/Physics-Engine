@@ -11,7 +11,7 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
 #include "json/json.hpp"
-#include <sstream>
+#include "utils/file_system.h"
 
 namespace pe_intf { // interface
 
@@ -27,8 +27,15 @@ namespace pe_intf { // interface
         Simulator() {}
         virtual ~Simulator() {}
 
+        // Store the current scene as a config file
+        void saveScene();
         // Load a config file
-        bool loadScene(const std::string& json_file);
+        bool loadScene(int argc, char** argv);
+        // Store the current scene as a binary file
+        void saveState();
+        // Load a binary file
+        bool loadState();
+
         // Initialize the physics world here before running
         virtual void init() {}
         // Called every frame to update the physics world
@@ -49,12 +56,13 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
-#define PE_MAIN(ScenePath, TargetFrameRate) \
-int main() { \
+#define PE_MAIN(TargetFrameRate) \
+int main(int argc, char** argv) { \
     pe_intf::Simulator<pe_intf::UseViewer::True> sim; \
-    if (sim.loadScene(ScenePath)) { \
+    if (sim.loadScene(argc, argv)) { \
         sim.start(TargetFrameRate); \
     } \
+    if (WIN32) system("pause"); \
     return 0; \
 }
 
@@ -62,5 +70,6 @@ int main() { \
 int main() { \
     Simulator sim; \
     sim.start(TargetFrameRate); \
+    if (WIN32) system("pause"); \
     return 0; \
 }

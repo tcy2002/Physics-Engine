@@ -25,6 +25,10 @@
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
 #endif
 
+#ifdef PE_UTILS_USE_NFD
+#include "nfd.h"
+#endif
+
 namespace utils
 {
 	/** \brief Tools to handle std::string objects
@@ -68,8 +72,10 @@ namespace utils
 		* dialogType 0 = Open file dialog\n
 		* dialogType 1 = Save file dialog\n
 		*/
-		static const std::string fileDialog(int dialogType,
+		static const std::string fileDialog(
+			int dialogType,
 			const std::string &initialDir,
+			const std::string &filterName,
 			const std::string &filter);
 #endif
 	};

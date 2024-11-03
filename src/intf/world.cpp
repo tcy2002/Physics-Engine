@@ -12,7 +12,6 @@ namespace pe_intf {
         _dt(pe::Real(0.01)),
         _sleep_lin_vel2_threshold(0),
         _sleep_ang_vel2_threshold(0),
-        _sleep_pos_threshold(0),
         _sleep_time_threshold(0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),

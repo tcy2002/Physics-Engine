@@ -4,11 +4,11 @@
 namespace utils {
 
     BVH::BVH(Mesh& mesh, int max_node) {
-        bvh = buildBVH(mesh, 0, mesh.faces.size() - 1, max_node);
+        bvh = buildBVH(mesh, 0, (int)mesh.faces.size() - 1, max_node);
     }
 
     Vector3 min_vector3(const Mesh& mesh, const Mesh::Face& face) {
-        float min_x = BVH_MAX, min_y = BVH_MAX, min_z = BVH_MAX;
+        BVH_REAL min_x = BVH_MAX, min_y = BVH_MAX, min_z = BVH_MAX;
         for (int i = 0; i < (int)face.indices.size(); i++) {
             auto& pos = mesh.vertices[face.indices[i]].position;
             if (pos.x < min_x) min_x = pos.x;
@@ -19,7 +19,7 @@ namespace utils {
     }
 
     Vector3 max_vector3(const Mesh& mesh, const Mesh::Face& face) {
-        float max_x = BVH_MIN, max_y = BVH_MIN, max_z = BVH_MIN;
+        BVH_REAL max_x = BVH_MIN, max_y = BVH_MIN, max_z = BVH_MIN;
         for (int i = 0; i < (int)face.indices.size(); i++) {
             auto& pos = mesh.vertices[face.indices[i]].position;
             if (pos.x > max_x) max_x = pos.x;

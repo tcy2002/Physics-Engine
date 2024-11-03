@@ -9,21 +9,6 @@
 
 namespace pe_phys_fracture {
 
-    void FractureSolver::meshToObj(const pe::Mesh &mesh, const std::string& obj_path) {
-        std::ofstream ofs(obj_path);
-        for (auto& vert : mesh.vertices) {
-            ofs << "v " << vert.position.x << " " << vert.position.y << " " << vert.position.z << "\n";
-        }
-        for (auto& face: mesh.faces) {
-            ofs << "f ";
-            for (auto i : face.indices) {
-                ofs << i + 1 << " ";
-            }
-            ofs << "\n";
-        }
-        ofs.close();
-    }
-
     uint32_t generateSeed() {
         static uint32_t seed = -1;
         if (seed == -1) {
