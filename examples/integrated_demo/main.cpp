@@ -27,7 +27,7 @@ public:
         // create the urban layout
         createUrbanLayout();
 
-        saveScene();
+        //saveScene();
 
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();

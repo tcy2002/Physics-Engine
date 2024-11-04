@@ -53,7 +53,6 @@ public:
         };
 
         for (auto rb : _world.getRigidBodies()) {
-            std::cout << rb->getTag() << std::endl;
             if (rb->getTag().find("building") != std::string::npos) {
                 rb->addCollisionCallback(callback);
             }
