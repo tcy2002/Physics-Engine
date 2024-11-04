@@ -8,7 +8,6 @@ RigidBody* createRigidBody() {
     RigidBody* rb = new RigidBody();
     rb->setMass(2.0);
     rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(1.0, 1.0, 1.0)));
-    rb->setLocalInertia({1.0 / 3, 0, 0, 0, 1.0 / 3, 0, 0, 0, 1.0 / 3});
     rb->setTransform(pe::Transform::identity());
     return rb;
 }

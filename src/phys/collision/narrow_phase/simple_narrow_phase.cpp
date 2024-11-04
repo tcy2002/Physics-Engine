@@ -22,33 +22,39 @@ namespace pe_phys_collision {
 
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forBatchedLoop((int)pairs.size(), 0, [&](int i) {
-            auto shape_a = pairs[i].first->getCollisionShape();
-            auto shape_b = pairs[i].second->getCollisionShape(); auto type_a = shape_a->getType();
-            auto type_b = shape_b->getType();
-            auto trans_a = pairs[i].first->getTransform();
-            auto trans_b = pairs[i].second->getTransform();
             results[i]->clearContactPoints();
-            results[i]->setObjects(pairs[i].first, pairs[i].second);
+            pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
+            if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
+            results[i]->setObjects(obj_a, obj_b);
+            auto shape_a = obj_a->getCollisionShape();
+            auto shape_b = obj_b->getCollisionShape();
+            auto type_a = shape_a->getType();
+            auto type_b = shape_b->getType();
+            auto& trans_a = obj_a->getTransform();
+            auto& trans_b = obj_b->getTransform();
             auto algo = getAlgorithm(type_a, type_b);
             if (algo == nullptr) return;
-            pe::Real refScale = (pairs[i].first->getAABBScale() + pairs[i].second->getAABBScale()) * PE_DIST_REF_RADIO;
+            pe::Real refScale = (obj_a->getAABBScale() + obj_b->getAABBScale()) * PE_DIST_REF_RADIO;
             algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, *results[i]);
             results[i]->sortContactPoints();
         });
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < (int)pairs.size(); i++) {
-            auto shape_a = pairs[i].first->getCollisionShape();
-            auto shape_b = pairs[i].second->getCollisionShape();
+            results[i]->clearContactPoints();
+            pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
+            if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
+            results[i]->setObjects(obj_a, obj_b);
+            auto shape_a = obj_a->getCollisionShape();
+            auto shape_b = obj_b->getCollisionShape();
             auto type_a = shape_a->getType();
             auto type_b = shape_b->getType();
-            auto trans_a = pairs[i].first->getTransform();
-            auto trans_b = pairs[i].second->getTransform();
-            results[i]->clearContactPoints();
-            results[i]->setObjects(pairs[i].first, pairs[i].second);
+            auto& trans_a = obj_a->getTransform();
+            auto& trans_b = obj_b->getTransform();
             auto algo = getAlgorithm(type_a, type_b);
-            if (algo == nullptr) continue;
-            algo->processCollision(shape_a, shape_b, trans_a, trans_b, *results[i]);
+            if (algo == nullptr) return;
+            pe::Real refScale = (obj_a->getAABBScale() + obj_b->getAABBScale()) * PE_DIST_REF_RADIO;
+            algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, *results[i]);
             results[i]->sortContactPoints();
         }
 #   endif

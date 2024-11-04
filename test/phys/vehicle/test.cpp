@@ -15,7 +15,6 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -28,7 +27,6 @@ pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Rea
     auto shape = new pe_phys_shape::SphereShape(radius);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -41,7 +39,6 @@ pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::R
     auto shape = new pe_phys_shape::CylinderShape(radius, height);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -69,7 +66,6 @@ void testTank() {
 //    mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / 12);
     ground->setTransform(pe::Transform(mat, pe::Vector3(0, -0.5, 0)));
     ground->setKinematic(true);
-    ground->setLocalInertia(ground_shape->calcLocalInertia(1.0));
     world->addRigidBody(ground);
     int ground_id = pe_intf::Viewer::addCube(ground_shape->getSize() - PE_TEST_GROUND_MARGIN * 2);
     pe_intf::Viewer::updateColor(ground_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.3, 0.3, 0.8));
@@ -83,7 +79,6 @@ void testTank() {
     mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / 12);
     box->setTransform(pe::Transform(mat, pe::Vector3(0, 1.4, -10)));
     box->setKinematic(true);
-    box->setLocalInertia(shape_box->calcLocalInertia(1.0));
     world->addRigidBody(box);
     int box_id = pe_intf::Viewer::addCube(shape_box->getSize() - PE_TEST_GROUND_MARGIN * 2);
     pe_intf::Viewer::updateColor(box_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.3, 0.3));
@@ -97,7 +92,6 @@ void testTank() {
         step->setCollisionShape(shape_step);
         step->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0.15 + 0.3 * i, -30 - i * 0.5)));
         step->setKinematic(true);
-        step->setLocalInertia(shape_step->calcLocalInertia(1.0));
         world->addRigidBody(step);
         int step_id = pe_intf::Viewer::addCube(shape_step->getSize() - PE_TEST_GROUND_MARGIN * 2);
         pe_intf::Viewer::updateColor(step_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.3, 0.3));

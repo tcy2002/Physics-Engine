@@ -559,20 +559,18 @@ void Simulator<UV>::start(int target_frame_rate) {
         }
         frame++;
 
-#   if false
+#   if true
         static pe::Array<int> ids;
         for (auto id : ids) {
-            pe_intf::Viewer::remove(id);
+            Viewer::remove(id);
         }
         ids.clear();
         for (auto cr : _world.getContactResults()) {
-            if (cr->getObjectA()->getGlobalId() == 1 || cr->getObjectB()->getGlobalId() == 1) continue;
             for (int i = 0; i < cr->getPointSize(); i++) {
                 auto p = cr->getContactPoint(i).getWorldPos();
-                auto n = cr->getContactPoint(i).getWorldNormal();
-                auto d = cr->getContactPoint(i).getDistance();
-                auto id = pe_intf::Viewer::addSphere(0.03);
-                pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                auto id = Viewer::addSphere(0.1);
+                Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.8, 0.3, 0.3));
                 ids.push_back(id);
             }
         }

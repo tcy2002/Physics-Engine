@@ -27,7 +27,7 @@ void testFracture() {
     for (auto frag : solver->getFragments()) {
         auto shape = (pe_phys_shape::ConvexMeshShape*)(frag->getCollisionShape());
         auto mesh = shape->getMesh();
-        FractureSolver::meshToObj(mesh, "test" + std::to_string(k++) + ".obj");
+        pe::Mesh::saveToObj("test" + std::to_string(k++) + ".obj", mesh, pe::Vector3::ones());
     }
 };
 

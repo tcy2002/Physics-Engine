@@ -61,7 +61,6 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, pe::Real 
     auto shape = new pe_phys_shape::ConvexMeshShape();
     shape->setMesh(mesh);
     rb->setCollisionShape(shape);
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
     pe::Vector3 aabb_min, aabb_max;
     shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
     return rb;
@@ -73,7 +72,6 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -86,7 +84,6 @@ pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Rea
     auto shape = new pe_phys_shape::SphereShape(radius);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -99,7 +96,6 @@ pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::R
     auto shape = new pe_phys_shape::CylinderShape(radius, height);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(mass));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -112,7 +108,6 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    rb->setLocalInertia(shape->calcLocalInertia(1.0));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);

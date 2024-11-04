@@ -100,25 +100,7 @@ void testProject() {
     ASSERT_EQUAL(maxPoint.z, 2.5)
 }
 
-std::string getUniqueEdges() {
-    pe_phys_shape::ConvexMeshShape mesh;
-    mesh.setMesh(PE_CYLINDER_DEFAULT_MESH);
-    std::stringstream str;
-    str << "const pe::Array<pe::Vector3> _cylinder_unique_edges = { //NOLINT\n";
-    auto& edges = mesh.getUniqueEdges();
-    for (int i = 0; i < edges.size();) {
-        for (int j = 0; j < 2; j++) {
-            str << "{" << edges[i].x << ", " << edges[i].y << ", " << edges[i].z << "}, ";
-            i++;
-        }
-        str << "\n";
-    }
-    str << "};\n";
-    return std::move(str.str());
-}
-
 int main() {
-//    std::cout << getUniqueEdges() << std::endl;
     testConstruct();
     testAABB();
     testIsInside();

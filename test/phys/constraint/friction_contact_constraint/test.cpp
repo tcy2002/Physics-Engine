@@ -12,9 +12,6 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
     rb->setCollisionShape(new pe_phys_shape::BoxShape(size));
     rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
     pe::Real x = size.x, y = size.y, z = size.z;
-    rb->setLocalInertia({(y * y + z * z) / 12, 0, 0,
-                         0, (x * x + z * z) / 12, 0,
-                         0, 0, (x * x + y * y) / 12});
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(1.0);
     return rb;

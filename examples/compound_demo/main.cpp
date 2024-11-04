@@ -46,20 +46,6 @@ public:
     }
 
 protected:
-    static pe::Matrix3 fromRotation(const pe::Vector3& axis, pe::Real angle) {
-        /* This function creates a rotation matrix from an axis and an angle */
-
-        pe::Real c = std::cos(angle);
-        pe::Real s = std::sin(angle);
-        pe::Real t = 1 - c;
-        pe::Real x = axis.x;
-        pe::Real y = axis.y;
-        pe::Real z = axis.z;
-        return pe::Matrix3(t * x * x + c, t * x * y - s * z, t * x * z + s * y,
-                           t * x * y + s * z, t * y * y + c, t * y * z - s * x,
-                           t * x * z - s * y, t * y * z + s * x, t * z * z + c);
-    }
-
     static pe_phys_object::RigidBody* createCompoundRigidBody(const pe::Transform& trans, pe::Real mass) {
         /* This function creates a compound-shaped rigidbody */
 
@@ -77,10 +63,19 @@ protected:
         shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
         shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);
         shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -1, 0)), pe::Real(0.1), shape3);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(1, 0, 0)), pe::Real(0.1), shape4);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::forward(), PE_PI / 2), pe::Vector3(-1, 0, 0)), pe::Real(0.1), shape5);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, 1)), pe::Real(0.1), shape6);
-        shape->addShape(pe::Transform(fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(0, 0, -1)), pe::Real(0.1), shape7);
+        pe::Transform trans1;
+        trans1.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans1.setTranslation(pe::Vector3(1, 0, 0));
+        shape->addShape(trans1, pe::Real(0.1), shape4);
+        trans1.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans1.setTranslation(pe::Vector3(-1, 0, 0));
+        shape->addShape(trans1, pe::Real(0.1), shape5);
+        trans1.setRotation(pe::Vector3::right(), PE_PI / 2);
+        trans1.setTranslation(pe::Vector3(0, 0, 1));
+        shape->addShape(trans1, pe::Real(0.1), shape6);
+        trans1.setRotation(pe::Vector3::right(), PE_PI / 2);
+        trans1.setTranslation(pe::Vector3(0, 0, -1));
+        shape->addShape(trans1, pe::Real(0.1), shape7);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setFrictionCoeff(0.5);

@@ -19,7 +19,8 @@ void testBoxBox() {
     ContactResult result;
 	result.setObjectA(rb1);
 	result.setObjectB(rb2);
-    alg->processCollision(rb1->getCollisionShape(), rb2->getCollisionShape(), rb1->getTransform(), rb2->getTransform(), result);
+    pe::Real refScale = (rb1->getAABBScale() + rb2->getAABBScale()) * PE_DIST_REF_RADIO;
+    alg->processCollision(rb1->getCollisionShape(), rb2->getCollisionShape(), rb1->getTransform(), rb2->getTransform(), refScale, result);
     result.sortContactPoints();
 
     std::cout << result.getPointSize() << std::endl;

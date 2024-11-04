@@ -30,9 +30,11 @@
 //// phys
 #define PE_MARGIN pe::Real(0.005)
 #define PE_DIST_REF_RADIO pe::Real(0.05)
+#define PE_DIST_TH pe::Real(0.02)
 #define PE_USE_QUATERNION
 
 //// math
+#define PE_SWAP(a, b) { auto t = a; a = b; b = t; }
 #define PE_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define PE_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define PE_MAX3(a, b, c) PE_MAX(PE_MAX(a, b), c)

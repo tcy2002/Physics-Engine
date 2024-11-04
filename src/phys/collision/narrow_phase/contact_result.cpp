@@ -160,7 +160,7 @@ namespace pe_phys_collision {
     pe::Real ContactResult::getSameContactPointDistanceThreshold() const {
         pe::Real a_scale = _object_a->getAABBScale();
         pe::Real b_scale = _object_b->getAABBScale();
-        return PE_MIN(a_scale, b_scale) * pe::Real(0.02);
+        return PE_MIN(a_scale, b_scale) * PE_DIST_TH;
     }
 
 } // pe_phys_collision

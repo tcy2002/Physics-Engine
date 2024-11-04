@@ -15,6 +15,8 @@ namespace pe_phys_collision {
 
         auto& mesh_a = ((pe_phys_shape::CylinderShape*)shape_a)->getMesh();
         auto& mesh_b = ((pe_phys_shape::CylinderShape*)shape_b)->getMesh();
+        auto& edges_a = ((pe_phys_shape::CylinderShape*)shape_a)->getUniqueEdges();
+        auto& edges_b = ((pe_phys_shape::CylinderShape*)shape_b)->getUniqueEdges();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;
@@ -24,8 +26,7 @@ namespace pe_phys_collision {
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
-                                                                pe_phys_shape::_cylinder_unique_edges,
-                                                                pe_phys_shape::_cylinder_unique_edges,
+                                                                edges_a, edges_b,
                                                                 trans_a, trans_b, sep, margin, result)) {
             return false;
         }

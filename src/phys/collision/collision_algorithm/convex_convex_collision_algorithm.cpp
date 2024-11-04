@@ -325,8 +325,9 @@ namespace pe_phys_collision {
             }
         }
 
-        // // To prevent one corner case: the actual deepest penetration point is not on the witness face
-        // if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB)))) {
+        // To prevent one corner case: the actual deepest penetration point is not on the witness face
+        // if ((ptOnA && shapeB->localIsInside(transB.inverseTransform(dMinPtOnB))) ||
+        //     (!ptOnA && shapeA->localIsInside(transA.inverseTransform(dMinPtOnB)))) {
         //     result.addContactPoint(sep, dMinPtOnB - sep * margin,
         //                            -dMin + margin * 2);
         // }
@@ -406,11 +407,8 @@ namespace pe_phys_collision {
                 pe::Vector3 ptOnB = witnessPointB + offsetB;
                 pe::Real distance = nl;
 
-                if (distance < 0.1) {
-                    result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
-                -distance + margin * 2);
-                }
-
+                result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
+                                       -distance + margin * 2);
             }
         }
 

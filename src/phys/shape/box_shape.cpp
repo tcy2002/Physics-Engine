@@ -15,9 +15,9 @@ namespace pe_phys_shape {
             edge.first.x *= size.x;
             edge.first.y *= size.y;
             edge.first.z *= size.z;
-            edge.first.x *= size.x;
-            edge.first.y *= size.y;
-            edge.first.z *= size.z;
+            edge.second.x *= size.x;
+            edge.second.y *= size.y;
+            edge.second.z *= size.z;
         }
         pe::Real x2 = _size.x * _size.x;
         pe::Real y2 = _size.y * _size.y;

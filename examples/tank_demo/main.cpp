@@ -85,6 +85,21 @@ protected:
         rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
+
+    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
+                                                              pe::Real radius, pe::Real height, pe::Real mass) {
+        /* This function creates a cylinder-shaped rigidbody */
+
+        auto rb = new pe_phys_object::RigidBody();
+        rb->setMass(mass);
+        auto shape = new pe_phys_shape::CylinderShape(radius, height);
+        rb->setCollisionShape(shape);
+        rb->setTransform(trans);
+        rb->setFrictionCoeff(pe::Real(0.5));
+        rb->setRestitutionCoeff(pe::Real(0.5));
+        rb->setAngularDamping(pe::Real(0.8));
+        return rb;
+    }
 };
 
 // Simulator class, Delta time, Max frame

@@ -91,6 +91,7 @@ namespace pe_phys_vehicle {
 #       endif
             wheel->setCollisionShape(shape);
             wheel->setMass(_wheelMass);
+            wheel->setTag("wheel");
             wheels.push_back(wheel);
             dw->addRigidBody(wheel);
             vehicle->getWheelInfo(i).m_clientInfo = wheel;

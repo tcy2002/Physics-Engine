@@ -44,7 +44,7 @@ namespace pe_phys_shape {
     }
 
     bool CylinderShape::localIsInside(const pe::Vector3 &point) const {
-        return point.y >= -_height * 0.5 && point.y <= _height * 0.5 &&
+        return point.y >= -_height * pe::Real(0.5) && point.y <= _height * pe::Real(0.5) &&
                point.x * point.x + point.z * point.z <= _radius * _radius;
     }
 
