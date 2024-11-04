@@ -27,7 +27,7 @@ public:
         // create the urban layout
         createUrbanLayout();
 
-        //saveScene();
+        saveScene();
 
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();
@@ -145,7 +145,7 @@ protected:
     void createBuilding(const pe::Vector3& size, const pe::Vector3& pos, pe::Real wall_thickness, const std::string& color) {
         /* This function creates a building with a ceiling and four walls */
 
-        // callback function for collision
+        // callback function for wall collision
         static auto callback = [&](
                 pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
                 const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
@@ -168,7 +168,7 @@ protected:
                 pe::Vector3(size.x - wall_thickness * 2, wall_thickness, size.z - wall_thickness * 2), 8, 1);
         wall->setKinematic(true);
         wall->addCollisionCallback(callback);
-        wall->setTag("color:" + color);
+        wall->setTag("color:" + color + ";building");
         _world.addRigidBody(wall);
 
         // front wall
@@ -179,7 +179,7 @@ protected:
                                           pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
         wall->setKinematic(true);
         wall->addCollisionCallback(callback);
-        wall->setTag("color:" + color);
+        wall->setTag("color:" + color + ";building");
         _world.addRigidBody(wall);
 
         // back wall
@@ -190,7 +190,7 @@ protected:
                                           pe::Vector3(size.x - wall_thickness * 2, size.y, wall_thickness), 8, 1);
         wall->setKinematic(true);
         wall->addCollisionCallback(callback);
-        wall->setTag("color:" + color);
+        wall->setTag("color:" + color + ";building");
         _world.addRigidBody(wall);
 
         // left wall
@@ -199,7 +199,7 @@ protected:
                                           pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
         wall->setKinematic(true);
         wall->addCollisionCallback(callback);
-        wall->setTag("color:" + color);
+        wall->setTag("color:" + color + ";building");
         _world.addRigidBody(wall);
 
         // right wall
@@ -208,7 +208,7 @@ protected:
                                           pe::Vector3(wall_thickness, size.y, size.z), 8, 1);
         wall->setKinematic(true);
         wall->addCollisionCallback(callback);
-        wall->setTag("color:" + color);
+        wall->setTag("color:" + color + ";building");
         _world.addRigidBody(wall);
     }
 
@@ -449,4 +449,4 @@ protected:
 };
 
 // Simulator class, Delta time, Max frame
-PE_CUSTOM_MAIN(TankSimulator, 60)
+PE_CUSTOM_MAIN(TankSimulator, 100)

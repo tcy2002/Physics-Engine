@@ -35,6 +35,29 @@ public:
         mat.setRotation(pe::Vector3(0, 1, 0), PE_PI);
         _tank2->setTransform(pe::Transform(mat, pe::Vector3(0, 5, -160)));
         _tank2->init(&_world);
+
+        // add callback functions
+        // callback function for wall collision
+        static auto callback = [&](
+                pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
+                const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
+            if (other->getTag() != "bullet" || !self->isFracturable()) return;
+            auto fb = (pe_phys_object::FracturableObject*)self;
+            if (vel.norm() * other->getMass() < fb->getThreshold() * 800) return;
+            pe_phys_fracture::FractureSource src;
+            src.position = pos;
+            src.type = pe_phys_fracture::FractureType::Sphere;
+            src.intensity = pe::Vector3(1.5, 1.5, 1.5);
+            _world.addFractureSource(src);
+            _world.removeRigidBody(other);
+        };
+
+        for (auto rb : _world.getRigidBodies()) {
+            std::cout << rb->getTag() << std::endl;
+            if (rb->getTag().find("building") != std::string::npos) {
+                rb->addCollisionCallback(callback);
+            }
+        }
     }
 
     void step() override {
@@ -106,4 +129,4 @@ public:
 };
 
 // Simulator class, Delta time, Max frame
-PE_CONFIG_CUSTOM_MAIN(TankSimulator, 60)
+PE_CONFIG_CUSTOM_MAIN(TankSimulator, 100)
