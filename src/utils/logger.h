@@ -41,11 +41,16 @@ extern const char* PE_LOG_COLOR_RESET;
     "[" << PE_GetTimeString() << "]" \
     "[" << PE_FILENAME_STR << ":" << __LINE__ << "]" << \
     PE_LOG_COLOR_RESET
+#define PE_LOG_CUSTOM_(type) \
+    std::cout << PE_LOG_COLORS[(int)(type)]
+#define PE_LOG_CUSTOM_INFO PE_LOG_CUSTOM_(PE_LogType::Info)
+#define PE_LOG_CUSTOM_ERROR PE_LOG_CUSTOM_(PE_LogType::Error)
 #define PE_LOG_DEBUG PE_LOG_(PE_LogType::Debug) << " DEBUG: "
 #define PE_LOG_INFO PE_LOG_(PE_LogType::Info) << " INFO: "
 #define PE_LOG_WARN PE_LOG_(PE_LogType::Warn) << " WARN: "
 #define PE_LOG_ERROR PE_LOG_(PE_LogType::Error) << " ERROR: "
 #define PE_LOG_FATAL PE_LOG_(PE_LogType::Fatal) << " FATAL: "
 #define PE_ENDL std::endl
+#define PE_CUSTOM_ENDL PE_LOG_COLOR_RESET << std::endl;
 
 enum PE_LogType { Debug = 0, Info, Warn, Error, Fatal };

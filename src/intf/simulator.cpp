@@ -27,7 +27,7 @@ static bool jsonNodeExists(const nlohmann::json& node, const std::string& name, 
         return false;
     }
     if (!isNodeTypeEqual(node[name].type(), type)) {
-        PE_LOG_ERROR << "Node " << name << " should be a " << type_str[type] << "." << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Node " << name << " should be a " << type_str[type] << "." << PE_CUSTOM_ENDL;
         throw std::runtime_error("Node type error.");
     }
     return true;
@@ -48,16 +48,16 @@ static bool jsonArrayExists(const nlohmann::json& node, const std::string& name,
         return false;
     }
     if (node[name].type() != nlohmann::json::value_t::array) {
-        PE_LOG_ERROR << "Node " << name << " should be an array." << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Node " << name << " should be an array." << PE_CUSTOM_ENDL;
         throw std::runtime_error("Node type error.");
     }
     if (size != 0 && node[name].size() != size) {
-        PE_LOG_ERROR << "Node " << name << " should have " << size << " elements." << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Node " << name << " should have " << size << " elements." << PE_CUSTOM_ENDL;
         throw std::runtime_error("Node size error.");
     }
     for (auto& item : node[name]) {
         if (!isNodeTypeEqual(item.type(), item_type)) {
-            PE_LOG_ERROR << "Node " << name << " should have elements of type " << type_str[item_type] << "." << PE_ENDL;
+            PE_LOG_CUSTOM_ERROR << "Node " << name << " should have elements of type " << type_str[item_type] << "." << PE_CUSTOM_ENDL;
             throw std::runtime_error("Node item type error.");
         }
     }
@@ -65,14 +65,25 @@ static bool jsonArrayExists(const nlohmann::json& node, const std::string& name,
 }
 
 template<UseViewer UV>
-void Simulator<UV>::saveScene() {
-    std::string json_file = utils::FileSystem::fileDialog(1, PE_DATA_PATH, "Scene Files", "json");
+void Simulator<UV>::saveFrame(const std::string& path_to_write) {
+    std::string json_file;
+    if (path_to_write.empty()) {
+        json_file = utils::FileSystem::fileDialog(1, PE_DATA_PATH, "Scene Files", "json");
+    } else {
+        json_file = path_to_write;
+        if (!utils::FileSystem::fileExists(json_file)) {
+            auto dir = utils::FileSystem::getFilePath(json_file);
+            if (!utils::FileSystem::isDirectory(dir)) {
+                utils::FileSystem::makeDir(dir);
+            }
+        }
+    }
     if (json_file.empty()) {
-        PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "No scene file specified." << PE_CUSTOM_ENDL;
         return;
     }
 
-    PE_LOG_INFO << "Save scene to: " << json_file << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Save scene to: " << json_file << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // save configuration
@@ -82,7 +93,7 @@ void Simulator<UV>::saveScene() {
     data["Configuration"]["sleep_linear_velocity2_threshold"] = _world.getSleepLinVel2Threshold();
     data["Configuration"]["sleep_angular_velocity2_threshold"] = _world.getSleepAngVel2Threshold();
     data["Configuration"]["sleep_time_threshold"] = _world.getSleepTimeThreshold();
-    PE_LOG_INFO << "Saved configuration." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Saved configuration." << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // save rigidbodies
@@ -137,14 +148,16 @@ void Simulator<UV>::saveScene() {
             }
             case pe_phys_shape::ShapeType::ConvexMesh: {
                 rb_data["type"] = "convex";
-                rb_data["mesh"] = ""; // user should change this in the json file
-                rb_data["scale"] = {1, 1, 1}; // user should change this in the json file
+                rb_data["mesh"] = ((pe_phys_shape::ConvexMeshShape*)shape)->getMeshPath(); // user should change this in the json file
+                pe::Vector3 scale = ((pe_phys_shape::ConvexMeshShape*)shape)->getScale();
+                rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
                 break;
             }
             case pe_phys_shape::ShapeType::ConcaveMesh: {
                 rb_data["type"] = "concave";
-                rb_data["mesh"] = ""; // user should change this in the json file
-                rb_data["scale"] = {1, 1, 1}; // user should change this in the json file
+                rb_data["mesh"] = ((pe_phys_shape::ConcaveMeshShape*)shape)->getMeshPath(); // user should change this in the json file
+                pe::Vector3 scale = ((pe_phys_shape::ConcaveMeshShape*)shape)->getScale();
+                rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
                 break;
             }
             case pe_phys_shape::ShapeType::Compound: {
@@ -182,8 +195,9 @@ void Simulator<UV>::saveScene() {
                         }
                         case pe_phys_shape::ShapeType::ConvexMesh: {
                             shape_data["type"] = "convex";
-                            shape_data["mesh"] = ""; // user should change this in the json file
-                            shape_data["scale"] = {1, 1, 1}; // user should change this in the json file
+                            shape_data["mesh"] = ((pe_phys_shape::ConvexMeshShape*)shape)->getMeshPath(); // user should change this in the json file
+                            pe::Vector3 scale = ((pe_phys_shape::ConvexMeshShape*)shape)->getScale();
+                            shape_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
                             break;
                         }
                         default:
@@ -195,7 +209,7 @@ void Simulator<UV>::saveScene() {
         }
         rbs.push_back(rb_data);
     }
-    PE_LOG_INFO << "Saved " << rbs.size() << " rigidbodies." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Saved " << rbs.size() << " rigidbodies." << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // save damage sources
@@ -208,7 +222,7 @@ void Simulator<UV>::saveScene() {
         ds_data["intensity"] = {ds.intensity.x, ds.intensity.y, ds.intensity.z};
         dss.push_back(ds_data);
     }
-    PE_LOG_INFO << "Saved " << dss.size() << " damage sources." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Saved " << dss.size() << " damage sources." << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // save constraints
@@ -218,30 +232,31 @@ void Simulator<UV>::saveScene() {
     std::ofstream file(json_file);
     file << data.dump(4);
     file.close();
-    PE_LOG_INFO << "Scene saved." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Scene saved." << PE_CUSTOM_ENDL;
 }
 
 template<UseViewer UV>
-bool Simulator<UV>::loadScene(int argc, char** argv) {
+bool Simulator<UV>::load(int argc, char** argv) {
     std::string json_file;
     if (argc == 2) {
         json_file = argv[1];
     } else if (argc == 1) {
+        PE_LOG_CUSTOM_INFO << "Please select a scene file." << PE_CUSTOM_ENDL;
         json_file = utils::FileSystem::fileDialog(0, PE_DATA_PATH, "Scene Files", "json");
         if (json_file.empty()) {
-            PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+            PE_LOG_CUSTOM_ERROR << "No scene file specified. Usage: PEConfigDemo.exe [path of scene_file.json], or select the json file in file dialog" << PE_CUSTOM_ENDL;
             return false;
         }
     } else {
-        PE_LOG_ERROR << "No scene file specified." << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "No scene file specified. Usage: PEConfigDemo.exe [path of scene_file.json], or select the json file in file dialog" << PE_CUSTOM_ENDL;
         return false;
     }
 
-    PE_LOG_INFO << "Load scene: " << json_file << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Load scene: " << json_file << PE_CUSTOM_ENDL;
 
     std::ifstream file(json_file);
     if (!file.is_open()) {
-        PE_LOG_ERROR << "Failed to open file: " << json_file << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Failed to open file: " << json_file << PE_CUSTOM_ENDL;
         return false;
     }
 
@@ -249,7 +264,7 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
     try {
         data = nlohmann::json::parse(file);
     } catch (const std::exception& e) {
-        PE_LOG_ERROR << "Failed to parse json file: " << e.what() << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Failed to parse json file: " << e.what() << PE_CUSTOM_ENDL;
         return false;
     }
 
@@ -271,7 +286,7 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
             _world.setSleepTimeThreshold(config["sleep_time_threshold"]);
         }
     }
-    PE_LOG_INFO << "Loaded configuration." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Loaded configuration." << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // read rigidbodies
@@ -348,17 +363,26 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
                         auto obj_path = rb["mesh"].get<std::string>();
                         pe::Vector3 size = {1, 1, 1};
                         if (jsonArrayExists(rb, "scale", 3, nlohmann::json::value_t::number_float)) size = pe::Vector3(rb["scale"][0], rb["scale"][1], rb["scale"][2]);
+                        if (!utils::FileSystem::fileExists(obj_path)) {
+                            PE_LOG_CUSTOM_ERROR << "Mesh file not found: " << obj_path << PE_CUSTOM_ENDL;
+                            delete rb_obj;
+                            continue;
+                        }
                         pe::Mesh mesh;
                         pe::Mesh::loadFromObj(obj_path, mesh, size);
                         if (type == "convex") {
                             shape = new pe_phys_shape::ConvexMeshShape();
                             ((pe_phys_shape::ConvexMeshShape*)shape)->setMesh(mesh);
+                            ((pe_phys_shape::ConvexMeshShape*)shape)->setMeshPath(obj_path);
+                            ((pe_phys_shape::ConvexMeshShape*)shape)->setScale(size);
                         } else {
                             shape = new pe_phys_shape::ConcaveMeshShape();
                             ((pe_phys_shape::ConcaveMeshShape*)shape)->setMesh(mesh);
+                            ((pe_phys_shape::ConcaveMeshShape*)shape)->setMeshPath(obj_path);
+                            ((pe_phys_shape::ConcaveMeshShape*)shape)->setScale(size);
                         }
                     } else {
-                        PE_LOG_ERROR << "Mesh path not specified." << PE_ENDL;
+                        PE_LOG_CUSTOM_ERROR << "Mesh path not specified." << PE_CUSTOM_ENDL;
                         delete rb_obj;
                         continue;
                     }
@@ -367,7 +391,7 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
                         shape = new pe_phys_shape::CompoundShape();
                         auto& shapes = rb["shapes"];
                         if (shapes.type() != nlohmann::json::value_t::array) {
-                            PE_LOG_ERROR << "Compound sub-shapes should be an array." << PE_ENDL;
+                            PE_LOG_CUSTOM_ERROR << "Compound sub-shapes should be an array." << PE_CUSTOM_ENDL;
                             delete rb_obj;
                             continue;
                         }
@@ -418,40 +442,41 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
                                         pe::Mesh::loadFromObj(obj_path, mesh, size);
                                         sub_shape = new pe_phys_shape::ConvexMeshShape();
                                         ((pe_phys_shape::ConvexMeshShape*)sub_shape)->setMesh(mesh);
+                                        ((pe_phys_shape::ConvexMeshShape*)sub_shape)->setMeshPath(obj_path);
                                     } else {
-                                        PE_LOG_ERROR << "Convex sub-shape mesh path not specified." << PE_ENDL;
+                                        PE_LOG_CUSTOM_ERROR << "Convex sub-shape mesh path not specified." << PE_CUSTOM_ENDL;
                                         delete rb_obj;
                                         continue;
                                     }
                                 } else if (sub_type == "compound" || sub_type == "concave") {
-                                    PE_LOG_ERROR << "Compound sub-shapes cannot be compound or concave." << PE_ENDL;
+                                    PE_LOG_CUSTOM_ERROR << "Compound sub-shapes cannot be compound or concave." << PE_CUSTOM_ENDL;
                                     delete rb_obj;
                                     continue;
                                 } else {
-                                    PE_LOG_ERROR << "Invalid compound sub-shape type: " << sub_type << PE_ENDL;
+                                    PE_LOG_CUSTOM_ERROR << "Invalid compound sub-shape type: " << sub_type << PE_CUSTOM_ENDL;
                                     delete rb_obj;
                                     continue;
                                 }
                                 ((pe_phys_shape::CompoundShape*)shape)->addShape(local_transform, mass_ratio, sub_shape);
                             } else {
-                                PE_LOG_ERROR << "Compound sub-shape type not specified." << PE_ENDL;
+                                PE_LOG_CUSTOM_ERROR << "Compound sub-shape type not specified." << PE_CUSTOM_ENDL;
                                 delete rb_obj;
                                 continue;
                             }
                         }
                     } else {
-                        PE_LOG_ERROR << "Compound sub-shapes not specified." << PE_ENDL;
+                        PE_LOG_CUSTOM_ERROR << "Compound sub-shapes not specified." << PE_CUSTOM_ENDL;
                         delete rb_obj;
                         continue;
                     }
                 } else {
-                    PE_LOG_ERROR << "Invalid rigidbody type: " << type << PE_ENDL;
+                    PE_LOG_CUSTOM_ERROR << "Invalid rigidbody type: " << type << PE_CUSTOM_ENDL;
                     delete rb_obj;
                     continue;
                 }
                 rb_obj->setCollisionShape(shape);
             } else {
-                PE_LOG_ERROR << "RigidBody type not specified." << PE_ENDL;
+                PE_LOG_CUSTOM_ERROR << "RigidBody type not specified." << PE_CUSTOM_ENDL;
                 delete rb_obj;
                 continue;
             }
@@ -459,7 +484,7 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
             k++;
         }
     }
-    PE_LOG_INFO << "Loaded " << k << " rigidbodies." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Loaded " << k << " rigidbodies." << PE_CUSTOM_ENDL;
 
     //////////////////////////////////////////////////////////////////////////
     // read damage sources
@@ -468,7 +493,7 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
     if (jsonArrayExists(data, "DamageSources", 0, nlohmann::json::value_t::object)) {
         auto& dss = data["DamageSources"];
         if (dss.type() != nlohmann::json::value_t::array) {
-            PE_LOG_ERROR << "DamageSources should be an array." << PE_ENDL;
+            PE_LOG_CUSTOM_ERROR << "DamageSources should be an array." << PE_CUSTOM_ENDL;
             return false;
         }
         for (auto& ds : dss) {
@@ -480,11 +505,11 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
                 } else if (type == "cylinder") {
                     source.type = pe_phys_fracture::FractureType::Cylinder;
                 } else {
-                    PE_LOG_ERROR << "Invalid damage source type: " << type << PE_ENDL;
+                    PE_LOG_CUSTOM_ERROR << "Invalid damage source type: " << type << PE_CUSTOM_ENDL;
                     continue;
                 }
             } else {
-                PE_LOG_ERROR << "Damage source type not specified." << PE_ENDL;
+                PE_LOG_CUSTOM_ERROR << "Damage source type not specified." << PE_CUSTOM_ENDL;
                 continue;
             }
             if (jsonArrayExists(ds, "position", 3, nlohmann::json::value_t::number_float))
@@ -501,14 +526,14 @@ bool Simulator<UV>::loadScene(int argc, char** argv) {
     //////////////////////////////////////////////////////////////////////////
     // not implemented
 
-    PE_LOG_INFO << "Scene loaded." << PE_ENDL;
+    PE_LOG_CUSTOM_INFO << "Scene loaded." << PE_CUSTOM_ENDL;
     return true;
 }
 
 template <UseViewer UV>
 void Simulator<UV>::start(int target_frame_rate) {
     if (target_frame_rate <= 0) {
-        PE_LOG_ERROR << "Invalid target frame rate: " << target_frame_rate << PE_ENDL;
+        PE_LOG_CUSTOM_ERROR << "Invalid target frame rate: " << target_frame_rate << PE_CUSTOM_ENDL;
         return;
     }
 
@@ -631,12 +656,27 @@ bool Simulator<UV>::renderStep() {
                 blocking = false;
                 break;
             }
+            if (!Viewer::isOpen() || Viewer::getKeyState(27) == 0) {
+                Viewer::close();
+                return false;
+            }
         }
         if (Viewer::getKeyState('t') == 0) {
             COMMON_Sleep(300);
         }
     } else {
         toggleLine();
+    }
+
+    static int saved_file_count = 0;
+    static int program_tick = COMMON_GetTickCount();
+    if (Viewer::getKeyState('n') == 0) {
+        if (!utils::FileSystem::isDirectory("./data")) {
+            utils::FileSystem::makeDir("./data");
+        }
+        auto dir = "./data/program-" + std::to_string(program_tick) + "/";
+        auto filename = std::to_string(saved_file_count++) + "-" + std::to_string(COMMON_GetTickCount()) + ".json";
+        saveFrame(dir + filename);
     }
 
     for (auto& rb : _id_map) {
@@ -738,7 +778,7 @@ void Simulator<UV>::updateColor(int id, pe_phys_shape::ShapeType type, const std
             Viewer::updateColor(id, type, pe::Vector3(r, g, b));
             return;
         } else {
-            PE_LOG_ERROR << "invalid color tag" << PE_ENDL;
+            PE_LOG_CUSTOM_ERROR << "invalid color tag" << PE_CUSTOM_ENDL;
         }
     }
 

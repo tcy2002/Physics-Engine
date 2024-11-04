@@ -28,9 +28,9 @@ namespace pe_intf { // interface
         virtual ~Simulator() {}
 
         // Store the current scene as a config file
-        void saveScene();
+        void saveFrame(const std::string& path_to_write);
         // Load a config file
-        bool loadScene(int argc, char** argv);
+        bool load(int argc, char** argv);
         // Store the current scene as a binary file
         void saveState();
         // Load a binary file
@@ -56,10 +56,21 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
+static void printWelcomeMessage() {
+    PE_LOG_CUSTOM_INFO << "Press `x` to start simulation" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Press `r` to simulate for a period while pressing" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Press `t` to simulate a single step" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Press `c` to show edges" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Press `n` to download the simulation data to json file (default in ./data/)" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Press `esc` to exit" << PE_CUSTOM_ENDL;
+    PE_LOG_CUSTOM_INFO << "Camera control: UE mode" << PE_CUSTOM_ENDL;
+}
+
 #define PE_CONFIG_MAIN(TargetFrameRate) \
 int main(int argc, char** argv) { \
+    printWelcomeMessage(); \
     pe_intf::Simulator<pe_intf::UseViewer::True> sim; \
-    if (sim.loadScene(argc, argv)) { \
+    if (sim.load(argc, argv)) { \
         sim.start(TargetFrameRate); \
     } \
     if (WIN32) system("pause"); \
@@ -68,6 +79,7 @@ int main(int argc, char** argv) { \
 
 #define PE_CUSTOM_MAIN(Simulator, TargetFrameRate) \
 int main() { \
+    printWelcomeMessage(); \
     Simulator sim; \
     sim.start(TargetFrameRate); \
     if (WIN32) system("pause"); \
@@ -76,8 +88,9 @@ int main() { \
 
 #define PE_CONFIG_CUSTOM_MAIN(Simulator, TargetFrameRate) \
 int main(int argc, char** argv) { \
+    printWelcomeMessage(); \
     Simulator sim; \
-    if (sim.loadScene(argc, argv)) { \
+    if (sim.load(argc, argv)) { \
         sim.start(TargetFrameRate); \
     } \
     if (WIN32) system("pause"); \

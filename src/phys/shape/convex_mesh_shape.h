@@ -17,6 +17,8 @@ namespace pe_phys_shape {
 
     protected:
         COMMON_MEMBER_GET(pe::Mesh, mesh, Mesh)
+        COMMON_MEMBER_SET_GET(std::string, mesh_path, MeshPath)
+        COMMON_MEMBER_SET_GET(pe::Vector3, scale, Scale) // scale relative to the original mesh from the obj file
     protected:
         utils::BVH _bvh;
         pe::Array<pe::KV<pe::Vector3, pe::Vector3>> _unique_edges;

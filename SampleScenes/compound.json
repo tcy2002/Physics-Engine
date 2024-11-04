@@ -9,6 +9,7 @@
         "sleep_linear_velocity2_threshold": 0.01,
         "sleep_time_threshold": 1.0
     },
+    "DamageSources": null,
     "RigidBodies": [
         {
             "friction": 0.5,
