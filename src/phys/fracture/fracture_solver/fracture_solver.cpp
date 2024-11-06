@@ -87,9 +87,11 @@ namespace pe_phys_fracture {
         return true;
     }
 
-    pe_phys_object::RigidBody* FractureSolver::addMesh(pe::Mesh& mesh, const pe::Transform& trans) {
+    pe_phys_object::RigidBody* FractureSolver::addMesh(pe::Mesh& mesh, const pe::Transform& trans, const std::string& obj_path) {
         auto rb = new pe_phys_object::RigidBody();
         auto convexMesh = new pe_phys_shape::ConvexMeshShape();
+        convexMesh->setMeshPath(obj_path);
+        convexMesh->setScale(pe::Vector3::ones());
         pe::Vector3 offset = convexMesh->setMesh(mesh);
         rb->setCollisionShape(convexMesh);
         rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));

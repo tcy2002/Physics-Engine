@@ -3,7 +3,7 @@
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class BombSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class BombSimulator : public pe_intf::Simulator {
 public:
     BombSimulator() {}
     virtual ~BombSimulator() {}
@@ -38,19 +38,19 @@ public:
         createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
         createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
-        //// add tower3
-        //createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-        //createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-        //createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        // add tower3
+        // createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+        // createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+        // createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),
                                          1.2, 50);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -70)); // give an initial velocity
         _world.addRigidBody(rb2);
 
-        //saveScene();
+        //saveScene("");
     }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {

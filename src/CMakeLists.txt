@@ -2,7 +2,7 @@ file(GLOB_RECURSE PHYS_SOURCES phys/*.cpp)
 
 add_library(PEngine SHARED intf/world.cpp
         ${PHYS_SOURCES})
-add_library(PEViewer STATIC intf/viewer.cpp)
+add_library(PEViewer STATIC intf/viewer.cpp intf/simulator.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp
         utils/thread_pool.cpp

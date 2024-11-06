@@ -1,6 +1,7 @@
 #include "simple_fracture_solver.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/box_shape.h"
+#include "utils/file_system.h"
 
 namespace pe_phys_fracture {
 
@@ -137,13 +138,24 @@ namespace pe_phys_fracture {
 
         pe::Transform world_trans = _fracturable_object->getTransform();
 
+        static int program_tick = COMMON_GetTickCount();
+        if (!utils::FileSystem::isDirectory(PE_DATA_DOWNLOAD_PATH)) {
+            utils::FileSystem::makeDir(PE_DATA_DOWNLOAD_PATH);
+        }
+        static std::string path = PE_DATA_DOWNLOAD_PATH"/fracture-" + std::to_string(program_tick);
+        if (!utils::FileSystem::isDirectory(path)) {
+            utils::FileSystem::makeDir(path);
+        }
+
         // generate new rigidbodies
         pe::Array<pe::Mesh> fragments;
         _voronoi->triangulate(points);
         cut_mesh(mesh, fragments);
         for (int i = 0; i < (int)fragments.size(); i++) {
             if (!fragments[i].empty()) {
-                auto rb = addMesh(fragments[i], world_trans);
+                auto filename = path + "/fragment-" + std::to_string(i) + ".obj";
+                auto rb = addMesh(fragments[i], world_trans, filename);
+                pe::Mesh::saveToObj(filename, fragments[i], pe::Vector3::ones());
                 pe::Vector3 vel = rb->getLinearVelocity();
                 vel += forces[i] / rb->getMass();
                 rb->setLinearVelocity(vel);

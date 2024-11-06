@@ -11,37 +11,37 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
 #include "json/json.hpp"
+#include "opts/cxxopts.hpp"
 #include "utils/file_system.h"
 
 namespace pe_intf { // interface
 
-    enum class UseViewer { False = 0, True = 1 };
-
     // Simulator base class
-    template <UseViewer UV>
     class Simulator {
     protected:
         World _world;
+        bool _saving = false;
 
     public:
+        bool use_gui = true;
+        int max_frame = INT32_MAX;
+        int target_framerate = 60;
+        std::string save_path = "./data";
+
         Simulator() {}
         virtual ~Simulator() {}
 
         // Store the current scene as a config file
-        void saveFrame(const std::string& path_to_write);
+        void saveScene(const std::string& path_to_write);
         // Load a config file
-        bool load(int argc, char** argv);
-        // Store the current scene as a binary file
-        void saveState();
-        // Load a binary file
-        bool loadState();
+        bool loadScene(int argc, char** argv);
 
         // Initialize the physics world here before running
         virtual void init() {}
         // Called every frame to update the physics world
         virtual void step() {}
 
-        void start(int target_frame_rate = 60);
+        void start();
 
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;
@@ -52,26 +52,15 @@ namespace pe_intf { // interface
         void updateColor(int id, pe_phys_shape::ShapeType type, const std::string& tag, bool kinematic);
     };
 
-    #include "simulator.cpp"
-
 } // namespace pe_intf
 
-static void printWelcomeMessage() {
-    PE_LOG_CUSTOM_INFO << "Press `x` to start simulation" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Press `r` to simulate for a period while pressing" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Press `t` to simulate a single step" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Press `c` to show edges" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Press `n` to download the simulation data to json files (default in ./data/)" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Press `esc` to exit" << PE_CUSTOM_ENDL;
-    PE_LOG_CUSTOM_INFO << "Camera control: UE mode" << PE_CUSTOM_ENDL;
-}
 
-#define PE_CONFIG_MAIN(TargetFrameRate) \
+
+#define PE_CONFIG_MAIN() \
 int main(int argc, char** argv) { \
-    printWelcomeMessage(); \
-    pe_intf::Simulator<pe_intf::UseViewer::True> sim; \
-    if (sim.load(argc, argv)) { \
-        sim.start(TargetFrameRate); \
+    pe_intf::Simulator sim; \
+    if (sim.loadScene(argc, argv)) { \
+        sim.start(); \
     } \
     if (WIN32) system("pause"); \
     return 0; \
@@ -79,19 +68,19 @@ int main(int argc, char** argv) { \
 
 #define PE_CUSTOM_MAIN(Simulator, TargetFrameRate) \
 int main() { \
-    printWelcomeMessage(); \
     Simulator sim; \
-    sim.start(TargetFrameRate); \
+    sim.target_framerate = TargetFrameRate; \
+    sim.start(); \
     if (WIN32) system("pause"); \
     return 0; \
 }
 
 #define PE_CONFIG_CUSTOM_MAIN(Simulator, TargetFrameRate) \
 int main(int argc, char** argv) { \
-    printWelcomeMessage(); \
     Simulator sim; \
-    if (sim.load(argc, argv)) { \
-        sim.start(TargetFrameRate); \
+    if (sim.loadScene(argc, argv)) { \
+        sim.target_framerate = TargetFrameRate; \
+        sim.start(); \
     } \
     if (WIN32) system("pause"); \
     return 0; \

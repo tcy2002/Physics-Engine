@@ -1,0 +1,766 @@
+{
+    "Configuration": {
+        "gravity": [
+            0.0,
+            -9.8,
+            0.0
+        ],
+        "sleep_angular_velocity2_threshold": 0.08,
+        "sleep_linear_velocity2_threshold": 0.04,
+        "sleep_time_threshold": 1.0
+    },
+    "DamageSources": null,
+    "RigidBodies": [
+        {
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": true,
+            "lifetime": 1e+100,
+            "mass": 10000.0,
+            "name": "",
+            "position": [
+                0.0,
+                -5.0,
+                0.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                250.0,
+                10.0,
+                250.0
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                2.0,
+                0.37699111843067995,
+                -20.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                0.6180339887504985,
+                0.37699111843067995,
+                -18.097886967409888
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.30901699437524927,
+                0.0,
+                -0.9510565162950555,
+                0.0,
+                1.0,
+                0.0,
+                0.9510565162950555,
+                0.0,
+                0.30901699437524927
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -1.6180339887491486,
+                0.37699111843067995,
+                -18.824429495414027
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.8090169943745743,
+                0.0,
+                -0.5877852522929866,
+                0.0,
+                1.0,
+                0.0,
+                0.5877852522929866,
+                0.0,
+                -0.8090169943745743
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -1.6180339887510142,
+                0.37699111843067995,
+                -21.175570504583405
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.8090169943755071,
+                0.0,
+                0.5877852522917028,
+                0.0,
+                0.9999999999999999,
+                0.0,
+                -0.5877852522917028,
+                0.0,
+                -0.8090169943755071
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                0.6180339887474803,
+                0.37699111843067995,
+                -21.902113032591092
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.30901699437374014,
+                0.0,
+                0.9510565162955459,
+                0.0,
+                1.0,
+                0.0,
+                -0.9510565162955459,
+                0.0,
+                0.30901699437374014
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                1.6180339887500814,
+                1.1309733552920398,
+                -18.82442949541531
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.8090169943750407,
+                0.0,
+                -0.5877852522923448,
+                0.0,
+                1.0,
+                0.0,
+                0.5877852522923448,
+                0.0,
+                0.8090169943750407
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -0.6180339887489892,
+                1.1309733552920398,
+                -18.097886967409398
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.3090169943744946,
+                0.0,
+                -0.9510565162953007,
+                0.0,
+                0.9999999999999999,
+                0.0,
+                0.9510565162953007,
+                0.0,
+                -0.3090169943744946
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -2.0,
+                1.1309733552920398,
+                -19.999999999998412
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -1.0,
+                0.0,
+                -7.932657934721266e-13,
+                0.0,
+                1.0,
+                0.0,
+                7.932657934721266e-13,
+                0.0,
+                -1.0
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -0.6180339887520087,
+                1.1309733552920398,
+                -21.90211303258962
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.30901699437600433,
+                0.0,
+                0.9510565162948101,
+                0.0,
+                1.0,
+                0.0,
+                -0.9510565162948101,
+                0.0,
+                -0.30901699437600433
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                1.6180339887482156,
+                1.1309733552920398,
+                -21.175570504587256
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.8090169943741078,
+                0.0,
+                0.5877852522936288,
+                0.0,
+                1.0,
+                0.0,
+                -0.5877852522936288,
+                0.0,
+                0.8090169943741078
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                2.0,
+                1.8849555921533998,
+                -20.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                0.6180339887504985,
+                1.8849555921533998,
+                -18.097886967409888
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.30901699437524927,
+                0.0,
+                -0.9510565162950555,
+                0.0,
+                1.0,
+                0.0,
+                0.9510565162950555,
+                0.0,
+                0.30901699437524927
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -1.6180339887491486,
+                1.8849555921533998,
+                -18.824429495414027
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.8090169943745743,
+                0.0,
+                -0.5877852522929866,
+                0.0,
+                1.0,
+                0.0,
+                0.5877852522929866,
+                0.0,
+                -0.8090169943745743
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                -1.6180339887510142,
+                1.8849555921533998,
+                -21.175570504583405
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                -0.8090169943755071,
+                0.0,
+                0.5877852522917028,
+                0.0,
+                0.9999999999999999,
+                0.0,
+                -0.5877852522917028,
+                0.0,
+                -0.8090169943755071
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                0.6180339887474803,
+                1.8849555921533998,
+                -21.902113032591092
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                0.30901699437374014,
+                0.0,
+                0.9510565162955459,
+                0.0,
+                1.0,
+                0.0,
+                -0.9510565162955459,
+                0.0,
+                0.30901699437374014
+            ],
+            "scale": [
+                0.5026548245742399,
+                0.7539822368613599,
+                2.0106192982969597
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                -70.0
+            ],
+            "mass": 50.0,
+            "name": "",
+            "position": [
+                0.0,
+                2.0,
+                50.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.2
+            ],
+            "tag": "",
+            "type": "sphere"
+        }
+    ]
+}

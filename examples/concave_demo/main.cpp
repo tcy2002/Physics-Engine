@@ -3,7 +3,7 @@
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class ConcaveSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class ConcaveSimulator : public pe_intf::Simulator {
 public:
     ConcaveSimulator() {}
     virtual ~ConcaveSimulator() {}
@@ -48,7 +48,7 @@ public:
             }
         }
 
-        //saveScene();
+        //saveScene("");
     }
 
 protected:
@@ -72,6 +72,8 @@ protected:
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::ConcaveMeshShape();
+        shape->setMeshPath("./obj/bunny.obj");
+        shape->setScale(pe::Vector3(3, 3, 3));
         shape->setMesh(mesh);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);

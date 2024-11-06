@@ -3,7 +3,7 @@
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class CompoundSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class CompoundSimulator : public pe_intf::Simulator {
 public:
     CompoundSimulator() {}
     virtual ~CompoundSimulator() {}
@@ -42,7 +42,7 @@ public:
             _world.addRigidBody(rb);
         }
 
-        //saveScene();
+        saveScene("");
     }
 
 protected:

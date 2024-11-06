@@ -169,16 +169,16 @@ namespace utils {
         std::replace(result.begin(), result.end(), '\\', '/');
         std::vector<std::string> tokens;
         StringTools::tokenize(result, tokens, "/");
-        unsigned int index = 0;
-        while (index < tokens.size())
-        {
-            if ((tokens[index] == "..") && (index > 0))
-            {
-                tokens.erase(tokens.begin() + index - 1, tokens.begin() + index + 1);
-                index-=2;
-            }
-            index++;
-        }
+        // unsigned int index = 0;
+        // while (index < tokens.size())
+        // {
+        //     if ((tokens[index] == "..") && (index > 0))
+        //     {
+        //         tokens.erase(tokens.begin() + index - 1, tokens.begin() + index + 1);
+        //         index-=2;
+        //     }
+        //     index++;
+        // }
         result = "";
         if (path[0] == '/')
             result = "/";

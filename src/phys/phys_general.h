@@ -18,6 +18,9 @@
 //// general macros
 #include <common/general.h>
 
+//// data
+#define PE_DATA_DOWNLOAD_PATH "./data"
+
 //// real
 #ifdef PE_USE_DOUBLE
 #define PE_REAL_MAX pe::Real(1e100)
