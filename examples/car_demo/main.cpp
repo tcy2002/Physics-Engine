@@ -4,7 +4,7 @@
 // pe_intf::UseViewer::True/False: simulate with/without viewer
 // If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class CarSimulator : public pe_intf::Simulator<pe_intf::UseViewer::True> {
+class CarSimulator : public pe_intf::Simulator {
 protected:
     // i/j/k/l: move forward/leftward/backward/rightward
     // u/o: rotate barrel leftward/rightward
