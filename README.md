@@ -55,6 +55,8 @@
 
   - 复杂约束（hinge，slider等）
 
+  - broadphase加速: 八叉树，hash grid等
+
   - capsule相关碰撞
 
 ### 效果
@@ -92,12 +94,6 @@
 - 导出gltf在win自带3D Viewer中的效果
 
 ![gltf](./screenshots/gltf.gif)
-
-### 待办/优化
-
-- broadphase: 加速查找（八叉树，hash grid等）
-- narrowphase: mesh三角面片的加速查找（bvh树等）
-- 约束：增加约束类型（hinge，slider等）
 
 ### 开发日志
 
