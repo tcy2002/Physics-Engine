@@ -32,6 +32,8 @@ namespace pe_phys_constraint {
         pe::Array<ConstraintInfo> _cis;
 
     public:
+        virtual ConstraintType getType() const override { return CT_FRICTION_CONTACT; }
+
         FrictionContactConstraint() {}
         virtual ~FrictionContactConstraint() {};
 

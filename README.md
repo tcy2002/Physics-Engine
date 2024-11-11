@@ -49,7 +49,7 @@
 
   - 11.3 配置文件load/save完成
 
-  - 11.11 支持导出gltf格式
+  - 11.11 支持导出gltf格式; ball-joint
 
 - TODO:
 

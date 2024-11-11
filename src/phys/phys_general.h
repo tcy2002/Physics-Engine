@@ -51,6 +51,12 @@
 #define PE_LERP(a, b, t) ((a) + (t) * ((b) - (a)))
 #define PE_DEG_TO_RAD(x) ((x) * PE_PI / 180)
 #define PE_RAD_TO_DEG(x) ((x) * 180 / PE_PI)
+#define PE_COS std::cos
+#define PE_SIN std::sin
+#define PE_TAN std::tan
+#define PE_ACOS std::acos
+#define PE_ASIN std::asin
+#define PE_ATAN2 std::atan2
 
 //// geometry types
 #include <common/mesh.h>

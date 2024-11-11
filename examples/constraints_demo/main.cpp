@@ -1,12 +1,12 @@
 #include "intf/simulator.h"
+#include "phys/constraint/constraint/ball_joint_constraint.h"
 
-// pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `x` to start simulation
+// press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
-class FractureSimulator : public pe_intf::Simulator {
+class ConstraintsSimulator : public pe_intf::Simulator {
 public:
-    FractureSimulator() {}
-    virtual ~FractureSimulator() {}
+    ConstraintsSimulator() {}
+    virtual ~ConstraintsSimulator() {}
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -24,34 +24,57 @@ public:
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
-        // add a fracturable box
-        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-                                           pe::Vector3(4, 4, 4), 1);
+        // add a ball base
+        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0.5, 0)),
+                                         0.5, 10);
+        rb2->setKinematic(true);
+        _world.addRigidBody(rb2);
+
+        // add a stick
+        pe::Transform trans;
+        trans.setRotation(pe::Vector3::forward(), PE_PI / 6);
+        trans.setOrigin(pe::Vector3(-3.3 * PE_SIN(PE_PI / 6), 3.3 * PE_COS(PE_PI / 6) + 0.5, 0));
+        auto rb3 = createCylinderRigidBody(trans, 0.2, 6, 1);
+        rb2->addIgnoreCollisionId(rb3->getGlobalId());
         _world.addRigidBody(rb3);
-        pe_phys_fracture::FractureSource src;
-        src.type = pe_phys_fracture::FractureType::Sphere;
-        src.position = pe::Vector3(1.5, 3.5, 1.5);
-        src.intensity = pe::Vector3(1.5, 1.5, 1.5);
-        _world.addFractureSource(src);
 
-        // add some other dynamic objects
-        pe::Array<pe_phys_object::RigidBody*> rbs;
-        for (int i = 0; i < 30; i++) {
-            pe_phys_object::RigidBody* rb;
-            if (i % 3 == 0) {
-                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
-                                        pe::Vector3(1, 1, 1), 1.0);
-            } else if (i % 3 == 1) {
-                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
-                    pe::Real(0.5), pe::Real(1.0));
-            } else {
-                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
-                    pe::Real(0.5), pe::Real(1.0), pe::Real(1.0));
-            }
-            _world.addRigidBody(rb);
-        }
+        // add a ball joint constraint
+        auto c1 = new pe_phys_constraint::BallJointConstraint();
+        c1->setObjectA(rb2);
+        c1->setObjectB(rb3);
+        c1->setAnchorA(pe::Vector3(0, 0, 0));
+        c1->setAnchorB(pe::Vector3(0, -3.3, 0));
+        _world.addConstraint(c1);
 
-        //saveScene();
+        // add the second sphere base
+        trans.setBasis(pe::Matrix3::identity());
+        trans.setOrigin(pe::Vector3(-6.6 * PE_SIN(PE_PI / 6), 6.6 * PE_COS(PE_PI / 6) + 0.5, 0));
+        auto rb4 = createSphereRigidBody(trans, 0.4, 10);
+        rb4->addIgnoreCollisionId(rb3->getGlobalId());
+        _world.addRigidBody(rb4);
+
+        // add the second stick
+        trans.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans.setOrigin(pe::Vector3(-3.3 - 6.6 * PE_SIN(PE_PI / 6), 6.6 * PE_COS(PE_PI / 6) + 0.5, 0));
+        auto rb5 = createCylinderRigidBody(trans, 0.2, 6, 1);
+        rb4->addIgnoreCollisionId(rb5->getGlobalId());
+        _world.addRigidBody(rb5);
+
+        // add the second ball joint constraint
+        auto c2 = new pe_phys_constraint::BallJointConstraint();
+        c2->setObjectA(rb4);
+        c2->setObjectB(rb5);
+        c2->setAnchorA(pe::Vector3(0, 0, 0));
+        c2->setAnchorB(pe::Vector3(0, -3.3, 0));
+        _world.addConstraint(c2);
+
+        // add the third ball joint constraint
+        auto c3 = new pe_phys_constraint::BallJointConstraint();
+        c3->setObjectA(rb3);
+        c3->setObjectB(rb4);
+        c3->setAnchorA(pe::Vector3(0, 3.3, 0));
+        c3->setAnchorB(pe::Vector3(0, 0, 0));
+        _world.addConstraint(c3);
     }
 
 protected:
@@ -99,23 +122,7 @@ protected:
         rb->setAngularDamping(pe::Real(0.8));
         return rb;
     }
-
-    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
-                                                                      const pe::Vector3& size, pe::Real th) {
-        /* This function creates a fracturable object */
-
-        auto rb = new pe_phys_object::FracturableObject();
-        rb->setMass(1.0);
-        auto shape = new pe_phys_shape::BoxShape(size);
-        rb->setCollisionShape(shape);
-        rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
-        rb->setThreshold(th);
-        return rb;
-    }
 };
 
 // Simulator class, Delta time, Max frame
-PE_CUSTOM_MAIN(FractureSimulator, 100)
+PE_CUSTOM_MAIN(ConstraintsSimulator, 100)

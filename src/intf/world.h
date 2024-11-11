@@ -70,6 +70,13 @@ namespace pe_intf { // interface
         PE_API void clearRigidBodiesToRemove() { _rigidbodies_to_remove.clear(); }
         /*********************************************/
 
+        /**** constraint *****************************/
+        PE_API void addConstraint(pe_phys_constraint::Constraint* constraint) { _constraints.push_back(constraint); }
+        PE_API const pe::Array<pe_phys_constraint::Constraint*>& getConstraints() const { return _constraints; }
+        PE_API void clearConstraints() { _constraints.clear(); }
+        PE_API void removeConstraint(pe_phys_constraint::Constraint* constraint);
+        /*********************************************/
+
         /**** fracture *******************************/
         PE_API void addFractureSource(const pe_phys_fracture::FractureSource& source) { _fracture_sources.push_back(source); }
         PE_API const pe::Array<pe_phys_fracture::FractureSource>& getFractureSources() const { return _fracture_sources; }

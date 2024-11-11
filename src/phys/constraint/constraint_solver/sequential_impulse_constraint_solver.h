@@ -10,7 +10,8 @@ namespace pe_phys_constraint {
     class SequentialImpulseConstraintSolver : public ConstraintSolver {
     private:
         pe::Array<pe_phys_object::RigidBody*> _collision_objects;
-        pe::Array<Constraint*> _constraints;
+        pe::Array<Constraint*> _fcc_constraints;
+        pe::Array<Constraint*> _other_constraints;
         utils::Pool<FrictionContactConstraint, 2048> _fcc_pool;
 
     public:

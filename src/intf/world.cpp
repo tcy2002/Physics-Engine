@@ -125,7 +125,7 @@ namespace pe_intf {
 
     void World::removeRigidBody(pe_phys_object::RigidBody *rigidbody) {
         for (int i = 0; i < (int)_collision_objects.size(); i++) {
-            if (_collision_objects[i] == rigidbody) {
+            if (_collision_objects[i]->getGlobalId() == rigidbody->getGlobalId()) {
                 _collision_objects.erase(_collision_objects.begin() + i);
                 _rigidbodies_to_remove.push_back(rigidbody);
                 break;
@@ -136,6 +136,15 @@ namespace pe_intf {
     void World::updateRigidBody(pe_phys_object::RigidBody *rigidbody) {
         _rigidbodies_to_remove.push_back(rigidbody);
         _rigidbodies_to_add.push_back(rigidbody);
+    }
+
+    void World::removeConstraint(pe_phys_constraint::Constraint *constraint) {
+        for (int i = 0; i < (int)_constraints.size(); i++) {
+            if (_constraints[i]->getGlobalId() == constraint->getGlobalId()) {
+                _constraints.erase(_constraints.begin() + i);
+                break;
+            }
+        }
     }
 
     void World::step() {
@@ -181,6 +190,11 @@ namespace pe_intf {
         execCollisionCallbacks();
         end = COMMON_GetMicroseconds();
         narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.000001);
+
+        // for (auto& cr : _contact_results) {
+        //     std::cout << cr->getPointSize() << " " << cr->getObjectA()->getGlobalId() << " " << cr->getObjectB()->getGlobalId() << std::endl;
+        // }
+        // std::cout << "###############################" << std::endl;
 
         // constraints
         start = COMMON_GetMicroseconds();

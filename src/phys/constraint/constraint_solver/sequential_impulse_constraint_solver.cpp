@@ -18,28 +18,35 @@ namespace pe_phys_constraint {
         }
 
         // clear old constraints
-        const int old_size = (int)_constraints.size();
+        const int old_size = (int)_fcc_constraints.size();
         const int new_size = (int)contact_results.size();
         if (old_size < new_size) {
-            _constraints.resize(new_size);
+            _fcc_constraints.resize(new_size);
             for (int i = old_size; i < new_size; i++) {
-                _constraints[i] = _fcc_pool.create();
+                _fcc_constraints[i] = _fcc_pool.create();
             }
         } else {
             for (int i = new_size; i < old_size; i++) {
-                _fcc_pool.destroy((FrictionContactConstraint*)_constraints[i]);
+                if (_fcc_constraints[i]->getType() == ConstraintType::CT_FRICTION_CONTACT) {
+                    _fcc_pool.destroy((FrictionContactConstraint*)_fcc_constraints[i]);
+                } else {
+                    delete _fcc_constraints[i];
+                }
             }
-            _constraints.resize(new_size);
+            _fcc_constraints.resize(new_size);
         }
 
-        // init contact constraints: the start order doesn't matter, so we can use multi-thread
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forBatchedLoop((int)contact_results.size(), 0, [&](int i){
-            auto fcc = (FrictionContactConstraint*)(_constraints[i]);
+            auto fcc = (FrictionContactConstraint*)(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
+        });
+        utils::ThreadPool::forBatchedLoop((int)constraints.size(), 0, [&](int i){
+            constraints[i]->initSequentialImpulse(_param);
+            constraints[i]->warmStart();
         });
         utils::ThreadPool::join();
 #   else
@@ -49,16 +56,25 @@ namespace pe_phys_constraint {
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
         }
+        for (auto constraint : constraints) {
+            constraint->initSequentialImpulse(_param);
+        }
 #   endif
+
+        _other_constraints = constraints;
     }
 
     void SequentialImpulseConstraintSolver::solve() {
-        // solve contact constraints: the execution order is significant, so we use single-thread
+        // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forBatchedLoop((int)_constraints.size(), 0,[&](int i){
-                _constraints[i]->iterateSequentialImpulse(i);
+            utils::ThreadPool::forBatchedLoop((int)_fcc_constraints.size(), 0,[&](int i){
+                _fcc_constraints[i]->iterateSequentialImpulse(i);
             });
+            utils::ThreadPool::forBatchedLoop((int)_other_constraints.size(), 0,[&](int i){
+                _other_constraints[i]->iterateSequentialImpulse(i);
+            });
+            utils::ThreadPool::join();
 #   else
             for (auto constraint : _constraints) {
                 constraint->iterateSequentialImpulse(i);
@@ -80,8 +96,11 @@ namespace pe_phys_constraint {
 
         // after solving
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)_constraints.size(), 0,[&](int i){
-            _constraints[i]->afterSequentialImpulse();
+        utils::ThreadPool::forBatchedLoop((int)_fcc_constraints.size(), 0,[&](int i){
+            _fcc_constraints[i]->afterSequentialImpulse();
+        });
+        utils::ThreadPool::forBatchedLoop((int)_other_constraints.size(), 0,[&](int i){
+            _other_constraints[i]->afterSequentialImpulse();
         });
         utils::ThreadPool::join();
 #   else
