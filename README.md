@@ -51,6 +51,12 @@
 
   - 11.11 支持导出gltf格式
 
+- TODO:
+
+  - 复杂约束（hinge，slider等）
+
+  - capsule相关碰撞
+
 ### 效果
 
 - 复合刚体
