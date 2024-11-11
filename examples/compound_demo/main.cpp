@@ -20,7 +20,7 @@ public:
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(250, 10, 250), 10000);
+                                      pe::Vector3(30, 10, 30), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
@@ -42,7 +42,7 @@ public:
             _world.addRigidBody(rb);
         }
 
-        saveScene("");
+        //saveScene("");
     }
 
 protected:
@@ -58,7 +58,6 @@ protected:
         auto shape5 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
         auto shape6 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
         auto shape7 = new pe_phys_shape::CylinderShape(pe::Real(0.2), 1);
-        auto shapeBox = new pe_phys_shape::BoxShape(pe::Vector3(3, 3, 3));
         auto shape = new pe_phys_shape::CompoundShape();
         shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
         shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);

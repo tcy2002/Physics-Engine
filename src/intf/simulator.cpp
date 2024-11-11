@@ -831,6 +831,7 @@ namespace pe_intf {
         static int frame = 0;
         for (auto rb : _world.getRigidBodies()) {
             auto shape = rb->getCollisionShape();
+            if (rb->isFracturable()) continue;
             switch (shape->getType()) {
                 case pe_phys_shape::ShapeType::Box: {
                     auto& mesh = ((pe_phys_shape::BoxShape*)shape)->getMesh();
@@ -849,14 +850,14 @@ namespace pe_intf {
                     break;
                 }
                 case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh: {
-                    auto& mesh = ((pe_phys_shape::ConvexMeshShape*)shape)->getMesh();
+                    auto& mesh = shape->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+                        ((pe_phys_shape::ConvexMeshShape*)shape)->getMesh() : ((pe_phys_shape::ConcaveMeshShape*)shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
                         writer.addMesh(mesh, shape->getGlobalId());
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-
                 case pe_phys_shape::ShapeType::Sphere: {
                     static pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
@@ -865,8 +866,48 @@ namespace pe_intf {
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-                default:
-                    break;
+                case pe_phys_shape::ShapeType::Compound: {
+                    auto shape_compound = (pe_phys_shape::CompoundShape*)shape;
+                    for (auto shape_child : shape_compound->getShapes()) {
+                        pe::Transform trans_child = rb->getTransform() * shape_child.local_transform;
+                        switch (shape_child.shape->getType()) {
+                            case pe_phys_shape::ShapeType::Box: {
+                                auto& mesh = ((pe_phys_shape::BoxShape*)shape_child.shape)->getMesh();
+                                if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                }
+                                writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
+                                break;
+                            }
+                            case pe_phys_shape::Cylinder: {
+                                auto& mesh = ((pe_phys_shape::CylinderShape*)shape_child.shape)->getMesh();
+                                if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                }
+                                writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
+                                break;
+                            }
+                            case pe_phys_shape::ShapeType::ConvexMesh: {
+                                auto& mesh = ((pe_phys_shape::ConvexMeshShape*)shape_child.shape)->getMesh();
+                                if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                }
+                                writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
+                                break;
+                            }
+                            case pe_phys_shape::ShapeType::Sphere: {
+                                static pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
+                                if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
+                                    writer.addMesh(sphere_mesh, shape_child.shape->getGlobalId());
+                                }
+                                writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
+                }
             }
         }
         frame++;

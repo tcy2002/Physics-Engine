@@ -441,7 +441,7 @@ public:
 
         // add a ground
         auto rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(250, 10, 250), 10000);
+                                      pe::Vector3(50, 10, 50), 10000);
         rb->setKinematic(true);
         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
