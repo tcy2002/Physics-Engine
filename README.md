@@ -77,11 +77,15 @@
 
 ![fracture.gif](./screenshots/fracture.gif)
 
-- 坦克对战城镇场景
+- 城镇坦克作战场景
   
   - 建筑物实时毁伤，坦克发射的炮弹会摧毁建筑物
 
 ![urban.gif](./screenshots/urban.gif)
+
+- 导出gltf在win自带3D Viewer中的效果
+
+![gltf](./screenshots/gltf.gif)
 
 ### 待办/优化
 
