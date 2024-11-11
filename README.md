@@ -49,6 +49,8 @@
 
   - 11.3 配置文件load/save完成
 
+  - 11.7 机械臂demo
+
   - 11.11 支持导出gltf格式; ball-joint
 
 - TODO:
@@ -90,6 +92,10 @@
   - 建筑物实时毁伤，坦克发射的炮弹会摧毁建筑物
 
 ![urban.gif](./screenshots/urban.gif)
+
+- 机械臂
+
+![arm.gif](./screenshots/arm.gif)
 
 - 导出gltf在win自带3D Viewer中的效果
 
