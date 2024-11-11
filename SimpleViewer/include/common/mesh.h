@@ -4,11 +4,15 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <atomic>
 
 namespace common {
 
     template <typename Scalar>
     class Mesh {
+    protected:
+        static std::atomic<uint32_t> _globalIdCounter;
+
     public:
         struct Vertex {
             Vector3<Scalar> position;
@@ -18,6 +22,7 @@ namespace common {
             std::vector<uint32_t> indices;
             Vector3<Scalar> normal;
         };
+
 
         std::vector<Vertex> vertices;
         std::vector<Face> faces;

@@ -10,9 +10,6 @@
 #include "phys/shape/compound_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
-#include "json/json.hpp"
-#include "opts/cxxopts.hpp"
-#include "utils/file_system.h"
 
 namespace pe_intf { // interface
 
@@ -35,6 +32,8 @@ namespace pe_intf { // interface
         void saveScene(const std::string& path_to_write);
         // Load a config file
         bool loadScene(int argc, char** argv);
+        // store the simulation flow into a gltf file
+        void saveGltf(const std::string& path_to_write_gltf);
 
         // Initialize the physics world here before running
         virtual void init() {}

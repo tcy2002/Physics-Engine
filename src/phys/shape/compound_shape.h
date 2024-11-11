@@ -20,7 +20,7 @@ namespace pe_phys_shape {
         PE_API const pe::Array<ShapeEle>& getShapes() const { return _shapes; }
         PE_API void clearShapes() { _shapes.clear(); _mass_ratio = 0; }
 
-        PE_API explicit CompoundShape() {}
+        CompoundShape() {}
         virtual ~CompoundShape() override {}
         virtual ShapeType getType() const override { return ShapeType::Compound; }
         virtual bool isConvex() const override { return false; }

@@ -14,9 +14,9 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
-        // _world.setSleepLinVel2Threshold(pe::Real(0.01)); // linear velocity threshold for sleep
-        // _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
-        // _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
+        _world.setSleepLinVel2Threshold(pe::Real(0.01)); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
@@ -30,23 +30,28 @@ public:
         // _world.addRigidBody(rb);
 
         // add some concave rigidbodies (stanford bunny)
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        int c = 1;
+        int m = std::round((c - 1) / 2.0 * 10);
+        for (int i = 0; i < c; i++) {
+            for (int j = 0; j < c; j++) {
                 auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
-                pe::Transform(pe::Matrix3::identity(), pe::Vector3(i * 10 - 10, 1, j * 10 - 10)), 100, 3);
+                pe::Transform(pe::Matrix3::identity(), pe::Vector3(i * 10 - m, 1, j * 10 - m)), 100, 3);
                 _world.addRigidBody(rb);
             }
         }
 
-        for (int i = 0; i < 23; i++) {
-            for (int j = 0; j < 23; j++) {
-                for (int k = 0; k < 3; k++) {
+        c = 15;
+        m = c / 2;
+        int h = 3;
+        for (int i = 0; i < c; i++) {
+            for (int j = 0; j < c; j++) {
+                for (int k = 0; k < h; k++) {
                     pe_phys_object::RigidBody* rb = nullptr;
                     if ((i + j + k) % 3 == 0) {
-                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 11, 12 + k, j - 11)),
+                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
                         pe::Vector3(0.8, 0.8, 0.8), 1);
                     } else {
-                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - 11, 12 + k, j - 11)),
+                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
                         0.4, 1);
                     }
                     _world.addRigidBody(rb);

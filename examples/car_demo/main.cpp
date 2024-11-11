@@ -25,8 +25,8 @@ public:
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                    pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(250, 10, 250), 10000);
+                                                    pe::Vector3(0, -0.5, -10)),
+                                      pe::Vector3(30, 1, 30), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 

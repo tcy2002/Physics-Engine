@@ -1,4 +1,13 @@
 #include "simulator.h"
+#include "json/json.hpp"
+#include "opts/cxxopts.hpp"
+#include "utils/file_system.h"
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <phys/shape/default_mesh.h>
+
+#include "gltf/tiny_gltf.h"
 
 namespace pe_intf {
     static bool isNodeTypeEqual(nlohmann::json::value_t type, nlohmann::json::value_t target) {
@@ -558,6 +567,311 @@ namespace pe_intf {
         return true;
     }
 
+#ifdef PE_USE_DOUBLE
+#define TINYGLTF_COMPONENT_TYPE_REAL TINYGLTF_COMPONENT_TYPE_FLOAT
+#else
+#define TINYGLTF_COMPONENT_TYPE_REAL TINYGLTF_COMPONENT_TYPE_FLOAT
+#endif
+
+    void Simulator::saveGltf(const std::string &path_to_write_gltf) {
+        class GltfWriter {
+            std::string _path;
+            tinygltf::Model _model;
+            tinygltf::Node _root;
+            tinygltf::Buffer _buffer_position;
+            tinygltf::Buffer _buffer_normal;
+            tinygltf::Buffer _buffer_index;
+            tinygltf::Buffer _buffer_animation_time_step;
+            tinygltf::Buffer _buffer_animation_translation;
+            tinygltf::Buffer _buffer_animation_rotation;
+
+            uint32_t _mesh_counter = 0;
+            uint32_t _accessor_counter = 0;
+            size_t _buffer_position_offset = 0;
+            size_t _buffer_normal_offset = 0;
+            size_t _buffer_index_offset = 0;
+            size_t _buffer_animation_time_step_offset = 0;
+            size_t _buffer_animation_translation_offset = 0;
+            size_t _buffer_animation_rotation_offset = 0;
+
+            pe::Map<uint32_t, uint32_t> _mesh2nodeId;
+
+            pe::Array<pe::Array<pe::Vector3>> _animation_translation;
+            pe::Array<pe::Array<pe::Quaternion>> _animation_rotation;
+            pe::Array<pe::Array<pe::Real>> _animation_time_step;
+
+        public:
+            explicit GltfWriter(const std::string &path) {
+                _path = path;
+
+                _model = tinygltf::Model();
+                _model.asset.version = "2.0";
+                _model.asset.generator = "RigidBody Dynamics - DALAB";
+
+                _root = tinygltf::Node();
+                _root.name = "root";
+            }
+            ~GltfWriter() {
+                _model.nodes.push_back(_root);
+
+                tinygltf::Scene scene;
+                scene.name = "rigidbody scene";
+                scene.nodes.push_back(_mesh_counter);
+                _model.scenes.push_back(scene);
+                _model.defaultScene = 0;
+
+                tinygltf::Animation animation;
+                animation.name = "animation";
+                int anim_count = (int)_animation_translation.size();
+                for (int i = 0; i < anim_count; i++) {
+                    tinygltf::AnimationChannel channel_translation;
+                    channel_translation.target_path = "translation";
+                    channel_translation.target_node = i;
+                    channel_translation.sampler = i * 2;
+                    tinygltf::AnimationChannel channel_rotation;
+                    channel_rotation.target_path = "rotation";
+                    channel_rotation.target_node = i;
+                    channel_rotation.sampler = i * 2 + 1;
+                    tinygltf::AnimationSampler sampler_translation;
+                    sampler_translation.input = _accessor_counter + 2;
+                    sampler_translation.output = _accessor_counter;
+                    tinygltf::AnimationSampler sampler_rotation;
+                    sampler_rotation.input = _accessor_counter + 2;
+                    sampler_rotation.output = _accessor_counter + 1;
+                    animation.channels.push_back(channel_translation);
+                    animation.channels.push_back(channel_rotation);
+                    animation.samplers.push_back(sampler_translation);
+                    animation.samplers.push_back(sampler_rotation);
+
+                    tinygltf::Accessor translation_accessor;
+                    translation_accessor.bufferView = _accessor_counter;
+                    translation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_REAL;
+                    translation_accessor.count = _animation_translation[i].size();
+                    translation_accessor.type = TINYGLTF_TYPE_VEC3;
+                    _model.accessors.push_back(translation_accessor);
+                    tinygltf::BufferView translation_buffer_view;
+                    translation_buffer_view.buffer = 3;
+                    translation_buffer_view.byteOffset = _buffer_animation_translation_offset;
+                    _buffer_animation_translation_offset += translation_accessor.count * sizeof(float) * 3;
+                    translation_buffer_view.byteLength = translation_accessor.count * sizeof(float) * 3;
+                    _model.bufferViews.push_back(translation_buffer_view);
+                    pe::Array<float> data;
+                    data.reserve(translation_accessor.count * 3);
+                    for (auto& v : _animation_translation[i]) {
+                        data.push_back(v.x);
+                        data.push_back(v.y);
+                        data.push_back(v.z);
+                    }
+                    _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+
+                    tinygltf::Accessor rotation_accessor;
+                    rotation_accessor.bufferView = _accessor_counter + 1;
+                    rotation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_REAL;
+                    rotation_accessor.count = _animation_rotation[i].size();
+                    rotation_accessor.type = TINYGLTF_TYPE_VEC4;
+                    _model.accessors.push_back(rotation_accessor);
+                    tinygltf::BufferView rotation_buffer_view;
+                    rotation_buffer_view.buffer = 4;
+                    rotation_buffer_view.byteOffset = _buffer_animation_rotation_offset;
+                    _buffer_animation_rotation_offset += rotation_accessor.count * sizeof(float) * 4;
+                    rotation_buffer_view.byteLength = rotation_accessor.count * sizeof(float) * 4;
+                    _model.bufferViews.push_back(rotation_buffer_view);
+                    data.clear();
+                    data.reserve(rotation_accessor.count * 4);
+                    for (auto& q : _animation_rotation[i]) {
+                        data.push_back(q.x);
+                        data.push_back(q.y);
+                        data.push_back(q.z);
+                        data.push_back(q.w);
+                    }
+                    _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+
+                    tinygltf::Accessor time_step_accessor;
+                    time_step_accessor.bufferView = _accessor_counter + 2;
+                    time_step_accessor.componentType = TINYGLTF_COMPONENT_TYPE_REAL;
+                    time_step_accessor.count = _animation_time_step[i].size();
+                    time_step_accessor.type = TINYGLTF_TYPE_SCALAR;
+                    _model.accessors.push_back(time_step_accessor);
+                    tinygltf::BufferView time_step_buffer_view;
+                    time_step_buffer_view.buffer = 5;
+                    time_step_buffer_view.byteOffset = _buffer_animation_time_step_offset;
+                    _buffer_animation_time_step_offset += time_step_accessor.count * sizeof(float);
+                    time_step_buffer_view.byteLength = time_step_accessor.count * sizeof(float);
+                    _model.bufferViews.push_back(time_step_buffer_view);
+                    data.clear();
+                    data.reserve(time_step_accessor.count);
+                    for (auto& t : _animation_time_step[i]) {
+                        data.push_back(t);
+                    }
+                    _buffer_animation_time_step.data.insert(_buffer_animation_time_step.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+
+                    _accessor_counter += 3;
+                }
+                _model.animations.push_back(animation);
+
+                _model.buffers.push_back(_buffer_position);
+                _model.buffers.push_back(_buffer_normal);
+                _model.buffers.push_back(_buffer_index);
+                _model.buffers.push_back(_buffer_animation_translation);
+                _model.buffers.push_back(_buffer_animation_rotation);
+                _model.buffers.push_back(_buffer_animation_time_step);
+
+                tinygltf::TinyGLTF gltf;
+                gltf.WriteGltfSceneToFile(&_model, _path, true, true, true, false);
+            }
+
+            bool isTrackingMesh(const uint32_t id) {
+                return _mesh2nodeId.find(id) != _mesh2nodeId.end();
+            }
+
+            void addMesh(const pe::Mesh& mesh, const uint32_t id) {
+                tinygltf::Node node;
+                node.name = "node-" + std::to_string(_mesh_counter);
+                node.mesh = _mesh_counter;
+                _root.children.push_back(_mesh_counter);
+                _mesh2nodeId[id] = _mesh_counter;
+
+                tinygltf::Mesh gltf_mesh;
+                gltf_mesh.name = "mesh-" + std::to_string(_mesh_counter);
+                tinygltf::Primitive primitive;
+                primitive.mode = TINYGLTF_MODE_TRIANGLES;
+                primitive.attributes["POSITION"] = _accessor_counter;
+                primitive.attributes["NORMAL"] = _accessor_counter + 1;
+                primitive.indices = _accessor_counter + 2;
+                gltf_mesh.primitives.push_back(primitive);
+                _model.meshes.push_back(gltf_mesh);
+
+                tinygltf::Accessor position_accessor;
+                position_accessor.bufferView = _accessor_counter;
+                position_accessor.componentType = TINYGLTF_COMPONENT_TYPE_REAL;
+                position_accessor.count = mesh.vertices.size();
+                position_accessor.type = TINYGLTF_TYPE_VEC3;
+                _model.accessors.push_back(position_accessor);
+                tinygltf::BufferView position_buffer_view;
+                position_buffer_view.buffer = 0;
+                position_buffer_view.byteOffset = _buffer_position_offset;
+                _buffer_position_offset += position_accessor.count * sizeof(float) * 3;
+                position_buffer_view.byteLength = position_accessor.count * sizeof(float) * 3;
+                _model.bufferViews.push_back(position_buffer_view);
+                pe::Array<float> data;
+                data.reserve(position_accessor.count * 3);
+                for (auto& v : mesh.vertices) {
+                    data.push_back(v.position.x);
+                    data.push_back(v.position.y);
+                    data.push_back(v.position.z);
+                }
+                _buffer_position.data.insert(_buffer_position.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+
+                tinygltf::Accessor normal_accessor;
+                normal_accessor.bufferView = _accessor_counter + 1;
+                normal_accessor.componentType = TINYGLTF_COMPONENT_TYPE_REAL;
+                normal_accessor.count = mesh.vertices.size();
+                normal_accessor.type = TINYGLTF_TYPE_VEC3;
+                _model.accessors.push_back(normal_accessor);
+                tinygltf::BufferView normal_buffer_view;
+                normal_buffer_view.buffer = 1;
+                normal_buffer_view.byteOffset = _buffer_normal_offset;
+                _buffer_normal_offset += normal_accessor.count * sizeof(float) * 3;
+                normal_buffer_view.byteLength = normal_accessor.count * sizeof(float) * 3;
+                _model.bufferViews.push_back(normal_buffer_view);
+                data.clear();
+                data.reserve(normal_accessor.count * 3);
+                for (auto& v : mesh.vertices) {
+                    data.push_back(v.normal.x);
+                    data.push_back(v.normal.y);
+                    data.push_back(v.normal.z);
+                }
+                _buffer_normal.data.insert(_buffer_normal.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+
+                tinygltf::Accessor index_accessor;
+                index_accessor.bufferView = _accessor_counter + 2;
+                index_accessor.componentType = TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT;
+                index_accessor.count = 0;
+                for (auto& f : mesh.faces) {
+                    index_accessor.count += (f.indices.size() - 2) * 3;
+                }
+                index_accessor.type = TINYGLTF_TYPE_SCALAR;
+                _model.accessors.push_back(index_accessor);
+                tinygltf::BufferView index_buffer_view;
+                index_buffer_view.buffer = 2;
+                index_buffer_view.byteOffset = _buffer_index_offset;
+                _buffer_index_offset += index_accessor.count * sizeof(uint32_t);
+                index_buffer_view.byteLength = index_accessor.count * sizeof(uint32_t);
+                _model.bufferViews.push_back(index_buffer_view);
+                pe::Array<uint32_t> indices;
+                indices.reserve(index_accessor.count);
+                for (auto& f : mesh.faces) {
+                    for (size_t i = 1; i < f.indices.size() - 1; i++) {
+                        indices.push_back(f.indices[0]);
+                        indices.push_back(f.indices[i]);
+                        indices.push_back(f.indices[i + 1]);
+                    }
+                }
+                _buffer_index.data.insert(_buffer_index.data.end(), (const uint8_t*)indices.data(), (const uint8_t*)indices.data() + indices.size() * sizeof(uint32_t));
+
+                _model.nodes.push_back(node);
+                _animation_translation.push_back(pe::Array<pe::Vector3>());
+                _animation_rotation.push_back(pe::Array<pe::Quaternion>());
+                _animation_time_step.push_back(pe::Array<pe::Real>());
+                _mesh_counter++;
+                _accessor_counter += 3;
+            }
+
+            void addAnimation(const uint32_t id, const pe::Transform& transform, pe::Real time_step) {
+                auto& anim_trans = _animation_translation[_mesh2nodeId[id]];
+                auto& anim_rot = _animation_rotation[_mesh2nodeId[id]];
+                auto& anim_time = _animation_time_step[_mesh2nodeId[id]];
+                anim_trans.push_back(transform.getOrigin());
+                anim_rot.push_back(pe::Quaternion::fromRotationMatrix(transform.getBasis()));
+                anim_time.push_back(time_step);
+            }
+
+        } static writer(path_to_write_gltf);
+
+        static int frame = 0;
+        for (auto rb : _world.getRigidBodies()) {
+            auto shape = rb->getCollisionShape();
+            switch (shape->getType()) {
+                case pe_phys_shape::ShapeType::Box: {
+                    auto& mesh = ((pe_phys_shape::BoxShape*)shape)->getMesh();
+                    if (!writer.isTrackingMesh(shape->getGlobalId())) {
+                        writer.addMesh(mesh, shape->getGlobalId());
+                    }
+                    writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
+                    break;
+                }
+                case pe_phys_shape::Cylinder: {
+                    auto& mesh = ((pe_phys_shape::CylinderShape*)shape)->getMesh();
+                    if (!writer.isTrackingMesh(shape->getGlobalId())) {
+                        writer.addMesh(mesh, shape->getGlobalId());
+                    }
+                    writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
+                    break;
+                }
+                case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh: {
+                    auto& mesh = ((pe_phys_shape::ConvexMeshShape*)shape)->getMesh();
+                    if (!writer.isTrackingMesh(shape->getGlobalId())) {
+                        writer.addMesh(mesh, shape->getGlobalId());
+                    }
+                    writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
+                    break;
+                }
+
+                case pe_phys_shape::ShapeType::Sphere: {
+                    static pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
+                    if (!writer.isTrackingMesh(shape->getGlobalId())) {
+                        writer.addMesh(sphere_mesh, shape->getGlobalId());
+                    }
+                    writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        frame++;
+    }
+
     static void printWelcomeMessage() {
         PE_LOG_CUSTOM_INFO << "Press `x` to start simulation" << PE_CUSTOM_ENDL;
         PE_LOG_CUSTOM_INFO << "Press `r` to simulate for a period while pressing" << PE_CUSTOM_ENDL;
@@ -626,6 +940,8 @@ namespace pe_intf {
                 auto dir = save_path + "/program-" + std::to_string(program_tick) + "/";
                 auto filename = std::to_string(saved_file_count++) + "-" + std::to_string(COMMON_GetTickCount()) + ".json";
                 saveScene(dir + filename);
+                auto filename_gltf = std::to_string(COMMON_GetTickCount()) + ".gltf";
+                saveGltf(dir + filename_gltf);
             }
 
             auto actual_dt = (int)(COMMON_GetTickCount() - t);
