@@ -859,8 +859,11 @@ namespace pe_intf {
                     break;
                 }
                 case pe_phys_shape::ShapeType::Sphere: {
-                    static pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
+                        pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
+                        for (auto& v : sphere_mesh.vertices) {
+                            v.position *= ((pe_phys_shape::SphereShape*)shape)->getRadius() * 2;
+                        }
                         writer.addMesh(sphere_mesh, shape->getGlobalId());
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
@@ -896,8 +899,11 @@ namespace pe_intf {
                                 break;
                             }
                             case pe_phys_shape::ShapeType::Sphere: {
-                                static pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
+                                    pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
+                                    for (auto& v : sphere_mesh.vertices) {
+                                        v.position *= ((pe_phys_shape::SphereShape*)shape_child.shape)->getRadius() * 2;
+                                    }
                                     writer.addMesh(sphere_mesh, shape_child.shape->getGlobalId());
                                 }
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
