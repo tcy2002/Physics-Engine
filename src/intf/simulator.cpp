@@ -2,11 +2,11 @@
 #include "json/json.hpp"
 #include "opts/cxxopts.hpp"
 #include "utils/file_system.h"
+#include "phys/shape/default_mesh.h"
+
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <phys/shape/default_mesh.h>
-
 #include "gltf/tiny_gltf.h"
 
 namespace pe_intf {
@@ -76,7 +76,7 @@ namespace pe_intf {
         return true;
     }
 
-    void Simulator::saveScene(const std::string& path_to_write) {
+    void Simulator::saveScene(const std::string& path_to_write) const {
         std::string json_file;
         if (path_to_write.empty()) {
             json_file = utils::FileSystem::fileDialog(1, path_to_write, "Scene Files", "json");
@@ -573,7 +573,7 @@ namespace pe_intf {
 #define TINYGLTF_COMPONENT_TYPE_REAL TINYGLTF_COMPONENT_TYPE_FLOAT
 #endif
 
-    void Simulator::saveGltf(const std::string &path_to_write_gltf) {
+    void Simulator::saveGltf(const std::string &path_to_write_gltf) const {
         class GltfWriter {
             std::string _path;
             tinygltf::Model _model;
@@ -999,7 +999,7 @@ namespace pe_intf {
                 break;
             }
 
-    #   if false
+#       if true
             static pe::Array<int> ids;
             for (auto id : ids) {
                 Viewer::remove(id);
@@ -1014,7 +1014,8 @@ namespace pe_intf {
                     ids.push_back(id);
                 }
             }
-    #   endif
+            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
+#       endif
         }
 
         auto end = COMMON_GetTickCount();

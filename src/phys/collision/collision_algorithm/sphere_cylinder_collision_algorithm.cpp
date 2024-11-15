@@ -60,6 +60,7 @@ namespace pe_phys_collision {
         ptOnSph = trans_cyl * ptOnSph;
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Sphere);
         result.addContactPoint(normal, ptOnSph - normal * margin, -depth + 2 * margin);
+        result.setSwapFlag(false);
         return true;
     }
 

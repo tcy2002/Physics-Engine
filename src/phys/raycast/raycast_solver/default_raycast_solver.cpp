@@ -41,13 +41,14 @@ namespace pe_phys_raycast {
                     ret = r_cylinder.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     break;
                 case pe_phys_shape::ShapeType::ConvexMesh:
+                case pe_phys_shape::ShapeType::ConcaveMesh:
                 case pe_phys_shape::ShapeType::Compound:
                     // first, check if the ray hit the AABB of the mesh
                     if (!RaycastBox::rayHitBox(start, direction, rb->getAABBMin(), rb->getAABBMax(),
                                                distance, hit_point, hit_normal)) {
                         return false;
                     }
-                    if (type == pe_phys_shape::ShapeType::ConvexMesh) {
+                    if (type == pe_phys_shape::ShapeType::ConvexMesh || type == pe_phys_shape::ShapeType::ConcaveMesh) {
                         ret = r_mesh.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     } else {
                         auto compound = (pe_phys_shape::CompoundShape*)shape;

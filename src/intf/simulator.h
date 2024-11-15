@@ -29,11 +29,11 @@ namespace pe_intf { // interface
         virtual ~Simulator() {}
 
         // Store the current scene as a config file
-        void saveScene(const std::string& path_to_write);
+        void saveScene(const std::string& path_to_write) const;
         // Load a config file
         bool loadScene(int argc, char** argv);
         // store the simulation flow into a gltf file
-        void saveGltf(const std::string& path_to_write_gltf);
+        void saveGltf(const std::string& path_to_write_gltf) const;
 
         // Initialize the physics world here before running
         virtual void init() {}

@@ -7,10 +7,11 @@
 #include "phys/object/fracturable_object.h"
 #include "intf/viewer.h"
 #include <fstream>
+#include <utils/logger.h>
 
 //#define PE_SHOW_CONTACT_POINTS
-//#define PE_TEST_SINGLE
-#define PE_TEST_FRAC
+#define PE_TEST_SINGLE
+//#define PE_TEST_FRAC
 //#define PE_TEST_SECOND_GROUND
 #define PE_TEST_OBJ_NUM 0
 #define PE_TEST_FRAME_TH 1000000
@@ -149,7 +150,7 @@ void testWorld() {
                                    CURRENT_TEST_SOURCE_DIR "\\test.obj");
     pe::Matrix3 mat;
     mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / pe::Real(5.0));
-    rb4->setTransform(pe::Transform(mat, pe::Vector3(0, 1.9, 0)));
+    rb4->setTransform(pe::Transform(mat, pe::Vector3(0, 2.2, 0)));
 #endif
 
     // create some other dynamic objects
@@ -235,16 +236,39 @@ void testWorld() {
 #   ifdef PE_TEST_FRAMERATE
         if (++frame > PE_TEST_FRAMERATE) break;
 #   else
-        while (pe_intf::Viewer::getKeyState('r') != 0) {
+        while (pe_intf::Viewer::getKeyState('r') != 0 && pe_intf::Viewer::getKeyState('t') != 0) {
+            COMMON_Sleep(1);
             if (pe_intf::Viewer::getKeyState(27) == 0) goto ret;
         }
+        if (pe_intf::Viewer::getKeyState('t') == 0) COMMON_Sleep(300);
+
+#   if true
+        {
+            static pe::Array<int> ids;
+            for (auto id : ids) {
+                pe_intf::Viewer::remove(id);
+            }
+            ids.clear();
+            for (auto cr : world->getContactResults()) {
+                for (int i = 0; i < cr->getPointSize(); i++) {
+                    auto p = cr->getContactPoint(i).getWorldPos();
+                    auto id = pe_intf::Viewer::addSphere(0.1);
+                    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.3, 0.8, 0.8));
+                    ids.push_back(id);
+                }
+            }
+            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
+        }
+#   endif
+
 #   endif
         auto t = COMMON_GetTickCount();
 #   ifdef PE_TEST_SECOND_GROUND
         pe_intf::Viewer::updateCubeTransform(id3, rb3->getTransform());
 #   endif
 #   ifdef PE_TEST_SINGLE
-        pe_intf::Viewer::updateMeshTransform(id4, rb4->getTransform());
+        pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ConvexMesh, rb4->getTransform());
 #   endif
         for (int i = 0; i < ids.size(); i++) {
             pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::Box, rbs[i]->getTransform());

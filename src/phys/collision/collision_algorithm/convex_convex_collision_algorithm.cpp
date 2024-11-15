@@ -28,7 +28,7 @@ namespace pe_phys_collision {
             return false;
         }
         clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
-                            -refScale, 0, world_verts_b1, world_verts_b2,
+                            -refScale, margin, world_verts_b1, world_verts_b2,
                             margin, result);
         return true;
     }

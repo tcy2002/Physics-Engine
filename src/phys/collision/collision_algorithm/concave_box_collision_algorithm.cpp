@@ -34,7 +34,7 @@ namespace pe_phys_collision {
         pe::Vector3 convex_AA, convex_BB;
         shape_box->getAABB(trans_box_rel2concave, convex_AA, convex_BB);
         pe::Array<int> intersect;
-        ((pe_phys_shape::ConcaveMeshShape*)shape_concave)->getIntersetFaces(convex_AA, convex_BB, intersect);
+        ((pe_phys_shape::ConcaveMeshShape*)shape_concave)->getIntersectFaces(convex_AA, convex_BB, intersect);
 
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {
@@ -58,9 +58,10 @@ namespace pe_phys_collision {
             }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_box, mesh_face, trans_box, trans_concave,
-                -refScale, 0, world_verts_b1, world_verts_b2,
+                -refScale, margin, world_verts_b1, world_verts_b2,
                 margin, result);
         }
+        result.setSwapFlag(false);
 
         return true;
     }

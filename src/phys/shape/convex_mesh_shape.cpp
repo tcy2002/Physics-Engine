@@ -130,7 +130,7 @@ namespace pe_phys_shape {
         return cm;
     }
 
-    void ConvexMeshShape::getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const {
+    void ConvexMeshShape::getIntersectFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const {
         _bvh.search(AA, BB, intersect);
     }
 

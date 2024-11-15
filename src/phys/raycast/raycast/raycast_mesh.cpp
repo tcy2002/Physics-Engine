@@ -1,4 +1,7 @@
 #include "raycast_mesh.h"
+
+#include <phys/shape/concave_mesh_shape.h>
+
 #include "phys/shape/convex_mesh_shape.h"
 #include "phys/raycast/raycast/raycast_box.h"
 
@@ -12,6 +15,8 @@ namespace pe_phys_raycast {
         const pe::Mesh* mesh;
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
             mesh = &((pe_phys_shape::ConvexMeshShape*)shape)->getMesh();
+        } else if (shape->getType() == pe_phys_shape::ShapeType::ConcaveMesh) {
+            mesh = &((pe_phys_shape::ConcaveMeshShape*)shape)->getMesh();
         } else {
             return false;
         }

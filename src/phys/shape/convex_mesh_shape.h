@@ -26,7 +26,7 @@ namespace pe_phys_shape {
     public:
         PE_API virtual pe::Vector3 setMesh(pe::Mesh mesh);
         const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& getUniqueEdges() const { return _unique_edges; }
-        void getIntersetFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const;
+        void getIntersectFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const;
 
         ConvexMeshShape() {}
         virtual ~ConvexMeshShape() override {}

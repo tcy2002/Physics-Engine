@@ -27,7 +27,7 @@ namespace pe_phys_collision {
         pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
         pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
         pe::Array<int> intersect;
-        ((pe_phys_shape::ConvexMeshShape*)shape_mesh)->getIntersetFaces(sph_AA, sph_BB, intersect);
+        ((pe_phys_shape::ConvexMeshShape*)shape_mesh)->getIntersectFaces(sph_AA, sph_BB, intersect);
 
         pe::Vector3 vertices[3];
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
@@ -40,6 +40,7 @@ namespace pe_phys_collision {
                 getClosestPoints(shape_sph, trans_sph, vertices, trans_mesh, result);
             }
         }
+        result.setSwapFlag(false);
 
         return true;
     }

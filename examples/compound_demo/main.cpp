@@ -1,3 +1,5 @@
+#include <phys/shape/default_mesh.h>
+
 #include "intf/simulator.h"
 
 // pe_intf::UseViewer::True/False: simulate with/without viewer
@@ -18,29 +20,47 @@ public:
         _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
         _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
 
-        // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(30, 10, 30), 10000);
-        rb1->setKinematic(true);
-        _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
+        // // add a ground
+        // auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+        //                               pe::Vector3(30, 10, 30), 10000);
+        // rb1->setKinematic(true);
+        // _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
-        // add some other dynamic objects
-        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-                                      pe::Vector3(1, 1, 1), 1);
-        _world.addRigidBody(rb2);
-        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.1), 4, pe::Real(0.1))),
-                                         pe::Real(0.5), 1);
-        _world.addRigidBody(rb3);
-        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.2), 6, pe::Real(0.2))),
+        auto rb1 = new pe_phys_object::RigidBody();
+        rb1->setMass(10000);
+        auto shape1 = new pe_phys_shape::ConvexMeshShape();
+        pe::Mesh box_mesh = PE_BOX_DEFAULT_MESH;
+        for (auto& v : box_mesh.vertices) {
+            v.position.x *= 30;
+            v.position.y *= 10;
+            v.position.z *= 30;
+        }
+        shape1->setMesh(box_mesh);
+        rb1->setCollisionShape(shape1);
+        rb1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)));
+        rb1->setKinematic(true);
+        _world.addRigidBody(rb1);
+
+        // // add some other dynamic objects
+        // auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
+        //                               pe::Vector3(1, 1, 1), 1);
+        // _world.addRigidBody(rb2);
+        // auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.1), 4, pe::Real(0.1))),
+        //                                  pe::Real(0.5), 1);
+        // _world.addRigidBody(rb3);
+        pe::Transform trans = pe::Transform::identity();
+        // trans.setRotation({0, 0, 1}, PE_PI / 6);
+        trans.setOrigin({5, 6, -5});
+        auto rb4 = createCylinderRigidBody(trans,
                                            pe::Real(0.5), 1, 1);
         _world.addRigidBody(rb4);
 
-        // add some compound-shaped rigidbodies
-        for (int i = 0; i < 10; i++) {
-            auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                            pe::Vector3(0, pe::Real(10 + i * 4), 0)), 1);
-            _world.addRigidBody(rb);
-        }
+        // // add some compound-shaped rigidbodies
+        // for (int i = 0; i < 10; i++) {
+        //     auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
+        //                                                     pe::Vector3(0, pe::Real(10 + i * 4), 0)), 1);
+        //     _world.addRigidBody(rb);
+        // }
 
         //saveScene("");
     }

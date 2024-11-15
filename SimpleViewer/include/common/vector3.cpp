@@ -159,6 +159,11 @@ Scalar Vector3<Scalar>::angle(const Vector3<Scalar>& other) const {
 }
 
 template <typename Scalar>
+Scalar Vector3<Scalar>::distance(const Vector3<Scalar>& other) const {
+    return (*this - other).norm();
+}
+
+template <typename Scalar>
 Vector3<Scalar> Vector3<Scalar>::getAbsolute() const {
     return {std::abs(x), std::abs(y), std::abs(z)};
 }

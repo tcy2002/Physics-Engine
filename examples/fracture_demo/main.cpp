@@ -46,7 +46,7 @@ public:
                     pe::Real(0.5), pe::Real(1.0));
             } else {
                 rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
-                    pe::Real(0.5), pe::Real(1.0), pe::Real(1.0));
+                    pe::Real(0.4), pe::Real(1.0), pe::Real(1.0));
             }
             _world.addRigidBody(rb);
         }

@@ -27,6 +27,7 @@ namespace pe_phys_collision {
             result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
             result.addContactPoint(normal, ptOnBox - normal * margin,
                                    dist + 2 * margin);
+            result.setSwapFlag(false);
             return true;
         }
 

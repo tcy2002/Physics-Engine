@@ -33,7 +33,7 @@ public:
         // add a slope
         auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                     pe::Vector3(0, 0, 0)),
-                                      pe::Vector3(10, pe::Real(0.3), 10), 8);
+                                      pe::Vector3(10, pe::Real(0.5), 10), 8);
         rb2->setKinematic(true);
         pe::Matrix3 mat;
         mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / pe::Real(12.0));
