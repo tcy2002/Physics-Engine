@@ -296,6 +296,14 @@ const Matrix3x3<Scalar>& Matrix3x3<Scalar>::ones() {
     return ones;
 }
 
+template<typename Scalar>
+Matrix3x3<Scalar> Matrix3x3<Scalar>::fromRotation(const Vector3<Scalar> &axis, Scalar angle) {
+    Matrix3x3 res;
+    res.setRotation(axis, angle);
+    return res;
+}
+
+
 template <typename Scalar>
 Matrix3x3<Scalar> operator*(Scalar k, const Matrix3x3<Scalar>& mat) {
     return mat * k;

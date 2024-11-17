@@ -53,6 +53,8 @@
 
   - 11.11 支持导出gltf格式; ball-joint
 
+  - 11.17 convex-cylinder碰撞：面片vs圆柱体
+
 - TODO:
 
   - 复杂约束（hinge，slider等）

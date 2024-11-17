@@ -33,7 +33,6 @@ namespace common {
         COMMON_FORCE_INLINE Vector3<Scalar> inverseTransform(const Vector3<Scalar>& v) const;
 
         COMMON_FORCE_INLINE static Transform const& identity();
-
     };
 
     template<typename Scalar>

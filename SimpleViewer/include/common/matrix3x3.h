@@ -49,6 +49,7 @@ namespace common {
         COMMON_FORCE_INLINE static const Matrix3x3& identity();
         COMMON_FORCE_INLINE static const Matrix3x3& zeros();
         COMMON_FORCE_INLINE static const Matrix3x3& ones();
+        COMMON_FORCE_INLINE static Matrix3x3 fromRotation(const Vector3<Scalar>& axis, Scalar angle);
     };
 
     template <typename Scalar>
