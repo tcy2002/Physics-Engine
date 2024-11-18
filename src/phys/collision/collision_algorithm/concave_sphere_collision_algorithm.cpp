@@ -15,18 +15,18 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b;
-        auto& mesh = ((pe_phys_shape::ConcaveMeshShape*)shape_mesh)->getMesh();
+        auto shape_mesh = (pe_phys_shape::ConcaveMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
+        auto& mesh = shape_mesh->getMesh();
         auto trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
-        auto shape_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b;
+        auto shape_sph = (pe_phys_shape::SphereShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
         auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
 
         pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());
-        pe::Real radius = ((pe_phys_shape::SphereShape*)shape_sph)->getRadius();
+        pe::Real radius = shape_sph->getRadius();
         pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
         pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
         pe::Array<int> intersect;
-        ((pe_phys_shape::ConcaveMeshShape*)shape_mesh)->getIntersectFaces(sph_AA, sph_BB, intersect);
+        shape_mesh->getIntersectFaces(sph_AA, sph_BB, intersect);
 
         pe::Vector3 vertices[3];
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);

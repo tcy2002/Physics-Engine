@@ -10,8 +10,7 @@ namespace pe_phys_collision {
                                       pe::Transform trans_a, pe::Transform trans_b,
                                       pe::Real refScale, ContactResult& result) override;
 
-    private:
-        static CollisionAlgorithm* getCollisionAlgorithm(int index);
+    protected:
         static bool processSubCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                         pe::Transform& trans_a, pe::Transform& trans_b,
                                         pe::Real refScale, ContactResult& result);

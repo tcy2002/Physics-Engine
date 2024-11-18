@@ -11,12 +11,12 @@ namespace pe_phys_collision {
                                       pe::Real refScale, ContactResult& result) override;
 
         static bool pointInsideCylinder(const pe::Vector3& v, pe::Real h, pe::Real r,
-                                        const pe::Transform& trans, pe::Real margin, ContactResult& result);
+                                        const pe::Transform& trans, pe::Real refScale, pe::Real margin, ContactResult& result);
         static void intersectSegmentCylinder(const pe::Vector3& v1, const pe::Vector3& v2,
-                                             const pe::Vector3 &n, pe::Real h, pe::Real r,
-                                             const pe::Transform& trans, pe::Real margin, ContactResult& result);
-        static void intersectTriangleCylinder(const pe::Vector3 vs[3], const pe::Vector3& n, pe::Real h, pe::Real r,
-                                              const pe::Transform& trans, pe::Real margin, ContactResult& result);
+                                             pe::Real h, pe::Real r, const pe::Transform& trans,
+                                             pe::Real refScale, pe::Real margin, ContactResult& result);
+        static void intersectFaceCylinder(const pe::Array<pe::Vector3>& vs, const pe::Vector3& n, pe::Real h, pe::Real r,
+                                          const pe::Transform& trans, pe::Real refScale, pe::Real margin, ContactResult& result);
     };
 
 } // pe_phys_collision

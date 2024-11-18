@@ -12,8 +12,12 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto& mesh_a = ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh();
-        auto& mesh_b = ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
+        auto shape_mesh_a = (pe_phys_shape::ConvexMeshShape*)shape_a;
+        auto shape_mesh_b = (pe_phys_shape::ConvexMeshShape*)shape_b;
+        auto& mesh_a = shape_mesh_a->getMesh();
+        auto& mesh_b = shape_mesh_b->getMesh();
+        auto& edges_a = shape_mesh_a->getUniqueEdges();
+        auto& edges_b = shape_mesh_b->getUniqueEdges();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;
@@ -22,8 +26,7 @@ namespace pe_phys_collision {
         VertexArray world_verts_b2;
 
         if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
-                                ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges(),
-                                ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges(),
+                                edges_a, edges_b,
                                 trans_a, trans_b, sep, margin, result)) {
             return false;
         }

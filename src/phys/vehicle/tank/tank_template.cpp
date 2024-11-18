@@ -1,5 +1,5 @@
 #include "tank_template.h"
-#include "phys/fracture/fracture_utils/fracture_data.h"
+#include "phys/shape/box_shape.h"
 
 #define PE_TANK_SUS_OFFSET pe::Real(0.15)
 #define PE_TANK_WHEEL_MARGIN pe::Real(0.025)

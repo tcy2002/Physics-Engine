@@ -2,6 +2,7 @@
 #include "phys/shape/sphere_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 
+// sphere-triangle collision (from bullet)
 namespace pe_phys_collision {
 
     bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -14,20 +15,18 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b;
-        auto& mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
-                     ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh() :
-                     ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
+        auto shape_mesh = (pe_phys_shape::ConvexMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
+        auto shape_sph = (pe_phys_shape::SphereShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
+        auto& mesh = shape_mesh->getMesh();
         auto trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
-        auto shape_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b;
         auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
 
         pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());
-        pe::Real radius = ((pe_phys_shape::SphereShape*)shape_sph)->getRadius();
+        pe::Real radius = shape_sph->getRadius();
         pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
         pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
         pe::Array<int> intersect;
-        ((pe_phys_shape::ConvexMeshShape*)shape_mesh)->getIntersectFaces(sph_AA, sph_BB, intersect);
+        shape_mesh->getIntersectFaces(sph_AA, sph_BB, intersect);
 
         pe::Vector3 vertices[3];
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);

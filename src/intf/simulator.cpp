@@ -972,6 +972,24 @@ namespace pe_intf {
 
             step();
 
+#       if false
+            static pe::Array<int> ids;
+            for (auto id : ids) {
+                Viewer::remove(id);
+            }
+            ids.clear();
+            for (auto cr : _world.getContactResults()) {
+                for (int i = 0; i < cr->getPointSize(); i++) {
+                    auto p = cr->getContactPoint(i).getWorldPos();
+                    auto id = Viewer::addSphere(0.1);
+                    Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                    Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.8, 0.3, 0.3));
+                    ids.push_back(id);
+                }
+            }
+            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
+#       endif
+
             if (use_gui) {
                 if (!renderStep()) {
                     break;
@@ -998,24 +1016,6 @@ namespace pe_intf {
             if (frame++ >= max_frame) {
                 break;
             }
-
-#       if true
-            static pe::Array<int> ids;
-            for (auto id : ids) {
-                Viewer::remove(id);
-            }
-            ids.clear();
-            for (auto cr : _world.getContactResults()) {
-                for (int i = 0; i < cr->getPointSize(); i++) {
-                    auto p = cr->getContactPoint(i).getWorldPos();
-                    auto id = Viewer::addSphere(0.1);
-                    Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
-                    Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.8, 0.3, 0.3));
-                    ids.push_back(id);
-                }
-            }
-            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
-#       endif
         }
 
         auto end = COMMON_GetTickCount();
@@ -1056,6 +1056,28 @@ namespace pe_intf {
     }
 
     bool Simulator::renderStep() {
+        for (auto& rb : _id_map) {
+            if (rb.second.empty()) {
+                continue;
+            }
+            auto type = rb.first->getCollisionShape()->getType();
+            if (type != pe_phys_shape::ShapeType::Compound) {
+                updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                if (!rb.first->isSleep()) {
+                    Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
+                }
+            } else {
+                int i = 0;
+                for (auto& s : ((pe_phys_shape::CompoundShape*)rb.first->getCollisionShape())->getShapes()) {
+                    updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                    if (!rb.first->isSleep()) {
+                        Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
+                    }
+                    i++;
+                }
+            }
+        }
+
         if (!Viewer::isOpen() || Viewer::getKeyState(27) == 0) {
             Viewer::close();
             return false;
@@ -1079,28 +1101,6 @@ namespace pe_intf {
             }
         } else {
             toggleLine();
-        }
-
-        for (auto& rb : _id_map) {
-            if (rb.second.empty()) {
-                continue;
-            }
-            auto type = rb.first->getCollisionShape()->getType();
-            if (type != pe_phys_shape::ShapeType::Compound) {
-                updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
-                if (!rb.first->isSleep()) {
-                    Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
-                }
-            } else {
-                int i = 0;
-                for (auto& s : ((pe_phys_shape::CompoundShape*)rb.first->getCollisionShape())->getShapes()) {
-                    updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
-                    if (!rb.first->isSleep()) {
-                        Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
-                    }
-                    i++;
-                }
-            }
         }
         return true;
     }

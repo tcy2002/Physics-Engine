@@ -1,10 +1,9 @@
 #include "box_box_collision_algorithm.h"
 #include "phys/shape/box_shape.h"
-#include <string.h>
 
+// box-box collision (from bullet)
 namespace pe_phys_collision {
 
-    // box-box collision (bullet)
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                     pe::Transform trans_a, pe::Transform trans_b,
                                                     pe::Real refScale, ContactResult& result) {

@@ -15,12 +15,12 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b;
-        auto shape_convex = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b;
+        auto shape_concave = (pe_phys_shape::ConcaveMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
+        auto shape_convex = (pe_phys_shape::ConvexMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
         auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
         auto trans_convex = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
-        auto& mesh_concave = ((pe_phys_shape::ConcaveMeshShape*)shape_concave)->getMesh();
-        auto& mesh_convex = ((pe_phys_shape::ConvexMeshShape*)shape_convex)->getMesh();
+        auto& mesh_concave = shape_concave->getMesh();
+        auto& mesh_convex = shape_convex->getMesh();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;
@@ -32,7 +32,7 @@ namespace pe_phys_collision {
         pe::Vector3 convex_AA, convex_BB;
         shape_convex->getAABB(trans_convex_rel2concave, convex_AA, convex_BB);
         pe::Array<int> intersect;
-        ((pe_phys_shape::ConvexMeshShape*)shape_concave)->getIntersectFaces(convex_AA, convex_BB, intersect);
+        shape_concave->getIntersectFaces(convex_AA, convex_BB, intersect);
 
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {

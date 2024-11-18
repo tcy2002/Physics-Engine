@@ -13,10 +13,12 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto& mesh_a = ((pe_phys_shape::CylinderShape*)shape_a)->getMesh();
-        auto& mesh_b = ((pe_phys_shape::CylinderShape*)shape_b)->getMesh();
-        auto& edges_a = ((pe_phys_shape::CylinderShape*)shape_a)->getUniqueEdges();
-        auto& edges_b = ((pe_phys_shape::CylinderShape*)shape_b)->getUniqueEdges();
+        auto shape_cyl_a = (pe_phys_shape::CylinderShape*)shape_a;
+        auto shape_cyl_b = (pe_phys_shape::CylinderShape*)shape_b;
+        auto& mesh_a = shape_cyl_a->getMesh();
+        auto& mesh_b = shape_cyl_b->getMesh();
+        auto& edges_a = shape_cyl_a->getUniqueEdges();
+        auto& edges_b = shape_cyl_b->getUniqueEdges();
 
         pe::Vector3 sep;
         pe::Real margin = PE_MARGIN;

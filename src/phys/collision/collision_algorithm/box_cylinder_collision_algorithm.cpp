@@ -5,6 +5,7 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "convex_convex_collision_algorithm.h"
 
+// box-cylinder collision (from damps)
 namespace pe_phys_collision {
 
     static void addContactPoint(const pe::Vector3& pc, int iface, const pe::Vector3& hdims,
@@ -120,12 +121,10 @@ namespace pe_phys_collision {
 
         // - Loop over each direction of the box frame (i.e., each of the 3 face normals).
         // - For each direction, consider two segments on the cylindrical surface that are on a plane defined by the
-        // axis
-        //   and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box, but
+        //   axis and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box, but
         //   that is not trivial to define in all configurations). All segments are parameterized by t in [-H,H].
         // - For each segment, if the segment intersects the box, consider 3 candidate contact points: the 2
-        // intersection
-        //   points and their midpoint. A contact is added if the segment point is inside the box.
+        //   intersection points and their midpoint. A contact is added if the segment point is inside the box.
         //   Furthermore, the corresponding box point is located on the box face that is closest to the intersection
         //   midpoint candidate.
         for (int idir = 0; idir < 3; idir++) {
@@ -211,6 +210,7 @@ namespace pe_phys_collision {
         }
 
         result.setSwapFlag(false);
+        return true;
 #   endif
     }
 

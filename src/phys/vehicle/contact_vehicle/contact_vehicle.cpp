@@ -1,6 +1,6 @@
 #include "contact_vehicle.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
-#include "intf/viewer.h"
+#include "phys/shape/sphere_shape.h"
 
 //#define ROLLING_INFLUENCE_FIX
 
