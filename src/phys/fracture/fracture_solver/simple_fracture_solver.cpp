@@ -3,10 +3,11 @@
 #include "phys/shape/box_shape.h"
 #include "utils/file_system.h"
 
+// style-checked
 namespace pe_phys_fracture {
 
     void SimpleFractureSolver::cut_mesh(const pe::Mesh& mesh, pe::Array<pe::Mesh>& new_meshes) {
-        uint32_t point_count = _voronoi->point_count();
+        const uint32_t point_count = _voronoi->point_count();
         FractureDataManager worker;
         worker.import_from_mesh(mesh);
 
@@ -14,19 +15,19 @@ namespace pe_phys_fracture {
         for (uint32_t i = 0; i < point_count; i++) {
             FractureDataManager result;
             cut_one_mesh(worker, i, result);
-            new_meshes.push_back({});
+            new_meshes.emplace_back();
             result.export_to_mesh(new_meshes.back());
         }
     }
 
     void SimpleFractureSolver::cut_one_mesh(const FractureDataManager &mesh, uint32_t idx,
                                             FractureDataManager &new_mesh) {
-        auto point = _voronoi->get_point(idx);
-        auto adjacent_point_ids = _voronoi->get_adjacent_points(idx);
+        const auto point = _voronoi->get_point(idx);
+        const auto adjacent_point_ids = _voronoi->get_adjacent_points(idx);
 
         // cut the mesh by each adjacent point
         new_mesh = mesh;
-        for (auto other_id : adjacent_point_ids) {
+        for (const auto other_id : adjacent_point_ids) {
             auto other = _voronoi->get_point(other_id);
             auto center = (point + other) / 2;
             auto normal = (other - point).normalized();
@@ -38,7 +39,7 @@ namespace pe_phys_fracture {
 
     void SimpleFractureSolver::cut_mesh_by_plane(FractureDataManager &old_mesh, const pe::Vector3 &p,
                                                  const pe::Vector3 &n, FractureDataManager &new_mesh) {
-        uint32_t face_count = old_mesh.face_count();
+        const uint32_t face_count = old_mesh.face_count();
         pe::Vector3HashList inter_points(50);
 
         // cut all the faces
@@ -68,7 +69,7 @@ namespace pe_phys_fracture {
                                                                    const pe::Vector3 &p, const pe::Vector3 &n,
                                                                    FractureDataManager &new_mesh) {
         auto face = old_mesh.get_face(face_id);
-        uint32_t vert_count = (uint32_t)face.vert_ids.size();
+        const auto vert_count = (uint32_t)face.vert_ids.size();
         pe::Vector3HashList inter_points(vert_count);
         pe::Array<vertex> vertices(vert_count);
         pe::Array<int> side(vert_count, -1);
@@ -90,9 +91,9 @@ namespace pe_phys_fracture {
             i == 0 && side[i] <= 0 &&
             new_point_ids.push_back(new_mesh.add_vertex(vertices[i].pos, vertices[i].nor));
 
-            pe::Vector3 inter;
-            pe::Real t;
             if (side[i] * side[j] < 0) {
+                pe::Real t;
+                pe::Vector3 inter;
                 calc_line_plane_intersection(p, n, vertices[i].pos, vertices[j].pos, inter, t);
                 auto nor = (vertices[j].nor * t + vertices[i].nor * (1 - t)).normalized();
                 new_point_ids.push_back(new_mesh.add_vertex(inter, nor));
@@ -120,7 +121,7 @@ namespace pe_phys_fracture {
     }
 
     void SimpleFractureSolver::solve(const pe::Array<FractureSource>& sources) {
-        if (_fracturable_object == 0 || sources.empty()) return;
+        if (_fracturable_object == nullptr || sources.empty()) return;
 
         // generate points
         pe::Array<pe::Vector3> points;
@@ -131,14 +132,14 @@ namespace pe_phys_fracture {
         pe_phys_shape::Shape* shape = _fracturable_object->getCollisionShape();
         pe::Mesh mesh;
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            mesh = ((pe_phys_shape::ConvexMeshShape*)(shape))->getMesh();
+            mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMesh();
         } else if (shape->getType() == pe_phys_shape::ShapeType::Box) {
-            mesh = ((pe_phys_shape::BoxShape*)(shape))->getMesh();
+            mesh = dynamic_cast<pe_phys_shape::BoxShape *>(shape)->getMesh();
         } else return;
 
-        pe::Transform world_trans = _fracturable_object->getTransform();
+        const pe::Transform world_trans = _fracturable_object->getTransform();
 
-        static int program_tick = COMMON_GetTickCount();
+        static auto program_tick = COMMON_GetTickCount();
         if (!utils::FileSystem::isDirectory(PE_DATA_DOWNLOAD_PATH)) {
             utils::FileSystem::makeDir(PE_DATA_DOWNLOAD_PATH);
         }

@@ -4,6 +4,7 @@
 #include "phys/shape/box_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool ConcaveBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -16,8 +17,8 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_concave = (pe_phys_shape::ConcaveMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
-        auto shape_box = (pe_phys_shape::BoxShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
+        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
+        auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
         auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
         auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
@@ -25,14 +26,14 @@ namespace pe_phys_collision {
         auto& edges_box = shape_box->getUniqueEdges();
 
         pe::Vector3 sep;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
         VertexArray world_verts_b1;
         VertexArray world_verts_b2;
 
-        pe::Transform trans_box_rel2concave = trans_concave.inverse() * trans_box;
+        pe::Transform trans_box2concave = trans_concave.inverse() * trans_box;
         pe::Vector3 convex_AA, convex_BB;
-        shape_box->getAABB(trans_box_rel2concave, convex_AA, convex_BB);
+        shape_box->getAABB(trans_box2concave, convex_AA, convex_BB);
         pe::Array<int> intersect;
         shape_concave->getIntersectFaces(convex_AA, convex_BB, intersect);
 

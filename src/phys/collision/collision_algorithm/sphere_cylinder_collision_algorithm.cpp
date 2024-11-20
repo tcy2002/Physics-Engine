@@ -2,6 +2,7 @@
 #include "phys/shape/sphere_shape.h"
 #include "phys/shape/cylinder_shape.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool SphereCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -14,19 +15,19 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_sph = (pe_phys_shape::SphereShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
-        auto shape_cyl = (pe_phys_shape::CylinderShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
-        auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
-        auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
+        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
+        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
+        const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
+        const auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
 
-        pe::Real s_r = shape_sph->getRadius();
-        pe::Real c_r = shape_cyl->getRadius();
-        pe::Real c_h = shape_cyl->getHeight() * pe::Real(0.5);
-        pe::Vector3 s_pos = trans_cyl.inverseTransform(trans_sph.getOrigin());
-        pe::Real margin = PE_MARGIN;
+        const pe::Real s_r = shape_sph->getRadius();
+        const pe::Real c_r = shape_cyl->getRadius();
+        const pe::Real c_h = shape_cyl->getHeight() * pe::Real(0.5);
+        const pe::Vector3 s_pos = trans_cyl.inverseTransform(trans_sph.getOrigin());
+        constexpr auto margin = PE_MARGIN;
 
-        pe::Real r = PE_SQRT(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
-        pe::Real d = PE_ABS(s_pos.y) - c_h;
+        const pe::Real r = PE_SQRT(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
+        const pe::Real d = PE_ABS(s_pos.y) - c_h;
 
         if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
         r * r > (c_r + s_r) * (c_r + s_r) ||

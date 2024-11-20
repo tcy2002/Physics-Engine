@@ -12,7 +12,7 @@ namespace pe_phys_collision {
 
     protected:
         static bool processSubCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
-                                        pe::Transform& trans_a, pe::Transform& trans_b,
+                                        const pe::Transform& trans_a, const pe::Transform& trans_b,
                                         pe::Real refScale, ContactResult& result);
     };
 

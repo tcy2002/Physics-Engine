@@ -7,8 +7,8 @@ namespace pe_phys_raycast {
                                     pe_phys_shape::Shape* shape, pe::Transform trans,
                                     pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         auto& size = ((pe_phys_shape::BoxShape*)shape)->getSize();
-        pe::Vector3 start_local = trans.inverseTransform(start);
-        pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
+        const pe::Vector3 start_local = trans.inverseTransform(start);
+        const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
 
         if (rayHitBox(start_local, dir_local,
                       -size / pe::Real(2.0), size / pe::Real(2.0),
@@ -32,14 +32,14 @@ namespace pe_phys_raycast {
         dir.y = std::abs(direction.y) < PE_EPS ? PE_EPS : direction.y;
         dir.z = std::abs(direction.z) < PE_EPS ? PE_EPS : direction.z;
 
-        pe::Vector3 m = (box_max - start) / dir;
-        pe::Vector3 n = (box_min - start) / dir;
+        const pe::Vector3 m = (box_max - start) / dir;
+        const pe::Vector3 n = (box_min - start) / dir;
 
-        pe::Vector3 t_max = pe::Vector3::max2(m, n);
-        pe::Vector3 t_min = pe::Vector3::min2(m, n);
+        const pe::Vector3 t_max = pe::Vector3::max2(m, n);
+        const pe::Vector3 t_min = pe::Vector3::min2(m, n);
 
-        pe::Real t_enter = PE_MAX3(t_min.x, t_min.y, t_min.z);
-        pe::Real t_exit = PE_MIN3(t_max.x, t_max.y, t_max.z);
+        const pe::Real t_enter = PE_MAX3(t_min.x, t_min.y, t_min.z);
+        const pe::Real t_exit = PE_MIN3(t_max.x, t_max.y, t_max.z);
 
         if (t_enter > t_exit || t_exit < 0) return false;
 

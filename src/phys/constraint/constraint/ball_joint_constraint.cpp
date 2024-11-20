@@ -1,5 +1,6 @@
 #include "ball_joint_constraint.h"
 
+// style-checked
 namespace pe_phys_constraint {
 
     void BallJointConstraint::initSequentialImpulse(const ConstraintParam &param) {

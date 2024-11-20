@@ -1,6 +1,7 @@
 #include "box_shape.h"
 #include "default_mesh.h"
 
+// style-checked
 namespace pe_phys_shape {
 
     BoxShape::BoxShape(const pe::Vector3 &size): _size(size), _half_size(size / 2) {
@@ -19,9 +20,9 @@ namespace pe_phys_shape {
             edge.second.y *= size.y;
             edge.second.z *= size.z;
         }
-        pe::Real x2 = _size.x * _size.x;
-        pe::Real y2 = _size.y * _size.y;
-        pe::Real z2 = _size.z * _size.z;
+        const pe::Real x2 = _size.x * _size.x;
+        const pe::Real y2 = _size.y * _size.y;
+        const pe::Real z2 = _size.z * _size.z;
         _local_inertia = {
             (y2 + z2) / 12, 0, 0,
             0, (x2 + z2) / 12, 0,
@@ -56,16 +57,16 @@ namespace pe_phys_shape {
 
     void BoxShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                            pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
-        pe::Matrix3 rot = transform.getBasis();
-        pe::Vector3 trans = transform.getOrigin();
-        pe::Vector3 local_axis = rot.transposed() * axis;
-        pe::Real offset = trans.dot(axis);
+        const pe::Matrix3 rot = transform.getBasis();
+        const pe::Vector3 trans = transform.getOrigin();
+        const pe::Vector3 local_axis = rot.transposed() * axis;
+        const pe::Real offset = trans.dot(axis);
 
         pe::Vector3 ext;
         ext.x = local_axis.x > 0 ? _half_size.x : -_half_size.x;
         ext.y = local_axis.y > 0 ? _half_size.y : -_half_size.y;
         ext.z = local_axis.z > 0 ? _half_size.z : -_half_size.z;
-        pe::Real half_ext = ext.dot(local_axis);
+        const pe::Real half_ext = ext.dot(local_axis);
 
         minProj = offset - half_ext;
         maxProj = offset + half_ext;

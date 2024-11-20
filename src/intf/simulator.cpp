@@ -756,9 +756,9 @@ namespace pe_intf {
                 pe::Array<float> data;
                 data.reserve(position_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(v.position.x);
-                    data.push_back(v.position.y);
-                    data.push_back(v.position.z);
+                    data.push_back((float)v.position.x);
+                    data.push_back((float)v.position.y);
+                    data.push_back((float)v.position.z);
                 }
                 _buffer_position.data.insert(_buffer_position.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -777,9 +777,9 @@ namespace pe_intf {
                 data.clear();
                 data.reserve(normal_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(v.normal.x);
-                    data.push_back(v.normal.y);
-                    data.push_back(v.normal.z);
+                    data.push_back((float)v.normal.x);
+                    data.push_back((float)v.normal.y);
+                    data.push_back((float)v.normal.z);
                 }
                 _buffer_normal.data.insert(_buffer_normal.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 

@@ -51,16 +51,16 @@ namespace pe_intf { // interface
         PE_API ~World();
 
         /**** for performance analysis and debug *****/
-        pe::Real update_status_time = pe::Real(0.0);
-        pe::Real broad_phase_time = pe::Real(0.0);
-        pe::Real narrow_phase_time = pe::Real(0.0);
-        pe::Real constraint_solver_time = pe::Real(0.0);
+        pe::Real update_status_time = 0;
+        pe::Real broad_phase_time = 0;
+        pe::Real narrow_phase_time = 0;
+        pe::Real constraint_solver_time = 0;
         const pe::Array<pe_phys_collision::ContactResult*>& getContactResults() { return _contact_results; }
         /*********************************************/
 
         /**** rigid body *****************************/
         const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
-        pe_phys_object::RigidBody* getRigidBody(uint32_t idx) { return _collision_objects[idx]; }
+        pe_phys_object::RigidBody* getRigidBody(uint32_t idx) const { return _collision_objects[idx]; }
         PE_API void addRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API void removeRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API void updateRigidBody(pe_phys_object::RigidBody* rigidbody);

@@ -1,6 +1,7 @@
 #include "sequential_impulse_constraint_solver.h"
 #include "utils/thread_pool.h"
 
+// style-checked
 namespace pe_phys_constraint {
 
     SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver(): ConstraintSolver() {
@@ -13,7 +14,7 @@ namespace pe_phys_constraint {
             const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
             const pe::Array<Constraint*>& constraints) {
         _collision_objects = objects;
-        for (auto co : _collision_objects) {
+        for (const auto co : _collision_objects) {
             co->clearTempVelocity();
         }
 
@@ -39,7 +40,7 @@ namespace pe_phys_constraint {
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::forBatchedLoop((int)contact_results.size(), 0, [&](int i){
-            auto fcc = (FrictionContactConstraint*)(_fcc_constraints[i]);
+            const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
@@ -51,7 +52,7 @@ namespace pe_phys_constraint {
         utils::ThreadPool::join();
 #   else
         for (int i = 0; i < contact_results.size(); i++) {
-            auto fcc = (FrictionContactConstraint*)(_constraints[i]);
+            auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();

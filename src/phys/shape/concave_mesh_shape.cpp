@@ -1,5 +1,6 @@
 #include "concave_mesh_shape.h"
 
+// style-checked
 namespace pe_phys_shape {
 
     pe::Vector3 ConcaveMeshShape::setMesh(pe::Mesh mesh) {
@@ -10,7 +11,7 @@ namespace pe_phys_shape {
         _volume = 0;
 
         // build the bvh search tree
-        int node_size = PE_MAX((int)_mesh.faces.size() / 2047, 1);
+        const int node_size = PE_MAX((int)_mesh.faces.size() / 2047, 1);
         _bvh.setMesh(_mesh, node_size);
 
         return pe::Vector3::zeros();

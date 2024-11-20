@@ -10,7 +10,7 @@ namespace pe_phys_collision {
 
         // sort collision objects by their min x value
         std::sort(objects.begin(), objects.end(),
-                  [this](pe_phys_object::RigidBody* cb1, pe_phys_object::RigidBody* cb2) {
+                  [this](const pe_phys_object::RigidBody* cb1, const pe_phys_object::RigidBody* cb2) {
             return cb1->getAABBMin()[_target_axis] < cb2->getAABBMin()[_target_axis];
         });
 

@@ -1,20 +1,21 @@
 #include "raycast_cylinder.h"
 #include "phys/shape/cylinder_shape.h"
 
+// style-checked
 namespace pe_phys_raycast {
 
     bool RaycastCylinder::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                          pe_phys_shape::Shape* shape, pe::Transform trans,
                                          pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
-        auto shape_sph = (pe_phys_shape::CylinderShape*)shape;
-        pe::Real radius = shape_sph->getRadius();
-        pe::Real height = shape_sph->getHeight() / pe::Real(2.0);
-        pe::Vector3 start_local = trans.inverseTransform(start);
-        pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
+        auto shape_sph = dynamic_cast<pe_phys_shape::CylinderShape *>(shape);
+        const pe::Real radius = shape_sph->getRadius();
+        const pe::Real height = shape_sph->getHeight() / pe::Real(2.0);
+        const pe::Vector3 start_local = trans.inverseTransform(start);
+        const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
 
         pe::Real dist2axis;
         if (PE_APPROX_EQUAL(dir_local.x, 0) && PE_APPROX_EQUAL(dir_local.z, 0)) {
-            dist2axis = std::sqrt(start_local.x * start_local.x + start_local.z * start_local.z);
+            dist2axis = PE_SQRT(start_local.x * start_local.x + start_local.z * start_local.z);
             if (dist2axis > radius) {
                 goto not_hit;
             } else {
@@ -25,17 +26,17 @@ namespace pe_phys_raycast {
                 goto hit;
             }
         } else {
-            dist2axis = std::abs(start_local.dot(dir_local.cross(pe::Vector3::up()).normalized()));
+            dist2axis = PE_ABS(start_local.dot(dir_local.cross(pe::Vector3::up()).normalized()));
             if (dist2axis > radius) {
                 goto not_hit;
             }
 
-            pe::Real t = -(dir_local.x * start_local.x + dir_local.z * start_local.z) /
+            const pe::Real t = -(dir_local.x * start_local.x + dir_local.z * start_local.z) /
                 (dir_local.x * dir_local.x + dir_local.z * dir_local.z);
-            pe::Real dt = std::sqrt(radius * radius - dist2axis * dist2axis) /
-                    std::sqrt(dir_local.x * dir_local.x + dir_local.z * dir_local.z);
-            pe::Vector3 in_point = start_local + dir_local * (t - dt);
-            pe::Vector3 out_point = start_local + dir_local * (t + dt);
+            const pe::Real dt = PE_SQRT(radius * radius - dist2axis * dist2axis) /
+                    PE_SQRT(dir_local.x * dir_local.x + dir_local.z * dir_local.z);
+            const pe::Vector3 in_point = start_local + dir_local * (t - dt);
+            const pe::Vector3 out_point = start_local + dir_local * (t + dt);
 
             if ((in_point.y < -height && out_point.y < -height) ||
                 (in_point.y > height && out_point.y > height)) {

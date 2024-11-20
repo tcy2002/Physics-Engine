@@ -1,9 +1,10 @@
 #include "convex_convex_collision_algorithm.h"
 #include "phys/shape/convex_mesh_shape.h"
 
+// sat convex collision (bullet)
+// style-checked.
 namespace pe_phys_collision {
 
-    // sat convex collision (bullet)
     bool ConvexConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
                                                           pe::Real refScale, ContactResult &result) {
@@ -12,18 +13,18 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_mesh_a = (pe_phys_shape::ConvexMeshShape*)shape_a;
-        auto shape_mesh_b = (pe_phys_shape::ConvexMeshShape*)shape_b;
+        const auto shape_mesh_a = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a);
+        const auto shape_mesh_b = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b);
         auto& mesh_a = shape_mesh_a->getMesh();
         auto& mesh_b = shape_mesh_b->getMesh();
         auto& edges_a = shape_mesh_a->getUniqueEdges();
         auto& edges_b = shape_mesh_b->getUniqueEdges();
 
         pe::Vector3 sep;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
-        VertexArray world_verts_b1;
-        VertexArray world_verts_b2;
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
 
         if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
                                 edges_a, edges_b,
@@ -31,150 +32,147 @@ namespace pe_phys_collision {
             return false;
         }
         clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
-                            -refScale, margin, world_verts_b1, world_verts_b2,
+                            -refScale, margin, world_vertices_b1, world_vertices_b2,
                             margin, result);
         return true;
     }
 
-    void ConvexConvexCollisionAlgorithm::clipHullAgainstHull(const pe::Vector3 &separatingNormal,
-                                                             const pe::Mesh& meshA, const pe::Mesh& meshB,
-                                                             const pe::Transform &transA, const pe::Transform &transB,
-                                                             pe::Real minDist, pe::Real maxDist,
-                                                             VertexArray &worldVertsB1, VertexArray &worldVertsB2,
-                                                             pe::Real margin, ContactResult &result) {
-        int closestFaceB = -1;
-        pe::Real dMax = PE_REAL_MIN;
+    void ConvexConvexCollisionAlgorithm::clipHullAgainstHull(const pe::Vector3 &sep_normal1,
+                                                             const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+                                                             const pe::Transform &trans_a, const pe::Transform &trans_b,
+                                                             const pe::Real min_dist, const pe::Real max_dist,
+                                                             VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
+                                                             const pe::Real margin, ContactResult &result) {
+        int closest_face_b = -1;
         {
-            for (int face = 0; face < (int)meshB.faces.size(); face++) {
-                const pe::Vector3 Normal = meshB.faces[face].normal;
-                const pe::Vector3 WorldNormal = transB.getBasis() * Normal;
-                pe::Real d = WorldNormal.dot(separatingNormal);
-                if (d > dMax) {
-                    dMax = d;
-                    closestFaceB = face;
+            auto d_max = PE_REAL_MIN;
+            for (int face = 0; face < (int)mesh_b.faces.size(); face++) {
+                const pe::Vector3 normal = mesh_b.faces[face].normal;
+                const pe::Vector3 world_normal = trans_b.getBasis() * normal;
+                const pe::Real d = world_normal.dot(sep_normal1);
+                if (d > d_max) {
+                    d_max = d;
+                    closest_face_b = face;
                 }
             }
         }
-        if (closestFaceB < 0) {
+        if (closest_face_b < 0) {
             return;
         }
 
-        worldVertsB1.resize(0);
+        world_vertices_b1.resize(0);
         {
-            const auto& polyB = meshB.faces[closestFaceB];
-            const int numVertices = (int)polyB.indices.size();
+            const auto& poly_b = mesh_b.faces[closest_face_b];
+            const int numVertices = (int)poly_b.indices.size();
             for (int e0 = 0; e0 < numVertices; e0++) {
-                pe::Vector3 b = meshB.vertices[polyB.indices[e0]].position;
-                worldVertsB1.push_back(transB * b);
+                pe::Vector3 b = mesh_b.vertices[poly_b.indices[e0]].position;
+                world_vertices_b1.push_back(trans_b * b);
             }
         }
 
-        if (closestFaceB >= 0) {
-            clipFaceAgainstHull(separatingNormal, meshA, transA, worldVertsB1, worldVertsB2,
-                                minDist, maxDist, margin, result);
+        if (closest_face_b >= 0) {
+            clipFaceAgainstHull(sep_normal1, mesh_a, trans_a, world_vertices_b1, world_vertices_b2,
+                                min_dist, max_dist, margin, result);
         }
     }
 
-    void ConvexConvexCollisionAlgorithm::clipFaceAgainstHull(const pe::Vector3 &separatingNormal,
-                                                             const pe::Mesh& meshA, const pe::Transform &transA,
-                                                             VertexArray &worldVertsB1, VertexArray &worldVertsB2,
-                                                             pe::Real minDist, pe::Real maxDist,
+    void ConvexConvexCollisionAlgorithm::clipFaceAgainstHull(const pe::Vector3 &sep_normal,
+                                                             const pe::Mesh& mesh_a, const pe::Transform &trans_a,
+                                                             VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
+                                                             pe::Real min_dist, pe::Real max_dist,
                                                              pe::Real margin, ContactResult &result) {
-        worldVertsB2.resize(0);
-        VertexArray* pVtxIn = &worldVertsB1;
-        VertexArray* pVtxOut = &worldVertsB2;
-        pVtxOut->reserve(pVtxIn->size());
+        world_vertices_b2.resize(0);
+        VertexArray* p_in = &world_vertices_b1;
+        VertexArray* p_out = &world_vertices_b2;
+        p_out->reserve(p_in->size());
 
-        int closestFaceA = -1;
+        int closest_face_a = -1;
         {
-            pe::Real dMin = PE_REAL_MAX;
-            for (int face = 0; face < (int)meshA.faces.size(); face++) {
-                const pe::Vector3 Normal = meshA.faces[face].normal;
-                const pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
+            auto dMin = PE_REAL_MAX;
+            for (int face = 0; face < (int)mesh_a.faces.size(); face++) {
+                const pe::Vector3 normal = mesh_a.faces[face].normal;
+                const pe::Vector3 face_a_normal_w = trans_a.getBasis() * normal;
 
-                pe::Real d = faceANormalWS.dot(separatingNormal);
+                const pe::Real d = face_a_normal_w.dot(sep_normal);
                 if (d < dMin) {
                     dMin = d;
-                    closestFaceA = face;
+                    closest_face_a = face;
                 }
             }
         }
-        if (closestFaceA < 0) {
+        if (closest_face_a < 0) {
             return;
         }
 
-        const auto& polyA = meshA.faces[closestFaceA];
+        const auto& poly_a = mesh_a.faces[closest_face_a];
 
         // clip polygon to back of planes of all faces of hull A that are adjacent to witness face
-        int numVerticesA = (int)polyA.indices.size();
-        pe::Vector3 worldPlaneANormal1 = transA.getBasis() * polyA.normal;
-        for (int e0 = 0; e0 < numVerticesA; e0++) {
-            pe::Vector3 a = meshA.vertices[polyA.indices[e0]].position;
-            pe::Vector3 b = meshA.vertices[polyA.indices[(e0 + 1) % numVerticesA]].position;
+        const int num_vertices_a = (int)poly_a.indices.size();
+        const pe::Vector3 world_plane_a_normal1 = trans_a.getBasis() * poly_a.normal;
+        for (int e0 = 0; e0 < num_vertices_a; e0++) {
+            pe::Vector3 a = mesh_a.vertices[poly_a.indices[e0]].position;
+            pe::Vector3 b = mesh_a.vertices[poly_a.indices[(e0 + 1) % num_vertices_a]].position;
             const pe::Vector3 edge0 = a - b;
-            const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
+            const pe::Vector3 edge0_w = trans_a.getBasis() * edge0;
 
-            pe::Vector3 planeNormalWS1 = -WorldEdge0.cross(worldPlaneANormal1);  //.cross(WorldEdge0);
-            pe::Vector3 worldA1 = transA * a;
-            pe::Real planeEqWS1 = -worldA1.dot(planeNormalWS1);
+            pe::Vector3 plane_normal_w = -edge0_w.cross(world_plane_a_normal1);  //.cross(WorldEdge0);
+            pe::Vector3 world_a = trans_a * a;
+            const pe::Real plane_eq_w = -world_a.dot(plane_normal_w);
 
             //clip face
-            clipFace(*pVtxIn, *pVtxOut, planeNormalWS1, planeEqWS1);
-            std::swap(pVtxIn, pVtxOut);
-            pVtxOut->resize(0);
+            clipFace(*p_in, *p_out, plane_normal_w, plane_eq_w);
+            std::swap(p_in, p_out);
+            p_out->resize(0);
         }
 
         // only keep points that are behind the witness face
         {
-            pe::Vector3 planeV = meshA.vertices[polyA.indices[0]].position;
-            pe::Vector3 localPlaneNormal = polyA.normal;
+            const pe::Vector3 plane_v = mesh_a.vertices[poly_a.indices[0]].position;
+            const pe::Vector3 local_plane_normal = poly_a.normal;
 
-            for (int i = 0; i < (int)pVtxIn->size(); i++) {
-                pe::Vector3 vtx = pVtxIn->at(i);
-                pe::Real depth = localPlaneNormal.dot(transA.inverseTransform(vtx) - planeV);
+            for (int i = 0; i < (int)p_in->size(); i++) {
+                pe::Vector3 vtx = p_in->at(i);
+                const pe::Real depth = local_plane_normal.dot(trans_a.inverseTransform(vtx) - plane_v);
                 // if (depth <= minDist) {
                 //     depth = minDist;
                 // }
 
-                if (depth <= maxDist && depth >= minDist) {
-                    pe::Vector3 point = pVtxIn->at(i);
-                    result.addContactPoint(separatingNormal, point - separatingNormal * margin,
+                if (depth <= max_dist && depth >= min_dist) {
+                    pe::Vector3 point = p_in->at(i);
+                    result.addContactPoint(sep_normal, point - sep_normal * margin,
                                            depth + margin * 2);
                 }
             }
         }
     }
 
-    void ConvexConvexCollisionAlgorithm::clipFace(const VertexArray &pVtxIn, VertexArray &ppVtxOut,
-                                                  const pe::Vector3 &planeNormalWS, pe::Real planeEqWS) {
-        int ve;
-        pe::Real ds, de;
-        int numVerts = (int)pVtxIn.size();
-        if (numVerts < 2) return;
+    void ConvexConvexCollisionAlgorithm::clipFace(const VertexArray &p_in, VertexArray &p_out,
+                                                  const pe::Vector3 &plane_normal_w, pe::Real plane_eq_w) {
+        const int num_vertices = (int)p_in.size();
+        if (num_vertices < 2) return;
 
-        pe::Vector3 firstVertex = pVtxIn[pVtxIn.size() - 1];
-        pe::Vector3 endVertex;
+        pe::Vector3 firstVertex = p_in[p_in.size() - 1];
 
-        ds = planeNormalWS.dot(firstVertex) + planeEqWS;
+        pe::Real ds = plane_normal_w.dot(firstVertex) + plane_eq_w;
 
-        for (ve = 0; ve < numVerts; ve++) {
-            endVertex = pVtxIn[ve];
+        for (int ve = 0; ve < num_vertices; ve++) {
+            pe::Vector3 endVertex = p_in[ve];
 
-            de = planeNormalWS.dot(endVertex) + planeEqWS;
+            const pe::Real de = plane_normal_w.dot(endVertex) + plane_eq_w;
 
             if (ds < 0) {
                 if (de < 0) {
                     // Start < 0, end < 0, so output endVertex
-                    ppVtxOut.push_back(endVertex);
+                    p_out.push_back(endVertex);
                 } else {
                     // Start < 0, end >= 0, so output intersection
-                    ppVtxOut.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
+                    p_out.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
                 }
             } else {
                 if (de < 0) {
                     // Start >= 0, end < 0 so output intersection and end
-                    ppVtxOut.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
-                    ppVtxOut.push_back(endVertex);
+                    p_out.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
+                    p_out.push_back(endVertex);
                 }
             }
             firstVertex = endVertex;
@@ -183,148 +181,148 @@ namespace pe_phys_collision {
     }
 
     static void segmentsClosestPoints(
-            pe::Vector3& ptsVector,
-            pe::Vector3& offsetA,
-            pe::Vector3& offsetB,
-            pe::Real& tA, pe::Real& tB,
+            pe::Vector3& pts_vector,
+            pe::Vector3& offset_a,
+            pe::Vector3& offset_b,
+            pe::Real& t_a, pe::Real& t_b,
             const pe::Vector3& translation,
-            const pe::Vector3& dirA, pe::Real hLenA,
-            const pe::Vector3& dirB, pe::Real hLenB) {
+            const pe::Vector3& dir_a, const pe::Real h_len_a,
+            const pe::Vector3& dir_b, const pe::Real h_len_b) {
         // compute the parameters of the closest points on each line segment
 
-        pe::Real dirA_dot_dirB = dirA.dot(dirB);
-        pe::Real dirA_dot_trans = dirA.dot(translation);
-        pe::Real dirB_dot_trans = dirB.dot(translation);
+        const pe::Real dir_a_dot_dir_b = dir_a.dot(dir_b);
+        const pe::Real dir_a_dot_trans = dir_a.dot(translation);
+        const pe::Real dir_b_dot_trans = dir_b.dot(translation);
 
-        pe::Real denom = pe::Real(1.0) - dirA_dot_dirB * dirA_dot_dirB;
+        pe::Real denom = pe::Real(1.0) - dir_a_dot_dir_b * dir_a_dot_dir_b;
 
         if (denom == 0) {
-            tA = 0;
+            t_a = 0;
         } else {
-            tA = (dirA_dot_trans - dirB_dot_trans * dirA_dot_dirB) / denom;
-            if (tA < -hLenA) tA = -hLenA;
-            else if (tA > hLenA) tA = hLenA;
+            t_a = (dir_a_dot_trans - dir_b_dot_trans * dir_a_dot_dir_b) / denom;
+            if (t_a < -h_len_a) t_a = -h_len_a;
+            else if (t_a > h_len_a) t_a = h_len_a;
         }
 
-        tB = tA * dirA_dot_dirB - dirB_dot_trans;
+        t_b = t_a * dir_a_dot_dir_b - dir_b_dot_trans;
 
-        if (tB < -hLenB) {
-            tB = -hLenB;
-            tA = tB * dirA_dot_dirB + dirA_dot_trans;
+        if (t_b < -h_len_b) {
+            t_b = -h_len_b;
+            t_a = t_b * dir_a_dot_dir_b + dir_a_dot_trans;
 
-            if (tA < -hLenA) tA = -hLenA;
-            else if (tA > hLenA) tA = hLenA;
-        } else if (tB > hLenB) {
-            tB = hLenB;
-            tA = tB * dirA_dot_dirB + dirA_dot_trans;
+            if (t_a < -h_len_a) t_a = -h_len_a;
+            else if (t_a > h_len_a) t_a = h_len_a;
+        } else if (t_b > h_len_b) {
+            t_b = h_len_b;
+            t_a = t_b * dir_a_dot_dir_b + dir_a_dot_trans;
 
-            if (tA < -hLenA) tA = -hLenA;
-            else if (tA > hLenA) tA = hLenA;
+            if (t_a < -h_len_a) t_a = -h_len_a;
+            else if (t_a > h_len_a) t_a = h_len_a;
         }
 
         // compute the closest points relative to segment centers.
 
-        offsetA = dirA * tA;
-        offsetB = dirB * tB;
+        offset_a = dir_a * t_a;
+        offset_b = dir_b * t_b;
 
-        ptsVector = translation - offsetA + offsetB;
+        pts_vector = translation - offset_a + offset_b;
     }
 
     static bool testSepAxis(
             const pe_phys_shape::Shape* object_a,
             const pe_phys_shape::Shape* object_b,
-            const pe::Transform& transA, const pe::Transform& transB,
+            const pe::Transform& trans_a, const pe::Transform& trans_b,
             const pe::Vector3& sep_axis, pe::Real& depth,
-            pe::Vector3& witnessPointA, pe::Vector3& witnessPointB) {
-        pe::Real Min0, Max0;
-        pe::Real Min1, Max1;
-        pe::Vector3 witnessPtMinA, witnessPtMaxA;
-        pe::Vector3 witnessPtMinB, witnessPtMaxB;
+            pe::Vector3& witness_point_a, pe::Vector3& witness_point_b) {
+        pe::Real min0, max0;
+        pe::Real min1, max1;
+        pe::Vector3 witness_pt_min_a, witness_pt_max_a;
+        pe::Vector3 witness_pt_min_b, witness_pt_max_b;
 
-        object_a->project(transA, sep_axis, Min0, Max0, witnessPtMinA, witnessPtMaxA);
-        object_b->project(transB, sep_axis, Min1, Max1, witnessPtMinB, witnessPtMaxB);
+        object_a->project(trans_a, sep_axis, min0, max0, witness_pt_min_a, witness_pt_max_a);
+        object_b->project(trans_b, sep_axis, min1, max1, witness_pt_min_b, witness_pt_max_b);
 
-        if (Max0 < Min1 || Max1 < Min0) return false;
+        if (max0 < min1 || max1 < min0) return false;
 
-        pe::Real d0 = Max0 - Min1;
-        pe::Real d1 = Max1 - Min0;
+        const pe::Real d0 = max0 - min1;
+        const pe::Real d1 = max1 - min0;
         if (d0 < d1) {
             depth = d0;
-            witnessPointA = witnessPtMaxA;
-            witnessPointB = witnessPtMinB;
+            witness_point_a = witness_pt_max_a;
+            witness_point_b = witness_pt_min_b;
         } else {
             depth = d1;
-            witnessPointA = witnessPtMinA;
-            witnessPointB = witnessPtMaxB;
+            witness_point_a = witness_pt_min_a;
+            witness_point_b = witness_pt_max_b;
         }
 
         return true;
     }
 
     static bool isOnLine(const pe::Vector3& v0, const pe::Vector3& v1, const pe::Vector3& v2) {
-        pe::Vector3 edge = v1 - v0;
-        pe::Vector3 normal = edge.cross(v2 - v0);
+        const pe::Vector3 edge = v1 - v0;
+        const pe::Vector3 normal = edge.cross(v2 - v0);
         return normal.norm2() < PE_EPS;
     }
 
     bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(
-            const pe_phys_shape::Shape* shapeA,
-            const pe_phys_shape::Shape* shapeB,
-            const pe::Mesh& meshA, const pe::Mesh& meshB,
-            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesA,
-            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesB,
-            const pe::Transform &transA, const pe::Transform &transB,
+            const pe_phys_shape::Shape* shape_a,
+            const pe_phys_shape::Shape* shape_b,
+            const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_a,
+            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_b,
+            const pe::Transform &trans_a, const pe::Transform &trans_b,
             pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
-        const pe::Vector3 c0 = transA.getOrigin();
-        const pe::Vector3 c1 = transB.getOrigin();
-        const pe::Vector3 DeltaC2 = c0 - c1;
+        const pe::Vector3 c0 = trans_a.getOrigin();
+        const pe::Vector3 c1 = trans_b.getOrigin();
+        const pe::Vector3 delta_c2 = c0 - c1;
 
-        pe::Real dMin = PE_REAL_MAX;
-        pe::Vector3 dMinPtOnB;
-        bool ptOnA = false;
+        auto d_min = PE_REAL_MAX;
+        pe::Vector3 d_min_pt_on_b;
+        bool pt_on_a = false;
 
         // Test normals from hullA
-        for (int i = 0; i < (int)meshA.faces.size(); i++) {
-            const pe::Vector3 Normal = meshA.faces[i].normal;
-            pe::Vector3 faceANormalWS = transA.getBasis() * Normal;
-            if (DeltaC2.dot(faceANormalWS) < 0)
-                faceANormalWS *= pe::Real(-1.0);
+        for (int i = 0; i < (int)mesh_a.faces.size(); i++) {
+            const pe::Vector3 normal = mesh_a.faces[i].normal;
+            pe::Vector3 face_a_normal_w = trans_a.getBasis() * normal;
+            if (delta_c2.dot(face_a_normal_w) < 0)
+                face_a_normal_w *= pe::Real(-1.0);
 
             pe::Real d;
-            pe::Vector3 wA, wB;
-            if (!testSepAxis(shapeA, shapeB, transA, transB,
-                             faceANormalWS, d, wA, wB)) {
+            pe::Vector3 w_a, w_b;
+            if (!testSepAxis(shape_a, shape_b, trans_a, trans_b,
+                             face_a_normal_w, d, w_a, w_b)) {
                 return false;
             }
 
-            if (d < dMin) {
-                dMin = d;
-                dMinPtOnB = wB;
-                ptOnA = false;
-                sep = faceANormalWS;
+            if (d < d_min) {
+                d_min = d;
+                d_min_pt_on_b = w_b;
+                pt_on_a = false;
+                sep = face_a_normal_w;
             }
         }
 
         // Test normals from hullB
-        for (int i = 0; i < (int)meshB.faces.size(); i++) {
-            const pe::Vector3 Normal = meshB.faces[i].normal;
-            pe::Vector3 WorldNormal = transB.getBasis() * Normal;
-            if (DeltaC2.dot(WorldNormal) < 0) {
-                WorldNormal *= pe::Real(-1.0);
+        for (int i = 0; i < (int)mesh_b.faces.size(); i++) {
+            const pe::Vector3 normal = mesh_b.faces[i].normal;
+            pe::Vector3 world_normal = trans_b.getBasis() * normal;
+            if (delta_c2.dot(world_normal) < 0) {
+                world_normal *= pe::Real(-1.0);
             }
 
             pe::Real d;
             pe::Vector3 wA, wB;
-            if (!testSepAxis(shapeA, shapeB, transA, transB,
-                             WorldNormal, d, wA, wB)) {
+            if (!testSepAxis(shape_a, shape_b, trans_a, trans_b,
+                             world_normal, d, wA, wB)) {
                 return false;
             }
 
-            if (d < dMin) {
-                dMin = d;
-                dMinPtOnB = wA + WorldNormal * d;
-                ptOnA = true;
-                sep = WorldNormal;
+            if (d < d_min) {
+                d_min = d;
+                d_min_pt_on_b = wA + world_normal * d;
+                pt_on_a = true;
+                sep = world_normal;
             }
         }
 
@@ -335,87 +333,87 @@ namespace pe_phys_collision {
         //                            -dMin + margin * 2);
         // }
 
-        int edgeA = -1;
-        int edgeB = -1;
-        pe::Vector3 worldEdgeA;
-        pe::Vector3 worldEdgeB;
-        pe::Vector3 witnessPointA(0, 0, 0), witnessPointB(0, 0, 0);
+        int edge_a = -1;
+        int edge_b = -1;
+        pe::Vector3 world_edge_a;
+        pe::Vector3 world_edge_b;
+        pe::Vector3 witness_point_a(0, 0, 0), witness_point_b(0, 0, 0);
 
         // Test edges
-        for (int e0 = 0; e0 < (int)uniqueEdgesA.size(); e0++) {
-            const pe::Vector3 edge0 = (uniqueEdgesA[e0].first - uniqueEdgesA[e0].second).normalized();
-            const pe::Vector3 WorldEdge0 = transA.getBasis() * edge0;
-            for (int e1 = 0; e1 < (int)uniqueEdgesB.size(); e1++) {
-                const pe::Vector3 edge1 = (uniqueEdgesB[e1].first - uniqueEdgesB[e1].second).normalized();
-                const pe::Vector3 WorldEdge1 = transB.getBasis() * edge1;
+        for (int e0 = 0; e0 < (int)unique_edges_a.size(); e0++) {
+            const pe::Vector3 edge0 = (unique_edges_a[e0].first - unique_edges_a[e0].second).normalized();
+            const pe::Vector3 world_edge0 = trans_a.getBasis() * edge0;
+            for (int e1 = 0; e1 < (int)unique_edges_b.size(); e1++) {
+                const pe::Vector3 edge1 = (unique_edges_b[e1].first - unique_edges_b[e1].second).normalized();
+                const pe::Vector3 world_edge1 = trans_b.getBasis() * edge1;
 
-                pe::Vector3 Cross = WorldEdge0.cross(WorldEdge1);
-                if (!PE_APPROX_EQUAL(Cross.norm(), 0)) {
-                    Cross.normalize();
-                    if (DeltaC2.dot(Cross) < 0) {
-                        Cross *= pe::Real(-1.0);
+                pe::Vector3 cross = world_edge0.cross(world_edge1);
+                if (!PE_APPROX_EQUAL(cross.norm(), 0)) {
+                    cross.normalize();
+                    if (delta_c2.dot(cross) < 0) {
+                        cross *= pe::Real(-1.0);
                     }
 
                     pe::Real dist;
-                    pe::Vector3 wA, wB;
-                    if (!testSepAxis(shapeA, shapeB, transA, transB,
-                                     Cross, dist, wA, wB)) {
+                    pe::Vector3 w_a, w_b;
+                    if (!testSepAxis(shape_a, shape_b, trans_a, trans_b,
+                                     cross, dist, w_a, w_b)) {
                         return false;
                     }
 
-                    if (dist < dMin) {
-                        if (!isOnLine(uniqueEdgesA[e0].first, uniqueEdgesA[e0].second, transA.inverseTransform(wA)) ||
-                            !isOnLine(uniqueEdgesB[e1].first, uniqueEdgesB[e1].second, transB.inverseTransform(wB))) {
+                    if (dist < d_min) {
+                        if (!isOnLine(unique_edges_a[e0].first, unique_edges_a[e0].second, trans_a.inverseTransform(w_a)) ||
+                            !isOnLine(unique_edges_b[e1].first, unique_edges_b[e1].second, trans_b.inverseTransform(w_b))) {
                             continue;
                         }
-                        dMin = dist;
-                        sep = Cross;
-                        edgeA = e0;
-                        edgeB = e1;
-                        worldEdgeA = WorldEdge0;
-                        worldEdgeB = WorldEdge1;
-                        witnessPointA = wA;
-                        witnessPointB = wB;
+                        d_min = dist;
+                        sep = cross;
+                        edge_a = e0;
+                        edge_b = e1;
+                        world_edge_a = world_edge0;
+                        world_edge_b = world_edge1;
+                        witness_point_a = w_a;
+                        witness_point_b = w_b;
                     }
                 }
             }
         }
 
-        if (edgeA >= 0 && edgeB >= 0) {
+        if (edge_a >= 0 && edge_b >= 0) {
             //add an edge-edge contact
-            pe::Vector3 ptsVector;
-            pe::Vector3 offsetA;
-            pe::Vector3 offsetB;
-            pe::Real tA;
-            pe::Real tB;
+            pe::Vector3 pts_vector;
+            pe::Vector3 offset_a;
+            pe::Vector3 offset_b;
+            pe::Real t_a;
+            pe::Real t_b;
 
-            pe::Vector3 translation = witnessPointB - witnessPointA;
+            pe::Vector3 translation = witness_point_b - witness_point_a;
 
-            pe::Vector3 dirA = worldEdgeA;
-            pe::Vector3 dirB = worldEdgeB;
+            pe::Vector3 dir_a = world_edge_a;
+            pe::Vector3 dir_b = world_edge_b;
 
-            pe::Real hLenB = PE_REAL_MAX;
-            pe::Real hLenA = PE_REAL_MAX;
+            auto h_len_b = PE_REAL_MAX;
+            auto h_len_a = PE_REAL_MAX;
 
-            segmentsClosestPoints(ptsVector, offsetA, offsetB, tA, tB,
-                                  translation, dirA, hLenA, dirB, hLenB);
+            segmentsClosestPoints(pts_vector, offset_a, offset_b, t_a, t_b,
+                                  translation, dir_a, h_len_a, dir_b, h_len_b);
 
-            pe::Real nlSqrt = ptsVector.norm2();
-            if (nlSqrt > PE_EPS) {
-                pe::Real nl = std::sqrt(nlSqrt);
-                ptsVector *= pe::Real(1.0) / nl;
-                if (ptsVector.dot(DeltaC2) < 0) {
-                    ptsVector *= pe::Real(-1.0);
+            pe::Real nl_sqrt = pts_vector.norm2();
+            if (nl_sqrt > PE_EPS) {
+                pe::Real nl = std::sqrt(nl_sqrt);
+                pts_vector *= pe::Real(1.0) / nl;
+                if (pts_vector.dot(delta_c2) < 0) {
+                    pts_vector *= pe::Real(-1.0);
                 }
-                pe::Vector3 ptOnB = witnessPointB + offsetB;
+                pe::Vector3 ptOnB = witness_point_b + offset_b;
                 pe::Real distance = nl;
 
-                result.addContactPoint(ptsVector, ptOnB - ptsVector * margin,
+                result.addContactPoint(pts_vector, ptOnB - pts_vector * margin,
                                        -distance + margin * 2);
             }
         }
 
-        if (DeltaC2.dot(sep) < 0) {
+        if (delta_c2.dot(sep) < 0) {
             sep = -sep;
         }
 

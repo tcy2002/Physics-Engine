@@ -8,8 +8,8 @@
 namespace pe_intf {
 
     World::World():
-        _gravity(0, pe::Real(-9.8), 0),
-        _dt(pe::Real(0.01)),
+        _gravity(0, -9.8, 0),
+        _dt(0.01),
         _sleep_lin_vel2_threshold(0),
         _sleep_ang_vel2_threshold(0),
         _sleep_time_threshold(0),
@@ -46,7 +46,7 @@ namespace pe_intf {
         for (int i = 0; i < (int)_collision_objects.size(); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
-            auto ratio = (rb->getStaticCount() + 1) / (pe::Real)(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            const auto ratio = (rb->getStaticCount() + 1) / (pe::Real)(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
                     rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
@@ -89,8 +89,8 @@ namespace pe_intf {
         // not suitable for multi-thread
         for (auto& cr : _contact_results) {
             if (cr->getPointSize() == 0) continue;
-            auto rb1 = cr->getObjectA();
-            auto rb2 = cr->getObjectB();
+            const auto rb1 = cr->getObjectA();
+            const auto rb2 = cr->getObjectB();
             if (rb1->getCollisionCallbacks().empty() && rb2->getCollisionCallbacks().empty()) continue;
 
             pe::Vector3 pos = pe::Vector3::zeros();
@@ -152,7 +152,7 @@ namespace pe_intf {
         auto start = COMMON_GetMicroseconds();
         updateObjectStatus();
         auto end = COMMON_GetMicroseconds();
-        update_status_time += (pe::Real)(end - start) * pe::Real(0.000001);
+        update_status_time += (end - start) * 0.000001;
 
         // fracture
         if (!_fracture_sources.empty()) {
@@ -183,18 +183,13 @@ namespace pe_intf {
         updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
         end = COMMON_GetMicroseconds();
-        broad_phase_time += (pe::Real)(end - start) * pe::Real(0.000001);
+        broad_phase_time += (end - start) * 0.000001;
 
         start = COMMON_GetMicroseconds();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         execCollisionCallbacks();
         end = COMMON_GetMicroseconds();
-        narrow_phase_time += (pe::Real)(end - start) * pe::Real(0.000001);
-
-        // for (auto& cr : _contact_results) {
-        //     std::cout << cr->getPointSize() << " " << cr->getObjectA()->getGlobalId() << " " << cr->getObjectB()->getGlobalId() << std::endl;
-        // }
-        // std::cout << "###############################" << std::endl;
+        narrow_phase_time += (end - start) * 0.000001;
 
         // constraints
         start = COMMON_GetMicroseconds();
@@ -204,7 +199,7 @@ namespace pe_intf {
                                         _constraints);
         _constraint_solver->solve();
         end = COMMON_GetMicroseconds();
-        constraint_solver_time += (pe::Real)(end - start) * pe::Real(0.000001);
+        constraint_solver_time += (end - start) * 0.000001;
     }
 
 } // namespace pe_intf

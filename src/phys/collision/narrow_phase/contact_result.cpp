@@ -1,14 +1,15 @@
 #include "contact_result.h"
 #include <algorithm>
 
+// style-checked
 namespace pe_phys_collision {
 
     void ContactPoint::getOrthoUnits(pe::Vector3 normal, pe::Vector3 &tangent1, pe::Vector3 &tangent2) {
         normal.normalize();
         if (PE_ABS(normal.z) > pe::Real(0.7071)) {
             // choose tangent in y-z plane
-            pe::Real a = normal.y * normal.y + normal.z * normal.z;
-            pe::Real k = pe::Real(1.0) / std::sqrt(a);
+            const pe::Real a = normal.y * normal.y + normal.z * normal.z;
+            const pe::Real k = pe::Real(1.0) / std::sqrt(a);
             tangent1.x = 0;
             tangent1.y = -normal.z * k;
             tangent1.z = normal.y * k;
@@ -17,8 +18,8 @@ namespace pe_phys_collision {
             tangent2.z = normal.x * tangent1.y;
         } else {
             // choose tangent in x-y plane
-            pe::Real a = normal.x * normal.x + normal.y * normal.y;
-            pe::Real k = pe::Real(1.0) / std::sqrt(a);
+            const pe::Real a = normal.x * normal.x + normal.y * normal.y;
+            const pe::Real k = pe::Real(1.0) / std::sqrt(a);
             tangent1.x = -normal.y * k;
             tangent1.y = normal.x * k;
             tangent1.z = 0;
@@ -51,15 +52,13 @@ namespace pe_phys_collision {
     }
 
     ContactResult::ContactResult():
-        _object_a(nullptr),
-        _object_b(nullptr),
         _friction_coeff(0),
         _restitution_coeff(0),
         _point_size(0),
         _swap_flag(false) {}
 
-    void ContactResult::setObjects(pe_phys_object::RigidBody *object_a,
-                                   pe_phys_object::RigidBody *object_b) {
+    void ContactResult::setObjects(pe_phys_object::RigidBody* object_a,
+                                   pe_phys_object::RigidBody* object_b) {
         _object_a = object_a;
         _object_b = object_b;
         _friction_coeff = std::sqrt(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
@@ -68,6 +67,10 @@ namespace pe_phys_collision {
 
     void ContactResult::addContactPoint(const pe::Vector3& world_normal,
                                         const pe::Vector3& world_pos, pe::Real depth) {
+        if (_object_a == nullptr || _object_b == nullptr) {
+            return;
+        }
+
         pe::Vector3 point_a = world_pos;
         pe::Vector3 point_b = world_pos;
         pe::Vector3 n = world_normal;
@@ -81,11 +84,11 @@ namespace pe_phys_collision {
             point_a = world_pos + world_normal * depth;
         }
 
-        pe::Vector3 local_pos_a = _object_a->getTransform().inverseTransform(point_a);
-        pe::Vector3 local_pos_b = _object_b->getTransform().inverseTransform(point_b);
+        const pe::Vector3 local_pos_a = _object_a->getTransform().inverseTransform(point_a);
+        const pe::Vector3 local_pos_b = _object_b->getTransform().inverseTransform(point_b);
 
         // find the same closest point
-        int cp_idx = getExistingClosestPoint(local_pos_b);
+        const int cp_idx = getExistingClosestPoint(local_pos_b);
         if (cp_idx >= 0) {
             // if found, update the contact point info
             _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
@@ -102,7 +105,7 @@ namespace pe_phys_collision {
             }
             // if no empty slot found, replace point with the minimum (abs) depth
             if (!found) {
-                pe::Real max_dist = PE_REAL_MIN;
+                auto max_dist = PE_REAL_MIN;
                 int idx = -1;
                 for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                     if (_points[i].getDistance() > max_dist) {
@@ -148,7 +151,7 @@ namespace pe_phys_collision {
         for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
             if (!_points[i].isValid()) continue;
             pe::Vector3 diff = _points[i].getLocalPosB() - local_pos_b;
-            pe::Real dist = diff.dot(diff);
+            const pe::Real dist = diff.dot(diff);
             if (dist < min_dist) {
                 min_dist = dist;
                 nearest = i;
@@ -158,8 +161,8 @@ namespace pe_phys_collision {
     }
 
     pe::Real ContactResult::getSameContactPointDistanceThreshold() const {
-        pe::Real a_scale = _object_a->getAABBScale();
-        pe::Real b_scale = _object_b->getAABBScale();
+        const pe::Real a_scale = _object_a->getAABBScale();
+        const pe::Real b_scale = _object_b->getAABBScale();
         return PE_MIN(a_scale, b_scale) * PE_DIST_TH;
     }
 

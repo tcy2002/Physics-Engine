@@ -16,8 +16,8 @@ namespace pe_phys_collision {
         static bool collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real sphereRadius,
                                           const pe::Vector3 vertices[], pe::Vector3& point,
                                           pe::Vector3& resultNormal, pe::Real& depth);
-        static bool pointInTriangle(const pe::Vector3 vertices[], const pe::Vector3& normal, pe::Vector3* p);
-        static bool faceContains(const pe::Vector3& p, const pe::Vector3* vertices, pe::Vector3& normal);
+        static bool pointInTriangle(const pe::Vector3 vertices[], const pe::Vector3& normal, const pe::Vector3* p);
+        static bool faceContains(const pe::Vector3& p, const pe::Vector3* vertices, const pe::Vector3& normal);
     };
 
 } // pe_phys_collision

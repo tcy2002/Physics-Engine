@@ -39,13 +39,13 @@ public:
         for (int i = 0; i < 30; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
-                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
+                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 10 + i * pe::Real(1.1), 0)),
                                         pe::Vector3(1, 1, 1), 1.0);
             } else if (i % 3 == 1) {
-                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
+                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 10 + i * pe::Real(1.1), 0)),
                     pe::Real(0.5), pe::Real(1.0));
             } else {
-                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 10 + i * pe::Real(1.1), 0)),
+                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0.2, 10 + i * pe::Real(1.1), 0)),
                     pe::Real(0.4), pe::Real(1.0), pe::Real(1.0));
             }
             _world.addRigidBody(rb);

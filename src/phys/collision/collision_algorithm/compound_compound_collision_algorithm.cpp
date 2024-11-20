@@ -2,11 +2,12 @@
 #include "phys/shape/compound_shape.h"
 #include "phys/collision/narrow_phase/narrow_phase_base.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool CompoundCompoundCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                               pe::Transform trans_a, pe::Transform trans_b,
-                                                              pe::Real refScale, ContactResult& result) {
+                                                              const pe::Real refScale, ContactResult& result) {
         if (shape_b->getType() == pe_phys_shape::ShapeType::Compound) {
             std::swap(shape_a, shape_b);
             std::swap(trans_a, trans_b);
@@ -18,10 +19,10 @@ namespace pe_phys_collision {
 
         bool has_contact = false;
 
-        for (auto& s : ((pe_phys_shape::CompoundShape*)shape_a)->getShapes()) {
+        for (auto& s : dynamic_cast<pe_phys_shape::CompoundShape *>(shape_a)->getShapes()) {
             pe::Transform trans_a_w = trans_a * s.local_transform;
             if (shape_b->getType() == pe_phys_shape::ShapeType::Compound) {
-                auto compound_b = (pe_phys_shape::CompoundShape*)shape_b;
+                const auto compound_b = dynamic_cast<pe_phys_shape::CompoundShape *>(shape_b);
                 for (auto& s_b : compound_b->getShapes()) {
                     pe::Transform trans_b_w = trans_b * s_b.local_transform;
                     has_contact |= processSubCollision(s.shape, s_b.shape,
@@ -38,10 +39,10 @@ namespace pe_phys_collision {
 
     bool CompoundCompoundCollisionAlgorithm::processSubCollision(pe_phys_shape::Shape *shape_a,
                                                                  pe_phys_shape::Shape *shape_b,
-                                                                 pe::Transform& trans_a,
-                                                                 pe::Transform& trans_b,
-                                                                 pe::Real refScale, ContactResult &result) {
-        auto algo = NarrowPhaseBase::getAlgorithm(shape_a->getType(), shape_b->getType());
+                                                                 const pe::Transform& trans_a,
+                                                                 const pe::Transform& trans_b,
+                                                                 const pe::Real refScale, ContactResult &result) {
+        const auto algo = NarrowPhaseBase::getAlgorithm(shape_a->getType(), shape_b->getType());
         if (algo == nullptr) return false;
         return algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, result);
     }

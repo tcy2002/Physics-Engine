@@ -1,6 +1,7 @@
 #include "compound_shape.h"
 #include <algorithm>
 
+// style-checked
 namespace pe_phys_shape {
 
     void CompoundShape::addShape(const pe::Transform& pos, pe::Real massRatio, Shape *shape) {

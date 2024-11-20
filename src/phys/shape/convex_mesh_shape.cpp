@@ -1,8 +1,9 @@
 #include "convex_mesh_shape.h"
 #include <algorithm>
 
-//#define INERTIA_USE_AABB
+//#define PE_MESH_PROPERTIES_USE_LOCAL_AABB
 
+// style-checked
 namespace pe_phys_shape {
 
     // The mesh must be convex, and has complete properties (vertices, faces, normals).
@@ -37,7 +38,7 @@ namespace pe_phys_shape {
         g2 = f2 + (w2) * (f1 + (w2)); \
     } while (0)
 
-        const pe::Real mult[10] = {
+        constexpr pe::Real mult[10] = {
             pe::Real(1.0) / 6, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 60,
             pe::Real(1.0) / 60, pe::Real(1.0) / 60, pe::Real(1.0) / 120, pe::Real(1.0) / 120, pe::Real(1.0) / 120
         };
@@ -158,15 +159,15 @@ namespace pe_phys_shape {
 
     void ConvexMeshShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                                   pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
-        pe::Matrix3 rot = transform.getBasis();
-        pe::Vector3 trans = transform.getOrigin();
-        pe::Vector3 local_axis = rot.transposed() * axis;
-        pe::Real offset = trans.dot(axis);
+        const pe::Matrix3 rot = transform.getBasis();
+        const pe::Vector3 trans = transform.getOrigin();
+        const pe::Vector3 local_axis = rot.transposed() * axis;
+        const pe::Real offset = trans.dot(axis);
 
         minProj = PE_REAL_MAX;
         maxProj = PE_REAL_MIN;
         for (auto &p: _mesh.vertices) {
-            auto v = p.position.dot(local_axis);
+            const auto v = p.position.dot(local_axis);
             if (v < minProj) {
                 minProj = v;
                 minPoint = p.position;

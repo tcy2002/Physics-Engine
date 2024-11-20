@@ -1,8 +1,9 @@
 #include "concave_convex_collision_algorithm.h"
-#include <phys/shape/concave_mesh_shape.h>
-#include <phys/shape/convex_mesh_shape.h>
+#include "phys/shape/concave_mesh_shape.h"
+#include "phys/shape/convex_mesh_shape.h"
 #include "convex_convex_collision_algorithm.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool ConcaveConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -15,18 +16,18 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_concave = (pe_phys_shape::ConcaveMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
-        auto shape_convex = (pe_phys_shape::ConvexMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
+        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
+        auto shape_convex = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
         auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
         auto trans_convex = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
         auto& mesh_convex = shape_convex->getMesh();
 
         pe::Vector3 sep;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
-        VertexArray world_verts_b1;
-        VertexArray world_verts_b2;
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
 
         pe::Transform trans_convex_rel2concave = trans_concave.inverse() * trans_convex;
         pe::Vector3 convex_AA, convex_BB;
@@ -57,7 +58,7 @@ namespace pe_phys_collision {
             }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_convex, mesh_face, trans_convex, trans_concave,
-                -refScale, margin, world_verts_b1, world_verts_b2,
+                -refScale, margin, world_vertices_b1, world_vertices_b2,
                 margin, result);
         }
         result.setSwapFlag(false);

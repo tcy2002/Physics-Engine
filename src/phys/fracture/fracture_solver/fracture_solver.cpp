@@ -1,36 +1,26 @@
 #include "fracture_solver.h"
 #include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/box_shape.h"
 #include <fstream>
 #include <random>
 #include <string>
-#include "phys/shape/default_mesh.h"
 #include "phys/fracture/fracture_utils/fracture_utils.h"
 
+// style-checked
 namespace pe_phys_fracture {
-
-    uint32_t generateSeed() {
-        static uint32_t seed = -1;
-        if (seed == -1) {
-            seed = (uint32_t)COMMON_GetTickCount();
-            std::cout << "fracture seed: " << seed << std::endl;
-        }
-        return seed;
-    }
 
     pe::Vector3 FractureSolver::randomSpherePoints(pe::Real radius) {
         static std::default_random_engine e(999);
-        static std::uniform_real_distribution<pe::Real> d(0., 1.);
-        pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
-        pe::Real cos_t = cos(theta), sin_t = sin(theta), cos_a = cos(alpha), sin_a = sin(alpha);
+        static std::uniform_real_distribution<> d(0., 1.);
+        const pe::Real theta = d(e) * 2 * PE_PI, alpha = (d(e) * 2 - 1) * PE_PI, roa = sqrt(d(e)) * radius;
+        const pe::Real cos_t = cos(theta), sin_t = sin(theta), cos_a = cos(alpha), sin_a = sin(alpha);
         return { roa * cos_t * cos_a, roa * sin_t * cos_a, roa * sin_a };
     }
 
     pe::Vector3 FractureSolver::randomCylinderPoints(pe::Real radius, pe::Real height) {
-        static std::default_random_engine e((uint32_t)COMMON_GetTickCount());
-        static std::uniform_real_distribution<pe::Real> d(0., 1.);
-        pe::Real theta = d(e) * 2 * PE_PI, roa = sqrt(d(e)) * radius, L = d(e), L2 = L * L * height;
-        pe::Real cos_t = cos(theta), sin_t = sin(theta);
+        static std::default_random_engine e(COMMON_GetTickCount());
+        static std::uniform_real_distribution<> d(0., 1.);
+        const pe::Real theta = d(e) * 2 * PE_PI, roa = sqrt(d(e)) * radius, L = d(e), L2 = L * L * height;
+        const pe::Real cos_t = cos(theta), sin_t = sin(theta);
         return { roa * cos_t, roa * sin_t, L2 };
     }
 
@@ -41,8 +31,8 @@ namespace pe_phys_fracture {
     bool FractureSolver::generatePoints(const pe::Array<FractureSource> &sources,
                                         pe::Array<pe::Vector3> &points, pe::Array<pe::Vector3>& forces) {
         pe_phys_shape::Shape* shape = _fracturable_object->getCollisionShape();
-        pe::Transform world_trans = _fracturable_object->getTransform();
-        pe::Real threshold = _fracturable_object->getThreshold();
+        const pe::Transform world_trans = _fracturable_object->getTransform();
+        const pe::Real threshold = _fracturable_object->getThreshold();
 
         for (auto& src : sources) {
             pe::Vector3 local_impact_pos = world_trans.inverseTransform(src.position);
@@ -61,7 +51,7 @@ namespace pe_phys_fracture {
             } else if (src.type == FractureType::Cylinder) {
                 pe::Vector3 direction = (world_trans.getBasis().transposed() * intensity).normalized();
                 pe::Matrix3 rot = from_two_vectors(pe::Vector3(0, 0, 1), direction);
-                int point_count = (int)(impact_radius * CYLINDER_DENSITY);
+                const auto point_count = (int)(impact_radius * CYLINDER_DENSITY);
                 for (int i = 0; i < point_count; i++) {
                     auto point = rot * randomCylinderPoints(impact_radius / 5,
                                                             impact_radius * 5) + local_impact_pos;
@@ -77,10 +67,10 @@ namespace pe_phys_fracture {
         for (int i = 0; i < (int)points.size(); i++) {
             pe::Vector3 pos = world_trans * points[i];
             for (auto& src : sources) {
-                pe::Real expForce = src.intensity.norm();
-                pe::Real dist = (pos - src.position).norm();
-                pe::Vector3 dir = (pos - src.position).normalized();
-                forces[i] += (dir * (expForce / dist * EXPLOSION_RATE));
+                const pe::Real expForce = src.intensity.norm();
+                const pe::Real dist = (pos - src.position).norm();
+                const pe::Vector3 dir = (pos - src.position).normalized();
+                forces[i] += dir * (expForce / dist * EXPLOSION_RATE);
             }
         }
 
@@ -92,12 +82,12 @@ namespace pe_phys_fracture {
         auto convexMesh = new pe_phys_shape::ConvexMeshShape();
         convexMesh->setMeshPath(obj_path);
         convexMesh->setScale(pe::Vector3::ones());
-        pe::Vector3 offset = convexMesh->setMesh(mesh);
+        const pe::Vector3 offset = convexMesh->setMesh(mesh);
         rb->setCollisionShape(convexMesh);
         rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));
         rb->setMass(convexMesh->getVolume());
-        rb->setFrictionCoeff(pe::Real(0.3));
-        rb->setRestitutionCoeff(pe::Real(0.8));
+        rb->setFrictionCoeff(0.3);
+        rb->setRestitutionCoeff(0.8);
         return rb;
     }
 

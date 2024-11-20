@@ -50,9 +50,11 @@ public:
                     if ((i + j + k) % 3 == 0) {
                         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
                         pe::Vector3(0.8, 0.8, 0.8), 1);
-                    } else {
+                    } else if ((i + j + k) % 3 == 1) {
                         rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
                         0.4, 1);
+                    } else {
+                        rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)), 0.3, 1, 1);
                     }
                     _world.addRigidBody(rb);
                 }
@@ -103,6 +105,21 @@ protected:
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::SphereShape(radius);
+        rb->setCollisionShape(shape);
+        rb->setTransform(trans);
+        rb->setFrictionCoeff(pe::Real(0.5));
+        rb->setRestitutionCoeff(pe::Real(0.5));
+        rb->setAngularDamping(pe::Real(0.8));
+        return rb;
+    }
+
+    static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
+                                                              pe::Real radius, pe::Real height, pe::Real mass) {
+        /* This function creates a cylinder-shaped rigidbody */
+
+        auto rb = new pe_phys_object::RigidBody();
+        rb->setMass(mass);
+        auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setFrictionCoeff(pe::Real(0.5));

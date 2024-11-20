@@ -5,6 +5,7 @@
 #include "phys/raycast/raycast/raycast_mesh.h"
 #include "phys/shape/compound_shape.h"
 
+// style-checked
 namespace pe_phys_raycast {
 
     bool DefaultRaycastSolver::performRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real length,
@@ -19,17 +20,17 @@ namespace pe_phys_raycast {
         static RaycastCylinder r_cylinder;
         static RaycastMesh r_mesh;
 
-        for (auto rb : objects) {
+        for (const auto rb : objects) {
             if (rb->isIgnoreCollision() || ignores.find(rb->getGlobalId()) != ignores.end()) {
                 continue;
             }
 
             pe::Real distance;
             pe::Vector3 hit_point, hit_normal;
-            bool ret;
-            auto shape = rb->getCollisionShape();
+            bool ret = false;
+            const auto shape = rb->getCollisionShape();
             auto trans = rb->getTransform();
-            auto type = shape->getType();
+            const auto type = shape->getType();
             switch (type) {
                 case pe_phys_shape::ShapeType::Box:
                     ret = r_box.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
@@ -51,10 +52,10 @@ namespace pe_phys_raycast {
                     if (type == pe_phys_shape::ShapeType::ConvexMesh || type == pe_phys_shape::ShapeType::ConcaveMesh) {
                         ret = r_mesh.processRaycast(start, direction, shape, trans, distance, hit_point, hit_normal);
                     } else {
-                        auto compound = (pe_phys_shape::CompoundShape*)shape;
+                        auto compound = dynamic_cast<pe_phys_shape::CompoundShape *>(shape);
                         ret = false;
                         for (auto& child: compound->getShapes()) {
-                            auto trans_chd = trans * child.local_transform;
+                            const auto& trans_chd = trans * child.local_transform;
                             switch (child.shape->getType()) {
                                 case pe_phys_shape::ShapeType::Box:
                                     ret |= r_box.processRaycast(start, direction, child.shape, trans_chd, distance, hit_point, hit_normal);

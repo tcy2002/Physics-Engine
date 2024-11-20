@@ -15,26 +15,26 @@ namespace pe_phys_collision {
                shape_b->getType() == pe_phys_shape::ShapeType::Cylinder))) {
             return false;
         }
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
 #   if false
         auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
-                       ((pe_phys_shape::CylinderShape*)shape_a)->getMesh() :
-                       ((pe_phys_shape::ConvexMeshShape*)shape_a)->getMesh();
+                       dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a)->getMesh() :
+                       dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a)->getMesh();
         auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
-                       ((pe_phys_shape::CylinderShape*)shape_b)->getMesh() :
-                       ((pe_phys_shape::ConvexMeshShape*)shape_b)->getMesh();
+                       dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getMesh() :
+                       dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b)->getMesh();
         auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
-                        ((pe_phys_shape::CylinderShape*)shape_a)->getUniqueEdges() :
-                        ((pe_phys_shape::ConvexMeshShape*)shape_a)->getUniqueEdges();
+                        dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a)->getUniqueEdges() :
+                        dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a)->getUniqueEdges();
         auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
-                        ((pe_phys_shape::CylinderShape*)shape_b)->getUniqueEdges() :
-                        ((pe_phys_shape::ConvexMeshShape*)shape_b)->getUniqueEdges();
+                        dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getUniqueEdges() :
+                        dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b)->getUniqueEdges();
 
         pe::Vector3 sep;
 
-        VertexArray world_verts_b1;
-        VertexArray world_verts_b2;
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
@@ -45,31 +45,31 @@ namespace pe_phys_collision {
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
                                                             mesh_a, mesh_b, trans_a, trans_b,
                                                             -refScale, margin,
-                                                            world_verts_b1, world_verts_b2,
+                                                            world_vertices_b1, world_vertices_b2,
                                                             margin, result);
         return true;
 #   else
-        auto shape_mesh = (pe_phys_shape::ConvexMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
-        auto shape_cyl = (pe_phys_shape::CylinderShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
+        const auto shape_mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
+        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
         auto& mesh = shape_mesh->getMesh();
-        auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
-        pe::Real cyl_r = shape_cyl->getRadius();
-        pe::Real cyl_h = shape_cyl->getHeight() / pe::Real(2.0);
-        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
+        const auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
+        const pe::Real cyl_r = shape_cyl->getRadius();
+        const pe::Real cyl_h = shape_cyl->getHeight() / pe::Real(2.0);
+        const auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
 
-        pe::Transform trans_mesh2cyl = trans_cyl.inverse() * trans_mesh;
-        pe::Transform trans_cyl2mesh = trans_mesh2cyl.inverse();
+        const pe::Transform trans_mesh2cyl = trans_cyl.inverse() * trans_mesh;
+        const pe::Transform trans_cyl2mesh = trans_mesh2cyl.inverse();
         pe::Vector3 cyl_AA, cyl_BB;
         shape_cyl->getAABB(trans_cyl2mesh, cyl_AA, cyl_BB);
         pe::Array<int> intersect;
         shape_mesh->getIntersectFaces(cyl_AA, cyl_BB, intersect);
 
         result.setSwapFlag(shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh);
-        for (auto fi : intersect) {
+        for (const auto fi : intersect) {
             auto& f = mesh.faces[fi];
             pe::Array<pe::Vector3> vertices;
             vertices.reserve(f.indices.size());
-            for (auto vi : f.indices) {
+            for (const auto vi : f.indices) {
                 vertices.push_back(trans_mesh2cyl * mesh.vertices[vi].position);
             }
             pe::Vector3 n = trans_mesh2cyl.getBasis() * f.normal;
@@ -77,20 +77,20 @@ namespace pe_phys_collision {
             pe::Array<bool> point_inside(f.indices.size(), false);
             bool non_point_inside = true;
             for (int i = 0; i < (int)f.indices.size(); i++) {
-                point_inside[i] = pointInsideCylinder(vertices[i], cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                point_inside[i] = pointInsideCylinder(vertices[i], cyl_h, cyl_r, trans_cyl, margin, result);
                 non_point_inside = non_point_inside && !point_inside[i];
             }
 
             for (int i = 0; i < (int)f.indices.size(); i++) {
-                int v1 = i;
-                int v2 = (i + 1) % (int)f.indices.size();
+                const int v1 = i;
+                const int v2 = (i + 1) % (int)f.indices.size();
                 if (!point_inside[v1] && !point_inside[v2]) {
-                    intersectSegmentCylinder(vertices[v1], vertices[v2], cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                    intersectSegmentCylinder(vertices[v1], vertices[v2], cyl_h, cyl_r, trans_cyl, margin, result);
                 }
             }
 
             if (non_point_inside) {
-                intersectFaceCylinder(vertices, n, cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                intersectFaceCylinder(vertices, n, cyl_h, cyl_r, trans_cyl, margin, result);
             }
         }
         result.setSwapFlag(false);
@@ -99,7 +99,7 @@ namespace pe_phys_collision {
     }
 
     bool CylinderConvexCollisionAlgorithm::pointInsideCylinder(const pe::Vector3 &v, pe::Real h, pe::Real r, const pe::Transform& trans,
-                                                               pe::Real refScale, pe::Real margin, ContactResult& result) {
+                                                               pe::Real margin, ContactResult& result) {
         if (PE_ABS(v.y) > h) {
             return false;
         }
@@ -115,7 +115,7 @@ namespace pe_phys_collision {
         p = trans * p;
         n = trans.getBasis() * n;
         result.addContactPoint(n, p - n * margin, -depth + margin * 2);
-        //std::cout << "add point 1: " << n << p << depth << std::endl;
+        std::cout << "add point 1: " << n << p << depth << std::endl;
         return true;
     }
 
@@ -166,11 +166,16 @@ namespace pe_phys_collision {
 
     void CylinderConvexCollisionAlgorithm::intersectSegmentCylinder(const pe::Vector3 &v1, const pe::Vector3 &v2,
                                                                     pe::Real h, pe::Real r,
-                                                                    const pe::Transform& trans, pe::Real refScale,
+                                                                    const pe::Transform& trans,
                                                                     pe::Real margin, ContactResult& result) {
-        pe::Vector3 p_top, p_bottom;
+        pe::Vector3 p_top, p_bottom, p_side1, p_side2;
         bool i_top = intersectSegmentCircle(v1, v2, r, h, p_top);
         bool i_bottom = intersectSegmentCircle(v1, v2, r, -h, p_bottom);
+        int c;
+        bool i_side = intersectSegmentCylinderSide(v1, v2, r, h, c, p_side1, p_side2);
+        if (!i_side && !i_top && !i_bottom) {
+            return;
+        }
 
         if (i_top && i_bottom) {
             pe::Real l_top = PE_SQRT(p_top.x * p_top.x + p_top.z * p_top.z);
@@ -185,17 +190,8 @@ namespace pe_phys_collision {
             pe::Real d_bottom = r - l_bottom;
             result.addContactPoint(n_top, v_top - n_top * margin, -d_top + margin * 2);
             result.addContactPoint(n_bottom, v_bottom - n_bottom * margin, -d_bottom + margin * 2);
-            //std::cout << "add edge 2: " << n_top << v_top << d_top << n_bottom << v_bottom << d_bottom << std::endl;
-        }
-
-        pe::Vector3 p_side1, p_side2;
-        int c;
-        bool i_side = intersectSegmentCylinderSide(v1, v2, r, h, c, p_side1, p_side2);
-        if (!i_side && !i_top && !i_bottom) {
-            return;
-        }
-
-        if (i_side && (i_top || i_bottom) && c == 1) {
+            std::cout << "add edge 2: " << n_top << v_top << d_top << n_bottom << v_bottom << d_bottom << std::endl;
+        } else if (i_side && (i_top || i_bottom) && c == 1) {
             pe::Real cy = p_side1.y + (i_top ? h : -h);
             pe::Vector3 t = pe::Vector3(p_side1.x, cy > 0 ? h : -h, p_side1.z);
             pe::Vector3 n = pe::Vector3(t.x, t.y - t.dot(v1 - v2) / (v1.y - v2.y), t.z).normalized();
@@ -203,7 +199,7 @@ namespace pe_phys_collision {
             pe::Vector3 n_w = trans.getBasis() * n;
             t = trans * t;
             result.addContactPoint(n_w, t - n_w * margin, -d + margin * 2);
-            //std::cout << "add edge 1-1: " << n_w << t << d << std::endl;
+            std::cout << "add edge 1-1: " << n_w << t << d << std::endl;
         } else if (i_side && c == 2) {
             pe::Vector3 p_side = (p_side1 + p_side2) / 2;
             pe::Real l = pe::Vector3(p_side.x, 0, p_side.z).norm();
@@ -214,7 +210,7 @@ namespace pe_phys_collision {
                 pe::Vector3 t = trans * (p_side + d_side * n);
                 n = trans.getBasis() * n;
                 result.addContactPoint(n, t - n * margin, -d_side + margin * 2);
-                //std::cout << "add edge 1-2-1: " << n << t << d_side << std::endl;
+                std::cout << "add edge 1-2-1: " << n << t << d_side << std::endl;
             } else {
                 pe::Real d1 = PE_ABS((p_side.y > 0 ? h : -h) - p_side1.y);
                 pe::Vector3 t1 = trans * (p_side1 + d1 * n);
@@ -223,10 +219,8 @@ namespace pe_phys_collision {
                 n = trans.getBasis() * n;
                 result.addContactPoint(n, t1 - n * margin, -d1 + margin * 2);
                 result.addContactPoint(n, t2 - n * margin, -d2 + margin * 2);
-                //std::cout << "add edge 1-2-2: " << n << t1 << d1 << n << t2 << d2 << std::endl;
+                std::cout << "add edge 1-2-2: " << n << t1 << d1 << n << t2 << d2 << std::endl;
             }
-        } else {
-            PE_LOG_ERROR << "intersectSegmentCylinder: unexpected case" << PE_ENDL;
         }
     }
 
@@ -302,29 +296,29 @@ namespace pe_phys_collision {
     }
 
     void CylinderConvexCollisionAlgorithm::intersectFaceCylinder(const pe::Array<pe::Vector3>& vs, const pe::Vector3& n, pe::Real h, pe::Real r,
-                                                                 const pe::Transform &trans, pe::Real refScale, pe::Real margin, ContactResult &result) {
-        int c_top, c_bottom;
+                                                                 const pe::Transform &trans, pe::Real margin, ContactResult &result) {
+        int c_top, c_bottom, c_side;
         pe::Vector3 p_tops[2], p_bottoms[2];
         bool i_top = intersectFaceCircle(vs, n, r, h, c_top, p_tops);
         bool i_bottom = intersectFaceCircle(vs, n, r, -h, c_bottom, p_bottoms);
+        pe::Vector3 p_sides[4];
+        bool i_side = intersectFaceCylinderSide(vs, n, r, h, c_side, p_sides);
 
         if (i_top) {
             pe::Vector3 p_top = (p_tops[0] + p_tops[1]) / 2;
             pe::Real l_top = PE_SQRT(p_top.x * p_top.x + p_top.z * p_top.z);
             pe::Real d_top = r - l_top;
             pe::Vector3 n_top = pe::Vector3(p_top.x, 0, p_top.z) / l_top;
-            if (-n_top.dot(n) > r / (pe::Real(2.0) * h)) {
-                n_top = trans.getBasis() * n_top;
-                if ((c_top == 3 || c_top == 1) && d_top < refScale) {
-                    p_top = trans * p_tops[0];
-                    result.addContactPoint(n_top, p_top - n_top * margin, -d_top + margin * 2);
-                    //std::cout << "add triangle 2-1.1: " << n_top << p_top << d_top << std::endl;
-                }
-                if ((c_top == 3 || c_top == 2) && d_top < refScale) {
-                    p_top = trans * p_tops[1];
-                    result.addContactPoint(n_top, p_top - n_top * margin, -d_top + margin * 2);
-                    //std::cout << "add triangle 2-1.2: " << n_top << p_top << d_top << std::endl;
-                }
+            n_top = trans.getBasis() * n_top;
+            if (c_top == 3 || c_top == 1) {
+                p_top = trans * p_tops[0];
+                result.addContactPoint(n_top, p_top - n_top * margin, -d_top + margin * 2);
+                std::cout << "add triangle 2-1.1: " << n_top << p_top << d_top << std::endl;
+            }
+            if (c_top == 3 || c_top == 2) {
+                p_top = trans * p_tops[1];
+                result.addContactPoint(n_top, p_top - n_top * margin, -d_top + margin * 2);
+                std::cout << "add triangle 2-1.2: " << n_top << p_top << d_top << std::endl;
             }
         }
         if (i_bottom) {
@@ -332,38 +326,33 @@ namespace pe_phys_collision {
             pe::Real l_bottom = PE_SQRT(p_bottom.x * p_bottom.x + p_bottom.z * p_bottom.z);
             pe::Real d_bottom = r - l_bottom;
             pe::Vector3 n_bottom = pe::Vector3(p_bottom.x, 0, p_bottom.z) / l_bottom;
-            if (-n_bottom.dot(n) > r / (pe::Real(2.0) * h)) {
-                n_bottom = trans.getBasis() * n_bottom;
-                if ((c_bottom == 3 || c_bottom == 1) && d_bottom < refScale) {
-                    p_bottom = trans * p_bottoms[0];
-                    result.addContactPoint(n_bottom, p_bottom - n_bottom * margin, -d_bottom + margin * 2);
-                    //std::cout << "add triangle 2-2.1: " << n_bottom << p_bottom << d_bottom << std::endl;
-                }
-                if ((c_bottom == 3 || c_bottom == 2) && d_bottom < refScale) {
-                    p_bottom = trans * p_bottoms[1];
-                    result.addContactPoint(n_bottom, p_bottom - n_bottom * margin, -d_bottom + margin * 2);
-                    //std::cout << "add triangle 2-2.2: " << n_bottom << p_bottom << d_bottom << std::endl;
-                }
+            n_bottom = trans.getBasis() * n_bottom;
+            if (c_bottom == 3 || c_bottom == 1) {
+                p_bottom = trans * p_bottoms[0];
+                result.addContactPoint(n_bottom, p_bottom - n_bottom * margin, -d_bottom + margin * 2);
+                std::cout << "add triangle 2-2.1: " << n_bottom << p_bottom << d_bottom << std::endl;
+            }
+            if (c_bottom == 3 || c_bottom == 2) {
+                p_bottom = trans * p_bottoms[1];
+                result.addContactPoint(n_bottom, p_bottom - n_bottom * margin, -d_bottom + margin * 2);
+                std::cout << "add triangle 2-2.2: " << n_bottom << p_bottom << d_bottom << std::endl;
             }
         }
 
-        int c_side;
-        pe::Vector3 p_sides[4];
-        bool i_side = intersectFaceCylinderSide(vs, n, r, h, c_side, p_sides);
-
         if (i_side && (i_top || i_bottom) && c_side == 1) {
             pe::Vector3 p_top = trans * pe::Vector3(p_sides[0].x, i_top ? h : -h, p_sides[0].z);
-            pe::Real d = PE_ABS((i_top ? h : -h) - p_sides[0].y) * PE_ABS(n.y);
+            pe::Real d = PE_ABS(((i_top ? h : -h) - p_sides[0].y) * n.y);
             pe::Vector3 n_w = trans.getBasis() * n;
             result.addContactPoint(-n_w, p_top + n_w * margin, -d + margin * 2);
-            //std::cout << "add triangle 1-1: " << -n_w << pe::Vector3(p_sides[0].x, i_top ? h : -h, p_sides[0].z) << d << std::endl;
+            std::cout << "add triangle 1-1: " << -n_w << pe::Vector3(p_sides[0].x, i_top ? h : -h, p_sides[0].z) << d << std::endl;
         } else if (i_side && c_side >= 2) {
+            pe::Real center_h = (p_sides[0].y + p_sides[1].y) / pe::Real(2.0);
             for (int i = 0; i < c_side; i++) {
-                pe::Vector3 p_top = trans * pe::Vector3(p_sides[i].x, p_sides[i].y > 0 ? h : -h, p_sides[i].z);
+                pe::Vector3 p_top = trans * pe::Vector3(p_sides[i].x, center_h > 0 ? h : -h, p_sides[i].z);
                 pe::Real d = h - PE_ABS(p_sides[i].y);
-                pe::Vector3 n_w = trans.getBasis() * pe::Vector3(0, pe::Real(p_sides[i].y > 0 ? 1.0 : -1.0), 0);
+                pe::Vector3 n_w = trans.getBasis() * pe::Vector3(0, pe::Real(center_h > 0 ? 1.0 : -1.0), 0);
                 result.addContactPoint(n_w, p_top - n_w * margin, -d + margin * 2);
-                //std::cout << "add triangle 1-2." + std::to_string(i) << ": " << n_w << p_top << d << std::endl;
+                std::cout << "add triangle 1-2." + std::to_string(i) << ": " << n_w << p_top << d << std::endl;
             }
         }
     }

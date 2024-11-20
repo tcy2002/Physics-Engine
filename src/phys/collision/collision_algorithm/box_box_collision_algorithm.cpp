@@ -2,6 +2,7 @@
 #include "phys/shape/box_shape.h"
 
 // box-box collision (from bullet)
+// style-checked.
 namespace pe_phys_collision {
 
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -15,9 +16,9 @@ namespace pe_phys_collision {
         pe::Vector3 normal;
         pe::Real depth;
         int max_c = 4;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
-        const pe::Real fudge_factor = pe::Real(1.05);
+        constexpr pe::Real fudge_factor = 1.05;
         pe::Vector3 p, pp, normalC{0,0,0}, *normalR = nullptr;
         pe::Real A[3], B[3], Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
         int i, j, invert_normal, code;
@@ -31,8 +32,8 @@ namespace pe_phys_collision {
         pp = R1.transposed() * p;  // get pp = p relative to body 1
 
         // get side lengths / 2
-        const auto& side1 = ((pe_phys_shape::BoxShape*)shape_a)->getSize();
-        const auto& side2 = ((pe_phys_shape::BoxShape*)shape_b)->getSize();
+        const auto& side1 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_a)->getSize();
+        const auto& side2 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_b)->getSize();
         A[0] = side1[0] * pe::Real(0.5);
         A[1] = side1[1] * pe::Real(0.5);
         A[2] = side1[2] * pe::Real(0.5);
@@ -67,7 +68,7 @@ namespace pe_phys_collision {
         if (s2 > 0) return 0;               \
         if (s2 > s) {                       \
             s = s2;                         \
-            normalR = &norm;                 \
+            normalR = &norm;                \
             invert_normal = ((expr1) < 0);  \
             code = (cc);                    \
         }
@@ -77,14 +78,14 @@ namespace pe_phys_collision {
         code = 0;
 
         // separating axis = u1,u2,u3
-        TST(pp[0], (A[0] + B[0] * Q11 + B[1] * Q12 + B[2] * Q13), R1.getColumn(0), 1)
-        TST(pp[1], (A[1] + B[0] * Q21 + B[1] * Q22 + B[2] * Q23), R1.getColumn(1), 2)
-        TST(pp[2], (A[2] + B[0] * Q31 + B[1] * Q32 + B[2] * Q33), R1.getColumn(2), 3)
+        TST(pp[0], A[0] + B[0] * Q11 + B[1] * Q12 + B[2] * Q13, R1.getColumn(0), 1)
+        TST(pp[1], A[1] + B[0] * Q21 + B[1] * Q22 + B[2] * Q23, R1.getColumn(1), 2)
+        TST(pp[2], A[2] + B[0] * Q31 + B[1] * Q32 + B[2] * Q33, R1.getColumn(2), 3)
 
         // separating axis = v1,v2,v3
-        TST(R2.getColumn(0).dot(p), (A[0] * Q11 + A[1] * Q21 + A[2] * Q31 + B[0]), R2.getColumn(0), 4)
-        TST(R2.getColumn(1).dot(p), (A[0] * Q12 + A[1] * Q22 + A[2] * Q32 + B[1]), R2.getColumn(1), 5)
-        TST(R2.getColumn(2).dot(p), (A[0] * Q13 + A[1] * Q23 + A[2] * Q33 + B[2]), R2.getColumn(2), 6)
+        TST(R2.getColumn(0).dot(p), A[0] * Q11 + A[1] * Q21 + A[2] * Q31 + B[0], R2.getColumn(0), 4)
+        TST(R2.getColumn(1).dot(p), A[0] * Q12 + A[1] * Q22 + A[2] * Q32 + B[1], R2.getColumn(1), 5)
+        TST(R2.getColumn(2).dot(p), A[0] * Q13 + A[1] * Q23 + A[2] * Q33 + B[2], R2.getColumn(2), 6)
 
         // note: cross product axes need to be scaled when s is computed.
         // normal (n1,n2,n3) is relative to box 1.
@@ -97,7 +98,7 @@ namespace pe_phys_collision {
             s2 /= l;                                            \
             if (s2 * fudge_factor > s) {                        \
                 s = s2;                                         \
-                normalR = nullptr;                                    \
+                normalR = nullptr;                              \
                 normalC[0] = (n1) / l;                          \
                 normalC[1] = (n2) / l;                          \
                 normalC[2] = (n3) / l;                          \
@@ -162,7 +163,7 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = (normal.dot(R1.getColumn(j)) > 0) ? pe::Real(1.0) : pe::Real(-1.0);
+                sign = normal.dot(R1.getColumn(j)) > 0 ? pe::Real(1.0) : pe::Real(-1.0);
                 pa[0] += sign * A[j] * R1[0][j];
                 pa[1] += sign * A[j] * R1[1][j];
                 pa[2] += sign * A[j] * R1[2][j];
@@ -172,7 +173,7 @@ namespace pe_phys_collision {
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = (normal.dot(R2.getColumn(j)) > 0) ? pe::Real(-1.0) : pe::Real(1.0);
+                sign = normal.dot(R2.getColumn(j)) > 0 ? pe::Real(-1.0) : pe::Real(1.0);
                 pb[0] += sign * B[j] * R2[0][j];
                 pb[1] += sign * B[j] * R2[1][j];
                 pb[2] += sign * B[j] * R2[2][j];
@@ -191,10 +192,10 @@ namespace pe_phys_collision {
                 ub[2] = R2[2][remainder];
             }
 
-            pe::Vector3 p = pb - pa;
+            pe::Vector3 b_a = pb - pa;
             pe::Real ua_ub = ua.dot(ub);
-            pe::Real q1 = ua.dot(p);
-            pe::Real q2 = -ub.dot(p);
+            pe::Real q1 = ua.dot(b_a);
+            pe::Real q2 = -ub.dot(b_a);
             pe::Real d = 1 - ua_ub * ua_ub;
             if (d <= PE_EPS) {
                 alpha = 0;
@@ -265,7 +266,7 @@ namespace pe_phys_collision {
         anr[2] = PE_ABS(nr[2]);
 
         // find the largest component of anr: this corresponds to the normal
-        // for the incident face. the other axis numbers of the indicent face
+        // for the incident face. the other axis numbers of the indecent face
         // are stored in a1,a2.
         int lan_r, a1, a2;
         if (anr[1] > anr[0]) {
@@ -358,7 +359,7 @@ namespace pe_phys_collision {
         // intersect the incident and reference faces
         pe::Real ret[16];
         int n = intersectRectQuad2(rect, quad, ret);
-        if (n < 1) return 0;  // this should never happen
+        if (n < 1) return false;  // this should never happen
 
         // convert the intersection points into reference-face coordinates,
         // and compute the contact position and depth for each point. only keep
@@ -371,34 +372,34 @@ namespace pe_phys_collision {
         m12 *= det1;
         m21 *= det1;
         m22 *= det1;
-        int cnum = 0;  // number of penetrating contact points found
+        int c_num = 0;  // number of penetrating contact points found
         for (j = 0; j < n; j++) {
             pe::Real k1 = m22 * (ret[j * 2] - c1) - m12 * (ret[j * 2 + 1] - c2);
             pe::Real k2 = -m21 * (ret[j * 2] - c1) + m11 * (ret[j * 2 + 1] - c2);
-            point[cnum * 3 + 0] = center[0] + k1 * Rb[0][a1] + k2 * Rb[0][a2];
-            point[cnum * 3 + 1] = center[1] + k1 * Rb[1][a1] + k2 * Rb[1][a2];
-            point[cnum * 3 + 2] = center[2] + k1 * Rb[2][a1] + k2 * Rb[2][a2];
+            point[c_num * 3 + 0] = center[0] + k1 * Rb[0][a1] + k2 * Rb[0][a2];
+            point[c_num * 3 + 1] = center[1] + k1 * Rb[1][a1] + k2 * Rb[1][a2];
+            point[c_num * 3 + 2] = center[2] + k1 * Rb[2][a1] + k2 * Rb[2][a2];
 
-            dep[cnum] = Sa[codeN] - normal2.dot(pe::Vector3(point[cnum * 3], point[cnum * 3 + 1], point[cnum * 3 + 2]));
-            if (dep[cnum] >= 0) {
-                ret[cnum * 2] = ret[j * 2];
-                ret[cnum * 2 + 1] = ret[j * 2 + 1];
-                cnum++;
+            dep[c_num] = Sa[codeN] - normal2.dot(pe::Vector3(point[c_num * 3], point[c_num * 3 + 1], point[c_num * 3 + 2]));
+            if (dep[c_num] >= 0) {
+                ret[c_num * 2] = ret[j * 2];
+                ret[c_num * 2 + 1] = ret[j * 2 + 1];
+                c_num++;
             }
         }
-        if (cnum < 1) return false;  // this should never happen
+        if (c_num < 1) return false;  // this should never happen
 
         // we can't generate more contacts than we actually have
-        max_c = PE_MIN(max_c, cnum);
+        max_c = PE_MIN(max_c, c_num);
         max_c = PE_MAX(max_c, 1);
 
         const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
         const pe::Vector3 marginVec = normVec * margin;
 
-        if (cnum <= max_c) {
+        if (c_num <= max_c) {
             if (code < 4) {
                 // we have less contacts than we need, so we use them all
-                for (j = 0; j < cnum; j++) {
+                for (j = 0; j < c_num; j++) {
                     const pe::Vector3 pointInWorld(
                             point[j * 3 + 0] + pa[0],
                             point[j * 3 + 1] + pa[1],
@@ -408,7 +409,7 @@ namespace pe_phys_collision {
                 }
             } else {
                 // we have less contacts than we need, so we use them all
-                for (j = 0; j < cnum; j++) {
+                for (j = 0; j < c_num; j++) {
                     const pe::Vector3 pointInWorld(
                             point[j * 3 + 0] + pa[0],
                             point[j * 3 + 1] + pa[1],
@@ -422,7 +423,7 @@ namespace pe_phys_collision {
             // find the deepest point, it is always the first contact.
             int i1 = 0;
             pe::Real max_depth = dep[0];
-            for (i = 1; i < cnum; i++) {
+            for (i = 1; i < c_num; i++) {
                 if (dep[i] > max_depth) {
                     max_depth = dep[i];
                     i1 = i;
@@ -430,7 +431,7 @@ namespace pe_phys_collision {
             }
 
             int i_ret[8];
-            cullPoints2(cnum, ret, max_c, i1, i_ret);
+            cullPoints2(c_num, ret, max_c, i1, i_ret);
 
             for (j = 0; j < max_c; j++) {
                 const pe::Vector3 posInWorld(
@@ -447,7 +448,7 @@ namespace pe_phys_collision {
                                            -dep[i_ret[j]] + margin * 2);
                 }
             }
-            cnum = max_c;
+            c_num = max_c;
         }
 
         return true;
@@ -456,7 +457,6 @@ namespace pe_phys_collision {
     int BoxBoxCollisionAlgorithm::intersectRectQuad2(const pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
         // q (and r) contain nq (and nr) coordinate points for the current (and
         // chopped) polygons
-        pe::Real buffer[16];
         int nq = 4, nr = 0;
         pe::Real* q = p;
         pe::Real* r = ret;
@@ -464,6 +464,7 @@ namespace pe_phys_collision {
         for (int dir = 0; dir <= 1; dir++) {
             // direction notation: xy[0] = x axis, xy[1] = y axis
             for (int sign = -1; sign <= 1; sign += 2) {
+                pe::Real buffer[16];
                 // chop q along the line xy[dir] = sign*h[dir]
                 pe::Real* pq = q;
                 pe::Real* pr = r;
@@ -497,7 +498,7 @@ namespace pe_phys_collision {
                     pq += 2;
                 }
                 q = r;
-                r = (q == ret) ? buffer : ret;
+                r = q == ret ? buffer : ret;
                 nq = nr;
             }
         }
@@ -508,7 +509,7 @@ namespace pe_phys_collision {
 
     void BoxBoxCollisionAlgorithm::cullPoints2(int n, pe::Real p[], int m, int i0, int i_ret[]) {
         // compute the centroid of the polygon in cx,cy
-        int i, j;
+        int i;
         pe::Real a, cx, cy, q;
         if (n == 1) {
             cx = p[0];
@@ -527,7 +528,7 @@ namespace pe_phys_collision {
                 cx += q * (p0 + p2);
                 cy += q * (p1 + p3);
             }
-            pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
+            const pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
             q = pm2 * p1 - p0 * pm1;
             if (PE_ABS(a + q) > PE_EPS) {
                 a = pe::Real(1.0) / (pe::Real(3.0) * (a + q));
@@ -548,16 +549,16 @@ namespace pe_phys_collision {
         avail[i0] = 0;
         i_ret[0] = i0;
         i_ret++;
-        for (j = 1; j < m; j++) {
+        for (int j = 1; j < m; j++) {
             a = pe::Real(j) * (2 * PE_PI / m) + A[i0];
             if (a > PE_PI) a -= 2 * PE_PI;
-            pe::Real max_diff = 1e9, diff;
+            pe::Real max_diff = 1e9;
 
             *i_ret = i0;  // i_ret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
 
             for (i = 0; i < n; i++) {
                 if (avail[i]) {
-                    diff = PE_ABS(A[i] - a);
+                    pe::Real diff = PE_ABS(A[i] - a);
                     if (diff > PE_PI) diff = 2 * PE_PI - diff;
                     if (diff < max_diff) {
                         max_diff = diff;

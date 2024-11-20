@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "rigidbody.h"
 
+// style-checked
 namespace pe_phys_object {
 
     std::atomic<uint32_t> RigidBody::_globalIdCounter(0);
@@ -83,7 +84,9 @@ namespace pe_phys_object {
             _temp_linear_velocity(pe::Vector3::zeros()),
             _temp_angular_velocity(pe::Vector3::zeros()),
             _sleep(false),
-            _sleep_time(0) {
+            _sleep_time(0),
+            _static_count(0),
+            _dynamic_count(0) {
         updateWorldInertia();
     }
 
@@ -97,8 +100,8 @@ namespace pe_phys_object {
     }
 
     pe::Real RigidBody::getAABBScale() const {
-        pe::Real scale = (_aabb_max - _aabb_min).norm();
-        pe::Real diff = (_aabb_max + _aabb_min - _transform.getOrigin() * 2).norm();
+        const pe::Real scale = (_aabb_max - _aabb_min).norm();
+        const pe::Real diff = (_aabb_max + _aabb_min - _transform.getOrigin() * 2).norm();
         return (scale + diff) * pe::Real(0.5);
     }
 
@@ -188,14 +191,14 @@ namespace pe_phys_object {
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
 #   ifdef PE_USE_QUATERNION
         auto q = pe::Quaternion::fromRotationMatrix(_transform.getBasis());
-        pe::Vector3 dr = _angular_velocity * dt * pe::Real(0.5);
-        auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
+        const pe::Vector3 dr = _angular_velocity * dt * pe::Real(0.5);
+        const auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
         q += dq;
         q.normalize();
         _transform.setBasis(q.toRotationMatrix());
 #   else
         pe::Matrix3 rot;
-        pe::Real angle_speed = _angular_velocity.norm();
+        const pe::Real angle_speed = _angular_velocity.norm();
         if (angle_speed > PE_EPS) {
             rot.setRotation(_angular_velocity.normalized(), angle_speed * dt);
             _transform.setBasis(rot * _transform.getBasis());

@@ -12,11 +12,11 @@ namespace pe_phys_collision {
                                       pe::Transform trans_a, pe::Transform trans_b,
                                       pe::Real refScale, ContactResult& result) override;
 
-        static bool getSphereDistance(const pe_phys_shape::BoxShape* boxShape, const pe::Transform& boxTrans,
-                                      const pe::Vector3& sphereCenter, pe::Real radius,
-                                      pe::Vector3& ptOnBox, pe::Vector3& normal, pe::Real& dist);
-        static pe::Real getSpherePenetration(const pe::Vector3& boxHalfExt, const pe::Vector3& sphereRelPos,
-                                             pe::Vector3& closestPoint, pe::Vector3& normal);
+        static bool getSphereDistance(const pe_phys_shape::BoxShape* shape_box, const pe::Transform& trans_box,
+                                      const pe::Vector3& center_sph, pe::Real radius_sph,
+                                      pe::Vector3& pt_on_box, pe::Vector3& normal, pe::Real& dist);
+        static pe::Real getSpherePenetration(const pe::Vector3& half_extent, const pe::Vector3& pos_sph2box,
+                                             pe::Vector3& closest_point, pe::Vector3& normal);
     };
 
 } // pe_phys_collision

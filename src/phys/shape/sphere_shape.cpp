@@ -13,7 +13,7 @@ namespace pe_phys_shape {
     }
 
     void SphereShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
-        pe::Vector3 center = transform.getOrigin();
+        const pe::Vector3 center = transform.getOrigin();
         min = center - pe::Vector3(_radius, _radius, _radius);
         max = center + pe::Vector3(_radius, _radius, _radius);
     }
@@ -24,8 +24,8 @@ namespace pe_phys_shape {
 
     void SphereShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                            pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
-        pe::Vector3 trans = transform.getOrigin();
-        pe::Real offset = trans.dot(axis);
+        const pe::Vector3 trans = transform.getOrigin();
+        const pe::Real offset = trans.dot(axis);
         minProj = offset - _radius;
         maxProj = offset + _radius;
         minPoint = trans - axis * _radius;

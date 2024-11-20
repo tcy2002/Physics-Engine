@@ -5,6 +5,7 @@
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/concave_mesh_shape.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool ConcaveCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -16,11 +17,11 @@ namespace pe_phys_collision {
                 shape_b->getType() == pe_phys_shape::ShapeType::Cylinder))) {
             return false;
         }
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
 #   if false
-        auto shape_concave = (pe_phys_shape::ConcaveMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
-        auto shape_cyl = (pe_phys_shape::CylinderShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
+        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
+        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
         auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
         auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
@@ -28,8 +29,8 @@ namespace pe_phys_collision {
         auto& edges_cyl = shape_cyl->getUniqueEdges();
 
         pe::Vector3 sep;
-        VertexArray world_verts_b1;
-        VertexArray world_verts_b2;
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
 
         pe::Transform trans_cyl_rel2concave = trans_concave.inverse() * trans_cyl;
         pe::Vector3 convex_AA, convex_BB;
@@ -59,7 +60,7 @@ namespace pe_phys_collision {
             }
             ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
                 sep, mesh_cyl, mesh_face, trans_cyl, trans_concave,
-                -refScale, margin, world_verts_b1, world_verts_b2,
+                -refScale, margin, world_vertices_b1, world_vertices_b2,
                 margin, result);
         }
         result.setSwapFlag(false);
@@ -93,7 +94,7 @@ namespace pe_phys_collision {
             pe::Array<bool> point_inside(f.indices.size(), false);
             bool non_point_inside = true;
             for (int i = 0; i < (int)f.indices.size(); i++) {
-                point_inside[i] = CylinderConvexCollisionAlgorithm::pointInsideCylinder(vertices[i], cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                point_inside[i] = CylinderConvexCollisionAlgorithm::pointInsideCylinder(vertices[i], cyl_h, cyl_r, trans_cyl, margin, result);
                 non_point_inside = non_point_inside && !point_inside[i];
             }
 
@@ -101,12 +102,12 @@ namespace pe_phys_collision {
                 int v1 = i;
                 int v2 = (i + 1) % (int)f.indices.size();
                 if (!point_inside[v1] && !point_inside[v2]) {
-                    CylinderConvexCollisionAlgorithm::intersectSegmentCylinder(vertices[v1], vertices[v2], cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                    CylinderConvexCollisionAlgorithm::intersectSegmentCylinder(vertices[v1], vertices[v2], cyl_h, cyl_r, trans_cyl, margin, result);
                 }
             }
 
             if (non_point_inside) {
-                CylinderConvexCollisionAlgorithm::intersectFaceCylinder(vertices, n, cyl_h, cyl_r, trans_cyl, refScale, margin, result);
+                CylinderConvexCollisionAlgorithm::intersectFaceCylinder(vertices, n, cyl_h, cyl_r, trans_cyl, margin, result);
             }
         }
         result.setSwapFlag(false);

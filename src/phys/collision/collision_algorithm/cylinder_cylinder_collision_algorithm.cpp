@@ -3,6 +3,7 @@
 #include "phys/shape/default_mesh.h"
 #include "convex_convex_collision_algorithm.h"
 
+// style-checked.
 namespace pe_phys_collision {
 
     bool CylinderCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -13,18 +14,18 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_cyl_a = (pe_phys_shape::CylinderShape*)shape_a;
-        auto shape_cyl_b = (pe_phys_shape::CylinderShape*)shape_b;
+        const auto shape_cyl_a = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a);
+        const auto shape_cyl_b = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b);
         auto& mesh_a = shape_cyl_a->getMesh();
         auto& mesh_b = shape_cyl_b->getMesh();
         auto& edges_a = shape_cyl_a->getUniqueEdges();
         auto& edges_b = shape_cyl_b->getUniqueEdges();
 
         pe::Vector3 sep;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
-        VertexArray world_verts_b1;
-        VertexArray world_verts_b2;
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
 
         if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
                                                                 mesh_a, mesh_b,
@@ -35,7 +36,7 @@ namespace pe_phys_collision {
         ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
                                                             mesh_a, mesh_b, trans_a, trans_b,
                                                             -refScale, margin,
-                                                            world_verts_b1, world_verts_b2,
+                                                            world_vertices_b1, world_vertices_b2,
                                                             margin, result);
         return true;
     }

@@ -7,17 +7,19 @@ namespace pe_intf {
     pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map; // NOLINT
 
     common::Vector3<float> Viewer::convertVector3(pe::Vector3 vector) {
-        return common::Vector3<float>((float)vector.x, (float)vector.y, (float)vector.z);
+        return {(float)vector.x, (float)vector.y, (float)vector.z};
     }
 
     common::Matrix3x3<float> Viewer::convertMatrix3(pe::Matrix3 matrix) {
-        return common::Matrix3x3<float>((float)matrix[0][0], (float)matrix[0][1], (float)matrix[0][2],
-                                        (float)matrix[1][0], (float)matrix[1][1], (float)matrix[1][2],
-                                        (float)matrix[2][0], (float)matrix[2][1], (float)matrix[2][2]);
+        return {
+            (float)matrix[0][0], (float)matrix[0][1], (float)matrix[0][2],
+            (float)matrix[1][0], (float)matrix[1][1], (float)matrix[1][2],
+            (float)matrix[2][0], (float)matrix[2][1], (float)matrix[2][2]
+        };
     }
 
     common::Transform<float> Viewer::convertTransform(pe::Transform transform) {
-        return common::Transform<float>(convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin()));
+        return {convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin())};
     }
 
     common::Mesh<float> Viewer::convertMesh(const pe::Mesh& mesh) {
@@ -84,7 +86,7 @@ namespace pe_intf {
     }
 
     int Viewer::addCube(const pe::Vector3& size) {
-        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+        int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CUBE, true,
                 (float)size.x, (float)size.y, (float)size.z));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CUBE;
@@ -92,7 +94,7 @@ namespace pe_intf {
     }
 
     int Viewer::addMesh(const pe::Mesh& mesh) {
-        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+        int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_MESH, true,
                 convertMesh(mesh)));
         _obj_map[id] = simple_viewer::ObjType::OBJ_MESH;
@@ -100,7 +102,7 @@ namespace pe_intf {
     }
 
     int Viewer::addSphere(pe::Real radius) {
-        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+        int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_SPHERE, true,
                 (float)radius));
         _obj_map[id] = simple_viewer::ObjType::OBJ_SPHERE;
@@ -108,7 +110,7 @@ namespace pe_intf {
     }
 
     int Viewer::addCylinder(pe::Real radius, pe::Real height) {
-        int id = simple_viewer::addObj(simple_viewer::ObjInitParam(
+        int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CYLINDER, true,
                 (float)radius, (float)height));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CYLINDER;
@@ -117,7 +119,7 @@ namespace pe_intf {
 
     void Viewer::updateTransform(int id, pe_phys_shape::ShapeType type, const pe::Transform &transform) {
         if (_obj_map[id] == mapShapeType(type)) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+            updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_TRANSFORM,
                     id, mapShapeType(type),
                     convertTransform(transform)));
@@ -126,7 +128,7 @@ namespace pe_intf {
 
     void Viewer::updateColor(int id, pe_phys_shape::ShapeType type, const pe::Vector3 &color) {
         if (_obj_map[id] == mapShapeType(type)) {
-            simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+            updateObj(simple_viewer::ObjUpdateParam(
                     simple_viewer::ObjUpdateType::OBJ_UPDATE_COLOR,
                     id, mapShapeType(type),
                     convertVector3(color)));
@@ -135,7 +137,7 @@ namespace pe_intf {
 
     void Viewer::remove(int id) {
         if (_obj_map.find(id) == _obj_map.end()) return;
-        simple_viewer::updateObj(simple_viewer::ObjUpdateParam(
+        updateObj(simple_viewer::ObjUpdateParam(
                 simple_viewer::ObjUpdateType::OBJ_DEL,
                 id, _obj_map[id]));
         _obj_map.erase(id);

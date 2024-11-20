@@ -1,10 +1,11 @@
 #include "friction_contact_constraint.h"
 
+// style-checked
 namespace pe_phys_constraint {
     
     void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& param) {
         if (!_contact_result) return;
-        int point_size = PE_MIN(PE_MAX_CONTACT_POINT, _contact_result->getPointSize());
+        const int point_size = PE_MIN(PE_MAX_CONTACT_POINT, _contact_result->getPointSize());
         _cis.resize(point_size);
 
         _object_a = _contact_result->getObjectA();

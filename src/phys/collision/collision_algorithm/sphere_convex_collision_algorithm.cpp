@@ -3,6 +3,7 @@
 #include "phys/shape/convex_mesh_shape.h"
 
 // sphere-triangle collision (from bullet)
+// style-checked.
 namespace pe_phys_collision {
 
     bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
@@ -15,22 +16,22 @@ namespace pe_phys_collision {
             return false;
         }
 
-        auto shape_mesh = (pe_phys_shape::ConvexMeshShape*)(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
-        auto shape_sph = (pe_phys_shape::SphereShape*)(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
+        const auto shape_mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
+        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
         auto& mesh = shape_mesh->getMesh();
-        auto trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
-        auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
+        const auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
+        const auto& trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
 
-        pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());
-        pe::Real radius = shape_sph->getRadius();
-        pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
-        pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
+        const pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());
+        const pe::Real radius = shape_sph->getRadius();
+        const pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
+        const pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
         pe::Array<int> intersect;
         shape_mesh->getIntersectFaces(sph_AA, sph_BB, intersect);
 
         pe::Vector3 vertices[3];
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
-        for (auto fi : intersect) {
+        for (const auto fi : intersect) {
             auto& f = mesh.faces[fi];
             for (int i = 0; i < (int)f.indices.size() - 2; i++) {
                 vertices[0] = mesh.vertices[f.indices[0]].position;
@@ -51,11 +52,11 @@ namespace pe_phys_collision {
                                                           ContactResult &result) {
         pe::Vector3 point, normal;
         pe::Real depth = 0;
-        pe::Real margin = PE_MARGIN;
+        constexpr auto margin = PE_MARGIN;
 
         //move sphere into triangle space
-        pe::Vector3 sphereInTr = transTri.inverseTransform(trans_a.getOrigin());
-        pe::Real sphereRadius = ((pe_phys_shape::SphereShape*)shape_a)->getRadius();
+        const pe::Vector3 sphereInTr = transTri.inverseTransform(trans_a.getOrigin());
+        const pe::Real sphereRadius = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a)->getRadius();
 
         if (collideSphereTriangle(sphereInTr, sphereRadius, vertices,
                                   point, normal, depth)) {
@@ -68,11 +69,11 @@ namespace pe_phys_collision {
     static pe::Real segmentSqrDistance(const pe::Vector3& from, const pe::Vector3& to,
                                        const pe::Vector3& p, pe::Vector3& nearest) {
         pe::Vector3 diff = p - from;
-        pe::Vector3 v = to - from;
+        const pe::Vector3 v = to - from;
         pe::Real t = v.dot(diff);
 
         if (t > 0) {
-            pe::Real dotVV = v.dot(v);
+            const pe::Real dotVV = v.dot(v);
             if (t < dotVV) {
                 t /= dotVV;
                 diff -= t * v;
@@ -88,17 +89,17 @@ namespace pe_phys_collision {
         return diff.dot(diff);
     }
 
-    bool SphereConvexCollisionAlgorithm::collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real radius,
+    bool SphereConvexCollisionAlgorithm::collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real sphereRadius,
                                                                const pe::Vector3 vertices[], pe::Vector3& point,
                                                                pe::Vector3& resultNormal, pe::Real& depth) {
-        pe::Real radiusWithThreshold = radius;
+        const pe::Real radiusWithThreshold = sphereRadius;
         pe::Vector3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]);
-        pe::Real l2 = normal.norm2();
+        const pe::Real l2 = normal.norm2();
         bool hasContact = false;
         pe::Vector3 contactPoint;
 
         if (l2 >= PE_EPS * PE_EPS) {
-            normal /= std::sqrt(l2);
+            normal /= PE_SQRT(l2);
 
             pe::Vector3 p1ToCentre = sphereCenter - vertices[0];
             pe::Real distanceFromPlane = p1ToCentre.dot(normal);
@@ -127,7 +128,7 @@ namespace pe_phys_collision {
                         pe::Vector3 pa = vertices[i];
                         pe::Vector3 pb = vertices[(i + 1) % 3];
 
-                        pe::Real distanceSqr = segmentSqrDistance(pa, pb, sphereCenter, nearestOnEdge);
+                        const pe::Real distanceSqr = segmentSqrDistance(pa, pb, sphereCenter, nearestOnEdge);
                         if (distanceSqr < minDistSqr) {
                             // Yep, we're inside a capsule, and record the capsule with the smallest distance
                             minDistSqr = distanceSqr;
@@ -140,20 +141,20 @@ namespace pe_phys_collision {
         }
 
         if (hasContact) {
-            pe::Vector3 contactToCentre = sphereCenter - contactPoint;
-            pe::Real distanceSqr = contactToCentre.norm2();
+            const pe::Vector3 contactToCentre = sphereCenter - contactPoint;
+            const pe::Real distanceSqr = contactToCentre.norm2();
 
             if (distanceSqr < radiusWithThreshold * radiusWithThreshold) {
                 if (distanceSqr > PE_EPS * PE_EPS) {
-                    pe::Real distance = std::sqrt(distanceSqr);
+                    const pe::Real distance = PE_SQRT(distanceSqr);
                     resultNormal = contactToCentre;
                     resultNormal.normalize();
                     point = contactPoint;
-                    depth = -(radius - distance);
+                    depth = -(sphereRadius - distance);
                 } else {
                     resultNormal = normal;
                     point = contactPoint;
-                    depth = -radius;
+                    depth = -sphereRadius;
                 }
                 return true;
             }
@@ -162,38 +163,37 @@ namespace pe_phys_collision {
         return false;
     }
 
-    bool SphereConvexCollisionAlgorithm::pointInTriangle(const pe::Vector3 *vertices, const pe::Vector3 &normal,
-                                                         pe::Vector3 *p) {
+    bool SphereConvexCollisionAlgorithm::pointInTriangle(const pe::Vector3* vertices, const pe::Vector3& normal,
+                                                         const pe::Vector3* p) {
         const pe::Vector3* p1 = &vertices[0];
         const pe::Vector3* p2 = &vertices[1];
         const pe::Vector3* p3 = &vertices[2];
 
-        pe::Vector3 edge1(*p2 - *p1);
-        pe::Vector3 edge2(*p3 - *p2);
-        pe::Vector3 edge3(*p1 - *p3);
+        const pe::Vector3 edge1(*p2 - *p1);
+        const pe::Vector3 edge2(*p3 - *p2);
+        const pe::Vector3 edge3(*p1 - *p3);
 
-        pe::Vector3 p1_to_p(*p - *p1);
-        pe::Vector3 p2_to_p(*p - *p2);
-        pe::Vector3 p3_to_p(*p - *p3);
+        const pe::Vector3 p1_to_p(*p - *p1);
+        const pe::Vector3 p2_to_p(*p - *p2);
+        const pe::Vector3 p3_to_p(*p - *p3);
 
-        pe::Vector3 edge1_normal(edge1.cross(normal));
-        pe::Vector3 edge2_normal(edge2.cross(normal));
-        pe::Vector3 edge3_normal(edge3.cross(normal));
+        const pe::Vector3 edge1_normal(edge1.cross(normal));
+        const pe::Vector3 edge2_normal(edge2.cross(normal));
+        const pe::Vector3 edge3_normal(edge3.cross(normal));
 
-        pe::Real r1, r2, r3;
-        r1 = edge1_normal.dot(p1_to_p);
-        r2 = edge2_normal.dot(p2_to_p);
-        r3 = edge3_normal.dot(p3_to_p);
+        const pe::Real r1 = edge1_normal.dot(p1_to_p);
+        const pe::Real r2 = edge2_normal.dot(p2_to_p);
+        const pe::Real r3 = edge3_normal.dot(p3_to_p);
         if ((r1 > 0 && r2 > 0 && r3 > 0) || (r1 <= 0 && r2 <= 0 && r3 <= 0)) {
             return true;
         }
         return false;
     }
 
-    bool SphereConvexCollisionAlgorithm::faceContains(const pe::Vector3 &p, const pe::Vector3 *vertices,
-                                                      pe::Vector3 &normal) {
-        pe::Vector3 l_p(p);
-        pe::Vector3 l_normal(normal);
+    bool SphereConvexCollisionAlgorithm::faceContains(const pe::Vector3& p, const pe::Vector3* vertices,
+                                                      const pe::Vector3& normal) {
+        const pe::Vector3 l_p(p);
+        const pe::Vector3 l_normal(normal);
         return pointInTriangle(vertices, l_normal, &l_p);
     }
 

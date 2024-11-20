@@ -10,13 +10,13 @@ namespace pe_phys_raycast {
     bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
                                      pe_phys_shape::Shape* shape, pe::Transform trans,
                                      pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
-        pe::Vector3 start_local = trans.inverseTransform(start);
-        pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
+        const pe::Vector3 start_local = trans.inverseTransform(start);
+        const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
         const pe::Mesh* mesh;
         if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            mesh = &((pe_phys_shape::ConvexMeshShape*)shape)->getMesh();
+            mesh = &dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMesh();
         } else if (shape->getType() == pe_phys_shape::ShapeType::ConcaveMesh) {
-            mesh = &((pe_phys_shape::ConcaveMeshShape*)shape)->getMesh();
+            mesh = &dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getMesh();
         } else {
             return false;
         }
@@ -43,7 +43,7 @@ namespace pe_phys_raycast {
         }
         if (distance < PE_REAL_MAX) {
             hit_point = trans * hit_point;
-            hit_normal * trans.getBasis() * hit_normal;
+            hit_normal = trans.getBasis() * hit_normal;
             return true;
         }
         return false;
@@ -52,20 +52,20 @@ namespace pe_phys_raycast {
     bool RaycastMesh::rayHitTriangle(const pe::Vector3& start, const pe::Vector3& direction,
                                      const pe::Vector3& v0, const pe::Vector3& v1, const pe::Vector3& v2,
                                      pe::Real& distance, pe::Vector3& hitPoint) {
-        pe::Vector3 edge1 = v1 - v0, edge2 = v2 - v0;
-        pe::Vector3 p_vec = direction.cross(edge2);
-        pe::Real det = edge1.dot(p_vec);
+        const pe::Vector3 edge1 = v1 - v0, edge2 = v2 - v0;
+        const pe::Vector3 p_vec = direction.cross(edge2);
+        const pe::Real det = edge1.dot(p_vec);
         if (det > -PE_EPS && det < PE_EPS) {
             return false;
         }
-        pe::Real inv_det = pe::Real(1.0) / det;
-        pe::Vector3 t_vec = start - v0;
-        pe::Real u = t_vec.dot(p_vec) * inv_det;
+        const pe::Real inv_det = pe::Real(1.0) / det;
+        const pe::Vector3 t_vec = start - v0;
+        const pe::Real u = t_vec.dot(p_vec) * inv_det;
         if (u < 0 || u > pe::Real(1.0)) {
             return false;
         }
-        pe::Vector3 q_vec = t_vec.cross(edge1);
-        pe::Real v = direction.dot(q_vec) * inv_det;
+        const pe::Vector3 q_vec = t_vec.cross(edge1);
+        const pe::Real v = direction.dot(q_vec) * inv_det;
         if (v < 0 || u + v > pe::Real(1.0)) {
             return false;
         }

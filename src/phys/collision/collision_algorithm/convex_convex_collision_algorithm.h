@@ -12,26 +12,26 @@ namespace pe_phys_collision {
                                       pe::Transform trans_a, pe::Transform trans_b,
                                       pe::Real refScale, ContactResult& result) override;
 
-        static void clipHullAgainstHull(const pe::Vector3& separatingNormal1,
-                                        const pe::Mesh& meshA, const pe::Mesh& meshB,
-                                        const pe::Transform& transA, const pe::Transform& transB,
-                                        pe::Real minDist, pe::Real maxDist,
-                                        VertexArray& worldVertsB1, VertexArray& worldVertsB2,
+        static void clipHullAgainstHull(const pe::Vector3& sep_normal1,
+                                        const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+                                        const pe::Transform& trans_a, const pe::Transform& trans_b,
+                                        pe::Real min_dist, pe::Real max_dist,
+                                        VertexArray& world_vertices_b1, VertexArray& world_vertices_b2,
                                         pe::Real margin, ContactResult& result);
-        static bool findSeparatingAxis(const pe_phys_shape::Shape* shapeA,
-                                       const pe_phys_shape::Shape* shapeB,
-                                       const pe::Mesh& meshA, const pe::Mesh& meshB,
-                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesA,
-                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& uniqueEdgesB,
-                                       const pe::Transform& transA, const pe::Transform& transB,
+        static bool findSeparatingAxis(const pe_phys_shape::Shape* shape_a,
+                                       const pe_phys_shape::Shape* shape_b,
+                                       const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_a,
+                                       const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_b,
+                                       const pe::Transform& trans_a, const pe::Transform& trans_b,
                                        pe::Vector3& sep, pe::Real margin, ContactResult& result);
-        static void clipFaceAgainstHull(const pe::Vector3& separatingNormal,
-                                        const pe::Mesh& meshA, const pe::Transform& transA,
-                                        VertexArray& worldVertsB1, VertexArray& worldVertsB2,
-                                        pe::Real minDist, pe::Real maxDist,
-                                        pe::Real margin, ContactResult& resultOut);
-        static void clipFace(const VertexArray& pVtxIn, VertexArray& ppVtxOut,
-                             const pe::Vector3& planeNormalWS, pe::Real planeEqWS);
+        static void clipFaceAgainstHull(const pe::Vector3& sep_normal,
+                                        const pe::Mesh& mesh_a, const pe::Transform& trans_a,
+                                        VertexArray& world_vertices_b1, VertexArray& world_vertices_b2,
+                                        pe::Real min_dist, pe::Real max_dist,
+                                        pe::Real margin, ContactResult& result);
+        static void clipFace(const VertexArray& p_in, VertexArray& p_out,
+                             const pe::Vector3& plane_normal_w, pe::Real plane_eq_w);
     };
 
 } // pe_phys_collision

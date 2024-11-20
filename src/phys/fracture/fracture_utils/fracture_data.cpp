@@ -4,8 +4,8 @@ namespace pe_phys_fracture {
 
     uint32_t vertex::VertexHash::operator()(const vertex& v) const {
         static pe::Vector3Hash hash;
-        auto x = hash(v.pos);
-        auto y = hash(v.nor);
+        const auto x = hash(v.pos);
+        const auto y = hash(v.nor);
         uint32_t h = 0x10f1;
         h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
         h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);
