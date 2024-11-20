@@ -5,71 +5,9 @@
 #include "phys/shape/convex_mesh_shape.h"
 #include "convex_convex_collision_algorithm.h"
 
-// box-cylinder collision (from damps, with some corner cases fixed)
+// box-cylinder collision (from damps, with some bugs fixed)
 // style-checked.
 namespace pe_phys_collision {
-
-    static void addContactPointOnBox(const pe::Vector3& pc, const int i_face, const pe::Vector3& half_extent,
-                                     const pe::Transform& trans_box, const pe::Real margin, ContactResult& result) {
-        if (!(i_face >= -3 && i_face <= +3 && i_face != 0))
-            return;
-
-        // No contact if point outside box
-        if (!BoxCylinderCollisionAlgorithm::pointInsideBox(half_extent, pc))
-            return; // no contacts added
-
-        // Find point projection on box face and calculate normal and penetration
-        // (still working in the box frame)
-        pe::Vector3 p = pc;
-        pe::Vector3 n = pe::Vector3::zeros();
-        pe::Real penetration;
-        if (i_face > 0) {
-            // "positive" box face
-            const int i = i_face - 1;
-            p[i] = half_extent[i];
-            n[i] = 1;
-            penetration = pc[i] - half_extent[i];
-        } else {
-            // "negative" box face
-            const int i = -i_face - 1;
-            p[i] = -half_extent[i];
-            n[i] = -1;
-            penetration = -pc[i] - half_extent[i];
-        }
-
-        // A new contact point must specify (in absolute frame):
-        //   normal, pointing from B towards A
-        //   point, located on surface of B
-        //   distance, negative for penetration
-        const pe::Vector3 normal = trans_box.getBasis() * n;
-        const pe::Vector3 point = trans_box * p;
-        result.addContactPoint(normal, point - normal * margin, penetration + 2 * margin);
-    }
-
-    static void addContactPointOnCylinder(const pe::Vector3& p, const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, const pe::Real radius_cyl, const pe::Real h_cyl,
-                                          const pe::Transform& trans_box, const pe::Real margin, ContactResult& result) {
-        // Find the closest point on cylindrical surface to given location
-        const pe::Vector3 r = p - pos_cyl;
-        const pe::Real dist_y = r.dot(axis_cyl);
-        const pe::Real dist_xz = PE_SQRT(r.norm2() - dist_y * dist_y);
-        const pe::Real dist2side = radius_cyl - dist_xz;
-        const pe::Real dist2top = h_cyl - PE_ABS(dist_y);
-
-        pe::Vector3 normal;
-        pe::Real dist;
-        if (dist2side < dist2top) {
-            dist = dist2side;
-            normal = (axis_cyl * dist_y - r).normalized();
-        } else {
-            dist = dist2top;
-            normal = dist_y < 0 ? axis_cyl : -axis_cyl;
-        }
-
-        normal = trans_box.getBasis() * normal;
-        const pe::Vector3 point = trans_box * p;
-        std::cout << point << normal << dist << std::endl;
-        result.addContactPoint(normal, point - normal * margin, -dist + 2 * margin);
-    }
 
     bool BoxCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                          pe::Transform trans_a, pe::Transform trans_b,
@@ -129,7 +67,7 @@ namespace pe_phys_collision {
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
 
         // - Loop over each direction of the box frame (i.e., each of the 3 face normals).
-        // - For each direction, consider (two)x four segments, 2 of which are on the cylindrical plane defined by the
+        // - For each direction, consider two segments that are on the cylindrical plane defined by the
         //   axis and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box,
         //   but that is not trivial to define in all configurations). All segments are parameterized by t in [-H,H].
         // - For each segment, if the segment intersects the box, consider 3 candidate contact points: the 2
@@ -145,7 +83,7 @@ namespace pe_phys_collision {
                 continue;
             }
 
-            pe::Vector3 r = n_dir.cross(axis_cyl).cross(axis_cyl).normalized() * cyl_r;;
+            pe::Vector3 r = n_dir.cross(axis_cyl).cross(axis_cyl).normalized() * cyl_r;
 
             // Consider segments in both "negative" and "positive" r direction
             static pe::Real dir[2] = {-1, 1};
@@ -179,10 +117,10 @@ namespace pe_phys_collision {
             // current box edge direction and half-length
             pe::Vector3 e_d = pe::Vector3::zeros();
             e_d[i_dir] = 1;
-            pe::Real eH = half_extent[i_dir];
+            const pe::Real e_h = half_extent[i_dir];
             // The other two box directions
-            int j_dir = (i_dir + 1) % 3;
-            int k_dir = (i_dir + 2) % 3;
+            const int j_dir = (i_dir + 1) % 3;
+            const int k_dir = (i_dir + 2) % 3;
             for (int j = -1; j <= +1; j += 2) {
                 for (int k = -1; k <= +1; k += 2) {
                     pe::Vector3 e_c;
@@ -191,15 +129,11 @@ namespace pe_phys_collision {
                     e_c[k_dir] = k * half_extent[k_dir];
                     // Check for edge intersection with cylinder
                     pe::Real t_min, t_max;
-                    if (intersectSegmentCylinder(e_c, e_d, eH, pos_cyl, axis_cyl, cyl_h, cyl_r, PE_EPS, t_min, t_max)) {
+                    if (intersectSegmentCylinder(e_c, e_d, e_h, pos_cyl, axis_cyl, cyl_h, cyl_r, PE_EPS, t_min, t_max)) {
                         // Consider the intersection points and their midpoint as candidates
-                        pe::Vector3 p_min = e_c + e_d * t_min;
-                        pe::Vector3 p_max = e_c + e_d * t_max;
                         pe::Vector3 p_mid = e_c + e_d * ((t_min + t_max) / 2);
 
                         // Add a contact for any of the candidate points that is inside the cylinder
-                        addContactPointOnCylinder(p_min, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_box, margin, result);
-                        addContactPointOnCylinder(p_max, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_box, margin, result);
                         addContactPointOnCylinder(p_mid, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_box, margin, result);
                     }
                 }
@@ -209,6 +143,68 @@ namespace pe_phys_collision {
         result.setSwapFlag(false);
         return true;
 #   endif
+    }
+
+    void BoxCylinderCollisionAlgorithm::addContactPointOnBox(const pe::Vector3& pc, const int i_face, const pe::Vector3& half_extent,
+                                                             const pe::Transform& trans_other, pe::Real margin, ContactResult& result) {
+        if (!(i_face >= -3 && i_face <= +3 && i_face != 0))
+            return;
+
+        // No contact if point outside box
+        if (!BoxCylinderCollisionAlgorithm::pointInsideBox(half_extent, pc))
+            return; // no contacts added
+
+        // Find point projection on box face and calculate normal and penetration
+        // (still working in the box frame)
+        pe::Vector3 p = pc;
+        pe::Vector3 n = pe::Vector3::zeros();
+        pe::Real penetration;
+        if (i_face > 0) {
+            // "positive" box face
+            const int i = i_face - 1;
+            p[i] = half_extent[i];
+            n[i] = 1;
+            penetration = pc[i] - half_extent[i];
+        } else {
+            // "negative" box face
+            const int i = -i_face - 1;
+            p[i] = -half_extent[i];
+            n[i] = -1;
+            penetration = -pc[i] - half_extent[i];
+        }
+
+        // A new contact point must specify (in absolute frame):
+        //   normal, pointing from B towards A
+        //   point, located on surface of B
+        //   distance, negative for penetration
+        const pe::Vector3 normal = trans_other.getBasis() * n;
+        const pe::Vector3 point = trans_other * p;
+        result.addContactPoint(normal, point - normal * margin, penetration + 2 * margin);
+    }
+
+    void BoxCylinderCollisionAlgorithm::addContactPointOnCylinder(
+            const pe::Vector3& p, const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, pe::Real radius_cyl, pe::Real h_cyl,
+            const pe::Transform& trans_other, pe::Real margin, ContactResult& result) {
+        // Find the closest point on cylindrical surface to given location
+        const pe::Vector3 r = p - pos_cyl;
+        const pe::Real dist_y = r.dot(axis_cyl);
+        const pe::Real dist_xz = PE_SQRT(r.norm2() - dist_y * dist_y);
+        const pe::Real dist2side = radius_cyl - dist_xz;
+        const pe::Real dist2top = h_cyl - PE_ABS(dist_y);
+
+        pe::Vector3 normal;
+        pe::Real dist;
+        if (dist2side < dist2top) {
+            dist = dist2side;
+            normal = (axis_cyl * dist_y - r).normalized();
+        } else {
+            dist = dist2top;
+            normal = dist_y < 0 ? axis_cyl : -axis_cyl;
+        }
+
+        normal = trans_other.getBasis() * normal;
+        const pe::Vector3 point = trans_other * p;
+        result.addContactPoint(normal, point - normal * margin, -dist + 2 * margin);
     }
 
     bool BoxCylinderCollisionAlgorithm::pointInsideBox(const pe::Vector3& half_extent, const pe::Vector3& loc) {

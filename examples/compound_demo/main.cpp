@@ -13,10 +13,10 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
-        _world.setSleepLinVel2Threshold(pe::Real(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
+        _world.setGravity(pe::Vector3(0, -9.8, 0));
+        _world.setSleepLinVel2Threshold(0.01); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(0.01); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(1.0);     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
@@ -46,7 +46,7 @@ public:
         auto shape2 = new pe_phys_shape::ConvexMeshShape();
         shape2->setMesh(mesh);
         rb2->setCollisionShape(shape2);
-        rb2->setTransform(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), PE_PI / 2), pe::Vector3(5, 0.5, 0)));
+        rb2->setTransform(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), -PE_PI / 2), pe::Vector3(0, 0.5, 0)));
         rb2->setFrictionCoeff(0.5);
         rb2->setRestitutionCoeff(0.5);
         rb2->setKinematic(true);
@@ -60,10 +60,10 @@ public:
         //                                  pe::Real(0.5), 1);
         // _world.addRigidBody(rb3);
         pe::Transform trans = pe::Transform::identity();
-        trans.setRotation({0.2, 0, 1}, PE_PI * 0.1);
-        trans.setOrigin({-1.5, 2, 0});
+        trans.setRotation({0, 0, 1}, PE_PI * 0.01);
+        trans.setOrigin({-0.8, 2, 0});
         auto rb4 = createCylinderRigidBody(trans,
-                                           pe::Real(0.5), 1, 1);
+                                           pe::Real(0.4), 1, 1);
         _world.addRigidBody(rb4);
 
         // // add some compound-shaped rigidbodies

@@ -90,8 +90,10 @@ namespace pe_phys_collision {
         // find the same closest point
         const int cp_idx = getExistingClosestPoint(local_pos_b);
         if (cp_idx >= 0) {
-            // if found, update the contact point info
-            _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+            // if found, update the contact point info when the new depth is bigger
+            if (depth < _points[cp_idx].getDistance()) {
+                _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+            }
         } else {
             // otherwise, find an empty slot and replace it
             bool found = false;
