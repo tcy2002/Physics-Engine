@@ -9,8 +9,8 @@ namespace utils {
 
     Vector3 min_vector3(const Mesh& mesh, const Mesh::Face& face) {
         BVH_REAL min_x = BVH_MAX, min_y = BVH_MAX, min_z = BVH_MAX;
-        for (int i = 0; i < (int)face.indices.size(); i++) {
-            auto& pos = mesh.vertices[face.indices[i]].position;
+        for (unsigned int index : face.indices) {
+            auto& pos = mesh.vertices[index].position;
             if (pos.x < min_x) min_x = pos.x;
             if (pos.y < min_y) min_y = pos.y;
             if (pos.z < min_z) min_z = pos.z;
@@ -20,8 +20,8 @@ namespace utils {
 
     Vector3 max_vector3(const Mesh& mesh, const Mesh::Face& face) {
         BVH_REAL max_x = BVH_MIN, max_y = BVH_MIN, max_z = BVH_MIN;
-        for (int i = 0; i < (int)face.indices.size(); i++) {
-            auto& pos = mesh.vertices[face.indices[i]].position;
+        for (unsigned int index : face.indices) {
+            auto& pos = mesh.vertices[index].position;
             if (pos.x > max_x) max_x = pos.x;
             if (pos.y > max_y) max_y = pos.y;
             if (pos.z > max_z) max_z = pos.z;
@@ -31,12 +31,12 @@ namespace utils {
 
     bool cmp(const Mesh& mesh, const Mesh::Face& a, const Mesh::Face& b, int axis) {
         BVH_REAL sum_a = 0, sum_b = 0;
-        for (int i = 0; i < (int)a.indices.size(); i++) {
-            sum_a += mesh.vertices[a.indices[i]].position[axis];
+        for (unsigned int index : a.indices) {
+            sum_a += mesh.vertices[index].position[axis];
         }
         sum_a /= (BVH_REAL)a.indices.size();
-        for (int i = 0; i < (int)b.indices.size(); i++) {
-            sum_b += mesh.vertices[b.indices[i]].position[axis];
+        for (unsigned int index : b.indices) {
+            sum_b += mesh.vertices[index].position[axis];
         }
         sum_b /= (BVH_REAL)b.indices.size();
         return sum_a < sum_b;
@@ -46,9 +46,8 @@ namespace utils {
         if (l > r) return nullptr;
         auto node = new BVHNode();
 
-        Vector3 tmp;
         for (int i = l; i <= r; i++) {
-            tmp = min_vector3(mesh, mesh.faces[i]);
+            Vector3 tmp = min_vector3(mesh, mesh.faces[i]);
             if (tmp.x < node->AA.x) node->AA.x = tmp.x;
             if (tmp.y < node->AA.y) node->AA.y = tmp.y;
             if (tmp.z < node->AA.z) node->AA.z = tmp.z;
@@ -100,7 +99,7 @@ namespace utils {
 
     void BVH::setMesh(Mesh& mesh, int max_node) {
         if (bvh != nullptr) clear();
-        bvh = buildBVH(mesh, 0, mesh.faces.size() - 1, max_node);
+        bvh = buildBVH(mesh, 0, static_cast<int>(mesh.faces.size()) - 1, max_node);
     }
 
     void BVH::search(const Vector3& AA, const Vector3& BB, std::vector<int>& intersect) const {

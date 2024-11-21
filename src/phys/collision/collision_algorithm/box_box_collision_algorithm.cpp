@@ -13,10 +13,134 @@ namespace pe_phys_collision {
             return false;
         }
 
+        constexpr auto margin = PE_MARGIN;
+
+        return getClosestPoints(shape_a, shape_b, trans_a, trans_b, margin, result);
+    }
+
+    static int intersectRectQuad2(const pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
+        // q (and r) contain nq (and nr) coordinate points for the current (and
+        // chopped) polygons
+        int nq = 4, nr = 0;
+        pe::Real* q = p;
+        pe::Real* r = ret;
+
+        for (int dir = 0; dir <= 1; dir++) {
+            // direction notation: xy[0] = x axis, xy[1] = y axis
+            for (int sign = -1; sign <= 1; sign += 2) {
+                pe::Real buffer[16];
+                // chop q along the line xy[dir] = sign*h[dir]
+                pe::Real* pq = q;
+                pe::Real* pr = r;
+                nr = 0;
+                for (int i = nq; i > 0; i--) {
+                    // go through all points in q and all lines between adjacent points
+                    if (sign * pq[dir] < h[dir]) {
+                        // this point is inside the chopping line
+                        pr[0] = pq[0];
+                        pr[1] = pq[1];
+                        pr += 2;
+                        nr++;
+                        if (nr & 8) {
+                            q = r;
+                            goto done;
+                        }
+                    }
+                    pe::Real* next_q = (i > 1) ? pq + 2 : q;
+                    if ((sign * pq[dir] < h[dir]) ^ (sign * next_q[dir] < h[dir])) {
+                        // this line crosses the chopping line
+                        pr[1 - dir] = pq[1 - dir] + (next_q[1 - dir] - pq[1 - dir]) /
+                                (next_q[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
+                        pr[dir] = sign * h[dir];
+                        pr += 2;
+                        nr++;
+                        if (nr & 8) {
+                            q = r;
+                            goto done;
+                        }
+                    }
+                    pq += 2;
+                }
+                q = r;
+                r = q == ret ? buffer : ret;
+                nq = nr;
+            }
+        }
+        done:
+        if (q != ret) memcpy(ret, q, nr * 2 * sizeof(pe::Real));
+        return nr;
+    }
+
+    static void cullPoints2(int n, pe::Real p[], int m, int i0, int i_ret[]) {
+        // compute the centroid of the polygon in cx,cy
+        int i;
+        pe::Real a, cx, cy, q;
+        if (n == 1) {
+            cx = p[0];
+            cy = p[1];
+        } else if (n == 2) {
+            cx = R(0.5) * (p[0] + p[2]);
+            cy = R(0.5) * (p[1] + p[3]);
+        } else {
+            a = 0;
+            cx = 0;
+            cy = 0;
+            for (i = 0; i < (n - 1); i++) {
+                const pe::Real p0 = p[i * 2], p1 = p[i * 2 + 1], p2 = p[i * 2 + 2], p3 = p[i * 2 + 3];
+                q = p0 * p3 - p2 * p1;
+                a += q;
+                cx += q * (p0 + p2);
+                cy += q * (p1 + p3);
+            }
+            const pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
+            q = pm2 * p1 - p0 * pm1;
+            if (PE_ABS(a + q) > PE_EPS) {
+                a = R(1.0) / (R(3.0) * (a + q));
+            } else {
+                a = PE_REAL_MAX;
+            }
+            cx = a * (cx + q * (pm2 + p0));
+            cy = a * (cy + q * (pm1 + p1));
+        }
+
+        // compute the angle of each point w.r.t. the centroid
+        // search for points that have angles closest to A[i0] + i*(2*pi/m).
+        pe::Real A[8]; int avail[8];
+        for (i = 0; i < n; i++) {
+            A[i] = std::atan2(p[i * 2 + 1] - cy, p[i * 2] - cx);
+            avail[i] = 1;
+        }
+        avail[i0] = 0;
+        i_ret[0] = i0;
+        i_ret++;
+        for (int j = 1; j < m; j++) {
+            a = R(j) * (2 * PE_PI / m) + A[i0];
+            if (a > PE_PI) a -= 2 * PE_PI;
+            auto max_diff = PE_REAL_MAX;
+
+            *i_ret = i0;  // i_ret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
+
+            for (i = 0; i < n; i++) {
+                if (avail[i]) {
+                    pe::Real diff = PE_ABS(A[i] - a);
+                    if (diff > PE_PI) diff = 2 * PE_PI - diff;
+                    if (diff < max_diff) {
+                        max_diff = diff;
+                        *i_ret = i;
+                    }
+                }
+            }
+            avail[*i_ret] = 0;
+            i_ret++;
+        }
+    }
+
+    bool BoxBoxCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape *shape_a, pe_phys_shape::Shape *shape_b,
+                                                    const pe::Transform& trans_a, const pe::Transform& trans_b,
+                                                    pe::Real margin, ContactResult &result) {
         pe::Vector3 normal;
         pe::Real depth;
         int max_c = 4;
-        constexpr auto margin = PE_MARGIN;
 
         constexpr pe::Real fudge_factor = 1.05;
         pe::Vector3 p, pp, normalC{0,0,0}, *normalR = nullptr;
@@ -34,12 +158,12 @@ namespace pe_phys_collision {
         // get side lengths / 2
         const auto& side1 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_a)->getSize();
         const auto& side2 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_b)->getSize();
-        A[0] = side1[0] * pe::Real(0.5);
-        A[1] = side1[1] * pe::Real(0.5);
-        A[2] = side1[2] * pe::Real(0.5);
-        B[0] = side2[0] * pe::Real(0.5);
-        B[1] = side2[1] * pe::Real(0.5);
-        B[2] = side2[2] * pe::Real(0.5);
+        A[0] = side1[0] * R(0.5);
+        A[1] = side1[1] * R(0.5);
+        A[2] = side1[2] * R(0.5);
+        B[0] = side2[0] * R(0.5);
+        B[1] = side2[1] * R(0.5);
+        B[2] = side2[2] * R(0.5);
 
         // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
         pe::Matrix3 Rij = R1.transposed() * R2;
@@ -163,7 +287,7 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R1.getColumn(j)) > 0 ? pe::Real(1.0) : pe::Real(-1.0);
+                sign = normal.dot(R1.getColumn(j)) > 0 ? R(1.0) : R(-1.0);
                 pa[0] += sign * A[j] * R1[0][j];
                 pa[1] += sign * A[j] * R1[1][j];
                 pa[2] += sign * A[j] * R1[2][j];
@@ -173,7 +297,7 @@ namespace pe_phys_collision {
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R2.getColumn(j)) > 0 ? pe::Real(-1.0) : pe::Real(1.0);
+                sign = normal.dot(R2.getColumn(j)) > 0 ? R(-1.0) : R(1.0);
                 pb[0] += sign * B[j] * R2[0][j];
                 pb[1] += sign * B[j] * R2[1][j];
                 pb[2] += sign * B[j] * R2[2][j];
@@ -201,7 +325,7 @@ namespace pe_phys_collision {
                 alpha = 0;
                 beta = 0;
             } else {
-                d = pe::Real(1.0) / d;
+                d = R(1.0) / d;
                 alpha = (q1 + ua_ub * q2) * d;
                 beta = (ua_ub * q1 + q2) * d;
             }
@@ -454,121 +578,5 @@ namespace pe_phys_collision {
         return true;
     }
 
-    int BoxBoxCollisionAlgorithm::intersectRectQuad2(const pe::Real h[2], pe::Real p[8], pe::Real ret[16]) {
-        // q (and r) contain nq (and nr) coordinate points for the current (and
-        // chopped) polygons
-        int nq = 4, nr = 0;
-        pe::Real* q = p;
-        pe::Real* r = ret;
-
-        for (int dir = 0; dir <= 1; dir++) {
-            // direction notation: xy[0] = x axis, xy[1] = y axis
-            for (int sign = -1; sign <= 1; sign += 2) {
-                pe::Real buffer[16];
-                // chop q along the line xy[dir] = sign*h[dir]
-                pe::Real* pq = q;
-                pe::Real* pr = r;
-                nr = 0;
-                for (int i = nq; i > 0; i--) {
-                    // go through all points in q and all lines between adjacent points
-                    if (sign * pq[dir] < h[dir]) {
-                        // this point is inside the chopping line
-                        pr[0] = pq[0];
-                        pr[1] = pq[1];
-                        pr += 2;
-                        nr++;
-                        if (nr & 8) {
-                            q = r;
-                            goto done;
-                        }
-                    }
-                    pe::Real* next_q = (i > 1) ? pq + 2 : q;
-                    if ((sign * pq[dir] < h[dir]) ^ (sign * next_q[dir] < h[dir])) {
-                        // this line crosses the chopping line
-                        pr[1 - dir] = pq[1 - dir] + (next_q[1 - dir] - pq[1 - dir]) /
-                                (next_q[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
-                        pr[dir] = sign * h[dir];
-                        pr += 2;
-                        nr++;
-                        if (nr & 8) {
-                            q = r;
-                            goto done;
-                        }
-                    }
-                    pq += 2;
-                }
-                q = r;
-                r = q == ret ? buffer : ret;
-                nq = nr;
-            }
-        }
-        done:
-        if (q != ret) memcpy(ret, q, nr * 2 * sizeof(pe::Real));
-        return nr;
-    }
-
-    void BoxBoxCollisionAlgorithm::cullPoints2(int n, pe::Real p[], int m, int i0, int i_ret[]) {
-        // compute the centroid of the polygon in cx,cy
-        int i;
-        pe::Real a, cx, cy, q;
-        if (n == 1) {
-            cx = p[0];
-            cy = p[1];
-        } else if (n == 2) {
-            cx = pe::Real(0.5) * (p[0] + p[2]);
-            cy = pe::Real(0.5) * (p[1] + p[3]);
-        } else {
-            a = 0;
-            cx = 0;
-            cy = 0;
-            for (i = 0; i < (n - 1); i++) {
-                pe::Real p0 = p[i * 2], p1 = p[i * 2 + 1], p2 = p[i * 2 + 2], p3 = p[i * 2 + 3];
-                q = p0 * p3 - p2 * p1;
-                a += q;
-                cx += q * (p0 + p2);
-                cy += q * (p1 + p3);
-            }
-            const pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
-            q = pm2 * p1 - p0 * pm1;
-            if (PE_ABS(a + q) > PE_EPS) {
-                a = pe::Real(1.0) / (pe::Real(3.0) * (a + q));
-            } else {
-                a = PE_REAL_MAX;
-            }
-            cx = a * (cx + q * (pm2 + p0));
-            cy = a * (cy + q * (pm1 + p1));
-        }
-
-        // compute the angle of each point w.r.t. the centroid
-        // search for points that have angles closest to A[i0] + i*(2*pi/m).
-        pe::Real A[8]; int avail[8];
-        for (i = 0; i < n; i++) {
-            A[i] = std::atan2(p[i * 2 + 1] - cy, p[i * 2] - cx);
-            avail[i] = 1;
-        }
-        avail[i0] = 0;
-        i_ret[0] = i0;
-        i_ret++;
-        for (int j = 1; j < m; j++) {
-            a = pe::Real(j) * (2 * PE_PI / m) + A[i0];
-            if (a > PE_PI) a -= 2 * PE_PI;
-            pe::Real max_diff = 1e9;
-
-            *i_ret = i0;  // i_ret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
-
-            for (i = 0; i < n; i++) {
-                if (avail[i]) {
-                    pe::Real diff = PE_ABS(A[i] - a);
-                    if (diff > PE_PI) diff = 2 * PE_PI - diff;
-                    if (diff < max_diff) {
-                        max_diff = diff;
-                        *i_ret = i;
-                    }
-                }
-            }
-            avail[*i_ret] = 0;
-            i_ret++;
-        }
-    }
 
 } // pe_phys_collision

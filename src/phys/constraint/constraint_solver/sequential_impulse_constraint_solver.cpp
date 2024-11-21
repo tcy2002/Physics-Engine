@@ -19,8 +19,8 @@ namespace pe_phys_constraint {
         }
 
         // clear old constraints
-        const int old_size = (int)_fcc_constraints.size();
-        const int new_size = (int)contact_results.size();
+        const int old_size = I(_fcc_constraints.size());
+        const int new_size = I(contact_results.size());
         if (old_size < new_size) {
             _fcc_constraints.resize(new_size);
             for (int i = old_size; i < new_size; i++) {
@@ -29,7 +29,7 @@ namespace pe_phys_constraint {
         } else {
             for (int i = new_size; i < old_size; i++) {
                 if (_fcc_constraints[i]->getType() == ConstraintType::CT_FRICTION_CONTACT) {
-                    _fcc_pool.destroy((FrictionContactConstraint*)_fcc_constraints[i]);
+                    _fcc_pool.destroy(dynamic_cast<FrictionContactConstraint*>(_fcc_constraints[i]));
                 } else {
                     delete _fcc_constraints[i];
                 }
@@ -39,19 +39,19 @@ namespace pe_phys_constraint {
 
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)contact_results.size(), 0, [&](int i){
+        utils::ThreadPool::forBatchedLoop(I(contact_results.size()), 0, [&](int i){
             const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
         });
-        utils::ThreadPool::forBatchedLoop((int)constraints.size(), 0, [&](int i){
+        utils::ThreadPool::forBatchedLoop(I(constraints.size()), 0, [&](int i){
             constraints[i]->initSequentialImpulse(_param);
             constraints[i]->warmStart();
         });
         utils::ThreadPool::join();
 #   else
-        for (int i = 0; i < contact_results.size(); i++) {
+        for (int i = 0; i < I(contact_results.size()); i++) {
             auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
@@ -69,10 +69,10 @@ namespace pe_phys_constraint {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forBatchedLoop((int)_fcc_constraints.size(), 0,[&](int i){
+            utils::ThreadPool::forBatchedLoop(I(_fcc_constraints.size()), 0,[&](int i){
                 _fcc_constraints[i]->iterateSequentialImpulse(i);
             });
-            utils::ThreadPool::forBatchedLoop((int)_other_constraints.size(), 0,[&](int i){
+            utils::ThreadPool::forBatchedLoop(I(_other_constraints.size()), 0,[&](int i){
                 _other_constraints[i]->iterateSequentialImpulse(i);
             });
             utils::ThreadPool::join();
@@ -85,7 +85,7 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)_collision_objects.size(), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop(I(_collision_objects.size()), 0,[&](int i){
             _collision_objects[i]->syncTempVelocity();
         });
         utils::ThreadPool::join();
@@ -97,10 +97,10 @@ namespace pe_phys_constraint {
 
         // after solving
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)_fcc_constraints.size(), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop(I(_fcc_constraints.size()), 0,[&](int i){
             _fcc_constraints[i]->afterSequentialImpulse();
         });
-        utils::ThreadPool::forBatchedLoop((int)_other_constraints.size(), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop(I(_other_constraints.size()), 0,[&](int i){
             _other_constraints[i]->afterSequentialImpulse();
         });
         utils::ThreadPool::join();

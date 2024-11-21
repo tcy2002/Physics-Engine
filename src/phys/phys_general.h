@@ -21,13 +21,22 @@
 //// data
 #define PE_DATA_DOWNLOAD_PATH "./data"
 
+//// type cast
+#define R(n) static_cast<pe::Real>(n)
+#define F(n) static_cast<float>(n)
+#define D(n) static_cast<double>(n)
+#define UI(n) static_cast<uint32_t>(n)
+#define I(n) static_cast<int>(n)
+#define IL(n) static_cast<int64_t>(n)
+#define UIL(n) static_cast<uint64_t>(n)
+
 //// real
 #ifdef PE_USE_DOUBLE
-#define PE_REAL_MAX pe::Real(1e100)
-#define PE_REAL_MIN pe::Real(-1e100)
+#define PE_REAL_MAX R(1e100)
+#define PE_REAL_MIN R(-1e100)
 #else
-#define PE_REAL_MAX pe::Real(1e30)
-#define PE_REAL_MIN pe::Real(-1e30)
+#define PE_REAL_MAX R(1e30)
+#define PE_REAL_MIN R(-1e30)
 #endif
 
 //// phys

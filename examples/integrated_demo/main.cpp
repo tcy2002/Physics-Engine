@@ -22,7 +22,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
 
         // create the urban layout
         createUrbanLayout();
@@ -102,10 +102,10 @@ public:
 
         // shoot
         if (pe_intf::Viewer::getKeyState(',') == 2) {
-            _tank1->shoot(&_world, 50, 20, pe::Real(0.3), 5);
+            _tank1->shoot(&_world, 50, 20, R(0.3), 5);
         }
         if (pe_intf::Viewer::getKeyState('v') == 2) {
-            _tank2->shoot(&_world, 50, 20, pe::Real(0.3), 5);
+            _tank2->shoot(&_world, 50, 20, R(0.3), 5);
         }
     }
 
@@ -119,9 +119,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -135,9 +135,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
+        rb->setFrictionCoeff(R(0.5));
+        rb->setRestitutionCoeff(R(0.5));
+        rb->setAngularDamping(R(0.8));
         rb->setThreshold(th);
         return rb;
     }
@@ -225,13 +225,13 @@ protected:
         _world.addRigidBody(stair);
 
         // stairs
-        pe::Real stair_width = (dir < 2 ? size.z : size.x) / pe::Real(stair_num + 1);
-        pe::Real stair_height = height / pe::Real(stair_num);
+        pe::Real stair_width = (dir < 2 ? size.z : size.x) / R(stair_num + 1);
+        pe::Real stair_height = height / R(stair_num);
         for (int i = 1; i <= stair_num; i++) {
             pe::Real size_x = dir < 2 ? size.x : size.x - stair_width * i;
             pe::Real size_z = dir < 2 ? size.z - stair_width * i : size.z;
             pe::Real pos_x = (dir >= 2) * (stair_width * i / 2) * (dir == 2 ? 1 : -1);
-            pe::Real pos_y = size.y + stair_height * (i - pe::Real(0.5));
+            pe::Real pos_y = size.y + stair_height * (i - R(0.5));
             pe::Real pos_z = (dir < 2) * (stair_width * i / 2) * (dir == 0 ? 1 : -1);
             stair = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                      pos + pe::Vector3(pos_x, pos_y, pos_z)),
@@ -324,10 +324,10 @@ protected:
         block->setIgnoreCollision(true);
         block->setTag("color:0.3,0.3,0.8");
         _world.addRigidBody(block);
-        createStairs(pe::Vector3(12, pe::Real(0.2), 8), pe::Vector3(16, 6, -52),
-                     2, pe::Real(0.4), 0);
-        createStairs(pe::Vector3(12, pe::Real(0.2), 8), pe::Vector3(16, 6, -44),
-                     2, pe::Real(0.4), 1);
+        createStairs(pe::Vector3(12, R(0.2), 8), pe::Vector3(16, 6, -52),
+                     2, R(0.4), 0);
+        createStairs(pe::Vector3(12, R(0.2), 8), pe::Vector3(16, 6, -44),
+                     2, R(0.4), 1);
 
         // block [3,4]
         block = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),

@@ -31,7 +31,7 @@ namespace pe_intf {
 
     void World::updateAABBs() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)_collision_objects.size(), 0,[&](int i) {
+        utils::ThreadPool::forBatchedLoop(I(_collision_objects.size()), 0,[&](int i) {
             _collision_objects[i]->computeAABB();
         });
         utils::ThreadPool::join();
@@ -43,7 +43,7 @@ namespace pe_intf {
     }
 
     void World::updateObjectStatus() {
-        for (int i = 0; i < (int)_collision_objects.size(); i++) {
+        for (int i = 0; i < I(_collision_objects.size()); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
             const auto ratio = (rb->getStaticCount() + 1) / (pe::Real)(rb->getDynamicCount() + rb->getStaticCount() + 1);
@@ -124,7 +124,7 @@ namespace pe_intf {
     }
 
     void World::removeRigidBody(pe_phys_object::RigidBody *rigidbody) {
-        for (int i = 0; i < (int)_collision_objects.size(); i++) {
+        for (int i = 0; i < I(_collision_objects.size()); i++) {
             if (_collision_objects[i]->getGlobalId() == rigidbody->getGlobalId()) {
                 _collision_objects.erase(_collision_objects.begin() + i);
                 _rigidbodies_to_remove.push_back(rigidbody);
@@ -139,7 +139,7 @@ namespace pe_intf {
     }
 
     void World::removeConstraint(pe_phys_constraint::Constraint *constraint) {
-        for (int i = 0; i < (int)_constraints.size(); i++) {
+        for (int i = 0; i < I(_constraints.size()); i++) {
             if (_constraints[i]->getGlobalId() == constraint->getGlobalId()) {
                 _constraints.erase(_constraints.begin() + i);
                 break;
@@ -156,7 +156,7 @@ namespace pe_intf {
 
         // fracture
         if (!_fracture_sources.empty()) {
-            for (int i = 0; i < (int)_collision_objects.size(); i++) {
+            for (int i = 0; i < I(_collision_objects.size()); i++) {
                 auto rb = _collision_objects[i];
                 if (rb->isFracturable()) {
                     _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);

@@ -44,14 +44,14 @@ namespace pe_phys_shape {
     }
 
     bool CylinderShape::localIsInside(const pe::Vector3 &point) const {
-        return point.y >= -_height * pe::Real(0.5) && point.y <= _height * pe::Real(0.5) &&
+        return point.y >= -_height * R(0.5) && point.y <= _height * R(0.5) &&
                point.x * point.x + point.z * point.z <= _radius * _radius;
     }
 
     void CylinderShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
                                 pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
         const pe::Vector3 local_axis = transform.getBasis().transposed() * axis;
-        const pe::Real half_height = _height * pe::Real(0.5);
+        const pe::Real half_height = _height * R(0.5);
         const pe::Real offset = transform.getOrigin().dot(axis);
         if (PE_APPROX_EQUAL(local_axis.x, 0) && PE_APPROX_EQUAL(local_axis.z, 0)) {
             const pe::Vector3 up = pe::Vector3::up() * half_height;

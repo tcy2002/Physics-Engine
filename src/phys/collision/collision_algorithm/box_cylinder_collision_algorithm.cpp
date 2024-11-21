@@ -34,23 +34,8 @@ namespace pe_phys_collision {
                         dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getUniqueEdges();
 
-        pe::Vector3 sep;
-
-        VertexArray world_vertices_b1;
-        VertexArray world_vertices_b2;
-
-        if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
-                                                                mesh_a, mesh_b,
-                                                                edges_a, edges_b,
-                                                                trans_a, trans_b, sep, margin, result)) {
-            return false;
-        }
-        ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
-                                                            mesh_a, mesh_b, trans_a, trans_b,
-                                                            -refScale, margin,
-                                                            world_vertices_b1, world_vertices_b2,
-                                                            margin, result);
-        return true;
+        return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
+                                                                trans_a, trans_b, margin, refScale, result);
 #   else
         auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
         auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
@@ -58,91 +43,24 @@ namespace pe_phys_collision {
         auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
 
         const pe::Real cyl_r = shape_cyl->getRadius();
-        const pe::Real cyl_h = shape_cyl->getHeight() / pe::Real(2.0);
-        pe::Vector3 half_extent = shape_box->getSize() / pe::Real(2.0);
-        pe::Transform trans_cyl2box = trans_box.inverse() * trans_cyl;
-        pe::Vector3 axis_cyl = trans_cyl2box.getBasis().getColumn(1);
-        pe::Vector3 pos_cyl = trans_cyl2box.getOrigin();
+        const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
+        const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
+
 
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
-
-        // - Loop over each direction of the box frame (i.e., each of the 3 face normals).
-        // - For each direction, consider two segments that are on the cylindrical plane defined by the
-        //   axis and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box,
-        //   but that is not trivial to define in all configurations). All segments are parameterized by t in [-H,H].
-        // - For each segment, if the segment intersects the box, consider 3 candidate contact points: the 2
-        //   intersection points and their midpoint. A contact is added if the segment point is inside the box.
-        //   Furthermore, the corresponding box point is located on the box face that is closest to the intersection
-        //   midpoint candidate.
-        for (int i_dir = 0; i_dir < 3; i_dir++) {
-            // current box direction
-            pe::Vector3 n_dir = pe::Vector3::zeros();
-            n_dir[i_dir] = 1;
-
-            if (PE_ABS(axis_cyl[i_dir] - 1) < PE_EPS || PE_ABS(axis_cyl[i_dir] + 1) < PE_EPS) {
-                continue;
-            }
-
-            pe::Vector3 r = n_dir.cross(axis_cyl).cross(axis_cyl).normalized() * cyl_r;
-
-            // Consider segments in both "negative" and "positive" r direction
-            static pe::Real dir[2] = {-1, 1};
-            for (int j_dir = 0; j_dir < 2; j_dir++) {
-                // Calculate current segment center
-                pe::Vector3 cs = pos_cyl + dir[j_dir] * r;
-                // Check for intersection with box
-                pe::Real t_min, t_max;
-                if (intersectSegmentBox(half_extent, cs, axis_cyl, cyl_h, PE_EPS, t_min, t_max)) {
-                    // Consider the intersection points and their midpoint as candidates
-                    pe::Vector3 p_min = cs + axis_cyl * t_min;
-                    pe::Vector3 p_max = cs + axis_cyl * t_max;
-                    pe::Vector3 p_mid = cs + axis_cyl * ((t_min + t_max) / 2);
-
-                    // Pick box face that is closest to midpoint
-                    int i_face = findClosestBoxFace(half_extent, p_mid);
-
-                    // Add a contact for any of the candidate points that is inside the box
-                    addContactPointOnBox(p_min, i_face, half_extent, trans_box, margin, result); // 1st segment end
-                    addContactPointOnBox(p_max, i_face, half_extent, trans_box, margin, result); // 2nd segment end
-                    addContactPointOnBox(p_mid, i_face, half_extent, trans_box, margin, result); // intersection midpoint
-                }
-            }
-        }
-
-        // - Loop over each direction of the box frame.
-        // - For each direction, check intersection with the cylinder for all 4 edges parallel to that direction.
-        // - If an edge intersects the cylinder, consider 3 candidate contact points: the 2 intersection points
-        //   and their midpoint.
-        for (int i_dir = 0; i_dir < 3; i_dir++) {
-            // current box edge direction and half-length
-            pe::Vector3 e_d = pe::Vector3::zeros();
-            e_d[i_dir] = 1;
-            const pe::Real e_h = half_extent[i_dir];
-            // The other two box directions
-            const int j_dir = (i_dir + 1) % 3;
-            const int k_dir = (i_dir + 2) % 3;
-            for (int j = -1; j <= +1; j += 2) {
-                for (int k = -1; k <= +1; k += 2) {
-                    pe::Vector3 e_c;
-                    e_c[i_dir] = 0;
-                    e_c[j_dir] = j * half_extent[j_dir];
-                    e_c[k_dir] = k * half_extent[k_dir];
-                    // Check for edge intersection with cylinder
-                    pe::Real t_min, t_max;
-                    if (intersectSegmentCylinder(e_c, e_d, e_h, pos_cyl, axis_cyl, cyl_h, cyl_r, PE_EPS, t_min, t_max)) {
-                        // Consider the intersection points and their midpoint as candidates
-                        pe::Vector3 p_mid = e_c + e_d * ((t_min + t_max) / 2);
-
-                        // Add a contact for any of the candidate points that is inside the cylinder
-                        addContactPointOnCylinder(p_mid, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_box, margin, result);
-                    }
-                }
-            }
-        }
-
+        bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
         result.setSwapFlag(false);
-        return true;
+
+        return ret;
 #   endif
+    }
+
+    static bool pointInsideBox(const pe::Vector3& half_extent, const pe::Vector3& loc) {
+        for (int i = 0; i < 3; i++) {
+            if (loc[i] > half_extent[i] || loc[i] < -half_extent[i])
+                return false;
+        }
+        return true;
     }
 
     void BoxCylinderCollisionAlgorithm::addContactPointOnBox(const pe::Vector3& pc, const int i_face, const pe::Vector3& half_extent,
@@ -151,7 +69,7 @@ namespace pe_phys_collision {
             return;
 
         // No contact if point outside box
-        if (!BoxCylinderCollisionAlgorithm::pointInsideBox(half_extent, pc))
+        if (!pointInsideBox(half_extent, pc))
             return; // no contacts added
 
         // Find point projection on box face and calculate normal and penetration
@@ -207,15 +125,7 @@ namespace pe_phys_collision {
         result.addContactPoint(normal, point - normal * margin, -dist + 2 * margin);
     }
 
-    bool BoxCylinderCollisionAlgorithm::pointInsideBox(const pe::Vector3& half_extent, const pe::Vector3& loc) {
-        for (int i = 0; i < 3; i++) {
-            if (loc[i] > half_extent[i] || loc[i] < -half_extent[i])
-                return false;
-        }
-        return true;
-    }
-
-    int BoxCylinderCollisionAlgorithm::findClosestBoxFace(const pe::Vector3& half_extent, const pe::Vector3& loc) {
+    static int findClosestBoxFace(const pe::Vector3& half_extent, const pe::Vector3& loc) {
         int code = 0;
         auto dist = PE_REAL_MAX;
         for (int i = 0; i < 3; i++) {
@@ -233,7 +143,7 @@ namespace pe_phys_collision {
         return code;
     }
 
-    bool BoxCylinderCollisionAlgorithm::intersectLinePlane(const pe::Vector3& start_line, const pe::Vector3& dir_line, const pe::Vector3& plane_pos, const pe::Vector3& plane_nor, const pe::Real tol, pe::Real& t) {
+    static bool intersectLinePlane(const pe::Vector3& start_line, const pe::Vector3& dir_line, const pe::Vector3& plane_pos, const pe::Vector3& plane_nor, const pe::Real tol, pe::Real& t) {
         const pe::Real nd = plane_nor.dot(dir_line);
 
         if (PE_ABS(nd) < tol) {
@@ -245,7 +155,9 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool BoxCylinderCollisionAlgorithm::intersectSegmentBox(const pe::Vector3& half_extent, const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, const pe::Real h_cyl, const pe::Real tol, pe::Real& t_min, pe::Real& t_max) {
+    bool BoxCylinderCollisionAlgorithm::intersectSegmentBox(
+            const pe::Vector3& half_extent, const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl,
+            pe::Real h_cyl, pe::Real tol, pe::Real& t_min, pe::Real& t_max) {
         t_min = PE_REAL_MIN;
         t_max = PE_REAL_MAX;
 
@@ -254,8 +166,8 @@ namespace pe_phys_collision {
             if (PE_ABS(pos_cyl.x) > half_extent.x)
                 return false;
         } else {
-            pe::Real t1 = (-half_extent.x - pos_cyl.x) / axis_cyl.x;
-            pe::Real t2 = (+half_extent.x - pos_cyl.x) / axis_cyl.x;
+            const pe::Real t1 = (-half_extent.x - pos_cyl.x) / axis_cyl.x;
+            const pe::Real t2 = (+half_extent.x - pos_cyl.x) / axis_cyl.x;
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -269,8 +181,8 @@ namespace pe_phys_collision {
             if (PE_ABS(pos_cyl.y) > half_extent.y)
                 return false;
         } else {
-            pe::Real t1 = (-half_extent.y - pos_cyl.y) / axis_cyl.y;
-            pe::Real t2 = (+half_extent.y - pos_cyl.y) / axis_cyl.y;
+            const pe::Real t1 = (-half_extent.y - pos_cyl.y) / axis_cyl.y;
+            const pe::Real t2 = (+half_extent.y - pos_cyl.y) / axis_cyl.y;
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -284,8 +196,8 @@ namespace pe_phys_collision {
             if (PE_ABS(pos_cyl.z) > half_extent.z)
                 return false;
         } else {
-            pe::Real t1 = (-half_extent.z - pos_cyl.z) / axis_cyl.z;
-            pe::Real t2 = (+half_extent.z - pos_cyl.z) / axis_cyl.z;
+            const pe::Real t1 = (-half_extent.z - pos_cyl.z) / axis_cyl.z;
+            const pe::Real t2 = (+half_extent.z - pos_cyl.z) / axis_cyl.z;
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -305,9 +217,10 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool BoxCylinderCollisionAlgorithm::intersectSegmentCylinder(const pe::Vector3& start_seg, const pe::Vector3& dir_seg, const pe::Real len_seg,
-                                                                 const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, const pe::Real h_cyl, const pe::Real radius_cyl,
-                                                                 const pe::Real tol, pe::Real &t_min, pe::Real &t_max) {
+    bool BoxCylinderCollisionAlgorithm::intersectSegmentCylinder(
+            const pe::Vector3& start_seg, const pe::Vector3& dir_seg, pe::Real len_seg,
+            const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, pe::Real h_cyl, pe::Real radius_cyl,
+            pe::Real tol, pe::Real &t_min, pe::Real &t_max) {
         t_min = PE_REAL_MIN;
         t_max = PE_REAL_MAX;
 
@@ -316,7 +229,7 @@ namespace pe_phys_collision {
         const pe::Real v_cd = v.dot(axis_cyl);
         const pe::Real v_sd = v.dot(dir_seg);
         const pe::Real v_v = v.dot(v);
-        const pe::Real a = pe::Real(1.0) - cd_sd * cd_sd;
+        const pe::Real a = R(1.0) - cd_sd * cd_sd;
         const pe::Real b = v_sd - v_cd * cd_sd;
         const pe::Real c = v_v - v_cd * v_cd - radius_cyl * radius_cyl;
 
@@ -325,7 +238,7 @@ namespace pe_phys_collision {
         // a == 0 indicates line parallel to cylinder axis
         if (PE_ABS(a) < tol) {
             // line parallel to cylinder axis
-            pe::Real dist2 = (v - v_cd * axis_cyl).norm2();
+            const pe::Real dist2 = (v - v_cd * axis_cyl).norm2();
             if (dist2 > radius_cyl * radius_cyl) {
                 return false;
             }
@@ -376,5 +289,91 @@ namespace pe_phys_collision {
 
         return true;
     }
+
+    bool BoxCylinderCollisionAlgorithm::getClosestPoints(pe_phys_shape::BoxShape *shape_box, pe_phys_shape::CylinderShape *shape_cyl,
+                                                         const pe::Transform &trans_box, const pe::Transform &trans_cyl,
+                                                         pe::Real radius_cyl, pe::Real height_cyl, const pe::Vector3 &box_half_extent,
+                                                         pe::Real margin, ContactResult &result) {
+        const pe::Transform trans_cyl2box = trans_box.inverse() * trans_cyl;
+        const pe::Vector3 axis_cyl = trans_cyl2box.getBasis().getColumn(1);
+        const pe::Vector3 pos_cyl = trans_cyl2box.getOrigin();
+
+        // - Loop over each direction of the box frame (i.e., each of the 3 face normals).
+        // - For each direction, consider two segments that are on the cylindrical plane defined by the
+        //   axis and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box,
+        //   but that is not trivial to define in all configurations). All segments are parameterized by t in [-H,H].
+        // - For each segment, if the segment intersects the box, consider 3 candidate contact points: the 2
+        //   intersection points and their midpoint. A contact is added if the segment point is inside the box.
+        //   Furthermore, the corresponding box point is located on the box face that is closest to the intersection
+        //   midpoint candidate.
+        for (int i_dir = 0; i_dir < 3; i_dir++) {
+            // current box direction
+            pe::Vector3 n_dir = pe::Vector3::zeros();
+            n_dir[i_dir] = 1;
+
+            if (PE_ABS(axis_cyl[i_dir] - 1) < PE_EPS || PE_ABS(axis_cyl[i_dir] + 1) < PE_EPS) {
+                continue;
+            }
+
+            pe::Vector3 r = n_dir.cross(axis_cyl).cross(axis_cyl).normalized() * radius_cyl;
+
+            // Consider segments in both "negative" and "positive" r direction
+            static pe::Real dir[2] = {-1, 1};
+            for (const pe::Real j_dir : dir) {
+                // Calculate current segment center
+                pe::Vector3 cs = pos_cyl + j_dir * r;
+                // Check for intersection with box
+                pe::Real t_min, t_max;
+                if (intersectSegmentBox(box_half_extent, cs, axis_cyl, height_cyl, PE_EPS, t_min, t_max)) {
+                    // Consider the intersection points and their midpoint as candidates
+                    pe::Vector3 p_min = cs + axis_cyl * t_min;
+                    pe::Vector3 p_max = cs + axis_cyl * t_max;
+                    pe::Vector3 p_mid = cs + axis_cyl * ((t_min + t_max) / 2);
+
+                    // Pick box face that is closest to midpoint
+                    const int i_face = findClosestBoxFace(box_half_extent, p_mid);
+
+                    // Add a contact for any of the candidate points that is inside the box
+                    addContactPointOnBox(p_min, i_face, box_half_extent, trans_box, margin, result); // 1st segment end
+                    addContactPointOnBox(p_max, i_face, box_half_extent, trans_box, margin, result); // 2nd segment end
+                    addContactPointOnBox(p_mid, i_face, box_half_extent, trans_box, margin, result); // intersection midpoint
+                }
+            }
+        }
+
+        // - Loop over each direction of the box frame.
+        // - For each direction, check intersection with the cylinder for all 4 edges parallel to that direction.
+        // - If an edge intersects the cylinder, consider 3 candidate contact points: the 2 intersection points
+        //   and their midpoint.
+        for (int i_dir = 0; i_dir < 3; i_dir++) {
+            // current box edge direction and half-length
+            pe::Vector3 e_d = pe::Vector3::zeros();
+            e_d[i_dir] = 1;
+            const pe::Real e_h = box_half_extent[i_dir];
+            // The other two box directions
+            const int j_dir = (i_dir + 1) % 3;
+            const int k_dir = (i_dir + 2) % 3;
+            for (int j = -1; j <= +1; j += 2) {
+                for (int k = -1; k <= +1; k += 2) {
+                    pe::Vector3 e_c;
+                    e_c[i_dir] = 0;
+                    e_c[j_dir] = j * box_half_extent[j_dir];
+                    e_c[k_dir] = k * box_half_extent[k_dir];
+                    // Check for edge intersection with cylinder
+                    pe::Real t_min, t_max;
+                    if (intersectSegmentCylinder(e_c, e_d, e_h, pos_cyl, axis_cyl, height_cyl, radius_cyl, PE_EPS, t_min, t_max)) {
+                        // Consider the intersection points and their midpoint as candidates
+                        pe::Vector3 p_mid = e_c + e_d * ((t_min + t_max) / 2);
+
+                        // Add a contact for any of the candidate points that is inside the cylinder
+                        addContactPointOnCylinder(p_mid, pos_cyl, axis_cyl, radius_cyl, height_cyl, trans_box, margin, result);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
 
 } // pe_phys_collision

@@ -35,20 +35,20 @@ namespace pe_phys_constraint {
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.n);
                 pe::Vector3 rxn_b = r_b.cross(ci.n);
-                ci.n_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.n_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                         (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             //// tangent denom
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t0);
                 pe::Vector3 rxn_b = r_b.cross(ci.t0);
-                ci.t0_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t0_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t1);
                 pe::Vector3 rxn_b = r_b.cross(ci.t1);
-                ci.t1_denom_inv = pe::Real(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t1_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
 
@@ -79,7 +79,7 @@ namespace pe_phys_constraint {
         for (int i = 0; i < (int)_cis.size(); i++) {
             auto& cp = _contact_result->getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
-            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * pe::Real(0.9);
+            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * R(0.9);
 
             _object_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
             _object_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);

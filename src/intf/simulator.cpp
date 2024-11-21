@@ -616,7 +616,7 @@ namespace pe_intf {
 
                 tinygltf::Animation animation;
                 animation.name = "animation";
-                int anim_count = (int)_animation_translation.size();
+                int anim_count = I(_animation_translation.size());
                 for (int i = 0; i < anim_count; i++) {
                     tinygltf::AnimationChannel channel_translation;
                     channel_translation.target_path = "translation";
@@ -652,9 +652,9 @@ namespace pe_intf {
                     pe::Array<float> data;
                     data.reserve(translation_accessor.count * 3);
                     for (auto& v : _animation_translation[i]) {
-                        data.push_back((float)v.x);
-                        data.push_back((float)v.y);
-                        data.push_back((float)v.z);
+                        data.push_back(F(v.x));
+                        data.push_back(F(v.y));
+                        data.push_back(F(v.z));
                     }
                     _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -673,10 +673,10 @@ namespace pe_intf {
                     data.clear();
                     data.reserve(rotation_accessor.count * 4);
                     for (auto& q : _animation_rotation[i]) {
-                        data.push_back((float)q.x);
-                        data.push_back((float)q.y);
-                        data.push_back((float)q.z);
-                        data.push_back((float)q.w);
+                        data.push_back(F(q.x));
+                        data.push_back(F(q.y));
+                        data.push_back(F(q.z));
+                        data.push_back(F(q.w));
                     }
                     _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -695,7 +695,7 @@ namespace pe_intf {
                     data.clear();
                     data.reserve(time_step_accessor.count);
                     for (auto& t : _animation_time_step[i]) {
-                        data.push_back(t);
+                        data.push_back(F(t));
                     }
                     _buffer_animation_time_step.data.insert(_buffer_animation_time_step.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -750,9 +750,9 @@ namespace pe_intf {
                 pe::Array<float> data;
                 data.reserve(position_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back((float)v.position.x);
-                    data.push_back((float)v.position.y);
-                    data.push_back((float)v.position.z);
+                    data.push_back(F(v.position.x));
+                    data.push_back(F(v.position.y));
+                    data.push_back(F(v.position.z));
                 }
                 _buffer_position.data.insert(_buffer_position.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -771,9 +771,9 @@ namespace pe_intf {
                 data.clear();
                 data.reserve(normal_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back((float)v.normal.x);
-                    data.push_back((float)v.normal.y);
-                    data.push_back((float)v.normal.z);
+                    data.push_back(F(v.normal.x));
+                    data.push_back(F(v.normal.y));
+                    data.push_back(F(v.normal.z));
                 }
                 _buffer_normal.data.insert(_buffer_normal.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -931,7 +931,7 @@ namespace pe_intf {
             return;
         }
 
-        pe::Real dt = pe::Real(1.0) / (pe::Real)target_framerate;
+        pe::Real dt = R(1.0) / R(target_framerate);
         _world.setDt(dt);
         init();
         if (use_gui) {
@@ -941,7 +941,7 @@ namespace pe_intf {
         }
 
         int frame = 0;
-        int target_dt = (int)(dt * 1000);
+        int target_dt = I(dt * 1000);
         auto start = COMMON_GetTickCount();
 
 	    pe::Real total_step_time = 0;
@@ -951,7 +951,7 @@ namespace pe_intf {
 		    auto step_start = COMMON_GetMicroseconds();
             _world.step();
 		    auto step_end = COMMON_GetMicroseconds();
-		    total_step_time += (pe::Real)(step_end - step_start);
+		    total_step_time += (step_end - step_start);
 
             if (use_gui) {
                 if (!_world.getRigidBodiesToRemove().empty()) {
@@ -991,7 +991,7 @@ namespace pe_intf {
             }
 
             static int saved_file_count = 0;
-            static int program_tick = COMMON_GetTickCount();
+            static int program_tick = I(COMMON_GetTickCount());
             if ((use_gui && Viewer::getKeyState('n') == 0) || _saving) {
                 if (!utils::FileSystem::isDirectory(save_path)) {
                     utils::FileSystem::makeDir(save_path);
@@ -1003,7 +1003,7 @@ namespace pe_intf {
                 saveGltf(dir + filename_gltf);
             }
 
-            auto actual_dt = (int)(COMMON_GetTickCount() - t);
+            auto actual_dt = I(COMMON_GetTickCount() - t);
             if (target_dt > actual_dt) {
                 COMMON_Sleep(target_dt - actual_dt);
             }

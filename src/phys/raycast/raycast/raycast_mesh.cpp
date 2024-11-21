@@ -27,7 +27,7 @@ namespace pe_phys_raycast {
         for (auto& face: mesh->faces) {
             pe::Real d;
             pe::Vector3 hit;
-            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
+            for (int i = 0; i < I(face.indices.size()) - 2; i++) {
                 auto& v0 = mesh->vertices[face.indices[0]].position;
                 auto& v1 = mesh->vertices[face.indices[i + 1]].position;
                 auto& v2 = mesh->vertices[face.indices[i + 2]].position;
@@ -58,15 +58,15 @@ namespace pe_phys_raycast {
         if (det > -PE_EPS && det < PE_EPS) {
             return false;
         }
-        const pe::Real inv_det = pe::Real(1.0) / det;
+        const pe::Real inv_det = R(1.0) / det;
         const pe::Vector3 t_vec = start - v0;
         const pe::Real u = t_vec.dot(p_vec) * inv_det;
-        if (u < 0 || u > pe::Real(1.0)) {
+        if (u < 0 || u > R(1.0)) {
             return false;
         }
         const pe::Vector3 q_vec = t_vec.cross(edge1);
         const pe::Real v = direction.dot(q_vec) * inv_det;
-        if (v < 0 || u + v > pe::Real(1.0)) {
+        if (v < 0 || u + v > R(1.0)) {
             return false;
         }
         distance = edge2.dot(q_vec) * inv_det;

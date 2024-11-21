@@ -8,6 +8,7 @@ add_executable(PETestFracture test.cpp
         ${ENGINE_INCLUDE_DIR}/phys/fracture/voronoi_calculator/bowyer_watson_voronoi_calculator.cpp
         ${ENGINE_INCLUDE_DIR}/phys/object/rigidbody.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/convex_mesh_shape.cpp
+        ${ENGINE_INCLUDE_DIR}/phys/shape/shape.cpp
         ${ENGINE_INCLUDE_DIR}/phys/shape/box_shape.cpp)
 
 target_link_libraries(PETestFracture PEUtils)

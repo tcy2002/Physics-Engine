@@ -35,7 +35,7 @@ namespace pe_phys_fracture {
             _triangles.push_back(new_tri);
             return _triangles.size() - 1;
         }
-        return (uint32_t)(it - _triangles.begin());
+        return UI(it - _triangles.begin());
     }
 
     void FractureDataManager::remove_triangle(uint32_t idx, bool direct) {
@@ -58,7 +58,7 @@ namespace pe_phys_fracture {
                                  _vertices[v3].pos, _vertices[v4].pos,
                                  center, radius);
         _tetrahedrons.emplace_back(t1, t2, t3, t4, center, radius);
-        return (uint32_t)_tetrahedrons.size() - 1;
+        return UI(_tetrahedrons.size()) - 1;
     }
 
     void FractureDataManager::faces_to_triangles() {
@@ -66,7 +66,7 @@ namespace pe_phys_fracture {
         clear_triangles();
         const uint32_t face_count = _faces.size();
         for (uint32_t i = 0; i < face_count; i++) {
-            const auto vert_count = (uint32_t)_faces[i].vert_ids.size();
+            const auto vert_count = UI(_faces[i].vert_ids.size());
             for (uint32_t j = 1; j < vert_count - 1; j++) {
                 add_triangle(_faces[i].vert_ids[0], _faces[i].vert_ids[j], _faces[i].vert_ids[j + 1]);
             }
@@ -82,7 +82,7 @@ namespace pe_phys_fracture {
 
         // use normal to identify a face
         polygon new_face(n);
-        const uint32_t face_id = (uint32_t)(_faces.find(new_face) - _faces.begin());
+        const uint32_t face_id = UI(_faces.find(new_face) - _faces.begin());
 
         // if the face doesn't exist, create a new one
         if (face_id == face_count()) {
@@ -94,7 +94,7 @@ namespace pe_phys_fracture {
         }
 
         // check if a new vertex needs to be added or removed
-        const auto count = (uint32_t)_faces[face_id].vert_ids.size();
+        const auto count = UI(_faces[face_id].vert_ids.size());
         for (uint32_t i = 0; i < count; i++) {
             const uint32_t u1 = _faces[face_id].vert_ids[i],
                            u2 = _faces[face_id].vert_ids[(i + 1) % count],
@@ -135,7 +135,7 @@ namespace pe_phys_fracture {
         clear();
 
         // add vertices
-        const auto vert_count = (uint32_t)mesh.vertices.size();
+        const auto vert_count = UI(mesh.vertices.size());
         pe::Array<uint32_t> vert_ids(vert_count);
         for (uint32_t i = 0; i < vert_count; i++) {
             vert_ids[i] = add_vertex(mesh.vertices[i].position, mesh.vertices[i].normal);
@@ -144,7 +144,7 @@ namespace pe_phys_fracture {
         // add faces: need to re-add until all triangles are added to face
         uint32_t tri_count = 0;
         for (auto& face : mesh.faces) {
-            tri_count += (uint32_t)face.indices.size() - 2;
+            tri_count += UI(face.indices.size()) - 2;
         }
         pe::Array<bool> tri_added(tri_count, false);
         int num = 0;

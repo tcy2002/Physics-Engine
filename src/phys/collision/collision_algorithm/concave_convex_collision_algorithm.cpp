@@ -22,25 +22,36 @@ namespace pe_phys_collision {
         auto trans_convex = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
         auto& mesh_convex = shape_convex->getMesh();
+        auto& edges_convex = shape_convex->getUniqueEdges();
 
-        pe::Vector3 sep;
         constexpr auto margin = PE_MARGIN;
 
-        VertexArray world_vertices_b1;
-        VertexArray world_vertices_b2;
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
+        bool ret = getClosestPoints(
+            shape_concave, shape_convex, trans_concave, trans_convex, edges_convex,
+            mesh_concave, mesh_convex, margin, refScale, result);
+        result.setSwapFlag(false);
 
+        return ret;
+    }
+
+    bool ConcaveConvexCollisionAlgorithm::getClosestPoints(
+            pe_phys_shape::ConcaveMeshShape *shape_concave, pe_phys_shape::Shape *shape_convex,
+            const pe::Transform &trans_concave, const pe::Transform &trans_convex,
+            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_convex,
+            const pe::Mesh &mesh_concave, const pe::Mesh &mesh_convex,
+            pe::Real margin, pe::Real refScale, ContactResult &result) {
         pe::Transform trans_convex_rel2concave = trans_concave.inverse() * trans_convex;
         pe::Vector3 convex_AA, convex_BB;
         shape_convex->getAABB(trans_convex_rel2concave, convex_AA, convex_BB);
         pe::Array<int> intersect;
         shape_concave->getIntersectFaces(convex_AA, convex_BB, intersect);
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
         for (auto fi : intersect) {
             auto& f = mesh_concave.faces[fi];
             pe::Mesh mesh_face;
             pe::Mesh::Face face_face;
-            for (int i = 0; i < (int)f.indices.size(); i++) {
+            for (int i = 0; i < I(f.indices.size()); i++) {
                 mesh_face.vertices.push_back(mesh_concave.vertices[f.indices[i]]);
                 face_face.indices.push_back(i);
             }
@@ -49,21 +60,15 @@ namespace pe_phys_collision {
             pe_phys_shape::ConvexMeshShape shape_face;
             shape_face.setMesh(mesh_face);
 
-            if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(
+            ConvexConvexCollisionAlgorithm::getClosestPoints(
                 shape_convex, &shape_face, mesh_convex, mesh_face,
-                ((pe_phys_shape::ConvexMeshShape*)shape_convex)->getUniqueEdges(),
-                shape_face.getUniqueEdges(),
-                trans_convex, trans_concave, sep, margin, result)) {
-                continue;
-            }
-            ConvexConvexCollisionAlgorithm::clipHullAgainstHull(
-                sep, mesh_convex, mesh_face, trans_convex, trans_concave,
-                -refScale, margin, world_vertices_b1, world_vertices_b2,
-                margin, result);
+                unique_edges_convex, shape_face.getUniqueEdges(),
+                trans_convex, trans_concave, margin, refScale, result);
         }
         result.setSwapFlag(false);
 
         return true;
     }
+
 
 } // pe_phys_collision

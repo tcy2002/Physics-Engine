@@ -20,67 +20,51 @@ namespace pe_phys_collision {
         auto& edges_a = shape_mesh_a->getUniqueEdges();
         auto& edges_b = shape_mesh_b->getUniqueEdges();
 
-        pe::Vector3 sep;
         constexpr auto margin = PE_MARGIN;
 
-        VertexArray world_vertices_b1;
-        VertexArray world_vertices_b2;
-
-        if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
-                                edges_a, edges_b,
-                                trans_a, trans_b, sep, margin, result)) {
-            return false;
-        }
-        clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
-                            -refScale, margin, world_vertices_b1, world_vertices_b2,
-                            margin, result);
-        return true;
+        return getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
+                               trans_a, trans_b, margin, refScale, result);
     }
 
-    void ConvexConvexCollisionAlgorithm::clipHullAgainstHull(const pe::Vector3 &sep_normal1,
-                                                             const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
-                                                             const pe::Transform &trans_a, const pe::Transform &trans_b,
-                                                             const pe::Real min_dist, const pe::Real max_dist,
-                                                             VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
-                                                             const pe::Real margin, ContactResult &result) {
-        int closest_face_b = -1;
-        {
-            auto d_max = PE_REAL_MIN;
-            for (int face = 0; face < (int)mesh_b.faces.size(); face++) {
-                const pe::Vector3 normal = mesh_b.faces[face].normal;
-                const pe::Vector3 world_normal = trans_b.getBasis() * normal;
-                const pe::Real d = world_normal.dot(sep_normal1);
-                if (d > d_max) {
-                    d_max = d;
-                    closest_face_b = face;
+    static void clipFace(const VertexArray &p_in, VertexArray &p_out,
+                                                  const pe::Vector3 &plane_normal_w, pe::Real plane_eq_w) {
+        const int num_vertices = (int)p_in.size();
+        if (num_vertices < 2) return;
+
+        pe::Vector3 firstVertex = p_in[p_in.size() - 1];
+
+        pe::Real ds = plane_normal_w.dot(firstVertex) + plane_eq_w;
+
+        for (int ve = 0; ve < num_vertices; ve++) {
+            pe::Vector3 endVertex = p_in[ve];
+
+            const pe::Real de = plane_normal_w.dot(endVertex) + plane_eq_w;
+
+            if (ds < 0) {
+                if (de < 0) {
+                    // Start < 0, end < 0, so output endVertex
+                    p_out.push_back(endVertex);
+                } else {
+                    // Start < 0, end >= 0, so output intersection
+                    p_out.push_back(firstVertex.lerp(endVertex, R(ds * 1.f / (ds - de))));
+                }
+            } else {
+                if (de < 0) {
+                    // Start >= 0, end < 0 so output intersection and end
+                    p_out.push_back(firstVertex.lerp(endVertex, R(ds * 1.f / (ds - de))));
+                    p_out.push_back(endVertex);
                 }
             }
-        }
-        if (closest_face_b < 0) {
-            return;
-        }
-
-        world_vertices_b1.resize(0);
-        {
-            const auto& poly_b = mesh_b.faces[closest_face_b];
-            const int numVertices = (int)poly_b.indices.size();
-            for (int e0 = 0; e0 < numVertices; e0++) {
-                pe::Vector3 b = mesh_b.vertices[poly_b.indices[e0]].position;
-                world_vertices_b1.push_back(trans_b * b);
-            }
-        }
-
-        if (closest_face_b >= 0) {
-            clipFaceAgainstHull(sep_normal1, mesh_a, trans_a, world_vertices_b1, world_vertices_b2,
-                                min_dist, max_dist, margin, result);
+            firstVertex = endVertex;
+            ds = de;
         }
     }
 
-    void ConvexConvexCollisionAlgorithm::clipFaceAgainstHull(const pe::Vector3 &sep_normal,
-                                                             const pe::Mesh& mesh_a, const pe::Transform &trans_a,
-                                                             VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
-                                                             pe::Real min_dist, pe::Real max_dist,
-                                                             pe::Real margin, ContactResult &result) {
+    static void clipFaceAgainstHull(const pe::Vector3 &sep_normal,
+                                    const pe::Mesh& mesh_a, const pe::Transform &trans_a,
+                                    VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
+                                    pe::Real min_dist, pe::Real max_dist,
+                                    pe::Real margin, ContactResult &result) {
         world_vertices_b2.resize(0);
         VertexArray* p_in = &world_vertices_b1;
         VertexArray* p_out = &world_vertices_b2;
@@ -146,60 +130,61 @@ namespace pe_phys_collision {
         }
     }
 
-    void ConvexConvexCollisionAlgorithm::clipFace(const VertexArray &p_in, VertexArray &p_out,
-                                                  const pe::Vector3 &plane_normal_w, pe::Real plane_eq_w) {
-        const int num_vertices = (int)p_in.size();
-        if (num_vertices < 2) return;
-
-        pe::Vector3 firstVertex = p_in[p_in.size() - 1];
-
-        pe::Real ds = plane_normal_w.dot(firstVertex) + plane_eq_w;
-
-        for (int ve = 0; ve < num_vertices; ve++) {
-            pe::Vector3 endVertex = p_in[ve];
-
-            const pe::Real de = plane_normal_w.dot(endVertex) + plane_eq_w;
-
-            if (ds < 0) {
-                if (de < 0) {
-                    // Start < 0, end < 0, so output endVertex
-                    p_out.push_back(endVertex);
-                } else {
-                    // Start < 0, end >= 0, so output intersection
-                    p_out.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
-                }
-            } else {
-                if (de < 0) {
-                    // Start >= 0, end < 0 so output intersection and end
-                    p_out.push_back(firstVertex.lerp(endVertex, pe::Real(ds * 1.f / (ds - de))));
-                    p_out.push_back(endVertex);
+    static void clipHullAgainstHull(const pe::Vector3 &sep_normal1,
+                                                             const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+                                                             const pe::Transform &trans_a, const pe::Transform &trans_b,
+                                                             const pe::Real min_dist, const pe::Real max_dist,
+                                                             VertexArray &world_vertices_b1, VertexArray &world_vertices_b2,
+                                                             const pe::Real margin, ContactResult &result) {
+        int closest_face_b = -1;
+        {
+            auto d_max = PE_REAL_MIN;
+            for (int face = 0; face < (int)mesh_b.faces.size(); face++) {
+                const pe::Vector3 normal = mesh_b.faces[face].normal;
+                const pe::Vector3 world_normal = trans_b.getBasis() * normal;
+                const pe::Real d = world_normal.dot(sep_normal1);
+                if (d > d_max) {
+                    d_max = d;
+                    closest_face_b = face;
                 }
             }
-            firstVertex = endVertex;
-            ds = de;
+        }
+        if (closest_face_b < 0) {
+            return;
+        }
+
+        world_vertices_b1.resize(0);
+        {
+            const auto& poly_b = mesh_b.faces[closest_face_b];
+            const int numVertices = (int)poly_b.indices.size();
+            for (int e0 = 0; e0 < numVertices; e0++) {
+                pe::Vector3 b = mesh_b.vertices[poly_b.indices[e0]].position;
+                world_vertices_b1.push_back(trans_b * b);
+            }
+        }
+
+        if (closest_face_b >= 0) {
+            clipFaceAgainstHull(sep_normal1, mesh_a, trans_a, world_vertices_b1, world_vertices_b2,
+                                min_dist, max_dist, margin, result);
         }
     }
 
-    static void segmentsClosestPoints(
-            pe::Vector3& pts_vector,
-            pe::Vector3& offset_a,
-            pe::Vector3& offset_b,
-            pe::Real& t_a, pe::Real& t_b,
-            const pe::Vector3& translation,
-            const pe::Vector3& dir_a, const pe::Real h_len_a,
-            const pe::Vector3& dir_b, const pe::Real h_len_b) {
+    static void segmentsClosestPoints(pe::Vector3& pts_vector, pe::Vector3& offset_a, pe::Vector3& offset_b,
+                                      pe::Real& t_a, pe::Real& t_b, const pe::Vector3& translation,
+                                      const pe::Vector3& dir_a, pe::Real h_len_a,
+                                      const pe::Vector3& dir_b, pe::Real h_len_b) {
         // compute the parameters of the closest points on each line segment
 
         const pe::Real dir_a_dot_dir_b = dir_a.dot(dir_b);
         const pe::Real dir_a_dot_trans = dir_a.dot(translation);
         const pe::Real dir_b_dot_trans = dir_b.dot(translation);
 
-        pe::Real denom = pe::Real(1.0) - dir_a_dot_dir_b * dir_a_dot_dir_b;
+        const pe::Real d = R(1.0) - dir_a_dot_dir_b * dir_a_dot_dir_b;
 
-        if (denom == 0) {
+        if (d == 0) {
             t_a = 0;
         } else {
-            t_a = (dir_a_dot_trans - dir_b_dot_trans * dir_a_dot_dir_b) / denom;
+            t_a = (dir_a_dot_trans - dir_b_dot_trans * dir_a_dot_dir_b) / d;
             if (t_a < -h_len_a) t_a = -h_len_a;
             else if (t_a > h_len_a) t_a = h_len_a;
         }
@@ -228,12 +213,10 @@ namespace pe_phys_collision {
         pts_vector = translation - offset_a + offset_b;
     }
 
-    static bool testSepAxis(
-            const pe_phys_shape::Shape* object_a,
-            const pe_phys_shape::Shape* object_b,
-            const pe::Transform& trans_a, const pe::Transform& trans_b,
-            const pe::Vector3& sep_axis, pe::Real& depth,
-            pe::Vector3& witness_point_a, pe::Vector3& witness_point_b) {
+    static bool testSepAxis(const pe_phys_shape::Shape* object_a, const pe_phys_shape::Shape* object_b,
+                            const pe::Transform& trans_a, const pe::Transform& trans_b,
+                            const pe::Vector3& sep_axis, pe::Real& depth,
+                            pe::Vector3& witness_point_a, pe::Vector3& witness_point_b) {
         pe::Real min0, max0;
         pe::Real min1, max1;
         pe::Vector3 witness_pt_min_a, witness_pt_max_a;
@@ -265,14 +248,12 @@ namespace pe_phys_collision {
         return normal.norm2() < PE_EPS;
     }
 
-    bool ConvexConvexCollisionAlgorithm::findSeparatingAxis(
-            const pe_phys_shape::Shape* shape_a,
-            const pe_phys_shape::Shape* shape_b,
-            const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
-            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_a,
-            const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_b,
-            const pe::Transform &trans_a, const pe::Transform &trans_b,
-            pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
+    static bool findSeparatingAxis(const pe_phys_shape::Shape* shape_a, const pe_phys_shape::Shape* shape_b,
+                                   const pe::Mesh& mesh_a, const pe::Mesh& mesh_b,
+                                   const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_a,
+                                   const pe::Array<pe::KV<pe::Vector3, pe::Vector3>>& unique_edges_b,
+                                   const pe::Transform &trans_a, const pe::Transform &trans_b,
+                                   pe::Vector3 &sep, pe::Real margin, ContactResult &result) {
         const pe::Vector3 c0 = trans_a.getOrigin();
         const pe::Vector3 c1 = trans_b.getOrigin();
         const pe::Vector3 delta_c2 = c0 - c1;
@@ -282,11 +263,11 @@ namespace pe_phys_collision {
         bool pt_on_a = false;
 
         // Test normals from hullA
-        for (int i = 0; i < (int)mesh_a.faces.size(); i++) {
-            const pe::Vector3 normal = mesh_a.faces[i].normal;
+        for (const auto & face : mesh_a.faces) {
+            const pe::Vector3 normal = face.normal;
             pe::Vector3 face_a_normal_w = trans_a.getBasis() * normal;
             if (delta_c2.dot(face_a_normal_w) < 0)
-                face_a_normal_w *= pe::Real(-1.0);
+                face_a_normal_w *= R(-1.0);
 
             pe::Real d;
             pe::Vector3 w_a, w_b;
@@ -304,11 +285,11 @@ namespace pe_phys_collision {
         }
 
         // Test normals from hullB
-        for (int i = 0; i < (int)mesh_b.faces.size(); i++) {
-            const pe::Vector3 normal = mesh_b.faces[i].normal;
+        for (const auto & face : mesh_b.faces) {
+            const pe::Vector3 normal = face.normal;
             pe::Vector3 world_normal = trans_b.getBasis() * normal;
             if (delta_c2.dot(world_normal) < 0) {
-                world_normal *= pe::Real(-1.0);
+                world_normal *= R(-1.0);
             }
 
             pe::Real d;
@@ -351,7 +332,7 @@ namespace pe_phys_collision {
                 if (!PE_APPROX_EQUAL(cross.norm(), 0)) {
                     cross.normalize();
                     if (delta_c2.dot(cross) < 0) {
-                        cross *= pe::Real(-1.0);
+                        cross *= R(-1.0);
                     }
 
                     pe::Real dist;
@@ -401,9 +382,9 @@ namespace pe_phys_collision {
             pe::Real nl_sqrt = pts_vector.norm2();
             if (nl_sqrt > PE_EPS) {
                 pe::Real nl = std::sqrt(nl_sqrt);
-                pts_vector *= pe::Real(1.0) / nl;
+                pts_vector *= R(1.0) / nl;
                 if (pts_vector.dot(delta_c2) < 0) {
-                    pts_vector *= pe::Real(-1.0);
+                    pts_vector *= R(-1.0);
                 }
                 pe::Vector3 ptOnB = witness_point_b + offset_b;
                 pe::Real distance = nl;
@@ -417,6 +398,28 @@ namespace pe_phys_collision {
             sep = -sep;
         }
 
+        return true;
+    }
+
+    bool ConvexConvexCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+                                                          const pe::Mesh &mesh_a, const pe::Mesh &mesh_b,
+                                                          const pe::Array<pe::KV<pe::Vector3, pe::Vector3>> &unique_edges_a,
+                                                          const pe::Array<pe::KV<pe::Vector3, pe::Vector3>> &unique_edges_b,
+                                                          const pe::Transform &trans_a, const pe::Transform &trans_b,
+                                                          pe::Real margin, pe::Real refScale, ContactResult& result) {
+        pe::Vector3 sep;
+
+        VertexArray world_vertices_b1;
+        VertexArray world_vertices_b2;
+
+        if (!findSeparatingAxis(shape_a, shape_b, mesh_a, mesh_b,
+                                unique_edges_a, unique_edges_b,
+                                trans_a, trans_b, sep, margin, result)) {
+            return false;
+                                }
+        clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
+                            -refScale, margin, world_vertices_b1, world_vertices_b2,
+                            margin, result);
         return true;
     }
 

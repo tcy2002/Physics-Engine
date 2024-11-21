@@ -26,7 +26,7 @@ namespace pe_phys_collision {
             new ConcaveBoxCollisionAlgorithm(), new ConcaveSphereCollisionAlgorithm(), new ConcaveCylinderCollisionAlgorithm(), new ConcaveConvexCollisionAlgorithm(), nullptr, new CompoundCompoundCollisionAlgorithm(),
             new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm(), new CompoundCompoundCollisionAlgorithm()
         };
-        return algorithms[(int)type_a * 6 + (int)type_b];
+        return algorithms[I(type_a) * 6 + I(type_b)];
     }
 
 } // namespace pe_phys_collision

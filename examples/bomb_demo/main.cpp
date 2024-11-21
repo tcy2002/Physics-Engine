@@ -13,10 +13,10 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
-        _world.setSleepLinVel2Threshold(pe::Real(0.04)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(pe::Real(0.08)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
+        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
+        _world.setSleepLinVel2Threshold(R(0.04)); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(R(0.08)); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -46,7 +46,7 @@ public:
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                        pe::Vector3(0, 2, 50)),
-                                         1.2, 50);
+                                         R(1.2), 50);
         rb2->setLinearVelocity(pe::Vector3(0, 0, -70)); // give an initial velocity
         _world.addRigidBody(rb2);
 
@@ -56,20 +56,20 @@ public:
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
         /* This function creates a tower of cubic bricks, how it is built is not important */
 
-        pe::Real angle = pe::Real(2.0) * PE_PI / pe::Real(brick_per_layer);
-        pe::Real brick_length = radius * angle / pe::Real(1.25);
-        pe::Real brick_width = brick_length / pe::Real(4.0);
-        pe::Real brick_height = brick_width * pe::Real(1.5);
+        pe::Real angle = R(2.0) * PE_PI / R(brick_per_layer);
+        pe::Real brick_length = radius * angle / R(1.25);
+        pe::Real brick_width = brick_length / R(4.0);
+        pe::Real brick_height = brick_width * R(1.5);
 
         for (int i = 0; i < layer; i++) {
-            pe::Real offset = (i % 2) * angle / pe::Real(2.0);
+            pe::Real offset = (i % 2) * angle / R(2.0);
             for (int n = 0; n < brick_per_layer; n++) {
                 pe::Real brick_angle = offset + n * angle;
                 pe::Matrix3 mat;
                 mat.setRotation(pe::Vector3(0, 1, 0), -brick_angle);
                 pe::Vector3 vec;
                 vec.x = radius * std::cos(brick_angle);
-                vec.y = brick_height * pe::Real(0.5 + i);
+                vec.y = brick_height * R(0.5 + i);
                 vec.z = radius * std::sin(brick_angle);
                 auto rb = createBoxRigidBody(pe::Transform(mat, pos + vec),
                                              pe::Vector3(brick_width, brick_height, brick_length), 1.0);
@@ -88,9 +88,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -103,9 +103,9 @@ protected:
         auto shape = new pe_phys_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
+        rb->setFrictionCoeff(R(0.5));
+        rb->setRestitutionCoeff(R(0.5));
+        rb->setAngularDamping(R(0.8));
         return rb;
     }
 };

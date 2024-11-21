@@ -22,7 +22,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
 
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();
@@ -47,7 +47,7 @@ public:
             pe_phys_fracture::FractureSource src;
             src.position = pos;
             src.type = pe_phys_fracture::FractureType::Sphere;
-            src.intensity = pe::Vector3(1.5, 1.5, 1.5);
+            src.intensity = pe::Vector3(R(1.5), R(1.5), R(1.5));
             _world.addFractureSource(src);
             _world.removeRigidBody(other);
         };

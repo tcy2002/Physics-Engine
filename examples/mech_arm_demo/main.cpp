@@ -12,25 +12,25 @@ protected:
 
     pe::Transform _transform = pe::Transform::identity();
 
-    const pe::Real _bottom_radius = 0.5;
-    const pe::Real _bottom_height = 1.8;
-    const pe::Real _bottom_neck_radius = 0.5;
-    const pe::Real _bottom_neck_height = 1.6;
-    const pe::Real _lower_arm_radius = 0.4;
-    const pe::Real _lower_arm_height = 4;
-    const pe::Real _middle_neck_radius = 0.4;
-    const pe::Real _middle_neck_height = 1.8;
-    const pe::Real _upper_arm_radius = 0.3;
-    const pe::Real _upper_arm_height = 3.8;
-    const pe::Real _top_neck_radius = 0.36;
-    const pe::Real _top_neck_height = 1.2;
-    const pe::Real _hand_radius = 0.36;
-    const pe::Real _hand_height = 1.5;
-    const pe::Real _palm_radius = 0.42;
-    const pe::Vector3 _upper_finger_size = {0.4, 1.3, 0.3};
-    const pe::Vector3 _lower_finger_size = {0.4, 1.5, 0.3};
-    const pe::Real _knuckle_radius = 0.3;
-    const pe::Real _finger_tip_radius = 0.3;
+    const pe::Real _bottom_radius = R(0.5);
+    const pe::Real _bottom_height = R(1.8);
+    const pe::Real _bottom_neck_radius = R(0.5);
+    const pe::Real _bottom_neck_height = R(1.6);
+    const pe::Real _lower_arm_radius = R(0.4);
+    const pe::Real _lower_arm_height = R(4);
+    const pe::Real _middle_neck_radius = R(0.4);
+    const pe::Real _middle_neck_height = R(1.8);
+    const pe::Real _upper_arm_radius = R(0.3);
+    const pe::Real _upper_arm_height = R(3.8);
+    const pe::Real _top_neck_radius = R(0.36);
+    const pe::Real _top_neck_height = R(1.2);
+    const pe::Real _hand_radius = R(0.36);
+    const pe::Real _hand_height = R(1.5);
+    const pe::Real _palm_radius = R(0.42);
+    const pe::Vector3 _upper_finger_size = {R(0.4), R(1.3), R(0.3)};
+    const pe::Vector3 _lower_finger_size = {R(0.4), R(1.5), R(0.3)};
+    const pe::Real _knuckle_radius = R(0.3);
+    const pe::Real _finger_tip_radius = R(0.3);
 
     pe::Transform _bottom_neck_transform;
     pe::Transform _lower_arm_transform;
@@ -47,7 +47,7 @@ protected:
     // pre-rotation
     pe::Real _bottom_rotation = 0; // 0 ~ 2pi
     pe::Real _bottom_neck_rotation = PE_PI / 2; // 0 ~ pi
-    pe::Real _middle_neck_rotation = PE_PI * 0.75; // -pi/4 ~ 5pi/4
+    pe::Real _middle_neck_rotation = PE_PI * R(0.75); // -pi/4 ~ 5pi/4
     pe::Real _top_neck_rotation = 0; // 0 ~ 3pi/4
     pe::Real _lower_finger_rotation = PE_PI / 4; // pi/9 ~ pi/3
     pe::Real _upper_finger_rotation = PE_PI / 2; // 0 ~ pi/2
@@ -346,14 +346,14 @@ public:
 
     void rotateMiddleNeck(pe::Real delta_angle) {
         pe::Real new_rot = _middle_neck_rotation + delta_angle;
-        if (new_rot < PE_PI * 1.25 && new_rot > PE_PI / 4) _middle_neck_rotation = new_rot;
+        if (new_rot < PE_PI * R(1.25) && new_rot > PE_PI / 4) _middle_neck_rotation = new_rot;
         updateRotation();
         updateKinematic(bottom, _transform);
     }
 
     void rotateTopNeck(pe::Real delta_angle) {
         pe::Real new_rot = _top_neck_rotation + delta_angle;
-        if (new_rot < PE_PI * 0.75 && new_rot > 0) _top_neck_rotation = new_rot;
+        if (new_rot < PE_PI * R(0.75) && new_rot > 0) _top_neck_rotation = new_rot;
         updateRotation();
         updateKinematic(bottom, _transform);
     }
@@ -381,9 +381,9 @@ public:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -396,9 +396,9 @@ public:
         auto shape = new pe_phys_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
+        rb->setFrictionCoeff(R(0.5));
+        rb->setRestitutionCoeff(R(0.5));
+        rb->setAngularDamping(R(0.8));
         return rb;
     }
 
@@ -411,9 +411,9 @@ public:
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
+        rb->setFrictionCoeff(R(0.5));
+        rb->setRestitutionCoeff(R(0.5));
+        rb->setAngularDamping(R(0.8));
         return rb;
     }
 };
@@ -434,7 +434,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
         // _world.setSleepLinVel2Threshold(pe::Real(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(pe::Real(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
@@ -455,25 +455,25 @@ public:
 
         // add some items
         rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(8, 0.8, 1)),
-                                          pe::Vector3(1, 1, 1), 0.1);
+                                          pe::Vector3(1, 1, 1), R(0.1));
         _world.addRigidBody(rb);
         rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(8, 0.8, -1)),
-                                          pe::Vector3(1, 1, 1), 0.1);
+                                          pe::Vector3(1, 1, 1), R(0.1));
         _world.addRigidBody(rb);
         rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(6, 0.8, 1)),
-                                            pe::Real(0.5), 0.1);
+                                            R(0.5), R(0.1));
         _world.addRigidBody(rb);
         rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(6, 0.8, -1)),
-                                            pe::Real(0.5), 0.1);
+                                            R(0.5), R(0.1));
         _world.addRigidBody(rb);
     }
 
     void step() override {
         /* Called every frame to update the physics world */
-        static pe::Real bottom_speed = 0.2;
-        static pe::Real bottom_neck_speed = 0.3;
-        static pe::Real middle_neck_speed = 0.3;
-        static pe::Real top_neck_speed = 0.3;
+        static pe::Real bottom_speed = R(0.2);
+        static pe::Real bottom_neck_speed = R(0.3);
+        static pe::Real middle_neck_speed = R(0.3);
+        static pe::Real top_neck_speed = R(0.3);
         static int frame = 0;
 
         if (frame < 98) {

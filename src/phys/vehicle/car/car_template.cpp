@@ -64,15 +64,15 @@ namespace pe_phys_vehicle {
 #   endif
 
         for (int i = 0; i < 2; i++) {
-            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (pe::Real(0.5) * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (R(0.5) * _wheelWidth),
                                              connectionHeight,
-                                             (_bodyLength / 2 - _bodyLength * i) * (pe::Real(5.0) / 7));
+                                             (_bodyLength / 2 - _bodyLength * i) * (R(5.0) / 7));
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
                               suspensionRestLength, _wheelRadius,
                               m_tuning, false);
-            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (pe::Real(0.5) * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (R(0.5) * _wheelWidth),
                                              connectionHeight,
-                                             (_bodyLength / 2 - _bodyLength * i) * (pe::Real(5.0) / 7));
+                                             (_bodyLength / 2 - _bodyLength * i) * (R(5.0) / 7));
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
                               suspensionRestLength, _wheelRadius,
                               m_tuning, false);
@@ -133,7 +133,7 @@ namespace pe_phys_vehicle {
 
     void CarTemplate::updateWheelsTransform() {
         static pe::Matrix3 wheelRot = pe::Matrix3::identity();
-        static pe::Real theta = PE_PI / pe::Real(2.0);
+        static pe::Real theta = PE_PI / R(2.0);
         static bool init = false;
         if (!init) {
             init = true;
@@ -160,26 +160,26 @@ namespace pe_phys_vehicle {
 
     CarTemplate::CarTemplate():
             _transform(pe::Transform::identity()),
-            _bodyWidth(pe::Real(2.3)),
-            _bodyLength(pe::Real(7.)),
-            _bodyHeight(pe::Real(1.0)),
-            _bodyMass(pe::Real(30.0)),
-            _cabinWidth(pe::Real(2.3)),
-            _cabinHeight(pe::Real(0.8)),
-            _cabinLength(pe::Real(3.5)),
-            _cabinMass(pe::Real(1.)),
-            _wheelRadius(pe::Real(0.55)),
-            _wheelWidth(pe::Real(0.4)),
-            _wheelFriction(pe::Real(0.9)),
-            _wheelRollInfluence(pe::Real(0.1)),
-            _wheelRollDamping(pe::Real(0.03)),
-            _wheelMass(pe::Real(1.)),
-            _suspensionStiffness(pe::Real(25.0)),
-            _suspensionDamping(pe::Real(2.0)),
-            _suspensionCompression(pe::Real(2.0)),
-            _engineForce(pe::Real(50.)),
-            _maxSpeed(pe::Real(50.0)),
-            _maxRotSpeed(pe::Real(2.0)) {}
+            _bodyWidth(R(2.3)),
+            _bodyLength(R(7.)),
+            _bodyHeight(R(1.0)),
+            _bodyMass(R(30.0)),
+            _cabinWidth(R(2.3)),
+            _cabinHeight(R(0.8)),
+            _cabinLength(R(3.5)),
+            _cabinMass(R(1.)),
+            _wheelRadius(R(0.55)),
+            _wheelWidth(R(0.4)),
+            _wheelFriction(R(0.9)),
+            _wheelRollInfluence(R(0.1)),
+            _wheelRollDamping(R(0.03)),
+            _wheelMass(R(1.)),
+            _suspensionStiffness(R(25.0)),
+            _suspensionDamping(R(2.0)),
+            _suspensionCompression(R(2.0)),
+            _engineForce(R(50.)),
+            _maxSpeed(R(50.0)),
+            _maxRotSpeed(R(2.0)) {}
 
     void CarTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;
@@ -208,7 +208,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() < _maxSpeed ?
                 vehicle->getForwardVector() * -forwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * pe::Real(1.1)));
+        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * R(1.1)));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);
@@ -225,7 +225,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() > -_maxSpeed ?
                             vehicle->getForwardVector() * backwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * pe::Real(1.0));
+        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * R(1.0));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);
@@ -240,14 +240,14 @@ namespace pe_phys_vehicle {
 
     void CarTemplate::turnLeft() {
         setBrake(false);
-        vehicle->setSteeringValue(pe::Real(0.6), 2);
-        vehicle->setSteeringValue(pe::Real(0.6), 3);
+        vehicle->setSteeringValue(R(0.6), 2);
+        vehicle->setSteeringValue(R(0.6), 3);
     }
 
     void CarTemplate::turnRight() {
         setBrake(false);
-        vehicle->setSteeringValue(pe::Real(-0.6), 2);
-        vehicle->setSteeringValue(pe::Real(-0.6), 3);
+        vehicle->setSteeringValue(R(-0.6), 2);
+        vehicle->setSteeringValue(R(-0.6), 3);
     }
 
     void CarTemplate::turnStraight() {

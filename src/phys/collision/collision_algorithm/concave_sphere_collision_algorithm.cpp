@@ -22,27 +22,13 @@ namespace pe_phys_collision {
         const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
         const auto& trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
 
-        const pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());
-        const pe::Real radius = shape_sph->getRadius();
-        const pe::Vector3 sph_AA = sph_rel2mesh - pe::Vector3(radius, radius, radius);
-        const pe::Vector3 sph_BB = sph_rel2mesh + pe::Vector3(radius, radius, radius);
-        pe::Array<int> intersect;
-        shape_mesh->getIntersectFaces(sph_AA, sph_BB, intersect);
+        constexpr auto margin = PE_MARGIN;
 
-        pe::Vector3 vertices[3];
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
-        for (const auto& fi : intersect) {
-            auto& f = mesh.faces[fi];
-            for (int i = 0; i < (int)f.indices.size() - 2; i++) {
-                vertices[0] = mesh.vertices[f.indices[0]].position;
-                vertices[1] = mesh.vertices[f.indices[i + 1]].position;
-                vertices[2] = mesh.vertices[f.indices[i + 2]].position;
-                SphereConvexCollisionAlgorithm::getClosestPoints(shape_sph, trans_sph, vertices, trans_mesh, result);
-            }
-        }
+        bool ret = SphereConvexCollisionAlgorithm::getClosestPoints(shape_sph, shape_mesh, mesh, trans_sph, trans_mesh, margin, result);
         result.setSwapFlag(false);
 
-        return true;
+        return ret;
     }
 
 } // pe_phys_collision

@@ -69,7 +69,7 @@ namespace pe_phys_fracture {
                                                                    const pe::Vector3 &p, const pe::Vector3 &n,
                                                                    FractureDataManager &new_mesh) {
         auto face = old_mesh.get_face(face_id);
-        const auto vert_count = (uint32_t)face.vert_ids.size();
+        const auto vert_count = UI(face.vert_ids.size());
         pe::Vector3HashList inter_points(vert_count);
         pe::Array<vertex> vertices(vert_count);
         pe::Array<int> side(vert_count, -1);
@@ -152,7 +152,7 @@ namespace pe_phys_fracture {
         pe::Array<pe::Mesh> fragments;
         _voronoi->triangulate(points);
         cut_mesh(mesh, fragments);
-        for (int i = 0; i < (int)fragments.size(); i++) {
+        for (int i = 0; i < I(fragments.size()); i++) {
             if (!fragments[i].empty()) {
                 auto filename = path + "/fragment-" + std::to_string(i) + ".obj";
                 auto rb = addMesh(fragments[i], world_trans, filename);

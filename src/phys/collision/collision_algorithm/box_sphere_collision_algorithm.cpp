@@ -21,67 +21,15 @@ namespace pe_phys_collision {
         const pe::Real radius_sph = shape_sph->getRadius();
         constexpr auto margin = PE_MARGIN;
 
-        pe::Vector3 pt_on_box, normal;
-        pe::Real dist;
-        if (getSphereDistance(shape_box, trans_box, center_sph, radius_sph,
-                              pt_on_box, normal, dist)) {
-            result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
-            result.addContactPoint(normal, pt_on_box - normal * margin,
-                                   dist + 2 * margin);
-            result.setSwapFlag(false);
-            return true;
-        }
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
+        bool ret = getClosestPoints(shape_sph, shape_box, trans_sph, trans_box, center_sph, radius_sph, margin, result);
+        result.setSwapFlag(false);
 
-        return false;
+        return ret;
     }
 
-    bool BoxSphereCollisionAlgorithm::getSphereDistance(const pe_phys_shape::BoxShape *shape_box,
-                                                        const pe::Transform& trans_box,
-                                                        const pe::Vector3& center_sph, const pe::Real radius_sph,
-                                                        pe::Vector3 &pt_on_box, pe::Vector3 &normal, pe::Real &dist) {
-        const pe::Vector3 boxHalfExtent = shape_box->getSize() / pe::Real(2.0);
-        dist = pe::Real(1.0);
-
-        // convert the sphere position to the box's local space
-        const pe::Vector3 pos_sph2box = trans_box.inverseTransform(center_sph);
-
-        // Determine the closest point to the sphere center in the box
-        pe::Vector3 closest_point = pos_sph2box;
-        closest_point.x = PE_MIN(boxHalfExtent.x, closest_point.x);
-        closest_point.x = PE_MAX(-boxHalfExtent.x, closest_point.x);
-        closest_point.y = PE_MIN(boxHalfExtent.y, closest_point.y);
-        closest_point.y = PE_MAX(-boxHalfExtent.y, closest_point.y);
-        closest_point.z = PE_MIN(boxHalfExtent.z, closest_point.z);
-        closest_point.z = PE_MAX(-boxHalfExtent.z, closest_point.z);
-
-        normal = pos_sph2box - closest_point;
-
-        //if there is no penetration, we are done
-        const pe::Real dist2 = normal.norm2();
-        if (dist2 > radius_sph * radius_sph) {
-            return false;
-        }
-
-        pe::Real distance;
-
-        //special case if the sphere center is inside the box
-        if (dist2 <= PE_EPS * PE_EPS) {
-            distance = -getSpherePenetration(boxHalfExtent, pos_sph2box, closest_point, normal);
-        } else { //compute the penetration details
-            distance = normal.norm();
-            normal /= distance;
-        }
-
-        normal = trans_box.getBasis() * normal;
-        pt_on_box = trans_box * closest_point;
-        dist = distance - radius_sph;
-
-        return true;
-    }
-
-    pe::Real BoxSphereCollisionAlgorithm::getSpherePenetration(const pe::Vector3 &half_extent,
-                                                               const pe::Vector3 &pos_sph2box,
-                                                               pe::Vector3 &closest_point, pe::Vector3 &normal) {
+    static pe::Real getSpherePenetration(const pe::Vector3 &half_extent, const pe::Vector3 &pos_sph2box,
+                                         pe::Vector3& closest_point, pe::Vector3& normal) {
         //project the center of the sphere on the closest face of the box
         pe::Real face_dist = half_extent.x - pos_sph2box.x;
         pe::Real min_dist = face_dist;
@@ -130,5 +78,66 @@ namespace pe_phys_collision {
 
         return min_dist;
     }
+
+    static bool getSphereDistance(const pe_phys_shape::BoxShape* shape_box, const pe::Transform& trans_box,
+                                  const pe::Vector3& center_sph, const pe::Real radius_sph,
+                                  pe::Vector3& pt_on_box, pe::Vector3& normal, pe::Real& dist) {
+        const pe::Vector3 boxHalfExtent = shape_box->getSize() / R(2.0);
+        dist = R(1.0);
+
+        // convert the sphere position to the box's local space
+        const pe::Vector3 pos_sph2box = trans_box.inverseTransform(center_sph);
+
+        // Determine the closest point to the sphere center in the box
+        pe::Vector3 closest_point = pos_sph2box;
+        closest_point.x = PE_MIN(boxHalfExtent.x, closest_point.x);
+        closest_point.x = PE_MAX(-boxHalfExtent.x, closest_point.x);
+        closest_point.y = PE_MIN(boxHalfExtent.y, closest_point.y);
+        closest_point.y = PE_MAX(-boxHalfExtent.y, closest_point.y);
+        closest_point.z = PE_MIN(boxHalfExtent.z, closest_point.z);
+        closest_point.z = PE_MAX(-boxHalfExtent.z, closest_point.z);
+
+        normal = pos_sph2box - closest_point;
+
+        //if there is no penetration, we are done
+        const pe::Real dist2 = normal.norm2();
+        if (dist2 > radius_sph * radius_sph) {
+            return false;
+        }
+
+        pe::Real distance;
+
+        //special case if the sphere center is inside the box
+        if (dist2 <= PE_EPS * PE_EPS) {
+            distance = -getSpherePenetration(boxHalfExtent, pos_sph2box, closest_point, normal);
+        } else { //compute the penetration details
+            distance = normal.norm();
+            normal /= distance;
+        }
+
+        normal = trans_box.getBasis() * normal;
+        pt_on_box = trans_box * closest_point;
+        dist = distance - radius_sph;
+
+        return true;
+    }
+
+    bool BoxSphereCollisionAlgorithm::getClosestPoints(pe_phys_shape::SphereShape *shape_sph, pe_phys_shape::BoxShape *shape_box,
+                                                       const pe::Transform &trans_sph, const pe::Transform &trans_box,
+                                                       const pe::Vector3 &center_sph, pe::Real radius_sph,
+                                                       pe::Real margin, ContactResult &result) {
+        pe::Vector3 pt_on_box, normal;
+        pe::Real dist;
+        if (getSphereDistance(shape_box, trans_box, center_sph, radius_sph,
+                              pt_on_box, normal, dist)) {
+            result.addContactPoint(normal, pt_on_box - normal * margin,
+                                   dist + 2 * margin);
+            result.setSwapFlag(false);
+            return true;
+        }
+
+        return false;
+    }
+
 
 } // pe_phys_collision

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "phys/shape/sphere_shape.h"
 #include "collision_algorithm.h"
 
 namespace pe_phys_collision {
@@ -10,14 +11,12 @@ namespace pe_phys_collision {
                                       pe::Transform trans_a, pe::Transform trans_b,
                                       pe::Real refScale, ContactResult& result) override;
 
-        static void getClosestPoints(pe_phys_shape::Shape* shape_a, const pe::Transform& trans_a,
-                                     const pe::Vector3 vertices[],
-                                     const pe::Transform& transTri, ContactResult& result);
-        static bool collideSphereTriangle(const pe::Vector3& sphereCenter, pe::Real sphereRadius,
-                                          const pe::Vector3 vertices[], pe::Vector3& point,
-                                          pe::Vector3& resultNormal, pe::Real& depth);
-        static bool pointInTriangle(const pe::Vector3 vertices[], const pe::Vector3& normal, const pe::Vector3* p);
-        static bool faceContains(const pe::Vector3& p, const pe::Vector3* vertices, const pe::Vector3& normal);
+        static bool getClosestPoints(pe_phys_shape::SphereShape* shape_sph, const pe::Transform& trans_sph,
+                                     const pe::Vector3 vertices[], const pe::Transform& trans_tri,
+                                     pe::Real margin, ContactResult& result);
+        static bool getClosestPoints(pe_phys_shape::SphereShape* shape_sph, pe_phys_shape::Shape* shape_mesh,
+                                     const pe::Mesh& mesh, const pe::Transform& trans_sph, const pe::Transform& trans_mesh,
+                                     pe::Real margin, ContactResult& result);
     };
 
 } // pe_phys_collision

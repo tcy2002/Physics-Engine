@@ -24,7 +24,7 @@ namespace pe_phys_fracture {
         return { roa * cos_t, roa * sin_t, L2 };
     }
 
-#   define EXPLOSION_RATE pe::Real(0.125)
+#   define EXPLOSION_RATE R(0.125)
 #   define SPHERE_DENSITY 50
 #   define CYLINDER_DENSITY 20
 
@@ -38,8 +38,8 @@ namespace pe_phys_fracture {
             pe::Vector3 local_impact_pos = world_trans.inverseTransform(src.position);
             pe::Vector3 intensity = src.intensity;
             pe::Real impact_radius = (PE_ABS(intensity.x) + PE_ABS(intensity.y) + PE_ABS(intensity.z))
-                                     / (pe::Real(3.0) * threshold);
-            if (impact_radius < pe::Real(0.01)) continue;
+                                     / (R(3.0) * threshold);
+            if (impact_radius < R(0.01)) continue;
             if (src.type == FractureType::Sphere) {
                 int point_count = (int)(impact_radius * SPHERE_DENSITY);
                 for (int i = 0; i < point_count; i++) {

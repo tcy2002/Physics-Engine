@@ -9,7 +9,7 @@ namespace pe_phys_raycast {
                                          pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         auto shape_sph = dynamic_cast<pe_phys_shape::CylinderShape *>(shape);
         const pe::Real radius = shape_sph->getRadius();
-        const pe::Real height = shape_sph->getHeight() / pe::Real(2.0);
+        const pe::Real height = shape_sph->getHeight() / R(2.0);
         const pe::Vector3 start_local = trans.inverseTransform(start);
         const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
 

@@ -21,7 +21,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, pe::Real(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
@@ -33,11 +33,11 @@ public:
         // add a slope
         auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
                                                     pe::Vector3(0, 0, 0)),
-                                      pe::Vector3(10, pe::Real(0.3), 10), 8);
+                                      pe::Vector3(10, R(0.3), 10), 8);
         rb2->setKinematic(true);
         pe::Matrix3 mat;
-        mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / pe::Real(12.0));
-        rb2->setTransform(pe::Transform(mat, pe::Vector3(0, pe::Real(1.4), -10)));
+        mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / R(12.0));
+        rb2->setTransform(pe::Transform(mat, pe::Vector3(0, R(1.4), -10)));
         _world.addRigidBody(rb2);
 
         // add a tank
@@ -80,9 +80,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(pe::Real(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(pe::Real(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
@@ -95,9 +95,9 @@ protected:
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(pe::Real(0.5));
-        rb->setRestitutionCoeff(pe::Real(0.5));
-        rb->setAngularDamping(pe::Real(0.8));
+        rb->setFrictionCoeff(R(0.5));
+        rb->setRestitutionCoeff(R(0.5));
+        rb->setAngularDamping(R(0.8));
         return rb;
     }
 };

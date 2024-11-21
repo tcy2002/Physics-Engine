@@ -7,8 +7,8 @@ namespace pe_phys_collision {
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
                                                pe::Array<ContactResult*>& results) {
         // clear old contact results
-        const int old_size = (int)results.size();
-        const int new_size = (int)pairs.size();
+        const int old_size = I(results.size());
+        const int new_size = I(pairs.size());
         if (old_size < new_size) {
             results.resize(new_size);
             for (int i = old_size; i < new_size; i++) {
@@ -22,7 +22,7 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop((int)pairs.size(), 0, [&](int i) {
+        utils::ThreadPool::forBatchedLoop(I(pairs.size()), 0, [&](int i) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
@@ -41,7 +41,7 @@ namespace pe_phys_collision {
         });
         utils::ThreadPool::join();
 #   else
-        for (int i = 0; i < (int)pairs.size(); i++) {
+        for (int i = 0; i < I(pairs.size()); i++) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
@@ -61,7 +61,7 @@ namespace pe_phys_collision {
 #   endif
         
         // remove empty contact results and update dynamic/static count
-        for (int i = (int)results.size() - 1; i >= 0; i--) {
+        for (int i = I(results.size()) - 1; i >= 0; i--) {
             if (results[i]->getPointSize() == 0) {
 				/*delete results[i];
                 results.erase(results.begin() + i);*/

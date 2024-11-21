@@ -20,11 +20,23 @@ namespace pe_phys_collision {
         const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
         const auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
 
+        constexpr auto margin = PE_MARGIN;
+
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Sphere);
+        bool ret = getClosestPoints(shape_sph, shape_cyl, trans_sph, trans_cyl, margin, result);
+        result.setSwapFlag(false);
+
+        return ret;
+    }
+
+    bool SphereCylinderCollisionAlgorithm::getClosestPoints(
+            pe_phys_shape::SphereShape *shape_sph, pe_phys_shape::CylinderShape *shape_cyl,
+            const pe::Transform &trans_sph, const pe::Transform &trans_cyl,
+            pe::Real margin, ContactResult &result) {
         const pe::Real s_r = shape_sph->getRadius();
         const pe::Real c_r = shape_cyl->getRadius();
         const pe::Real c_h = shape_cyl->getHeight() * pe::Real(0.5);
         const pe::Vector3 s_pos = trans_cyl.inverseTransform(trans_sph.getOrigin());
-        constexpr auto margin = PE_MARGIN;
 
         const pe::Real r = PE_SQRT(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
         const pe::Real d = PE_ABS(s_pos.y) - c_h;
@@ -59,10 +71,10 @@ namespace pe_phys_collision {
 
         normal = trans_cyl.getBasis() * normal;
         ptOnSph = trans_cyl * ptOnSph;
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Sphere);
         result.addContactPoint(normal, ptOnSph - normal * margin, -depth + 2 * margin);
         result.setSwapFlag(false);
         return true;
     }
+
 
 } // pe_phys_collision

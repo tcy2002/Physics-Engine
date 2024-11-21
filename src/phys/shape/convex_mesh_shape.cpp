@@ -112,12 +112,12 @@ namespace pe_phys_shape {
         pe::Vector3HashList vert_map((uint32_t)_mesh.vertices.size());
         pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
-            for (int i = 0; i < (int)f.indices.size(); i++) {
+            for (int i = 0; i < I(f.indices.size()); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
-                int id0 = (int)(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
+                int id0 = I(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
                 if (id0 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
-                int id1 = (int)(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
+                int id1 = I(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
                 if (id1 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {
