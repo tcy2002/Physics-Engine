@@ -77,7 +77,10 @@ namespace pe_phys_constraint {
             });
             utils::ThreadPool::join();
 #   else
-            for (auto constraint : _constraints) {
+            for (auto constraint : _fcc_constraints) {
+                constraint->iterateSequentialImpulse(i);
+            }
+            for (auto constraint : _other_constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
 #   endif
@@ -105,7 +108,10 @@ namespace pe_phys_constraint {
         });
         utils::ThreadPool::join();
 #   else
-        for (auto constraint : _constraints) {
+        for (auto constraint : _fcc_constraints) {
+            constraint->afterSequentialImpulse();
+        }
+        for (auto constraint : _other_constraints) {
             constraint->afterSequentialImpulse();
         }
 #   endif
