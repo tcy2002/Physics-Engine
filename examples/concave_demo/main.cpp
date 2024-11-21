@@ -72,7 +72,7 @@ protected:
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape = new pe_phys_shape::ConcaveMeshShape();
-        shape->setMeshPath("./obj/bunny.obj");
+        shape->setMeshPath(obj_path);
         shape->setScale(pe::Vector3(3, 3, 3));
         shape->setMesh(mesh);
         rb->setCollisionShape(shape);

@@ -100,6 +100,8 @@ namespace pe_phys_vehicle {
         for (int i = 0; i < _wheelNum; i++) {
             pe_phys_object::RigidBody* wheel = new pe_phys_object::RigidBody();
             wheel->addIgnoreCollisionId(body->getGlobalId());
+            wheel->addIgnoreCollisionId(turret->getGlobalId());
+            wheel->addIgnoreCollisionId(barrel->getGlobalId());
 #       if PE_TANK_USE_SPHERE_WHEEL
             auto shape = new pe_phys_shape::SphereShape(
                     vehicle->getWheelInfo(i).m_wheelsRadius + PE_TANK_WHEEL_MARGIN);
