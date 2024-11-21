@@ -35,23 +35,9 @@ namespace pe_phys_collision {
                         dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b)->getUniqueEdges();
 
-        pe::Vector3 sep;
-
-        VertexArray world_vertices_b1;
-        VertexArray world_vertices_b2;
-
-        if (!ConvexConvexCollisionAlgorithm::findSeparatingAxis(shape_a, shape_b,
-                                                                mesh_a, mesh_b,
-                                                                edges_a, edges_b,
-                                                                trans_a, trans_b, sep, margin, result)) {
-            return false;
-                                                                }
-        ConvexConvexCollisionAlgorithm::clipHullAgainstHull(sep,
-                                                            mesh_a, mesh_b, trans_a, trans_b,
-                                                            -refScale, margin,
-                                                            world_vertices_b1, world_vertices_b2,
-                                                            margin, result);
-        return true;
+        return ConvexConvexCollisionAlgorithm::getClosestPoints(
+            shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
+            trans_a, trans_b, margin, refScale, result);
 #   else
         auto shape_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b;
         auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
@@ -190,7 +176,7 @@ namespace pe_phys_collision {
         // check whether there is an edge that intersects the cylinder
         for (const auto fi : intersect) {
             auto& f = mesh.faces[fi];
-            for (int i = 0; i < (int)f.indices.size(); i++) {
+            for (int i = 0; i < I(f.indices.size()); i++) {
                 const auto& v1 = mesh.vertices[f.indices[i]].position;
                 const auto& v2 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
                 pe::Real t1, t2;

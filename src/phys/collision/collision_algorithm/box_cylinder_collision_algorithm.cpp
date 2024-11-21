@@ -46,7 +46,6 @@ namespace pe_phys_collision {
         const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
         const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
 
-
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
         bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
         result.setSwapFlag(false);
@@ -103,7 +102,7 @@ namespace pe_phys_collision {
     void BoxCylinderCollisionAlgorithm::addContactPointOnCylinder(
             const pe::Vector3& p, const pe::Vector3& pos_cyl, const pe::Vector3& axis_cyl, pe::Real radius_cyl, pe::Real h_cyl,
             const pe::Transform& trans_other, pe::Real margin, ContactResult& result) {
-        // Find the closest point on cylindrical surface to given location
+        // Find the closest point on cylindrical surface to the given location
         const pe::Vector3 r = p - pos_cyl;
         const pe::Real dist_y = r.dot(axis_cyl);
         const pe::Real dist_xz = PE_SQRT(r.norm2() - dist_y * dist_y);
@@ -302,8 +301,8 @@ namespace pe_phys_collision {
         // - For each direction, consider two segments that are on the cylindrical plane defined by the
         //   axis and the face normal. (Note that, in principle, we could only consider the segment "closest" to the box,
         //   but that is not trivial to define in all configurations). All segments are parameterized by t in [-H,H].
-        // - For each segment, if the segment intersects the box, consider 3 candidate contact points: the 2
-        //   intersection points and their midpoint. A contact is added if the segment point is inside the box.
+        // - For each segment, if the segment intersects the box, consider 2 candidate contact points: the 2
+        //   intersection points. A contact is added if the segment point is inside the box.
         //   Furthermore, the corresponding box point is located on the box face that is closest to the intersection
         //   midpoint candidate.
         for (int i_dir = 0; i_dir < 3; i_dir++) {
@@ -336,7 +335,6 @@ namespace pe_phys_collision {
                     // Add a contact for any of the candidate points that is inside the box
                     addContactPointOnBox(p_min, i_face, box_half_extent, trans_box, margin, result); // 1st segment end
                     addContactPointOnBox(p_max, i_face, box_half_extent, trans_box, margin, result); // 2nd segment end
-                    addContactPointOnBox(p_mid, i_face, box_half_extent, trans_box, margin, result); // intersection midpoint
                 }
             }
         }
