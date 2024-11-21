@@ -38,10 +38,10 @@ public:
         pe::Array<pe_phys_object::RigidBody*> rbs;
         for (int i = 0; i < 30; i++) {
             pe_phys_object::RigidBody* rb;
-            if (i % 3 == 3) {
+            if (i % 3 == 0) {
                 rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
                                         pe::Vector3(1, 1, 1), R(1.0));
-            } else if (i % 3 == 3) {
+            } else if (i % 3 == 1) {
                 rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
                     R(0.5), R(1.0));
             } else {
