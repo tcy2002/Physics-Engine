@@ -5,14 +5,12 @@
 #include "utils/bvh.h"
 
 namespace pe_phys_collision {
-    class ConcaveBoxCollisionAlgorithm;
     class ConcaveConvexCollisionAlgorithm;
 }
 
 namespace pe_phys_shape {
 
     class ConvexMeshShape: public Shape {
-        friend class pe_phys_collision::ConcaveBoxCollisionAlgorithm;
         friend class pe_phys_collision::ConcaveConvexCollisionAlgorithm;
 
     protected:
