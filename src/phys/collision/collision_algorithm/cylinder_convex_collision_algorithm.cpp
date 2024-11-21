@@ -140,7 +140,6 @@ namespace pe_phys_collision {
         pe::Array<int> intersect;
         shape->getIntersectFaces(cyl_AA, cyl_BB, intersect);
 
-
 #   define ADD_CONTACT_POINT_ON_MESH(face, mesh, pos, dir, l, margin, trans) \
         do { \
             pe::Real t1, t2, d1, d2; \
@@ -207,7 +206,6 @@ namespace pe_phys_collision {
             }
         }
 
-        result.setSwapFlag(false);
         return true;
     }
 

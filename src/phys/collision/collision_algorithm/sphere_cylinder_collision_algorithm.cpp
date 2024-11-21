@@ -72,7 +72,6 @@ namespace pe_phys_collision {
         normal = trans_cyl.getBasis() * normal;
         ptOnSph = trans_cyl * ptOnSph;
         result.addContactPoint(normal, ptOnSph - normal * margin, -depth + 2 * margin);
-        result.setSwapFlag(false);
         return true;
     }
 

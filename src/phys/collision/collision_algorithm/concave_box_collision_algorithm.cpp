@@ -18,8 +18,8 @@ namespace pe_phys_collision {
 
         auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
         auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
-        auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
-        auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
+        auto& trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
+        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
         auto& mesh_box = shape_box->getMesh();
         auto& edges_box = shape_box->getUniqueEdges();

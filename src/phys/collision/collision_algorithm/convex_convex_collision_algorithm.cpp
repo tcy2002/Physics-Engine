@@ -416,7 +416,7 @@ namespace pe_phys_collision {
                                 unique_edges_a, unique_edges_b,
                                 trans_a, trans_b, sep, margin, result)) {
             return false;
-                                }
+        }
         clipHullAgainstHull(sep, mesh_a, mesh_b, trans_a, trans_b,
                             -refScale, margin, world_vertices_b1, world_vertices_b2,
                             margin, result);

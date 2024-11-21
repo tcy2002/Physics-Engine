@@ -49,23 +49,20 @@ namespace pe_phys_collision {
 
         for (auto fi : intersect) {
             auto& f = mesh_concave.faces[fi];
-            pe::Mesh mesh_face;
+            pe_phys_shape::ConvexMeshShape shape_face;
             pe::Mesh::Face face_face;
             for (int i = 0; i < I(f.indices.size()); i++) {
-                mesh_face.vertices.push_back(mesh_concave.vertices[f.indices[i]]);
+                shape_face._mesh.vertices.push_back(mesh_concave.vertices[f.indices[i]]);
                 face_face.indices.push_back(i);
             }
             face_face.normal = f.normal;
-            mesh_face.faces.push_back(face_face);
-            pe_phys_shape::ConvexMeshShape shape_face;
-            shape_face.setMesh(mesh_face);
+            shape_face._mesh.faces.push_back(face_face);
 
             ConvexConvexCollisionAlgorithm::getClosestPoints(
-                shape_convex, &shape_face, mesh_convex, mesh_face,
+                shape_convex, &shape_face, mesh_convex, shape_face._mesh,
                 unique_edges_convex, shape_face.getUniqueEdges(),
                 trans_convex, trans_concave, margin, refScale, result);
         }
-        result.setSwapFlag(false);
 
         return true;
     }
