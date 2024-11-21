@@ -26,7 +26,7 @@ namespace pe_phys_collision {
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b,
             edges_a, edges_b, trans_a, trans_b, margin, refScale, result);
 #   else
-
+        // TODO
 #   endif
     }
 

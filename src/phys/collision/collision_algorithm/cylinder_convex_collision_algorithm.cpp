@@ -1,7 +1,5 @@
 #include "cylinder_convex_collision_algorithm.h"
-
-#include <phys/shape/concave_mesh_shape.h>
-
+#include "phys/shape/concave_mesh_shape.h"
 #include "phys/shape/cylinder_shape.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "convex_convex_collision_algorithm.h"
@@ -75,18 +73,17 @@ namespace pe_phys_collision {
         // check if the start or end point is inside the vertical face defined by the edge and the normal
         pe::Real t_min = 0, t_max = l_seg;
         auto min_dist_to_edge = PE_REAL_MAX;
-        for (int i = 0; i < (int)face.indices.size(); i++) {
+        for (int i = 0; i < I(face.indices.size()); i++) {
             const pe::Vector3& v0 = mesh.vertices[face.indices[i]].position;
             const pe::Vector3& v1 = mesh.vertices[face.indices[(i + 1) % face.indices.size()]].position;
             const pe::Vector3 to_center = face.normal.cross(v1 - v0).normalized();
             const pe::Real dir_dot_to_center = dir_seg.dot(to_center);
-            const pe::Real dist_to_edge = (v0 - pos_seg).dot(to_center);
-            min_dist_to_edge = PE_MIN(min_dist_to_edge, PE_ABS(dist_to_edge));
+            min_dist_to_edge = PE_MIN(min_dist_to_edge, PE_ABS((v0 - v).dot(to_center)));
             if (!PE_APPROX_EQUAL(dir_dot_to_center, 0)) {
                 if (dir_dot_to_center > 0) {
-                    t_min = PE_MAX(t_min, dist_to_edge / dir_dot_to_center);
+                    t_min = PE_MAX(t_min, (v0 - pos_seg).dot(to_center) / dir_dot_to_center);
                 } else {
-                    t_max = PE_MIN(t_max, dist_to_edge / dir_dot_to_center);
+                    t_max = PE_MIN(t_max, (v0 - pos_seg).dot(to_center) / dir_dot_to_center);
                 }
             } else {
                 if ((v0 - v).cross(v1 - v).dot(face.normal) < 0) {
@@ -102,6 +99,7 @@ namespace pe_phys_collision {
         t2 = dist2 <= 0 ? t_max : t;
         d1 = dist1 <= 0 ? dist1 * (t - t_min) / t : 0;
         d2 = dist2 <= 0 ? dist2 * (t_max - t) / (l_seg - t) : 0;
+        // to prevent wrong contact points from another adjacent face
         if (-d1 > min_dist_to_edge + margin || -d2 > min_dist_to_edge + margin) {
             return false;
         }
