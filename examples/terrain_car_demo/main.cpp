@@ -2,16 +2,15 @@
 #include "phys/vehicle/car/car_template.h"
 #include "phys/vehicle/tank/tank_template.h"
 
-// pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
+// To turn off the viewer, set use_gui = false in init()
 class TerrainCarSimulator : public pe_intf::Simulator {
 protected:
+    // i/k: move forward/backward
+    // j/l/m: turn left/right/straight
+    pe_phys_vehicle::CarTemplate* _car1;
     // i/j/k/l: move forward/leftward/backward/rightward
     // u/o: rotate barrel leftward/rightward
-    // CASE sensitive
-    // do not try to drive the car upside down, it will cause something unexpected <^v^>
-    pe_phys_vehicle::CarTemplate* _car1;
     pe_phys_vehicle::TankTemplate* _tank1;
 
 public:
@@ -120,5 +119,5 @@ protected:
     }
 };
 
-// Simulator class, Delta time, Max frame
+// Simulator class, Target frame rate
 PE_CUSTOM_MAIN(TerrainCarSimulator, 100)

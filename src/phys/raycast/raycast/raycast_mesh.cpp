@@ -7,24 +7,28 @@
 
 namespace pe_phys_raycast {
 
-    bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
+    bool RaycastMesh::processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real max_dist,
                                      pe_phys_shape::Shape* shape, pe::Transform trans,
                                      pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
+
+        auto shape_mesh = shape->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+            dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape) :
+            dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape);
+        const pe::Mesh* mesh = &shape_mesh->getMesh();
+
         const pe::Vector3 start_local = trans.inverseTransform(start);
         const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
-        const pe::Mesh* mesh;
-        if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
-            mesh = &dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMesh();
-        } else if (shape->getType() == pe_phys_shape::ShapeType::ConcaveMesh) {
-            mesh = &dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getMesh();
-        } else {
-            return false;
-        }
+        const pe::Vector3 end_local = start_local + dir_local * max_dist;
+        const pe::Vector3 box_min = pe::Vector3::min2(start_local, end_local) - pe::Vector3::ones() * R(0.1);
+        const pe::Vector3 box_max = pe::Vector3::max2(start_local, end_local) + pe::Vector3::ones() * R(0.1);
+        pe::Array<int> hit_faces;
+        shape_mesh->getIntersectFaces(box_min, box_max, hit_faces);
 
         distance = PE_REAL_MAX;
         hit_point = pe::Vector3::zeros();
         hit_normal = pe::Vector3::zeros();
-        for (auto& face: mesh->faces) {
+        for (const auto fi : hit_faces) {
+            auto& face = mesh->faces[fi];
             pe::Real d;
             pe::Vector3 hit;
             for (int i = 0; i < I(face.indices.size()) - 2; i++) {
@@ -41,7 +45,7 @@ namespace pe_phys_raycast {
                 }
             }
         }
-        if (distance < PE_REAL_MAX) {
+        if (distance < max_dist) {
             hit_point = trans * hit_point;
             hit_normal = trans.getBasis() * hit_normal;
             return true;

@@ -1,8 +1,8 @@
 #include "intf/simulator.h"
 #include "phys/constraint/constraint/ball_joint_constraint.h"
 
-// press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
+// To turn off the viewer, set use_gui = false in init()
 class ConstraintsSimulator : public pe_intf::Simulator {
 public:
     ConstraintsSimulator() {}
@@ -124,5 +124,5 @@ protected:
     }
 };
 
-// Simulator class, Delta time, Max frame
+// Simulator class, Target frame rate
 PE_CUSTOM_MAIN(ConstraintsSimulator, 100)

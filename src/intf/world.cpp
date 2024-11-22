@@ -2,6 +2,7 @@
 #include "phys/object/rigidbody.h"
 #include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
+#include "phys/collision/broad_phase/simple_broad_phase.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "utils/thread_pool.h"
 

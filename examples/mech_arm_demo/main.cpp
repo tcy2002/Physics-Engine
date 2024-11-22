@@ -418,9 +418,8 @@ public:
     }
 };
 
-// pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
+// To turn off the viewer, set use_gui = false in init()
 class MechArmSimulator : public pe_intf::Simulator {
 protected:
     MechanicalArm* _arm;
@@ -580,5 +579,5 @@ public:
     }
 };
 
-// Simulator class, Delta time, Max frame
+// Simulator class, Target frame rate
 PE_CUSTOM_MAIN(MechArmSimulator, 100)

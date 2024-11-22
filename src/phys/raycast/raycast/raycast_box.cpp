@@ -3,7 +3,7 @@
 
 namespace pe_phys_raycast {
 
-    bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
+    bool RaycastBox::processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real max_dist,
                                     pe_phys_shape::Shape* shape, pe::Transform trans,
                                     pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         auto& size = dynamic_cast<pe_phys_shape::BoxShape *>(shape)->getSize();
@@ -13,9 +13,12 @@ namespace pe_phys_raycast {
         if (rayHitBox(start_local, dir_local,
                       -size / R(2.0), size / R(2.0),
                       distance, hit_point, hit_normal)) {
-            hit_point = trans * hit_point;
-            hit_normal = trans.getBasis() * hit_normal;
-            return true;
+            if (distance <= max_dist) {
+                hit_point = trans * hit_point;
+                hit_normal = trans.getBasis() * hit_normal;
+                return true;
+            }
+            return false;
         } else {
             hit_point = pe::Vector3::zeros();
             hit_normal = pe::Vector3::zeros();

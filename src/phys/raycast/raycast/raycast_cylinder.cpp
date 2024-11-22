@@ -4,7 +4,7 @@
 // style-checked
 namespace pe_phys_raycast {
 
-    bool RaycastCylinder::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
+    bool RaycastCylinder::processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real max_dist,
                                          pe_phys_shape::Shape* shape, pe::Transform trans,
                                          pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         auto shape_sph = dynamic_cast<pe_phys_shape::CylinderShape *>(shape);
@@ -67,9 +67,12 @@ namespace pe_phys_raycast {
         return false;
 
         hit:
-        hit_point = trans * hit_point;
-        hit_normal = trans.getBasis() * hit_normal;
-        return true;
+        if (distance <= max_dist) {
+            hit_point = trans * hit_point;
+            hit_normal = trans.getBasis() * hit_normal;
+            return true;
+        }
+        return false;
     }
 
 } // namespace pe_phys_ray

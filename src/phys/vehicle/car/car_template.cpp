@@ -208,7 +208,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() < _maxSpeed ?
                 vehicle->getForwardVector() * -forwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * R(1.1)));
+        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * R(0.4)));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);
@@ -225,7 +225,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() > -_maxSpeed ?
                             vehicle->getForwardVector() * backwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * R(1.0));
+        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * R(0.3));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);

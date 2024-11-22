@@ -1,9 +1,8 @@
 #include "intf/simulator.h"
 #include "phys/vehicle/tank/tank_template.h"
 
-// pe_intf::UseViewer::True/False: simulate with/without viewer
-// If using viewer, press `x` to start simulation
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
+// To turn off the viewer, set use_gui = false in init()
 class TankSimulator : public pe_intf::Simulator {
 protected:
     // i/j/k/l: move forward/leftward/backward/rightward
@@ -127,5 +126,5 @@ public:
     }
 };
 
-// Simulator class, Delta time, Max frame
+// Simulator class, Target frame rate
 PE_CONFIG_CUSTOM_MAIN(TankSimulator, 100)

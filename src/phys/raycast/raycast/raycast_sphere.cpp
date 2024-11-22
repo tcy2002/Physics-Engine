@@ -3,7 +3,7 @@
 
 namespace pe_phys_raycast {
 
-    bool RaycastSphere::processRaycast(const pe::Vector3& start, const pe::Vector3& direction,
+    bool RaycastSphere::processRaycast(const pe::Vector3& start, const pe::Vector3& direction, pe::Real max_dist,
                                        pe_phys_shape::Shape* shape, pe::Transform trans,
                                       pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         const pe::Real radius = dynamic_cast<pe_phys_shape::SphereShape *>(shape)->getRadius();
@@ -18,11 +18,14 @@ namespace pe_phys_raycast {
             distance = PE_REAL_MAX;
             return false;
         } else {
-            pe::Real proj2hit = std::sqrt(radius * radius - proj2center * proj2center);
+            pe::Real proj2hit = PE_SQRT(radius * radius - proj2center * proj2center);
             distance = start2proj - proj2hit;
-            hit_point = start + direction * distance;
-            hit_normal = (hit_point - trans.getOrigin()).normalized();
-            return true;
+            if (distance <= max_dist) {
+                hit_point = start + direction * distance;
+                hit_normal = (hit_point - trans.getOrigin()).normalized();
+                return true;
+            }
+            return false;
         }
     }
 
