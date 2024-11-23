@@ -39,14 +39,14 @@ namespace pe_phys_shape {
     } while (0)
 
         constexpr pe::Real mult[10] = {
-            pe::Real(1.0) / 6, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 24, pe::Real(1.0) / 60,
-            pe::Real(1.0) / 60, pe::Real(1.0) / 60, pe::Real(1.0) / 120, pe::Real(1.0) / 120, pe::Real(1.0) / 120
+            R(1.0) / 6, R(1.0) / 24, R(1.0) / 24, R(1.0) / 24, R(1.0) / 60,
+            R(1.0) / 60, R(1.0) / 60, R(1.0) / 120, R(1.0) / 120, R(1.0) / 120
         };
         pe::Real intg[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         for (auto& face : _mesh.faces) {
             auto& v0 = _mesh.vertices[face.indices[0]].position;
-            for (int i = 0; i < (int)face.indices.size() - 2; i++) {
+            for (int i = 0; i < I(face.indices.size()) - 2; i++) {
                 auto& v1 = _mesh.vertices[face.indices[i + 1]].position;
                 auto& v2 = _mesh.vertices[face.indices[i + 2]].position;
 

@@ -41,10 +41,10 @@ namespace pe_intf { // interface
         pe::Array<pe_phys_collision::ContactResult*> _contact_results;
         friend class pe_phys_vehicle::ContactVehicle;
 
-        void updateAABBs();
         void updateObjectStatus();
         void applyExternalForce();
         void execCollisionCallbacks();
+        void calcDamageEffects();
 
     public:
         PE_API World();

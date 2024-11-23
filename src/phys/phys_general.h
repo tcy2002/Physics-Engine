@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <cstdint>
 
@@ -106,6 +107,9 @@ namespace pe {
 
     template <typename K, typename V>
     using Map = std::map<K, V>;
+
+    template <typename V>
+    using HashSet = std::unordered_set<V>;
 
     template <typename K, typename V>
     using HashMap = std::unordered_map<K, V>;

@@ -8,8 +8,8 @@ namespace pe_phys_collision {
         if (co1->isIgnoreCollision() || co2->isIgnoreCollision()) return false;
         if (co1->isKinematic() && co2->isKinematic()) return false;
         if (co1->getGlobalId() == co2->getGlobalId()) return false;
-        if (co1->isIgnoreCollisionId(co2->getGlobalId())) return false;
-        if (co2->isIgnoreCollisionId(co1->getGlobalId())) return false;
+        if (co1->ignoreCollisionId(co2->getGlobalId())) return false;
+        if (co2->ignoreCollisionId(co1->getGlobalId())) return false;
         auto &min1 = co1->getAABBMin(), &max1 = co1->getAABBMax();
         auto &min2 = co2->getAABBMin(), &max2 = co2->getAABBMax();
         if (min1.x > max2.x || min2.x > max1.x) return false;

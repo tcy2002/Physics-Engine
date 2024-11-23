@@ -9,6 +9,8 @@ public:
 
     void init() override {
         /* Initialize the physics world here before running */
+        use_gui = true;
+        max_frame = 1000;
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
@@ -110,4 +112,4 @@ protected:
 };
 
 // Simulator class, Target frame rate
-PE_CUSTOM_MAIN(BombSimulator, 100)
+PE_CUSTOM_MAIN(BombSimulator, 200)

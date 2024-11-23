@@ -76,7 +76,7 @@ namespace pe_phys_constraint {
     }
 
     void FrictionContactConstraint::warmStart() {
-        for (int i = 0; i < (int)_cis.size(); i++) {
+        for (int i = 0; i < I(_cis.size()); i++) {
             auto& cp = _contact_result->getContactPoint(i);
             ConstraintInfo& ci = _cis[i];
             ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * R(0.9);
@@ -131,13 +131,6 @@ namespace pe_phys_constraint {
 
             _object_a->applyTempImpulse(r_a, impulse_vector);
             _object_b->applyTempImpulse(r_b, -impulse_vector);
-        }
-    }
-
-    void FrictionContactConstraint::afterSequentialImpulse() {
-        for (int i = 0; i < (int)_cis.size(); i++) {
-            const ConstraintInfo& ci = _cis[i];
-            _contact_result->getContactPoint(i).setAppliedImpulse(ci.n_applied_impulse * ci.n);
         }
     }
     

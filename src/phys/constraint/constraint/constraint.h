@@ -35,7 +35,6 @@ namespace pe_phys_constraint {
         virtual void initSequentialImpulse(const ConstraintParam& param) = 0;
         virtual void warmStart() = 0;
         virtual void iterateSequentialImpulse(int iter) = 0;
-        virtual void afterSequentialImpulse() = 0;
 
         static void getSkewSymmetricMatrix(const pe::Vector3& v, pe::Matrix3& m);
     };

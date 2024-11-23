@@ -83,20 +83,13 @@ namespace pe_phys_object {
             _torque(pe::Vector3::zeros()),
             _temp_linear_velocity(pe::Vector3::zeros()),
             _temp_angular_velocity(pe::Vector3::zeros()),
+            _aabb_min(pe::Vector3::zeros()),
+            _aabb_max(pe::Vector3::zeros()),
             _sleep(false),
             _sleep_time(0),
             _static_count(0),
             _dynamic_count(0) {
         updateWorldInertia();
-    }
-
-    void RigidBody::computeAABB() {
-        if (_collision_shape != nullptr) {
-            _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
-        } else {
-            _aabb_min = pe::Vector3::zeros();
-            _aabb_max = pe::Vector3::zeros();
-        }
     }
 
     pe::Real RigidBody::getAABBScale() const {
@@ -114,10 +107,8 @@ namespace pe_phys_object {
         }
     }
 
-    bool RigidBody::isIgnoreCollisionId(uint32_t id) const {
-        return std::any_of(_ignore_collision_ids.begin(), _ignore_collision_ids.end(), [id](uint32_t i) {
-            return i == id;
-        });
+    bool RigidBody::ignoreCollisionId(uint32_t id) const {
+        return _ignore_collision_ids.find(id) != _ignore_collision_ids.end();
     }
 
     pe::Vector3 RigidBody::getLinearVelocityAtLocalPoint(const pe::Vector3& local_p) const {
@@ -130,9 +121,9 @@ namespace pe_phys_object {
     }
 
     pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
-        pe::Vector3 r = world_point - _transform.getOrigin();
-        pe::Vector3 c = r.cross(world_normal);
-        pe::Vector3 vec = (_world_inv_inertia * c).cross(r);
+        const pe::Vector3 r = world_point - _transform.getOrigin();
+        const pe::Vector3 c = r.cross(world_normal);
+        const pe::Vector3 vec = (_world_inv_inertia * c).cross(r);
         return _inv_mass + world_normal.dot(vec);
     }
 
@@ -182,7 +173,13 @@ namespace pe_phys_object {
     }
 
     bool RigidBody::step(pe::Real dt) {
-        if (isKinematic()) return true;
+        if (isKinematic()) {
+            if (_collision_shape != nullptr) {
+                _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
+            }
+            return true;
+        }
+
         _last_time += dt;
         if (_last_time >= _life_time) {
             return false;
@@ -205,6 +202,10 @@ namespace pe_phys_object {
         }
 #   endif
         updateWorldInertia();
+
+        if (_collision_shape != nullptr) {
+            _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
+        }
 
         return true;
     }

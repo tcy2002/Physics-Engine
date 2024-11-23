@@ -30,24 +30,49 @@ namespace pe_intf {
         delete _fracture_solver;
     }
 
-    void World::updateAABBs() {
+    void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(I(_collision_objects.size()), 0,[&](int i) {
-            _collision_objects[i]->computeAABB();
+        utils::ThreadPool::forBatchedLoop(UI(_collision_objects.size()), 0, [&](int i) {
+            auto rb = _collision_objects[i];
+            if (rb->isKinematic()) {
+                rb->step(_dt); // only update AABB
+                return;
+            }
+            const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            if (rb->isSleep()) {
+                if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
+                    rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
+                    rb->setSleep(false);
+                    rb->resetSleepTime();
+                }
+            } else {
+                if (!rb->step(_dt)) {
+                    _rigidbodies_to_remove.push_back(rb);
+                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    return;
+                }
+                rb->applyDamping(_dt);
+                if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold * ratio &&
+                    rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold * ratio) {
+                    rb->updateSleepTime(_dt);
+                    if (rb->getSleepTime() >= _sleep_time_threshold) {
+                        rb->setSleep(true);
+                        rb->setLinearVelocity(pe::Vector3::zeros());
+                        rb->setAngularVelocity(pe::Vector3::zeros());
+                    }
+                } else {
+                    rb->resetSleepTime();
+                }
+            }
+            rb->resetStaticCount();
+            rb->resetDynamicCount();
         });
         utils::ThreadPool::join();
 #   else
-        for (auto& co : _collision_objects) {
-            co->computeAABB();
-        }
-#   endif
-    }
-
-    void World::updateObjectStatus() {
         for (int i = 0; i < I(_collision_objects.size()); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
-            const auto ratio = (rb->getStaticCount() + 1) / (pe::Real)(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
                     rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
@@ -76,6 +101,7 @@ namespace pe_intf {
             rb->resetStaticCount();
             rb->resetDynamicCount();
         }
+#   endif
     }
 
     void World::applyExternalForce() {
@@ -87,8 +113,40 @@ namespace pe_intf {
     }
 
     void World::execCollisionCallbacks() {
-        // not suitable for multi-thread
-        for (auto& cr : _contact_results) {
+#   ifdef PE_MULTI_THREAD
+        utils::ThreadPool::forBatchedLoop(UI(_contact_results.size()), 0, [&](int i) {
+            const auto& cr = _contact_results[i];
+            if (cr->getPointSize() == 0) return;
+            const auto rb1 = cr->getObjectA();
+            const auto rb2 = cr->getObjectB();
+            if (rb1->getCollisionCallbacks().empty() && rb2->getCollisionCallbacks().empty()) return;
+
+            pe::Vector3 pos = pe::Vector3::zeros();
+            pe::Vector3 nor = pe::Vector3::zeros();
+            pe::Vector3 vel = pe::Vector3::zeros();
+            pe::Real depth = 0;
+            for (int i = 0; i < cr->getPointSize(); i++) {
+                pos += cr->getContactPoint(i).getWorldPos();
+                nor += cr->getContactPoint(i).getWorldNormal();
+                depth += cr->getContactPoint(i).getDistance();
+                vel += rb1->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosA());
+                vel -= rb2->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosB());
+            }
+            pos /= cr->getPointSize();
+            nor.normalize();
+            depth /= R(cr->getPointSize());
+            vel /= cr->getPointSize();
+
+            for (auto& cb : rb1->getCollisionCallbacks()) {
+                cb(rb1, rb2, pos + nor * depth, -nor, -vel);
+            }
+            for (auto& cb : rb2->getCollisionCallbacks()) {
+                cb(rb2, rb1, pos, nor, vel);
+            }
+        });
+        utils::ThreadPool::join();
+#   else
+        for (const auto& cr : _contact_results) {
             if (cr->getPointSize() == 0) continue;
             const auto rb1 = cr->getObjectA();
             const auto rb2 = cr->getObjectB();
@@ -105,10 +163,10 @@ namespace pe_intf {
                 vel += rb1->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosA());
                 vel -= rb2->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosB());
             }
-            pos /= (pe::Real)cr->getPointSize();
+            pos /= cr->getPointSize();
             nor.normalize();
-            depth /= (pe::Real)cr->getPointSize();
-            vel /= (pe::Real)cr->getPointSize();
+            depth /= R(cr->getPointSize());
+            vel /= cr->getPointSize();
 
             for (auto& cb : rb1->getCollisionCallbacks()) {
                 cb(rb1, rb2, pos + nor * depth, -nor, -vel);
@@ -117,7 +175,32 @@ namespace pe_intf {
                 cb(rb2, rb1, pos, nor, vel);
             }
         }
+#   endif
     }
+
+    void World::calcDamageEffects() {
+        if (_fracture_sources.empty()) {
+            return;
+        }
+        for (int i = 0; i < I(_collision_objects.size()); i++) {
+            auto rb = _collision_objects[i];
+            if (rb->isFracturable()) {
+                _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);
+                _fracture_solver->solve(_fracture_sources);
+                if (!_fracture_solver->getFragments().empty()) {
+                    for (auto frag : _fracture_solver->getFragments()) {
+                        _collision_objects.push_back(frag);
+                        _rigidbodies_to_add.push_back(frag);
+                    }
+                    _rigidbodies_to_remove.push_back(rb);
+                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    _fracture_solver->clearFragments();
+                }
+            }
+        }
+        _fracture_sources.clear();
+    }
+
 
     void World::addRigidBody(pe_phys_object::RigidBody* rigidbody) {
         _collision_objects.push_back(rigidbody);
@@ -152,36 +235,17 @@ namespace pe_intf {
         // update status
         auto start = COMMON_GetMicroseconds();
         updateObjectStatus();
-        auto end = COMMON_GetMicroseconds();
-        update_status_time += (end - start) * 0.000001;
 
         // fracture
-        if (!_fracture_sources.empty()) {
-            for (int i = 0; i < I(_collision_objects.size()); i++) {
-                auto rb = _collision_objects[i];
-                if (rb->isFracturable()) {
-                    _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);
-                    _fracture_solver->solve(_fracture_sources);
-                    if (!_fracture_solver->getFragments().empty()) {
-                        for (auto frag : _fracture_solver->getFragments()) {
-                            _collision_objects.push_back(frag);
-                            _rigidbodies_to_add.push_back(frag);
-                        }
-                        _rigidbodies_to_remove.push_back(rb);
-                        _collision_objects.erase(_collision_objects.begin() + i--);
-                        _fracture_solver->clearFragments();
-                    }
-                }
-            }
-            _fracture_sources.clear();
-        }
+        calcDamageEffects();
 
         // external force
         applyExternalForce();
+        auto end = COMMON_GetMicroseconds();
+        update_status_time += (end - start) * 0.000001;
 
         // collision detection
         start = COMMON_GetMicroseconds();
-        updateAABBs();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
         end = COMMON_GetMicroseconds();
         broad_phase_time += (end - start) * 0.000001;

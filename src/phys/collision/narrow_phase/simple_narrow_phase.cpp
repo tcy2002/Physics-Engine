@@ -22,7 +22,7 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(I(pairs.size()), 0, [&](int i) {
+        utils::ThreadPool::forBatchedLoop(UI(pairs.size()), 0, [&](int i) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
@@ -40,6 +40,29 @@ namespace pe_phys_collision {
             results[i]->sortContactPoints();
         });
         utils::ThreadPool::join();
+
+        utils::ThreadPool::forBatchedLoop(UI(results.size()), 0, [&](int i) {
+            if (results[i]->getPointSize() == 0) {
+                return;
+            }
+            auto obj_a = results[i]->getObjectA();
+            auto obj_b = results[i]->getObjectB();
+            if (!obj_b->isKinematic()) {
+                if (obj_a->isSleep() || obj_a->isKinematic()) {
+                    obj_b->incStaticCount();
+                } else {
+                    obj_b->incDynamicCount();
+                }
+            }
+            if (!obj_a->isKinematic()) {
+                if (obj_b->isSleep() || obj_b->isKinematic()) {
+                    obj_a->incStaticCount();
+                } else {
+                    obj_a->incDynamicCount();
+                }
+            }
+        });
+        // no need to join here
 #   else
         for (int i = 0; i < I(pairs.size()); i++) {
             results[i]->clearContactPoints();
@@ -58,32 +81,30 @@ namespace pe_phys_collision {
             algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, *results[i]);
             results[i]->sortContactPoints();
         }
-#   endif
-        
+
         // remove empty contact results and update dynamic/static count
-        for (int i = I(results.size()) - 1; i >= 0; i--) {
-            if (results[i]->getPointSize() == 0) {
-				/*delete results[i];
-                results.erase(results.begin() + i);*/
-            } else {
-                auto obj_a = results[i]->getObjectA();
-                auto obj_b = results[i]->getObjectB();
-                if (!obj_b->isKinematic()) {
-                    if (obj_a->isSleep() || obj_a->isKinematic()) {
-                        obj_b->incStaticCount();
-                    } else {
-                        obj_b->incDynamicCount();
-                    }
+        for (const auto& result : results) {
+            if (result->getPointSize() == 0) {
+                continue;
+            }
+            auto obj_a = result->getObjectA();
+            auto obj_b = result->getObjectB();
+            if (!obj_b->isKinematic()) {
+                if (obj_a->isSleep() || obj_a->isKinematic()) {
+                    obj_b->incStaticCount();
+                } else {
+                    obj_b->incDynamicCount();
                 }
-                if (!obj_a->isKinematic()) {
-                    if (obj_b->isSleep() || obj_b->isKinematic()) {
-                        obj_a->incStaticCount();
-                    } else {
-                        obj_a->incDynamicCount();
-                    }
+            }
+            if (!obj_a->isKinematic()) {
+                if (obj_b->isSleep() || obj_b->isKinematic()) {
+                    obj_a->incStaticCount();
+                } else {
+                    obj_a->incDynamicCount();
                 }
             }
         }
+#   endif
     }
 
 } // namespace pe_phys_collision

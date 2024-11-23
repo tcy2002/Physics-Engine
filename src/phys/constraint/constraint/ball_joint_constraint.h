@@ -22,7 +22,6 @@ namespace pe_phys_constraint {
         PE_API virtual void initSequentialImpulse(const ConstraintParam& param) override;
         virtual void warmStart() override {}
         PE_API virtual void iterateSequentialImpulse(int iter) override;
-        virtual void afterSequentialImpulse() override {}
     };
 
 } // namespace pe_phys_constraint

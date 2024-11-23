@@ -28,24 +28,20 @@ namespace pe_phys_constraint {
             }
         } else {
             for (int i = new_size; i < old_size; i++) {
-                if (_fcc_constraints[i]->getType() == ConstraintType::CT_FRICTION_CONTACT) {
-                    _fcc_pool.destroy(dynamic_cast<FrictionContactConstraint*>(_fcc_constraints[i]));
-                } else {
-                    delete _fcc_constraints[i];
-                }
+                _fcc_pool.destroy(dynamic_cast<FrictionContactConstraint*>(_fcc_constraints[i]));
             }
             _fcc_constraints.resize(new_size);
         }
 
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(I(contact_results.size()), 0, [&](int i){
+        utils::ThreadPool::forBatchedLoop(UI(contact_results.size()), 0, [&](int i){
             const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
         });
-        utils::ThreadPool::forBatchedLoop(I(constraints.size()), 0, [&](int i){
+        utils::ThreadPool::forBatchedLoop(UI(constraints.size()), 0, [&](int i){
             constraints[i]->initSequentialImpulse(_param);
             constraints[i]->warmStart();
         });
@@ -69,10 +65,10 @@ namespace pe_phys_constraint {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forBatchedLoop(I(_fcc_constraints.size()), 0,[&](int i){
+            utils::ThreadPool::forBatchedLoop(UI(_fcc_constraints.size()), 0,[&](int i){
                 _fcc_constraints[i]->iterateSequentialImpulse(i);
             });
-            utils::ThreadPool::forBatchedLoop(I(_other_constraints.size()), 0,[&](int i){
+            utils::ThreadPool::forBatchedLoop(UI(_other_constraints.size()), 0,[&](int i){
                 _other_constraints[i]->iterateSequentialImpulse(i);
             });
             utils::ThreadPool::join();
@@ -88,31 +84,13 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(I(_collision_objects.size()), 0,[&](int i){
+        utils::ThreadPool::forBatchedLoop(UI(_collision_objects.size()), 0,[&](int i){
             _collision_objects[i]->syncTempVelocity();
         });
         utils::ThreadPool::join();
 #   else
         for (auto rb : _collision_objects) {
             rb->syncTempVelocity();
-        }
-#   endif
-
-        // after solving
-#   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(I(_fcc_constraints.size()), 0,[&](int i){
-            _fcc_constraints[i]->afterSequentialImpulse();
-        });
-        utils::ThreadPool::forBatchedLoop(I(_other_constraints.size()), 0,[&](int i){
-            _other_constraints[i]->afterSequentialImpulse();
-        });
-        utils::ThreadPool::join();
-#   else
-        for (auto constraint : _fcc_constraints) {
-            constraint->afterSequentialImpulse();
-        }
-        for (auto constraint : _other_constraints) {
-            constraint->afterSequentialImpulse();
         }
 #   endif
     }

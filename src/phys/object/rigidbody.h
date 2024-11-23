@@ -62,7 +62,7 @@ namespace pe_phys_object {
         COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
     private:
         static std::atomic<uint32_t> _globalIdCounter;
-        pe::Array<uint32_t> _ignore_collision_ids;
+        pe::HashSet<uint32_t> _ignore_collision_ids;
 
         /* Sleep */
         COMMON_BOOL_SET_GET(sleep, Sleep)
@@ -100,12 +100,11 @@ namespace pe_phys_object {
         void updateSleepTime(pe::Real dt) { _sleep_time += dt; }
         void resetSleepTime() { _sleep_time = 0; }
 
-        PE_API void computeAABB();
         PE_API pe::Real getAABBScale() const;
 
-        void addIgnoreCollisionId(uint32_t id) { _ignore_collision_ids.push_back(id); }
+        void addIgnoreCollisionId(uint32_t id) { _ignore_collision_ids.insert(id); }
         PE_API void removeIgnoreCollisionId(uint32_t id);
-        PE_API bool isIgnoreCollisionId(uint32_t id) const;
+        PE_API bool ignoreCollisionId(uint32_t id) const;
 
         pe::Vector3 getWorldLinearMomentum() const { return _linear_velocity * _mass; }
         pe::Vector3 getWorldAngularMomentum() const { return _world_inertia * _angular_velocity; }

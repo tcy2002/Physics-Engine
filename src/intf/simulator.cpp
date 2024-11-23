@@ -84,7 +84,6 @@ namespace pe_intf {
             json_file = path_to_write;
             if (!utils::FileSystem::fileExists(json_file)) {
                 auto dir = utils::FileSystem::getFilePath(json_file);
-                std::cout << utils::FileSystem::getFilePath("..\\..\\SampleScenes\\data\\1.json") << std::endl;
                 if (!utils::FileSystem::isDirectory(dir)) {
                     utils::FileSystem::makeDir(dir);
                 }
@@ -1007,7 +1006,7 @@ namespace pe_intf {
             if (target_dt > actual_dt) {
                 COMMON_Sleep(target_dt - actual_dt);
             }
-            if (frame++ >= max_frame) {
+            if (++frame >= max_frame) {
                 break;
             }
         }
@@ -1016,7 +1015,7 @@ namespace pe_intf {
         pe::Real total_time = (end - start) * 0.001;
         pe::Real step_time = total_step_time * 0.000001;
 	    std::cout << "step time: " << step_time << "s" << std::endl;
-        std::cout << "frame count: " << frame << ", simulation fps: " << (pe::Real)frame / step_time << std::endl;
+        std::cout << "frame count: " << frame << ", simulation fps: " << R(frame) / step_time << std::endl;
         std::cout << "total time: " << total_time << "s" << std::endl;
         std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
         std::cout << "broad phase time: " << _world.broad_phase_time << "s " << _world.broad_phase_time / total_time << std::endl;

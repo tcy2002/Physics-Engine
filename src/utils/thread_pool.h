@@ -93,7 +93,7 @@ namespace utils {
         if (count == 0) return;
         auto& inst = getInstance();
         if (inst._size <= 0) return;
-        if (batchSize == 0) batchSize = count / inst._size + 1;
+        if (batchSize == 0) batchSize = count / inst._size / 2 + 1;
         std::unique_lock<std::mutex> lock(inst._mtx);
         for (uint32_t i = 0; i < count; i += batchSize) {
             inst._tasks.emplace([fn, i, count, batchSize]{
