@@ -237,10 +237,10 @@ void testWorld() {
         if (++frame > PE_TEST_FRAMERATE) break;
 #   else
         while (pe_intf::Viewer::getKeyState('r') != 0 && pe_intf::Viewer::getKeyState('t') != 0) {
-            COMMON_Sleep(1);
+            COMMON_USleep(1000);
             if (pe_intf::Viewer::getKeyState(27) == 0) goto ret;
         }
-        if (pe_intf::Viewer::getKeyState('t') == 0) COMMON_Sleep(300);
+        if (pe_intf::Viewer::getKeyState('t') == 0) COMMON_USleep(300000);
 
 #   if true
         {
@@ -299,7 +299,7 @@ void testWorld() {
 #   if !defined(PE_TEST_FRAMERATE)
         if (++frame > PE_TEST_FRAME_TH) while (pe_intf::Viewer::getKeyState('r') != 1);
 #   endif
-        COMMON_Sleep(10 - (int)(COMMON_GetTickCount() - t));
+        COMMON_USleep(10000 - I(COMMON_GetMicroTickCount() - t));
     }
 
     ret:

@@ -940,12 +940,12 @@ namespace pe_intf {
         }
 
         int frame = 0;
-        int target_dt = I(dt * 1000);
+        int target_dt = I(dt * 1000000);
         auto start = COMMON_GetTickCount();
 
 	    pe::Real total_step_time = 0;
         while (true) {
-            auto t = COMMON_GetTickCount();
+            auto t = COMMON_GetMicroTickCount();
 
 		    auto step_start = COMMON_GetMicroTickCount();
             _world.step();
@@ -1002,9 +1002,9 @@ namespace pe_intf {
                 saveGltf(dir + filename_gltf);
             }
 
-            auto actual_dt = I(COMMON_GetTickCount() - t);
+            auto actual_dt = I(COMMON_GetMicroTickCount() - t);
             if (target_dt > actual_dt) {
-                COMMON_Sleep(target_dt - actual_dt);
+                COMMON_USleep(target_dt - actual_dt);
             }
             if (++frame >= max_frame) {
                 break;
@@ -1042,7 +1042,7 @@ namespace pe_intf {
 
         // wait for the window to open
         while (!Viewer::isOpen()) {
-            COMMON_Sleep(10);
+            COMMON_USleep(1000);
         }
 
         return true;
@@ -1078,7 +1078,7 @@ namespace pe_intf {
         static bool blocking = true;
         if (blocking) {
             while (Viewer::getKeyState('r') != 0 && Viewer::getKeyState('t') != 0) {
-                COMMON_Sleep(1);
+                COMMON_USleep(1000);
                 toggleLine();
                 if (Viewer::getKeyState('x') == 2) {
                     blocking = false;
@@ -1090,7 +1090,7 @@ namespace pe_intf {
                 }
             }
             if (Viewer::getKeyState('t') == 0) {
-                COMMON_Sleep(300);
+                COMMON_USleep(300000);
             }
         } else {
             toggleLine();

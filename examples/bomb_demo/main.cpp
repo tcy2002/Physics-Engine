@@ -54,10 +54,10 @@ public:
         //saveScene("");
     }
 
-    void step() override {
-        static int frame = 0;
-        std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
-    }
+    // void step() override {
+    //     static int frame = 0;
+    //     std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
+    // }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
         /* This function creates a tower of cubic bricks, how it is built is not important */
@@ -117,4 +117,4 @@ protected:
 };
 
 // Simulator class, Target frame rate
-PE_CUSTOM_MAIN(BombSimulator, 200)
+PE_CUSTOM_MAIN(BombSimulator, 100)

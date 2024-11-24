@@ -69,11 +69,6 @@ void testBVH() {
     bvh.search({0.5, 0.5, 0.5}, {2, 2, 2}, fs);
     add_to_viewer(mesh, fs, ids);
     std::cout << "node num: " << ids.size() << std::endl;
-
-    int k = 0;
-    while (true) {
-        COMMON_Sleep(30);
-    }
 }
 
 int main() {
