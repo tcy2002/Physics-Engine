@@ -6,8 +6,8 @@ using namespace utils;
 
 #define K 100000000.0
 
-void test(int i, int idx) {
-    double n = idx;
+void test(int i) {
+    double n = i;
     for (double j = 1.0; j < K; j += 1.0) {
         n += j;
         n -= j;

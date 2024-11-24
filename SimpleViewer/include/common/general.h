@@ -1,15 +1,5 @@
 #pragma once
 
-//// includes
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#else
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-#endif
-
 //// inline
 #ifdef _WIN32
 #define COMMON_FORCE_INLINE __forceinline
@@ -18,37 +8,16 @@
 #endif
 
 //// timer
+#include <chrono>
 COMMON_FORCE_INLINE unsigned long long COMMON_GetTickCount() {
-#ifdef _WIN32
-    LARGE_INTEGER t, f;
-    QueryPerformanceCounter(&t);
-    QueryPerformanceFrequency(&f);
-    return t.QuadPart * 1000 / f.QuadPart;
-#else
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (unsigned long long)(ts.tv_nsec / 1000000) + 
-           ((unsigned long long)ts.tv_sec * 1000ull);
-#endif
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
 }
-COMMON_FORCE_INLINE double COMMON_GetMicroseconds() {
-#ifdef _WIN32
-    LARGE_INTEGER t, f;
-    QueryPerformanceCounter(&t);
-    QueryPerformanceFrequency(&f);
-    return (double)t.QuadPart * 1000000.0 / (double)f.QuadPart;
-#else
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (double)(ts.tv_nsec / 1000.0) +
-        ((double)ts.tv_sec * 1000000.0);
-#endif
+COMMON_FORCE_INLINE unsigned long long COMMON_GetMicroTickCount() {
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
 }
-#ifdef _WIN32
-#define COMMON_Sleep(t) Sleep((t) > 0 ? (t) : 0)
-#else
-#define COMMON_Sleep(t) usleep((t) > 0 ? (t) * 1000 : 0)
-#endif
+#define COMMON_Sleep(ms) std::this_thread::sleep_for(std::chrono::milliseconds(ms))
 
 //// member getter and setter
 #define COMMON_BOOL_SET_GET(name, Name) \

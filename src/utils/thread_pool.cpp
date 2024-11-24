@@ -16,7 +16,7 @@ namespace utils {
         for (uint32_t i = 0; i < inst._size; i++) {
             inst._pool.push_back(new std::thread([]{
                 auto& inst = getInstance();
-                while(true) {
+                while (true) {
                     std::unique_lock<std::mutex> lock(inst._mtx);
                     inst._cv.wait(lock, [&]{ return !inst._tasks.empty(); });
                     Task task(std::move(inst._tasks.front()));

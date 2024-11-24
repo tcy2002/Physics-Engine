@@ -32,7 +32,7 @@ namespace pe_intf {
 
     void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(UI(_collision_objects.size()), 0, [&](int i) {
+        utils::ThreadPool::forLoop(UI(_collision_objects.size()), [&](int i) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) {
                 rb->step(_dt); // only update AABB
@@ -67,7 +67,6 @@ namespace pe_intf {
             rb->resetStaticCount();
             rb->resetDynamicCount();
         });
-        utils::ThreadPool::join();
 #   else
         for (int i = 0; i < I(_collision_objects.size()); i++) {
             auto rb = _collision_objects[i];
@@ -114,7 +113,7 @@ namespace pe_intf {
 
     void World::execCollisionCallbacks() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(UI(_contact_results.size()), 0, [&](int i) {
+        utils::ThreadPool::forLoop(UI(_contact_results.size()), [&](int i) {
             const auto& cr = _contact_results[i];
             if (cr->getPointSize() == 0) return;
             const auto rb1 = cr->getObjectA();
@@ -125,12 +124,12 @@ namespace pe_intf {
             pe::Vector3 nor = pe::Vector3::zeros();
             pe::Vector3 vel = pe::Vector3::zeros();
             pe::Real depth = 0;
-            for (int i = 0; i < cr->getPointSize(); i++) {
-                pos += cr->getContactPoint(i).getWorldPos();
-                nor += cr->getContactPoint(i).getWorldNormal();
-                depth += cr->getContactPoint(i).getDistance();
-                vel += rb1->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosA());
-                vel -= rb2->getLinearVelocityAtLocalPoint(cr->getContactPoint(i).getLocalPosB());
+            for (int j = 0; j < cr->getPointSize(); j++) {
+                pos += cr->getContactPoint(j).getWorldPos();
+                nor += cr->getContactPoint(j).getWorldNormal();
+                depth += cr->getContactPoint(j).getDistance();
+                vel += rb1->getLinearVelocityAtLocalPoint(cr->getContactPoint(j).getLocalPosA());
+                vel -= rb2->getLinearVelocityAtLocalPoint(cr->getContactPoint(j).getLocalPosB());
             }
             pos /= cr->getPointSize();
             nor.normalize();
@@ -144,7 +143,6 @@ namespace pe_intf {
                 cb(rb2, rb1, pos, nor, vel);
             }
         });
-        utils::ThreadPool::join();
 #   else
         for (const auto& cr : _contact_results) {
             if (cr->getPointSize() == 0) continue;
@@ -233,7 +231,7 @@ namespace pe_intf {
 
     void World::step() {
         // update status
-        auto start = COMMON_GetMicroseconds();
+        auto start = COMMON_GetMicroTickCount();
         updateObjectStatus();
 
         // fracture
@@ -241,30 +239,30 @@ namespace pe_intf {
 
         // external force
         applyExternalForce();
-        auto end = COMMON_GetMicroseconds();
-        update_status_time += (end - start) * 0.000001;
+        auto end = COMMON_GetMicroTickCount();
+        update_status_time += R(end - start) * R(0.000001);
 
         // collision detection
-        start = COMMON_GetMicroseconds();
+        start = COMMON_GetMicroTickCount();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
-        end = COMMON_GetMicroseconds();
-        broad_phase_time += (end - start) * 0.000001;
+        end = COMMON_GetMicroTickCount();
+        broad_phase_time += R(end - start) * R(0.000001);
 
-        start = COMMON_GetMicroseconds();
+        start = COMMON_GetMicroTickCount();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         execCollisionCallbacks();
-        end = COMMON_GetMicroseconds();
-        narrow_phase_time += (end - start) * 0.000001;
+        end = COMMON_GetMicroTickCount();
+        narrow_phase_time += R(end - start) * R(0.000001);
 
         // constraints
-        start = COMMON_GetMicroseconds();
+        start = COMMON_GetMicroTickCount();
         _constraint_solver->setupSolver(_dt,
                                         _collision_objects,
                                         _contact_results,
                                         _constraints);
         _constraint_solver->solve();
-        end = COMMON_GetMicroseconds();
-        constraint_solver_time += (end - start) * 0.000001;
+        end = COMMON_GetMicroTickCount();
+        constraint_solver_time += R(end - start) * R(0.000001);
     }
 
 } // namespace pe_intf

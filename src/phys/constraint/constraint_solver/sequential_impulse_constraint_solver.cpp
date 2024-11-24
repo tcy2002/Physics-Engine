@@ -35,17 +35,16 @@ namespace pe_phys_constraint {
 
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(UI(contact_results.size()), 0, [&](int i){
+        utils::ThreadPool::forLoop(UI(contact_results.size()), [&](int i){
             const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
             fcc->warmStart();
         });
-        utils::ThreadPool::forBatchedLoop(UI(constraints.size()), 0, [&](int i){
+        utils::ThreadPool::forLoop(UI(constraints.size()), [&](int i){
             constraints[i]->initSequentialImpulse(_param);
             constraints[i]->warmStart();
         });
-        utils::ThreadPool::join();
 #   else
         for (int i = 0; i < I(contact_results.size()); i++) {
             auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
@@ -65,13 +64,12 @@ namespace pe_phys_constraint {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forBatchedLoop(UI(_fcc_constraints.size()), 0,[&](int i){
+            utils::ThreadPool::forLoop(UI(_fcc_constraints.size()),[&](int i){
                 _fcc_constraints[i]->iterateSequentialImpulse(i);
             });
-            utils::ThreadPool::forBatchedLoop(UI(_other_constraints.size()), 0,[&](int i){
+            utils::ThreadPool::forLoop(UI(_other_constraints.size()),[&](int i){
                 _other_constraints[i]->iterateSequentialImpulse(i);
             });
-            utils::ThreadPool::join();
 #   else
             for (auto constraint : _fcc_constraints) {
                 constraint->iterateSequentialImpulse(i);
@@ -84,10 +82,9 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(UI(_collision_objects.size()), 0,[&](int i){
+        utils::ThreadPool::forLoop(UI(_collision_objects.size()),[&](int i){
             _collision_objects[i]->syncTempVelocity();
         });
-        utils::ThreadPool::join();
 #   else
         for (auto rb : _collision_objects) {
             rb->syncTempVelocity();

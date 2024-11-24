@@ -947,10 +947,10 @@ namespace pe_intf {
         while (true) {
             auto t = COMMON_GetTickCount();
 
-		    auto step_start = COMMON_GetMicroseconds();
+		    auto step_start = COMMON_GetMicroTickCount();
             _world.step();
-		    auto step_end = COMMON_GetMicroseconds();
-		    total_step_time += (step_end - step_start);
+		    auto step_end = COMMON_GetMicroTickCount();
+		    total_step_time += R(step_end - step_start);
 
             if (use_gui) {
                 if (!_world.getRigidBodiesToRemove().empty()) {
@@ -1012,8 +1012,8 @@ namespace pe_intf {
         }
 
         auto end = COMMON_GetTickCount();
-        pe::Real total_time = (end - start) * 0.001;
-        pe::Real step_time = total_step_time * 0.000001;
+        pe::Real total_time = R(end - start) * R(0.001);
+        pe::Real step_time = total_step_time * R(0.000001);
 	    std::cout << "step time: " << step_time << "s" << std::endl;
         std::cout << "frame count: " << frame << ", simulation fps: " << R(frame) / step_time << std::endl;
         std::cout << "total time: " << total_time << "s" << std::endl;

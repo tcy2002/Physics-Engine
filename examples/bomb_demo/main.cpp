@@ -54,6 +54,11 @@ public:
         //saveScene("");
     }
 
+    void step() override {
+        static int frame = 0;
+        std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
+    }
+
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
         /* This function creates a tower of cubic bricks, how it is built is not important */
 

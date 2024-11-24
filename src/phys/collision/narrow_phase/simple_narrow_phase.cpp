@@ -22,7 +22,7 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forBatchedLoop(UI(pairs.size()), 0, [&](int i) {
+        utils::ThreadPool::forLoop(UI(pairs.size()), [&](int i) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
@@ -39,9 +39,8 @@ namespace pe_phys_collision {
             algo->processCollision(shape_a, shape_b, trans_a, trans_b, refScale, *results[i]);
             results[i]->sortContactPoints();
         });
-        utils::ThreadPool::join();
 
-        utils::ThreadPool::forBatchedLoop(UI(results.size()), 0, [&](int i) {
+        utils::ThreadPool::forLoop(UI(results.size()), [&](int i) {
             if (results[i]->getPointSize() == 0) {
                 return;
             }
@@ -62,7 +61,6 @@ namespace pe_phys_collision {
                 }
             }
         });
-        // no need to join here
 #   else
         for (int i = 0; i < I(pairs.size()); i++) {
             results[i]->clearContactPoints();
