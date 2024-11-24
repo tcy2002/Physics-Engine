@@ -26,14 +26,9 @@ public:
         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
         // cube tower
-        // addPyramidCubes();
-        addUniformCubes();
+        addPyramidCubes();
+        // addUniformCubes();
     }
-
-    // void step() override {
-    //     static int frame = 0;
-    //     std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
-    // }
 
     void addPyramidCubes() {
         // add box1
