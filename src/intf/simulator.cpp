@@ -939,8 +939,8 @@ namespace pe_intf {
             }
         }
 
-        int frame = 0;
-        int target_tick = I(dt * 1000000);
+        const uint64_t target_tick = dt * 1000000;
+        uint64_t frame = 0;
 	    uint64_t total_step_tick = 0;
         uint64_t total_tick = 0;
 
@@ -1004,11 +1004,11 @@ namespace pe_intf {
             }
 
             ++frame;
-            auto actual_tick = I(COMMON_GetMicroTickCount() - t - blocking_time);
+            auto actual_tick = COMMON_GetMicroTickCount() - t - blocking_time;
             if (target_tick * frame > total_tick + actual_tick) {
                 COMMON_USleep(target_tick * frame - total_tick - actual_tick);
             }
-            total_tick += I(COMMON_GetMicroTickCount() - t - blocking_time);
+            total_tick += COMMON_GetMicroTickCount() - t - blocking_time;
             if (frame >= max_frame) {
                 break;
             }
