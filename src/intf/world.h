@@ -77,6 +77,13 @@ namespace pe_intf { // interface
         PE_API void removeConstraint(pe_phys_constraint::Constraint* constraint);
         /*********************************************/
 
+        /**** select solver **************************/
+        PE_API void setBroadPhase(pe_phys_collision::BroadPhaseBase* broad_phase) { _broad_phase = broad_phase; }
+        PE_API void setNarrowPhase(pe_phys_collision::NarrowPhaseBase* narrow_phase) { _narrow_phase = narrow_phase; }
+        PE_API void setConstraintSolver(pe_phys_constraint::ConstraintSolver* constraint_solver) { _constraint_solver = constraint_solver; }
+        PE_API void setFractureSolver(pe_phys_fracture::FractureSolver* fracture_solver) { _fracture_solver = fracture_solver; }
+        /*********************************************/
+
         /**** fracture *******************************/
         PE_API void addFractureSource(const pe_phys_fracture::FractureSource& source) { _fracture_sources.push_back(source); }
         PE_API const pe::Array<pe_phys_fracture::FractureSource>& getFractureSources() const { return _fracture_sources; }

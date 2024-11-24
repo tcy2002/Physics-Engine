@@ -940,17 +940,17 @@ namespace pe_intf {
         }
 
         int frame = 0;
-        int target_dt = I(dt * 1000000);
-        auto start = COMMON_GetTickCount();
+        int target_tick = I(dt * 1000000);
+	    uint64_t total_step_tick = 0;
+        uint64_t total_tick = 0;
 
-	    pe::Real total_step_time = 0;
         while (true) {
             auto t = COMMON_GetMicroTickCount();
 
 		    auto step_start = COMMON_GetMicroTickCount();
             _world.step();
 		    auto step_end = COMMON_GetMicroTickCount();
-		    total_step_time += R(step_end - step_start);
+		    total_step_tick += step_end - step_start;
 
             if (use_gui) {
                 if (!_world.getRigidBodiesToRemove().empty()) {
@@ -983,8 +983,9 @@ namespace pe_intf {
             PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
 #       endif
 
+            uint64_t blocking_time = 0;
             if (use_gui) {
-                if (!renderStep()) {
+                if (!renderStep(blocking_time)) {
                     break;
                 }
             }
@@ -1002,21 +1003,22 @@ namespace pe_intf {
                 saveGltf(dir + filename_gltf);
             }
 
-            auto actual_dt = I(COMMON_GetMicroTickCount() - t);
-            if (target_dt > actual_dt) {
-                COMMON_USleep(target_dt - actual_dt);
+            ++frame;
+            auto actual_tick = I(COMMON_GetMicroTickCount() - t - blocking_time);
+            if (target_tick * frame > total_tick + actual_tick) {
+                COMMON_USleep(target_tick * frame - total_tick - actual_tick);
             }
-            if (++frame >= max_frame) {
+            total_tick += I(COMMON_GetMicroTickCount() - t - blocking_time);
+            if (frame >= max_frame) {
                 break;
             }
         }
 
-        auto end = COMMON_GetTickCount();
-        pe::Real total_time = R(end - start) * R(0.001);
-        pe::Real step_time = total_step_time * R(0.000001);
-	    std::cout << "step time: " << step_time << "s" << std::endl;
-        std::cout << "frame count: " << frame << ", simulation fps: " << R(frame) / step_time << std::endl;
-        std::cout << "total time: " << total_time << "s" << std::endl;
+        pe::Real total_time = R(total_tick) * R(0.000001);
+        pe::Real step_time = R(total_step_tick) * R(0.000001);
+        std::cout << "frame count: " << frame << std::endl;
+	    std::cout << "simulation time: " << step_time << "s, simulation fps: " << R(frame) / step_time << std::endl;
+        std::cout << "total time: " << total_time << "s, fps: " << R(frame) / total_time << std::endl;
         std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
         std::cout << "broad phase time: " << _world.broad_phase_time << "s " << _world.broad_phase_time / total_time << std::endl;
         std::cout << "narrow phase time: " << _world.narrow_phase_time << "s " << _world.narrow_phase_time / total_time << std::endl;
@@ -1048,7 +1050,7 @@ namespace pe_intf {
         return true;
     }
 
-    bool Simulator::renderStep() {
+    bool Simulator::renderStep(uint64_t& blocking_time) {
         for (auto& rb : _id_map) {
             if (rb.second.empty()) {
                 continue;
@@ -1075,6 +1077,7 @@ namespace pe_intf {
             Viewer::close();
             return false;
         }
+        auto t = COMMON_GetMicroTickCount();
         static bool blocking = true;
         if (blocking) {
             while (Viewer::getKeyState('r') != 0 && Viewer::getKeyState('t') != 0) {
@@ -1095,6 +1098,7 @@ namespace pe_intf {
         } else {
             toggleLine();
         }
+        blocking_time = COMMON_GetMicroTickCount() - t;
         return true;
     }
 
