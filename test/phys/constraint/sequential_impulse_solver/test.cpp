@@ -29,7 +29,7 @@ void testFrictionContactConstraint() {
     pe::Array<pe_phys_collision::CollisionPair> pairs = {{rb1, rb2}};
     pe::Array<pe_phys_collision::ContactResult*> result;
     np.calcContactResults(pairs, result);
-    auto solver = new SequentialImpulseConstraintSolver();
+    auto solver = new SequentialImpulseSolver();
     solver->setupSolver(pe::Real(0.01), {rb1, rb2}, result, {});
     solver->solve();
 

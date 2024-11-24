@@ -31,12 +31,13 @@ namespace pe_phys_constraint {
 
         virtual ConstraintType getType() const = 0;
 
-        // projected gauss seidel
+        // for sequential impulse solver
         virtual void initSequentialImpulse(const ConstraintParam& param) = 0;
         virtual void warmStart() = 0;
         virtual void iterateSequentialImpulse(int iter) = 0;
 
-        static void getSkewSymmetricMatrix(const pe::Vector3& v, pe::Matrix3& m);
+        // for primal-dual solver
+        // TODO
     };
 
 } // namespace pe_phys_constraint

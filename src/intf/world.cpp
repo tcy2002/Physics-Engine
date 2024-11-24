@@ -1,6 +1,6 @@
 #include "world.h"
 #include "phys/object/rigidbody.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
 #include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
 #include "phys/collision/broad_phase/simple_broad_phase.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
@@ -16,7 +16,7 @@ namespace pe_intf {
         _sleep_time_threshold(0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
-        _constraint_solver(new pe_phys_constraint::SequentialImpulseConstraintSolver),
+        _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::init();

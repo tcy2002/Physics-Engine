@@ -1,14 +1,14 @@
-#include "sequential_impulse_constraint_solver.h"
+#include "sequential_impulse_solver.h"
 #include "utils/thread_pool.h"
 
 // style-checked
 namespace pe_phys_constraint {
 
-    SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver(): ConstraintSolver() {
+    SequentialImpulseSolver::SequentialImpulseSolver() {
         _iteration = 10;
     }
 
-    void SequentialImpulseConstraintSolver::setupSolver(
+    void SequentialImpulseSolver::setupSolver(
             pe::Real dt,
             const pe::Array<pe_phys_object::RigidBody*>& objects,
             const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
@@ -60,7 +60,7 @@ namespace pe_phys_constraint {
         _other_constraints = constraints;
     }
 
-    void SequentialImpulseConstraintSolver::solve() {
+    void SequentialImpulseSolver::solve() {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD

@@ -122,7 +122,6 @@ namespace pe_phys_constraint {
             }
 #       endif
 
-
             pe::Vector3 impulse_vector = n_impulse * n + (t0_total_impulse - ci.t0_applied_impulse) * t0 +
                     (t1_total_impulse - ci.t1_applied_impulse) * t1;
 
