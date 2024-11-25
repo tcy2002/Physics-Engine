@@ -11,10 +11,10 @@ namespace pe_phys_constraint {
     };
 
     struct ConstraintParam {
-        pe::Real dt = pe::Real(0.01);
-        pe::Real restitutionVelocityThreshold = pe::Real(0.1);
-        pe::Real penetrationThreshold = pe::Real(0.3);
-        pe::Real kerp = pe::Real(0.2);
+        pe::Real dt = R(0.01);
+        pe::Real restitutionVelocityThreshold = R(0.1);
+        pe::Real penetrationThreshold = R(0.3);
+        pe::Real kerp = R(0.2);
     };
 
     class Constraint {
