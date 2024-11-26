@@ -15,35 +15,11 @@ namespace utils {
 
     public:
         VectorX(): _data(_pool.create()) {}
-        explicit VectorX(Scalar value): _data(_pool.create()) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] = value;
-            }
-        }
-        VectorX(const VectorX& other): _data(_pool.create()) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] = other[i];
-            }
-        }
-        VectorX(VectorX&& other) noexcept : _data(other._data) {
-            other._data = nullptr;
-        }
-        VectorX& operator=(const VectorX& other) {
-            if (this != &other) {
-                for (size_t i = 0; i < X; i++) {
-                    _data->data[i] = other[i];
-                }
-            }
-            return *this;
-        }
-        VectorX& operator=(VectorX&& other) noexcept {
-            if (this != &other) {
-                for (size_t i = 0; i < X; i++) {
-                    _data->data[i] = other[i];
-                }
-            }
-            return *this;
-        }
+        explicit VectorX(Scalar value);
+        VectorX(const VectorX& other);
+        VectorX(VectorX&& other) noexcept;
+        VectorX& operator=(const VectorX& other);
+        VectorX& operator=(VectorX&& other) noexcept;
         ~VectorX() { _pool.destroy(_data); }
 
         static size_t size() { return X; }
@@ -53,133 +29,30 @@ namespace utils {
         Scalar* data() { return _data->data; }
         const Scalar* data() const { return _data->data; }
 
-        VectorX operator-() const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = -_data->data[i];
-            }
-            return std::move(result);
-        }
-        VectorX operator+(const VectorX& other) const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = _data->data[i] + other[i];
-            }
-            return std::move(result);
-        }
-        VectorX operator-(const VectorX& other) const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = _data->data[i] - other[i];
-            }
-            return std::move(result);
-        }
-        VectorX operator*(Scalar s) const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = _data->data[i] * s;
-            }
-            return std::move(result);
-        }
-        VectorX operator/(Scalar s) const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = _data->data[i] / s;
-            }
-            return std::move(result);
-        }
-        VectorX& operator+=(const VectorX& other) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] += other[i];
-            }
-            return *this;
-        }
-        VectorX& operator-=(const VectorX& other) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] -= other[i];
-            }
-            return *this;
-        }
-        VectorX& operator*=(Scalar s) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] *= s;
-            }
-            return *this;
-        }
-        VectorX& operator/=(Scalar s) {
-            for (size_t i = 0; i < X; i++) {
-                _data->data[i] /= s;
-            }
-            return *this;
-        }
+        VectorX operator-() const;
+        VectorX operator+(const VectorX& other) const;
+        VectorX operator-(const VectorX& other) const;
+        VectorX operator*(Scalar s) const;
+        VectorX operator/(Scalar s) const;
+        VectorX& operator+=(const VectorX& other);
+        VectorX& operator-=(const VectorX& other);
+        VectorX& operator*=(Scalar s);
+        VectorX& operator/=(Scalar s);
 
-        Scalar norm() const {
-            Scalar sum = 0;
-            for (size_t i = 0; i < X; i++) {
-                sum += _data->data[i] * _data->data[i];
-            }
-            return std::sqrt(sum);
-        }
-        Scalar norm2() const {
-            Scalar sum = 0;
-            for (size_t i = 0; i < X; i++) {
-                sum += _data->data[i] * _data->data[i];
-            }
-            return sum;
-        }
-        VectorX normalized() const {
-            Scalar n = norm();
-            if (n == 0) {
-                return *this;
-            }
-            return *this / n;
-        }
-        void normalize() {
-            Scalar n = norm();
-            if (n == 0) {
-                return;
-            }
-            *this /= n;
-        }
-        VectorX mult(const VectorX& v) const {
-            VectorX result;
-            for (size_t i = 0; i < X; i++) {
-                result[i] = _data->data[i] * v[i];
-            }
-            return std::move(result);
-        }
-        Scalar dot(const VectorX& v) const {
-            Scalar sum = 0;
-            for (size_t i = 0; i < X; i++) {
-                sum += _data->data[i] * v[i];
-            }
-            return sum;
-        }
+        Scalar norm() const;
+        Scalar norm2() const;
+        VectorX normalized() const;
+        void normalize();
+        VectorX mult(const VectorX& v) const;
+        Scalar dot(const VectorX& v) const;
 
-        static const VectorX& zeros() {
-            static VectorX zeros(0);
-            return zeros;
-        }
-        static const VectorX& ones() {
-            static VectorX ones(1);
-            return ones;
-        }
+        static const VectorX& zeros();
+        static const VectorX& ones();
     };
 
     template <typename Scalar, size_t X>
-    ObjectPool<typename VectorX<Scalar, X>::VectorXData, X * sizeof(Scalar) * 256> VectorX<Scalar, X>::_pool;
+    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar, X>& v);
 
-    template <typename Scalar, size_t X>
-    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar, X>& v) {
-        os << "[";
-        for (size_t i = 0; i < X; i++) {
-            os << v[i];
-            if (i < X - 1) {
-                os << " ";
-            }
-        }
-        os << "]";
-        return os;
-    }
+    #include "vector_x.cpp"
 
 } // namespace utils
