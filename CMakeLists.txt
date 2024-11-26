@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(PhysicsEngine LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
-option(TEST_ENABLED "Enable test" OFF)
-option(ENABLE_EXTENDED_ALIGNED_STORAGE "Enable extended aligned storage" ON)
+set(TEST_ENABLED OFF)
+set(ENABLE_EXTENDED_ALIGNED_STORAGE ON)
 
 if (ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_compile_definitions("_ENABLE_EXTENDED_ALIGNED_STORAGE")

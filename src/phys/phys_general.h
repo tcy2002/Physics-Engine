@@ -74,6 +74,8 @@
 #include <common/matrix3x3.h>
 #include <common/transform.h>
 #include <common/quaternion.h>
+#include "utils/vector_x.h"
+#include "utils/matrix_m_n.h"
 namespace pe {
 #ifdef PE_USE_DOUBLE
     using Real = double;
@@ -85,6 +87,8 @@ namespace pe {
     using Matrix3 = common::Matrix3x3<Real>;
     using Transform = common::Transform<Real>;
     using Quaternion = common::Quaternion<Real>;
+    template <size_t X> using VectorX = utils::VectorX<Real, X>;
+    template <size_t M, size_t N> using MatrixMN = utils::MatrixMN<Real, M, N>;
 } // namespace pe
 
 //// vector3

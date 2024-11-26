@@ -1,5 +1,5 @@
 add_executable(PETestSISolver test.cpp ${PHYS_COLLISION_ALGO}
-        ${ENGINE_INCLUDE_DIR}/phys/constraint/constraint_solver/sequential_impulse_constraint_solver.cpp
+        ${ENGINE_INCLUDE_DIR}/phys/constraint/constraint_solver/sequential_impulse_solver.cpp
         ${ENGINE_INCLUDE_DIR}/phys/constraint/constraint/constraint.cpp
         ${ENGINE_INCLUDE_DIR}/phys/constraint/constraint/friction_contact_constraint.cpp
         ${ENGINE_INCLUDE_DIR}/phys/object/rigidbody.cpp

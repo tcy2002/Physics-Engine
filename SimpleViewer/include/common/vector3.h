@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <cmath>
 #include "general.h"
 
 namespace common {
@@ -25,16 +24,13 @@ namespace common {
         COMMON_FORCE_INLINE Vector3& operator-=(const Vector3&);
         COMMON_FORCE_INLINE Vector3& operator*=(Scalar);
         COMMON_FORCE_INLINE Vector3& operator/=(Scalar);
-        COMMON_FORCE_INLINE Vector3 operator*(const Vector3&) const;
-        COMMON_FORCE_INLINE Vector3& operator*=(const Vector3&);
-        COMMON_FORCE_INLINE Vector3 operator/(const Vector3&) const;
-        COMMON_FORCE_INLINE Vector3& operator/=(const Vector3&);
 
         COMMON_FORCE_INLINE Scalar norm() const;
         COMMON_FORCE_INLINE Scalar norm2() const;
         COMMON_FORCE_INLINE Vector3 normalized() const;
         COMMON_FORCE_INLINE void normalize();
         COMMON_FORCE_INLINE Vector3 mult(const Vector3& v) const;
+        COMMON_FORCE_INLINE Vector3 div(const Vector3& v) const;
         COMMON_FORCE_INLINE Scalar dot(const Vector3& v) const;
         COMMON_FORCE_INLINE Vector3 cross(const Vector3& v) const;
         COMMON_FORCE_INLINE Vector3 lerp(const Vector3& v, Scalar t) const;

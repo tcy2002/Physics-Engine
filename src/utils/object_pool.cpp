@@ -1,5 +1,5 @@
 template <typename T, size_t BlockSize>
-void* Pool<T, BlockSize>::aligned_malloc(size_t size, int align) {
+void* ObjectPool<T, BlockSize>::aligned_malloc(size_t size, int align) {
     const int pointer_size = sizeof(void*);
     const int requested_size = (int)size + align - 1 + pointer_size;
     void* raw = malloc(requested_size);
@@ -10,14 +10,14 @@ void* Pool<T, BlockSize>::aligned_malloc(size_t size, int align) {
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::aligned_free(T* ptr) {
+void ObjectPool<T, BlockSize>::aligned_free(T* ptr) {
     if (ptr) {
         free(((T**)ptr)[-1]);
     }
 }
 
 template <typename T, size_t BlockSize>
-T* Pool<T, BlockSize>::allocate() {
+T* ObjectPool<T, BlockSize>::allocate() {
     if (_free_node == nullptr) {
         allocBlock();
     }
@@ -27,14 +27,14 @@ T* Pool<T, BlockSize>::allocate() {
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::deallocate(T* ptr) {
+void ObjectPool<T, BlockSize>::deallocate(T* ptr) {
     if (ptr) {
         pushFreeNode(reinterpret_cast<FreeNode*>(ptr));
     }
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::pushFreeNode(FreeNode *ptr) {
+void ObjectPool<T, BlockSize>::pushFreeNode(FreeNode *ptr) {
     if (ptr) {
         ptr->next = _free_node;
         _free_node = ptr;
@@ -42,7 +42,7 @@ void Pool<T, BlockSize>::pushFreeNode(FreeNode *ptr) {
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::allocBlock() {
+void ObjectPool<T, BlockSize>::allocBlock() {
     T* block = reinterpret_cast<T*>(aligned_malloc(BlockSize, alignof(T)));
     _blocks.push_back((void*)block);
     T* it = block + (BlockSize / sizeof(T));
@@ -52,7 +52,7 @@ void Pool<T, BlockSize>::allocBlock() {
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::destroyAll() {
+void ObjectPool<T, BlockSize>::destroyAll() {
     std::vector<T*> free_nodes;
     FreeNode* iter = _free_node;
     while (iter) {
@@ -93,15 +93,15 @@ void Pool<T, BlockSize>::destroyAll() {
 }
 
 template <typename T, size_t BlockSize>
-Pool<T, BlockSize>::Pool(): _free_node(nullptr) {
+ObjectPool<T, BlockSize>::ObjectPool(): _free_node(nullptr) {
     if (BlockSize < sizeof(T)) {
-        PE_LOG_ERROR << "Pool size too low (" << BlockSize << ")" << std::endl;
+        PE_LOG_ERROR << "Pool size too low (" << BlockSize << ")" << PE_ENDL;
         exit(-1);
     }
 }
 
 template <typename T, size_t BlockSize>
-Pool<T, BlockSize>::~Pool() {
+ObjectPool<T, BlockSize>::~ObjectPool() {
     destroyAll();
     for (auto p : _blocks) {
         aligned_free(reinterpret_cast<T*>(p));
@@ -110,13 +110,13 @@ Pool<T, BlockSize>::~Pool() {
 
 template<typename T, size_t BlockSize>
 template<typename... Args>
-T *Pool<T, BlockSize>::create(Args &&... args) {
+T *ObjectPool<T, BlockSize>::create(Args &&... args) {
     T* t = allocate();
     return t ? new (t) T(std::forward<Args>(args)...) : nullptr;
 }
 
 template <typename T, size_t BlockSize>
-void Pool<T, BlockSize>::destroy(T* ptr) {
+void ObjectPool<T, BlockSize>::destroy(T* ptr) {
     if (ptr) {
         ptr->~T();
         deallocate(ptr);

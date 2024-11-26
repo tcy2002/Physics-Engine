@@ -132,5 +132,13 @@ namespace pe_phys_constraint {
             _object_b->applyTempImpulse(r_b, -impulse_vector);
         }
     }
-    
+
+    void FrictionContactConstraint::initPrimalDual(const ConstraintParam &param) {
+
+    }
+
+    void FrictionContactConstraint::iteratePrimalDual(int iter) {
+
+    }
+
 } // namespace pe_phys_constraint

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
 #include <algorithm>
 #include "logger.h"
@@ -8,7 +7,7 @@
 namespace utils {
 
     template <typename T, size_t BlockSize>
-    class Pool {
+    class ObjectPool {
     protected:
         std::vector<void*> _blocks;
 
@@ -28,14 +27,14 @@ namespace utils {
         void destroyAll();
 
     public:
-        Pool();
-        ~Pool();
+        ObjectPool();
+        ~ObjectPool();
 
         template <typename ...Args>
         T* create(Args&&... args);
         void destroy(T* ptr);
     };
 
-    #include "pool.cpp"
+    #include "object_pool.cpp"
 
 } // namespace utils

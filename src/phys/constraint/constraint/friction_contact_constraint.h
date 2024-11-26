@@ -14,6 +14,8 @@ namespace pe_phys_constraint {
     public:
         void setContactResult(pe_phys_collision::ContactResult& cr) { _contact_result = &cr; }
 
+    private:
+        // for sequential impulse solver
         struct ConstraintInfo {
             pe::Vector3 r_a;
             pe::Vector3 r_b;
@@ -31,15 +33,23 @@ namespace pe_phys_constraint {
         };
         pe::Array<ConstraintInfo> _cis;
 
+        // for primal-dual solver
+        
+
     public:
         virtual ConstraintType getType() const override { return CT_FRICTION_CONTACT; }
 
         FrictionContactConstraint() {}
         virtual ~FrictionContactConstraint() {};
 
+        // for sequential impulse solver
         virtual void initSequentialImpulse(const ConstraintParam& param) override;
         virtual void warmStart() override;
         virtual void iterateSequentialImpulse(int iter) override;
+
+        // for primal-dual solver
+        virtual void initPrimalDual(const ConstraintParam& param) override;
+        virtual void iteratePrimalDual(int iter) override;
     };
 
 } // namespace pe_phys_constraint

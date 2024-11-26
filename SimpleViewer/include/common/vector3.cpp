@@ -66,32 +66,6 @@ Vector3<Scalar>& Vector3<Scalar>::operator/=(Scalar r) {
 }
 
 template <typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::operator*(const Vector3<Scalar>& v) const {
-    return {x * v.x, y * v.y, z * v.z};
-}
-
-template <typename Scalar>
-Vector3<Scalar>& Vector3<Scalar>::operator*=(const Vector3<Scalar>& v) {
-    x *= v.x;
-    y *= v.y;
-    z *= v.z;
-    return *this;
-}
-
-template <typename Scalar>
-Vector3<Scalar> Vector3<Scalar>::operator/(const Vector3<Scalar>& v) const {
-    return {x / v.x, y / v.y, z / v.z};
-}
-
-template <typename Scalar>
-Vector3<Scalar>& Vector3<Scalar>::operator/=(const Vector3<Scalar>& v) {
-    x /= v.x;
-    y /= v.y;
-    z /= v.z;
-    return *this;
-}
-
-template <typename Scalar>
 Scalar Vector3<Scalar>::norm() const {
     return sqrt(x * x + y * y + z * z);
 }
@@ -114,6 +88,11 @@ void Vector3<Scalar>::normalize() {
 template <typename Scalar>
 Vector3<Scalar> Vector3<Scalar>::mult(const Vector3<Scalar>& v) const {
     return {x * v.x, y * v.y, z * v.z};
+}
+
+template <typename Scalar>
+Vector3<Scalar> Vector3<Scalar>::div(const Vector3<Scalar>& v) const {
+    return {x / v.x, y / v.y, z / v.z};
 }
 
 template <typename Scalar>

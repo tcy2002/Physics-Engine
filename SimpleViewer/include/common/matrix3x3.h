@@ -1,14 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include <cmath>
 #include "vector3.h"
 
 namespace common {
 
     template <typename Scalar>
     class Matrix3x3 {
-    private:
     protected:
         Scalar _m[3][3];
 

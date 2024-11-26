@@ -256,10 +256,7 @@ namespace pe_intf {
 
         // constraints
         start = COMMON_GetMicroTickCount();
-        _constraint_solver->setupSolver(_dt,
-                                        _collision_objects,
-                                        _contact_results,
-                                        _constraints);
+        _constraint_solver->setupSolver(_dt, _gravity, _collision_objects, _contact_results, _constraints);
         _constraint_solver->solve();
         end = COMMON_GetMicroTickCount();
         constraint_solver_time += R(end - start) * R(0.000001);

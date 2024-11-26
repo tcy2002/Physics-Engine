@@ -9,7 +9,7 @@ namespace pe_phys_constraint {
     }
 
     void SequentialImpulseSolver::setupSolver(
-            pe::Real dt,
+            pe::Real dt, const pe::Vector3& gravity,
             const pe::Array<pe_phys_object::RigidBody*>& objects,
             const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
             const pe::Array<Constraint*>& constraints) {

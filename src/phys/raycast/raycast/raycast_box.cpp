@@ -31,12 +31,12 @@ namespace pe_phys_raycast {
                                const pe::Vector3& box_min, const pe::Vector3& box_max,
                                pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
         pe::Vector3 dir;
-        dir.x = std::abs(direction.x) < PE_EPS ? PE_EPS : direction.x;
-        dir.y = std::abs(direction.y) < PE_EPS ? PE_EPS : direction.y;
-        dir.z = std::abs(direction.z) < PE_EPS ? PE_EPS : direction.z;
+        dir.x = PE_ABS(direction.x) < PE_EPS ? PE_EPS : direction.x;
+        dir.y = PE_ABS(direction.y) < PE_EPS ? PE_EPS : direction.y;
+        dir.z = PE_ABS(direction.z) < PE_EPS ? PE_EPS : direction.z;
 
-        const pe::Vector3 m = (box_max - start) / dir;
-        const pe::Vector3 n = (box_min - start) / dir;
+        const pe::Vector3 m = (box_max - start).div(dir);
+        const pe::Vector3 n = (box_min - start).div(dir);
 
         const pe::Vector3 t_max = pe::Vector3::max2(m, n);
         const pe::Vector3 t_min = pe::Vector3::min2(m, n);

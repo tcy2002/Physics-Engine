@@ -1,13 +1,13 @@
 #pragma once
 
 #include "narrow_phase_base.h"
-#include "utils/pool.h"
+#include "utils/object_pool.h"
 
 namespace pe_phys_collision {
 
     class SimpleNarrowPhase: public NarrowPhaseBase {
     private:
-        utils::Pool<ContactResult, 16384> _cr_pool;
+        utils::ObjectPool<ContactResult, 16384> _cr_pool;
 
     public:
         SimpleNarrowPhase(): NarrowPhaseBase() {}

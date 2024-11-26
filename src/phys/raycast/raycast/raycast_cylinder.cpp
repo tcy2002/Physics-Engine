@@ -20,7 +20,7 @@ namespace pe_phys_raycast {
                 goto not_hit;
             } else {
                 pe::Real h = dir_local.y < 0 ? height : -height;
-                hit_point = start_local + (h * dir_local - dir_local * start_local) / dir_local.y;
+                hit_point = start_local + (h * dir_local - dir_local.mult(start_local)) / dir_local.y;
                 hit_normal = dir_local.y < 0 ? pe::Vector3::up() : -pe::Vector3::up();
                 distance = (hit_point - start_local).norm();
                 goto hit;
@@ -47,13 +47,13 @@ namespace pe_phys_raycast {
                 distance = t - dt;
                 goto hit;
             } else if (in_point.y > height) {
-                hit_point = start_local + (height * dir_local - dir_local * start_local) / dir_local.y;
+                hit_point = start_local + (height * dir_local - dir_local.mult(start_local)) / dir_local.y;
                 hit_point.y = height;
                 hit_normal = pe::Vector3::up();
                 distance = (hit_point - start_local).norm();
                 goto hit;
             } else {
-                hit_point = start_local + (-height * dir_local - dir_local * start_local) / dir_local.y;
+                hit_point = start_local + (-height * dir_local - dir_local.mult(start_local)) / dir_local.y;
                 hit_normal = -pe::Vector3::up();
                 distance = (hit_point - start_local).norm();
                 goto hit;
