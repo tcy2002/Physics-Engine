@@ -37,10 +37,12 @@ template <typename Scalar>
 MatrixMN<Scalar>& MatrixMN<Scalar>::operator=(const MatrixMN& other) {
     if (this != &other) {
         if (_rows != other._rows || _cols != other._cols) {
-            for (size_t i = 0; i < _rows; i++) {
-                delete[] _data[i];
+            if (_data != nullptr) {
+                for (size_t i = 0; i < _rows; i++) {
+                    delete[] _data[i];
+                }
+                delete[] _data;
             }
-            delete[] _data;
             _rows = other._rows;
             _cols = other._cols;
             _data = new Scalar*[_rows];
@@ -61,10 +63,12 @@ template <typename Scalar>
 MatrixMN<Scalar>& MatrixMN<Scalar>::operator=(MatrixMN&& other) noexcept {
     if (this != &other) {
         if (_rows != other._rows || _cols != other._cols) {
-            for (size_t i = 0; i < _rows; i++) {
-                delete[] _data[i];
+            if (_data != nullptr) {
+                for (size_t i = 0; i < _rows; i++) {
+                    delete[] _data[i];
+                }
+                delete[] _data;
             }
-            delete[] _data;
             _rows = other._rows;
             _cols = other._cols;
             _data = other._data;
