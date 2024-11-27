@@ -11,7 +11,7 @@ namespace utils {
         size_t _size;
 
     public:
-        VectorX() = delete;
+        VectorX(): _data(nullptr), _size(0) {}
         explicit VectorX(size_t size): _data(new Scalar[size]), _size(size) {}
         VectorX(size_t size, Scalar value);
         VectorX(const VectorX& other);

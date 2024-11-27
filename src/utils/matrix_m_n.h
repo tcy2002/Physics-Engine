@@ -12,7 +12,7 @@ namespace utils {
         size_t _rows, _cols;
 
     public:
-        MatrixMN() = delete;
+        MatrixMN(): _data(nullptr), _rows(0), _cols(0) {}
         MatrixMN(size_t M, size_t N);
         MatrixMN(size_t M, size_t N, Scalar value);
         MatrixMN(const MatrixMN& other);
