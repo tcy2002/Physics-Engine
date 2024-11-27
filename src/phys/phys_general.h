@@ -87,8 +87,8 @@ namespace pe {
     using Matrix3 = common::Matrix3x3<Real>;
     using Transform = common::Transform<Real>;
     using Quaternion = common::Quaternion<Real>;
-    template <size_t X> using VectorX = utils::VectorX<Real, X>;
-    template <size_t M, size_t N> using MatrixMN = utils::MatrixMN<Real, M, N>;
+    using VectorX = utils::VectorX<Real>;
+    using MatrixMN = utils::MatrixMN<Real>;
 } // namespace pe
 
 //// vector3
@@ -133,9 +133,9 @@ namespace pe {
     };
     struct Vector3Hash {
         uint32_t operator()(const pe::Vector3& v) const {
-            auto x = (uint32_t)(std::round(v.x / PE_EPS));
-            auto y = (uint32_t)(std::round(v.y / PE_EPS));
-            auto z = (uint32_t)(std::round(v.z / PE_EPS));
+            auto x = UI(std::round(v.x / PE_EPS));
+            auto y = UI(std::round(v.y / PE_EPS));
+            auto z = UI(std::round(v.z / PE_EPS));
             uint32_t h = 0x995af;
             h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
             h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);

@@ -1,142 +1,151 @@
-template <typename Scalar, size_t X>
-ObjectPool<typename VectorX<Scalar, X>::VectorXData, X * sizeof(Scalar) * 256> VectorX<Scalar, X>::_pool;
-
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>::VectorX(Scalar value): _data(_pool.create()) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] = value;
+template <typename Scalar>
+VectorX<Scalar>::VectorX(size_t size, Scalar value): _data(new Scalar[size]), _size(size) {
+    for (size_t i = 0; i < size; i++) {
+        _data[i] = value;
     }
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>::VectorX(const VectorX& other): _data(_pool.create()) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] = other[i];
+template <typename Scalar>
+VectorX<Scalar>::VectorX(const VectorX& other): _data(new Scalar[other._size]), _size(other._size) {
+    for (size_t i = 0; i < _size; i++) {
+        _data[i] = other._data[i];
     }
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>::VectorX(VectorX&& other) noexcept : _data(other._data) {
+template <typename Scalar>
+VectorX<Scalar>::VectorX(VectorX&& other) noexcept : _data(other._data), _size(other._size) {
     other._data = nullptr;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator=(const VectorX& other) {
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator=(const VectorX& other) {
     if (this != &other) {
-        for (size_t i = 0; i < X; i++) {
-            _data->data[i] = other[i];
+        if (_size != other._size) {
+            delete[] _data;
+            _data = new Scalar[other._size];
+            _size = other._size;
+        }
+        for (size_t i = 0; i < _size; i++) {
+            _data[i] = other._data[i];
         }
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator=(VectorX&& other) noexcept {
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator=(VectorX&& other) noexcept {
     if (this != &other) {
-        for (size_t i = 0; i < X; i++) {
-            _data->data[i] = other[i];
+        if (_size != other._size) {
+            delete[] _data;
+            _data = other;
+            _size = other._size;
+            other._data = nullptr;
+            return *this;
+        }
+        for (size_t i = 0; i < _size; i++) {
+            _data[i] = other._data[i];
         }
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::operator-() const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = -_data->data[i];
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::operator-() const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = -_data[i];
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::operator+(const VectorX& other) const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = _data->data[i] + other[i];
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::operator+(const VectorX& other) const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = _data[i] + other._data[i];
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::operator-(const VectorX& other) const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = _data->data[i] - other[i];
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::operator-(const VectorX& other) const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = _data[i] - other._data[i];
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::operator*(Scalar s) const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = _data->data[i] * s;
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::operator*(Scalar s) const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = _data[i] * s;
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::operator/(Scalar s) const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = _data->data[i] / s;
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::operator/(Scalar s) const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = _data[i] / s;
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator+=(const VectorX& other) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] += other[i];
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator+=(const VectorX& other) {
+    for (size_t i = 0; i < _size; i++) {
+        _data[i] += other._data[i];
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator-=(const VectorX& other) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] -= other[i];
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator-=(const VectorX& other) {
+    for (size_t i = 0; i < _size; i++) {
+        _data[i] -= other._data[i];
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator*=(Scalar s) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] *= s;
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator*=(Scalar s) {
+    for (size_t i = 0; i < _size; i++) {
+        _data[i] *= s;
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X>& VectorX<Scalar, X>::operator/=(Scalar s) {
-    for (size_t i = 0; i < X; i++) {
-        _data->data[i] /= s;
+template <typename Scalar>
+VectorX<Scalar>& VectorX<Scalar>::operator/=(Scalar s) {
+    for (size_t i = 0; i < _size; i++) {
+        _data[i] /= s;
     }
     return *this;
 }
 
-template <typename Scalar, size_t X>
-Scalar VectorX<Scalar, X>::norm() const {
+template <typename Scalar>
+Scalar VectorX<Scalar>::norm() const {
     Scalar sum = 0;
-    for (size_t i = 0; i < X; i++) {
-        sum += _data->data[i] * _data->data[i];
+    for (size_t i = 0; i < _size; i++) {
+        sum += _data[i] * _data[i];
     }
     return std::sqrt(sum);
 }
 
-template <typename Scalar, size_t X>
-Scalar VectorX<Scalar, X>::norm2() const {
+template <typename Scalar>
+Scalar VectorX<Scalar>::norm2() const {
     Scalar sum = 0;
-    for (size_t i = 0; i < X; i++) {
-        sum += _data->data[i] * _data->data[i];
+    for (size_t i = 0; i < _size; i++) {
+        sum += _data[i] * _data[i];
     }
     return sum;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::normalized() const {
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::normalized() const {
     Scalar n = norm();
     if (n == 0) {
         return *this;
@@ -144,8 +153,8 @@ VectorX<Scalar, X> VectorX<Scalar, X>::normalized() const {
     return *this / n;
 }
 
-template <typename Scalar, size_t X>
-void VectorX<Scalar, X>::normalize() {
+template <typename Scalar>
+void VectorX<Scalar>::normalize() {
     Scalar n = norm();
     if (n == 0) {
         return;
@@ -153,42 +162,42 @@ void VectorX<Scalar, X>::normalize() {
     *this /= n;
 }
 
-template <typename Scalar, size_t X>
-VectorX<Scalar, X> VectorX<Scalar, X>::mult(const VectorX& v) const {
-    VectorX result;
-    for (size_t i = 0; i < X; i++) {
-        result[i] = _data->data[i] * v[i];
+template <typename Scalar>
+VectorX<Scalar> VectorX<Scalar>::mult(const VectorX& v) const {
+    VectorX result(_size);
+    for (size_t i = 0; i < _size; i++) {
+        result._data[i] = _data[i] * v[i];
     }
     return std::move(result);
 }
 
-template <typename Scalar, size_t X>
-Scalar VectorX<Scalar, X>::dot(const VectorX& v) const {
+template <typename Scalar>
+Scalar VectorX<Scalar>::dot(const VectorX& v) const {
     Scalar sum = 0;
-    for (size_t i = 0; i < X; i++) {
-        sum += _data->data[i] * v[i];
+    for (size_t i = 0; i < _size; i++) {
+        sum += _data[i] * v[i];
     }
     return sum;
 }
 
-template <typename Scalar, size_t X>
-const VectorX<Scalar, X>& VectorX<Scalar, X>::zeros() {
-    static VectorX zeros(0);
+template <typename Scalar>
+const VectorX<Scalar>& VectorX<Scalar>::zeros(size_t size) {
+    static VectorX zeros(size, 0);
     return zeros;
 }
 
-template <typename Scalar, size_t X>
-const VectorX<Scalar, X>& VectorX<Scalar, X>::ones() {
-    static VectorX ones(1);
+template <typename Scalar>
+const VectorX<Scalar>& VectorX<Scalar>::ones(size_t size) {
+    static VectorX ones(size, 1);
     return ones;
 }
 
-template <typename Scalar, size_t X>
-    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar, X>& v) {
+template <typename Scalar>
+    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar>& v) {
     os << "[";
-    for (size_t i = 0; i < X; i++) {
+    for (size_t i = 0; i < v.size(); i++) {
         os << v[i];
-        if (i < X - 1) {
+        if (i < v.size() - 1) {
             os << " ";
         }
     }

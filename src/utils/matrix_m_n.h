@@ -2,32 +2,30 @@
 
 #include <iostream>
 #include "vector_x.h"
-#include "object_pool.h"
 
 namespace utils {
 
-    template <typename Scalar, size_t M, size_t N>
+    template <typename Scalar>
     class MatrixMN {
     protected:
-        struct MatrixMNData {
-            Scalar data[M][N];
-        } *_m;
-        static ObjectPool<MatrixMNData, M * N * sizeof(Scalar) * 256> _pool;
+        Scalar** _data;
+        size_t _rows, _cols;
 
     public:
-        MatrixMN(): _m(_pool.create()) {}
-        explicit MatrixMN(Scalar value);
+        MatrixMN() = delete;
+        MatrixMN(size_t M, size_t N);
+        MatrixMN(size_t M, size_t N, Scalar value);
         MatrixMN(const MatrixMN& other);
         MatrixMN(MatrixMN&& other) noexcept;
         MatrixMN& operator=(const MatrixMN& other);
         MatrixMN& operator=(MatrixMN&& other) noexcept ;
-        ~MatrixMN() { _pool.destroy(_m); }
+        ~MatrixMN();
 
-        static size_t rows() { return M; }
-        static size_t cols() { return N; }
+        size_t rows() const { return _rows; }
+        size_t cols() const { return _cols; }
 
-        Scalar* operator[](size_t i) { return _m->data[i]; }
-        const Scalar* operator[](size_t i) const { return _m->data[i]; }
+        Scalar* operator[](size_t i) { return _data[i]; }
+        const Scalar* operator[](size_t i) const { return _data[i]; }
 
         MatrixMN operator-() const;
         MatrixMN operator+(const MatrixMN& other) const;
@@ -38,16 +36,15 @@ namespace utils {
         MatrixMN& operator-=(const MatrixMN& other);
         MatrixMN& operator*=(Scalar s);
         MatrixMN& operator/=(Scalar s);
-        template <size_t N_OTHER>
-        MatrixMN<Scalar, M, N_OTHER> operator*(const MatrixMN<Scalar, N, N_OTHER>& other) const;
-        VectorX<Scalar, M> operator*(const VectorX<Scalar, N>& vec) const;
-        static const MatrixMN& identity();
-        static const MatrixMN& zeros();
-        static const MatrixMN& ones();
+        MatrixMN operator*(const MatrixMN& other) const;
+        VectorX<Scalar> operator*(const VectorX<Scalar>& vec) const;
+        static const MatrixMN& identity(size_t size);
+        static const MatrixMN& zeros(size_t M, size_t N);
+        static const MatrixMN& ones(size_t M, size_t N);
     };
 
-    template <typename Scalar, size_t M, size_t N>
-    std::ostream& operator<<(std::ostream& os, const MatrixMN<Scalar, M, N>& mat);
+    template <typename Scalar>
+    std::ostream& operator<<(std::ostream& os, const MatrixMN<Scalar>& mat);
 
     #include "matrix_m_n.cpp"
 

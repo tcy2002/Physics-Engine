@@ -1,31 +1,29 @@
 #pragma once
 
 #include <iostream>
-#include "object_pool.h"
 
 namespace utils {
 
-    template <typename Scalar, size_t X>
+    template <typename Scalar>
     class VectorX {
     protected:
-        struct VectorXData {
-            Scalar data[X];
-        } *_data;
-        static ObjectPool<VectorXData, X * sizeof(Scalar) * 256> _pool;
+        Scalar* _data;
+        size_t _size;
 
     public:
-        VectorX(): _data(_pool.create()) {}
-        explicit VectorX(Scalar value);
+        VectorX() = delete;
+        explicit VectorX(size_t size): _data(new Scalar[size]), _size(size) {}
+        VectorX(size_t size, Scalar value);
         VectorX(const VectorX& other);
         VectorX(VectorX&& other) noexcept;
         VectorX& operator=(const VectorX& other);
         VectorX& operator=(VectorX&& other) noexcept;
-        ~VectorX() { _pool.destroy(_data); }
+        ~VectorX() { delete[] _data; }
 
-        static size_t size() { return X; }
+        size_t size() const { return _size; }
 
-        Scalar& operator[](size_t i) { return _data->data[i]; }
-        const Scalar& operator[](size_t i) const { return _data->data[i]; }
+        Scalar& operator[](size_t i) { return _data[i]; }
+        const Scalar& operator[](size_t i) const { return _data[i]; }
         Scalar* data() { return _data->data; }
         const Scalar* data() const { return _data->data; }
 
@@ -46,12 +44,12 @@ namespace utils {
         VectorX mult(const VectorX& v) const;
         Scalar dot(const VectorX& v) const;
 
-        static const VectorX& zeros();
-        static const VectorX& ones();
+        static const VectorX& zeros(size_t size);
+        static const VectorX& ones(size_t size);
     };
 
-    template <typename Scalar, size_t X>
-    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar, X>& v);
+    template <typename Scalar>
+    std::ostream& operator<<(std::ostream& os, const VectorX<Scalar>& v);
 
     #include "vector_x.cpp"
 
