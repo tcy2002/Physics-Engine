@@ -32,24 +32,24 @@ namespace pe_phys_raycast {
             auto trans = rb->getTransform();
             const auto type = shape->getType();
             switch (type) {
-                case pe_phys_shape::ShapeType::Box:
+                case pe_phys_shape::ShapeType::ST_Box:
                     ret = r_box.processRaycast(start, direction, length, shape, trans, distance, hit_point, hit_normal);
                     break;
-                case pe_phys_shape::ShapeType::Sphere:
+                case pe_phys_shape::ShapeType::ST_Sphere:
                     ret = r_sphere.processRaycast(start, direction, length, shape, trans, distance, hit_point, hit_normal);
                     break;
-                case pe_phys_shape::ShapeType::Cylinder:
+                case pe_phys_shape::ShapeType::ST_Cylinder:
                     ret = r_cylinder.processRaycast(start, direction, length, shape, trans, distance, hit_point, hit_normal);
                     break;
-                case pe_phys_shape::ShapeType::ConvexMesh:
-                case pe_phys_shape::ShapeType::ConcaveMesh:
-                case pe_phys_shape::ShapeType::Compound:
+                case pe_phys_shape::ShapeType::ST_ConvexMesh:
+                case pe_phys_shape::ShapeType::ST_ConcaveMesh:
+                case pe_phys_shape::ShapeType::ST_Compound:
                     // first, check if the ray hit the AABB of the mesh
                     if (!RaycastBox::rayHitBox(start, direction, rb->getAABBMin(), rb->getAABBMax(),
                                                distance, hit_point, hit_normal)) {
                         return false;
                     }
-                    if (type == pe_phys_shape::ShapeType::ConvexMesh || type == pe_phys_shape::ShapeType::ConcaveMesh) {
+                    if (type == pe_phys_shape::ShapeType::ST_ConvexMesh || type == pe_phys_shape::ShapeType::ST_ConcaveMesh) {
                         ret = r_mesh.processRaycast(start, direction, length, shape, trans, distance, hit_point, hit_normal);
                     } else {
                         auto compound = dynamic_cast<pe_phys_shape::CompoundShape *>(shape);
@@ -57,16 +57,16 @@ namespace pe_phys_raycast {
                         for (auto& child: compound->getShapes()) {
                             const auto& trans_chd = trans * child.local_transform;
                             switch (child.shape->getType()) {
-                                case pe_phys_shape::ShapeType::Box:
+                                case pe_phys_shape::ShapeType::ST_Box:
                                     ret |= r_box.processRaycast(start, direction, length, child.shape, trans_chd, distance, hit_point, hit_normal);
                                     break;
-                                case pe_phys_shape::ShapeType::Sphere:
+                                case pe_phys_shape::ShapeType::ST_Sphere:
                                     ret |= r_sphere.processRaycast(start, direction, length, child.shape, trans_chd, distance, hit_point, hit_normal);
                                     break;
-                                case pe_phys_shape::ShapeType::Cylinder:
+                                case pe_phys_shape::ShapeType::ST_Cylinder:
                                     ret |= r_cylinder.processRaycast(start, direction, length, child.shape, trans_chd, distance, hit_point, hit_normal);
                                     break;
-                                case pe_phys_shape::ShapeType::ConvexMesh:
+                                case pe_phys_shape::ShapeType::ST_ConvexMesh:
                                     ret |= r_mesh.processRaycast(start, direction, length, child.shape, trans_chd, distance, hit_point, hit_normal);
                                     break;
                                 default:

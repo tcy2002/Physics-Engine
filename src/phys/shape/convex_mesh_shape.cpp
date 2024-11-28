@@ -109,8 +109,8 @@ namespace pe_phys_shape {
 
         // calculate unique edges: each edge is represented by two vertices,
         _unique_edges.clear();
-        pe::Vector3HashList vert_map((uint32_t)_mesh.vertices.size());
-        pe::Map<pe::KV<uint32_t , uint32_t>, bool> edge_map;
+        pe::Vector3HashList vert_map(UI(_mesh.vertices.size()));
+        pe::Map<pe::KV<uint32_t, uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
             for (int i = 0; i < I(f.indices.size()); i++) {
                 auto v0 = f.indices[i];

@@ -21,7 +21,7 @@ pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
 pe::Mesh resizeBox(const pe::Vector3& size) {
     pe::Mesh result = PE_BOX_DEFAULT_MESH;
     for (auto& v : result.vertices) {
-        v.position = v.position * size;
+        v.position = v.position.mult(size);
     }
     return std::move(result);
 }
@@ -52,7 +52,6 @@ void testMeshMesh() {
     for (int i = 0; i < result.getPointSize(); i++) {
         auto& p = result.getContactPoint(i);
         std::cout << p.getDistance() << " ";
-        std::cout << p.getAppliedImpulse();
         std::cout << p.getWorldPos();
         std::cout << p.getWorldNormal();
         std::cout << p.getLocalPosA();

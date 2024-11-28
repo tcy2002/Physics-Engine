@@ -10,8 +10,8 @@ namespace pe_phys_collision {
         utils::ObjectPool<ContactResult, 16384> _cr_pool;
 
     public:
-        SimpleNarrowPhase(): NarrowPhaseBase() {}
-        ~SimpleNarrowPhase() {}
+        SimpleNarrowPhase() {}
+        virtual ~SimpleNarrowPhase() {}
 
         void calcContactResults(const pe::Array<CollisionPair>& pairs, pe::Array<ContactResult*>& results) override;
     };

@@ -39,11 +39,9 @@ namespace pe_phys_constraint {
             const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
-            fcc->warmStart();
         });
         utils::ThreadPool::forLoop(UI(constraints.size()), [&](int i){
             constraints[i]->initSequentialImpulse(_param);
-            constraints[i]->warmStart();
         });
 #   else
         for (int i = 0; i < I(contact_results.size()); i++) {

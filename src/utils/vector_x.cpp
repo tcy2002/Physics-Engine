@@ -37,7 +37,7 @@ VectorX<Scalar>& VectorX<Scalar>::operator=(VectorX&& other) noexcept {
     if (this != &other) {
         if (_size != other._size) {
             delete[] _data;
-            _data = other;
+            _data = other._data;
             _size = other._size;
             other._data = nullptr;
             return *this;
@@ -47,6 +47,23 @@ VectorX<Scalar>& VectorX<Scalar>::operator=(VectorX&& other) noexcept {
         }
     }
     return *this;
+}
+
+template<typename Scalar>
+void VectorX<Scalar>::resize(size_t size) {
+    if (size != _size) {
+        delete[] _data;
+        _data = new Scalar[size];
+        _size = size;
+    }
+}
+
+template<typename Scalar>
+void VectorX<Scalar>::resize(size_t size, Scalar value) {
+    resize(size);
+    for (size_t i = 0; i < size; i++) {
+        _data[i] = value;
+    }
 }
 
 template <typename Scalar>
@@ -142,6 +159,18 @@ Scalar VectorX<Scalar>::norm2() const {
         sum += _data[i] * _data[i];
     }
     return sum;
+}
+
+template <typename Scalar>
+Scalar VectorX<Scalar>::mean() const {
+    if (_size == 0) {
+        return 0;
+    }
+    Scalar sum = 0;
+    for (size_t i = 0; i < _size; i++) {
+        sum += _data[i];
+    }
+    return sum / _size;
 }
 
 template <typename Scalar>

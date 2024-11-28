@@ -1,3 +1,5 @@
+#pragma once
+
 #include "phys/phys_general.h"
 #include "constraint.h"
 
@@ -14,14 +16,13 @@ namespace pe_phys_constraint {
         pe::Matrix3 _jmj_inv;
 
     public:
-        virtual ConstraintType getType() const override { return CT_BALL_JOINT; }
+        ConstraintType getType() const override { return ConstraintType::CT_BALL_JOINT; }
 
         BallJointConstraint(): _anchor_a(pe::Vector3::zeros()), _anchor_b(pe::Vector3::zeros()) {}
         virtual ~BallJointConstraint() {}
 
-        PE_API virtual void initSequentialImpulse(const ConstraintParam& param) override;
-        virtual void warmStart() override {}
-        PE_API virtual void iterateSequentialImpulse(int iter) override;
+        PE_API void initSequentialImpulse(const ConstraintParam& param) override;
+        PE_API void iterateSequentialImpulse(int iter) override;
 
         static void getSkewSymmetricMatrix(const pe::Vector3& v, pe::Matrix3& m);
     };

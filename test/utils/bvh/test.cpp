@@ -51,8 +51,8 @@ void add_to_viewer(const pe::Mesh& mesh, const pe::Array<int> fs, pe::Array<int>
         int id = pe_intf::Viewer::addCube({ 0.02, 0.02, 0.02 });
         ids.push_back(id);
         pe::Transform trans(pe::Matrix3::identity(), vert);
-        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, trans);
-        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.3, 0.8, 0.3));
+        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, trans);
+        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.3, 0.8, 0.3));
     }
 }
 

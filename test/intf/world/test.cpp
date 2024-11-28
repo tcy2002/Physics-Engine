@@ -188,23 +188,23 @@ void testWorld() {
 
     // add to viewer
     int id1 = pe_intf::Viewer::addCube(((pe_phys_shape::BoxShape*)rb1->getCollisionShape())->getSize());
-    pe_intf::Viewer::updateColor(id1, pe_phys_shape::ShapeType::Box, pe::Vector3(0.3, 0.3, 0.8));
-    pe_intf::Viewer::updateTransform(id1, pe_phys_shape::ShapeType::Box, rb1->getTransform());
+    pe_intf::Viewer::updateColor(id1, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.3, 0.3, 0.8));
+    pe_intf::Viewer::updateTransform(id1, pe_phys_shape::ShapeType::ST_Box, rb1->getTransform());
     pe::Array<int> ids;
     for (int i = 0; i < PE_TEST_OBJ_NUM; i++) {
         int id;
         if (i % 3 == 0) {
             id = pe_intf::Viewer::addCube(pe::Vector3(1, 1, 1));
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.3, 0.3));
-            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, rbs[i]->getTransform());
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, rbs[i]->getTransform());
         } else if (i % 3 == 1) {
             id = pe_intf::Viewer::addSphere(0.5);
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.8, 0.3, 0.3));
-            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, rbs[i]->getTransform());
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Sphere, rbs[i]->getTransform());
         } else {
             id = pe_intf::Viewer::addCylinder(0.5, 1);
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Cylinder, pe::Vector3(0.8, 0.3, 0.3));
-            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Cylinder, rbs[i]->getTransform());
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Cylinder, pe::Vector3(0.8, 0.3, 0.3));
+            pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Cylinder, rbs[i]->getTransform());
         }
         ids.push_back(id);
     }
@@ -225,8 +225,8 @@ void testWorld() {
 #ifdef PE_TEST_SINGLE
     auto shape = (pe_phys_shape::ConvexMeshShape*)(rb4->getCollisionShape());
     int id4 = pe_intf::Viewer::addMesh(shape->getMesh());
-    pe_intf::Viewer::updateColor(id4, pe_phys_shape::ShapeType::ConvexMesh, pe::Vector3(0.8, 0.3, 0.3));
-    pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ShapeType::ConvexMesh, rb4->getTransform());
+    pe_intf::Viewer::updateColor(id4, pe_phys_shape::ShapeType::ST_ConvexMesh, pe::Vector3(0.8, 0.3, 0.3));
+    pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ShapeType::ST_ConvexMesh, rb4->getTransform());
 #endif
 
     // main loop
@@ -253,8 +253,8 @@ void testWorld() {
                 for (int i = 0; i < cr->getPointSize(); i++) {
                     auto p = cr->getContactPoint(i).getWorldPos();
                     auto id = pe_intf::Viewer::addSphere(0.1);
-                    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
-                    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.3, 0.8, 0.8));
+                    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Vector3(0.3, 0.8, 0.8));
                     ids.push_back(id);
                 }
             }
@@ -271,10 +271,10 @@ void testWorld() {
         pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ConvexMesh, rb4->getTransform());
 #   endif
         for (int i = 0; i < ids.size(); i++) {
-            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::Box, rbs[i]->getTransform());
-            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ConvexMesh, rbs[i]->getTransform());
-            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::Sphere, rbs[i]->getTransform());
-            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::Cylinder, rbs[i]->getTransform());
+            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ST_Box, rbs[i]->getTransform());
+            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ST_ConvexMesh, rbs[i]->getTransform());
+            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ST_Sphere, rbs[i]->getTransform());
+            pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ST_Cylinder, rbs[i]->getTransform());
         }
         world->step();
 

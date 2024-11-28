@@ -76,10 +76,10 @@ namespace pe_intf {
 
     static simple_viewer::ObjType mapShapeType(pe_phys_shape::ShapeType type) {
         switch (type) {
-            case pe_phys_shape::ShapeType::Box: return simple_viewer::ObjType::OBJ_CUBE;
-            case pe_phys_shape::ShapeType::Sphere: return simple_viewer::ObjType::OBJ_SPHERE;
-            case pe_phys_shape::ShapeType::Cylinder: return simple_viewer::ObjType::OBJ_CYLINDER;
-            case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:  
+            case pe_phys_shape::ShapeType::ST_Box: return simple_viewer::ObjType::OBJ_CUBE;
+            case pe_phys_shape::ShapeType::ST_Sphere: return simple_viewer::ObjType::OBJ_SPHERE;
+            case pe_phys_shape::ShapeType::ST_Cylinder: return simple_viewer::ObjType::OBJ_CYLINDER;
+            case pe_phys_shape::ShapeType::ST_ConvexMesh: case pe_phys_shape::ShapeType::ST_ConcaveMesh:  
                 return simple_viewer::ObjType::OBJ_MESH;
             default: return simple_viewer::ObjType::OBJ_NONE;
         }

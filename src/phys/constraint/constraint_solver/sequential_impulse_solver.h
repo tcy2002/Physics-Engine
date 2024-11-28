@@ -18,12 +18,12 @@ namespace pe_phys_constraint {
         SequentialImpulseSolver();
         virtual ~SequentialImpulseSolver() {}
 
-        virtual ConstraintSolverType getType() const override { return ST_SEQUENTIAL_IMPULSE; }
-        virtual void setupSolver(pe::Real dt, const pe::Vector3& gravity,
-                                 const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                 const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
-                                 const pe::Array<Constraint*>& constraints) override;
-        virtual void solve() override;
+        ConstraintSolverType getType() const override { return ConstraintSolverType::CST_SEQUENTIAL_IMPULSE; }
+        void setupSolver(pe::Real dt, const pe::Vector3& gravity,
+                         const pe::Array<pe_phys_object::RigidBody*>& objects,
+                         const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
+                         const pe::Array<Constraint*>& constraints) override;
+        void solve() override;
     };
 
 } // namespace pe_phys_constraint

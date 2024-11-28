@@ -12,22 +12,22 @@ namespace pe_phys_collision {
     bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
                                                           pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Sphere &&
-               shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Sphere))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Sphere))) {
             return false;
         }
 
-        const auto shape_mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
-        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
+        const auto shape_mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? shape_a : shape_b);
+        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? shape_a : shape_b);
         auto& mesh = shape_mesh->getMesh();
-        const auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
-        const auto& trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
+        const auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? trans_a : trans_b;
+        const auto& trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? trans_a : trans_b;
 
         constexpr auto margin = PE_MARGIN;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh);
         bool ret = getClosestPoints(shape_sph, shape_mesh, mesh, trans_sph, trans_mesh, margin, result);
         result.setSwapFlag(false);
 
@@ -187,7 +187,7 @@ namespace pe_phys_collision {
                                                           const pe::Mesh &mesh,
                                                           const pe::Transform &trans_sph, const pe::Transform &trans_mesh,
                                                           pe::Real margin, ContactResult &result) {
-        auto shape = shape_mesh->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto shape = shape_mesh->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
             dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape_mesh) :
             dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape_mesh);
         const pe::Vector3 sph_rel2mesh = trans_mesh.inverseTransform(trans_sph.getOrigin());

@@ -5,7 +5,7 @@
 
 namespace pe_phys_constraint {
 
-    enum ConstraintType {
+    enum class ConstraintType {
         CT_BALL_JOINT,
         CT_FRICTION_CONTACT,
     };
@@ -38,7 +38,6 @@ namespace pe_phys_constraint {
 
         // for sequential impulse solver
         virtual void initSequentialImpulse(const ConstraintParam& param) {}
-        virtual void warmStart() {}
         virtual void iterateSequentialImpulse(int iter) {}
 
         // for primal-dual solver

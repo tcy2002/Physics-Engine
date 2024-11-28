@@ -1,4 +1,6 @@
 #include "friction_contact_constraint.h"
+#include "primal_dual/primal_dual_utils.h"
+#include "primal_dual/non_smooth_forces/non_smooth_contact_force.h"
 
 // style-checked
 namespace pe_phys_constraint {
@@ -75,17 +77,6 @@ namespace pe_phys_constraint {
         }
     }
 
-    void FrictionContactConstraint::warmStart() {
-        for (int i = 0; i < I(_cis.size()); i++) {
-            auto& cp = _contact_result->getContactPoint(i);
-            ConstraintInfo& ci = _cis[i];
-            ci.n_applied_impulse = cp.getAppliedImpulse().dot(ci.n) * R(0.9);
-
-            _object_a->applyTempImpulse(ci.r_a, ci.n_applied_impulse * ci.n);
-            _object_b->applyTempImpulse(ci.r_b, -ci.n_applied_impulse * ci.n);
-        }
-    }
-
     void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
         for (auto& ci : _cis) {
             const pe::Vector3& r_a = ci.r_a;
@@ -134,7 +125,49 @@ namespace pe_phys_constraint {
     }
 
     void FrictionContactConstraint::initPrimalDual(const ConstraintParam &param) {
+        _nsf = new NonSmoothContactForce;
 
+        // map object to index
+        _object_to_index.clear();
+        for (size_t i = 0; i < _objects->size(); i++) {
+            _object_to_index[(*_objects)[i]] = i;
+        }
+
+        // scalar values
+        _contact_size = 0;
+        for (const auto cr : *_contact_results) {
+            _contact_size += cr->getPointSize();
+        }
+        _n_objects = _objects->size();
+        _n_rigid_dof = _n_objects * 6;
+        _n_force_dof = _contact_size * _nsf->dimensions();
+        _n_constraint_dof = _contact_size * _nsf->constraintPerForce();
+        _n_unknowns = _n_rigid_dof + _n_force_dof + _n_constraint_dof;
+
+        // the unknowns are [vel, force, lambda]
+        _vel_old = pe::VectorX(_n_rigid_dof);
+        _vel = pe::VectorX(_n_rigid_dof);
+        _forces = pe::VectorX(_n_force_dof, 0);
+        _lambda = pe::VectorX(_n_constraint_dof, 0);
+
+        // the linear systems
+        _rhs = pe::VectorX(_n_rigid_dof);
+        _A = pe::MatrixMN(_n_rigid_dof, _n_rigid_dof);
+
+        // property matrices
+        _mass_mat = pe::MatrixMN(_n_rigid_dof, _n_rigid_dof);
+
+        // init the velocity vectors
+        PrimalDualUtils::initVelocity(*_objects, param.gravity, param.dt, _vel_old, _vel);
+        pe::Real char_mass = 1, char_speed = 1;
+        PrimalDualUtils::nonDimensionalParams(param.dt, param.gravity, *_objects, *_contact_results, char_mass, char_speed);
+        _vel_old /= char_speed;
+        _vel /= char_speed;
+
+        // init the mass matrix
+        PrimalDualUtils::initMassMatrix(*_objects, char_mass, _mass_mat);
+
+        // init forces and lambda
     }
 
     void FrictionContactConstraint::iteratePrimalDual(int iter) {

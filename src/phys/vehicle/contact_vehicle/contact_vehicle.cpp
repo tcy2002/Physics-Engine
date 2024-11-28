@@ -1,6 +1,7 @@
 #include "contact_vehicle.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "phys/shape/sphere_shape.h"
+#include "phys/vehicle/utils/jacobian_entry.h"
 
 //#define ROLLING_INFLUENCE_FIX
 
@@ -447,11 +448,11 @@ namespace pe_phys_vehicle {
         pe::Vector3 vel2 = body2.getLinearVelocityAtLocalPoint(rel_pos2);
         pe::Vector3 vel = vel1 - vel2;
 
-        utils::JacobianEntry jac(body1.getTransform().getBasis().transposed(),
-                                 body2.getTransform().getBasis().transposed(),
-                                 rel_pos1, rel_pos2, normal,
-                                 body1.getLocalInvInertia().getDiag(), body1.getInvMass(),
-                                 pe::Vector3::zeros(), 0);
+        JacobianEntry jac(body1.getTransform().getBasis().transposed(),
+                          body2.getTransform().getBasis().transposed(),
+                          rel_pos1, rel_pos2, normal,
+                          body1.getLocalInvInertia().getDiag(), body1.getInvMass(),
+                          pe::Vector3::zeros(), 0);
 
         pe::Real jacDiagAB = jac.getDiagonal();
         pe::Real jacDiagABInv = R(1.) / jacDiagAB;

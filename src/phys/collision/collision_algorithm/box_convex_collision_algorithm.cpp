@@ -8,23 +8,23 @@ namespace pe_phys_collision {
     bool BoxConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                        pe::Transform trans_a, pe::Transform trans_b,
                                                        pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
-              shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
-              shape_b->getType() == pe_phys_shape::ShapeType::Box))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Box &&
+              shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh &&
+              shape_b->getType() == pe_phys_shape::ShapeType::ST_Box))) {
             return false;
         }
 
-        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                        dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a)->getMesh() :
                        dynamic_cast<pe_phys_shape::BoxShape *>(shape_a)->getMesh();
-        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                        dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b)->getMesh() :
                        dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getMesh();
-        auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                         dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_a)->getUniqueEdges();
-        auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                         dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_b)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getUniqueEdges();
 

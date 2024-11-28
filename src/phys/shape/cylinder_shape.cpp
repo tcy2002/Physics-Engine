@@ -22,8 +22,8 @@ namespace pe_phys_shape {
         }
         const pe::Real r_2 = _radius * _radius;
         const pe::Real h_2 = _height * _height;
-        const pe::Real axis = r_2 * pe::Real(0.5);
-        const pe::Real diag = r_2 / pe::Real(4.0) + h_2 / pe::Real(12.0);
+        const pe::Real axis = r_2 * R(0.5);
+        const pe::Real diag = r_2 / R(4.0) + h_2 / R(12.0);
         _volume = PE_PI * r_2 * height;
         _local_inertia = {
             diag, 0, 0,

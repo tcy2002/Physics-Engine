@@ -1,6 +1,5 @@
 #pragma once
 
-#include "phys/object/rigidbody.h"
 #include "phys/shape/shape.h"
 #include "phys/collision/narrow_phase/contact_result.h"
 

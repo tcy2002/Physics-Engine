@@ -138,40 +138,40 @@ namespace pe_intf {
             rb_data["restitution"] = rb->getRestitutionCoeff();
             auto shape = rb->getCollisionShape();
             switch (shape->getType()) {
-                case pe_phys_shape::ShapeType::Box: {
+                case pe_phys_shape::ShapeType::ST_Box: {
                     rb_data["type"] = "box";
                     auto size = dynamic_cast<pe_phys_shape::BoxShape*>(shape)->getSize();
                     rb_data["scale"] = {size.x, size.y, size.z};
                     break;
                 }
-                case pe_phys_shape::ShapeType::Sphere: {
+                case pe_phys_shape::ShapeType::ST_Sphere: {
                     rb_data["type"] = "sphere";
                     auto radius = dynamic_cast<pe_phys_shape::SphereShape*>(shape)->getRadius();
                     rb_data["scale"] = {radius};
                     break;
                 }
-                case pe_phys_shape::ShapeType::Cylinder: {
+                case pe_phys_shape::ShapeType::ST_Cylinder: {
                     rb_data["type"] = "cylinder";
                     auto radius = dynamic_cast<pe_phys_shape::CylinderShape*>(shape)->getRadius();
                     auto height = dynamic_cast<pe_phys_shape::CylinderShape*>(shape)->getHeight();
                     rb_data["scale"] = {radius, height};
                     break;
                 }
-                case pe_phys_shape::ShapeType::ConvexMesh: {
+                case pe_phys_shape::ShapeType::ST_ConvexMesh: {
                     rb_data["type"] = "convex";
                     rb_data["mesh"] = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                     pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getScale();
                     rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
                     break;
                 }
-                case pe_phys_shape::ShapeType::ConcaveMesh: {
+                case pe_phys_shape::ShapeType::ST_ConcaveMesh: {
                     rb_data["type"] = "concave";
                     rb_data["mesh"] = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                     pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getScale();
                     rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
                     break;
                 }
-                case pe_phys_shape::ShapeType::Compound: {
+                case pe_phys_shape::ShapeType::ST_Compound: {
                     rb_data["type"] = "compound";
                     auto compound = dynamic_cast<pe_phys_shape::CompoundShape*>(shape);
                     auto& shapes = compound->getShapes();
@@ -185,26 +185,26 @@ namespace pe_intf {
                                                   rot[1][0], rot[1][1], rot[1][2],
                                                   rot[2][0], rot[2][1], rot[2][2]};
                         switch (s.shape->getType()) {
-                            case pe_phys_shape::ShapeType::Box: {
+                            case pe_phys_shape::ShapeType::ST_Box: {
                                 shape_data["type"] = "box";
                                 auto size = dynamic_cast<pe_phys_shape::BoxShape*>(s.shape)->getSize();
                                 shape_data["scale"] = {size.x, size.y, size.z};
                                 break;
                             }
-                            case pe_phys_shape::ShapeType::Sphere: {
+                            case pe_phys_shape::ShapeType::ST_Sphere: {
                                 shape_data["type"] = "sphere";
                                 auto radius = dynamic_cast<pe_phys_shape::SphereShape*>(s.shape)->getRadius();
                                 shape_data["scale"] = {radius};
                                 break;
                             }
-                            case pe_phys_shape::ShapeType::Cylinder: {
+                            case pe_phys_shape::ShapeType::ST_Cylinder: {
                                 shape_data["type"] = "cylinder";
                                 auto radius = dynamic_cast<pe_phys_shape::CylinderShape*>(s.shape)->getRadius();
                                 auto height = dynamic_cast<pe_phys_shape::CylinderShape*>(s.shape)->getHeight();
                                 shape_data["scale"] = {radius, height};
                                 break;
                             }
-                            case pe_phys_shape::ShapeType::ConvexMesh: {
+                            case pe_phys_shape::ShapeType::ST_ConvexMesh: {
                                 shape_data["type"] = "convex";
                                 shape_data["mesh"] = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                                 pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getScale();
@@ -826,7 +826,7 @@ namespace pe_intf {
             auto shape = rb->getCollisionShape();
             if (rb->isFracturable()) continue;
             switch (shape->getType()) {
-                case pe_phys_shape::ShapeType::Box: {
+                case pe_phys_shape::ShapeType::ST_Box: {
                     auto& mesh = dynamic_cast<pe_phys_shape::BoxShape*>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
                         writer.addMesh(mesh, shape->getGlobalId());
@@ -834,7 +834,7 @@ namespace pe_intf {
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-                case pe_phys_shape::Cylinder: {
+                case pe_phys_shape::ShapeType::ST_Cylinder: {
                     auto& mesh = dynamic_cast<pe_phys_shape::CylinderShape *>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
                         writer.addMesh(mesh, shape->getGlobalId());
@@ -842,8 +842,8 @@ namespace pe_intf {
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-                case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh: {
-                    auto& mesh = shape->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+                case pe_phys_shape::ShapeType::ST_ConvexMesh: case pe_phys_shape::ShapeType::ST_ConcaveMesh: {
+                    auto& mesh = shape->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                         dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape)->getMesh() : dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
                         writer.addMesh(mesh, shape->getGlobalId());
@@ -851,7 +851,7 @@ namespace pe_intf {
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-                case pe_phys_shape::ShapeType::Sphere: {
+                case pe_phys_shape::ShapeType::ST_Sphere: {
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
                         pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
                         for (auto& v : sphere_mesh.vertices) {
@@ -862,12 +862,12 @@ namespace pe_intf {
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
                 }
-                case pe_phys_shape::ShapeType::Compound: {
+                case pe_phys_shape::ShapeType::ST_Compound: {
                     auto shape_compound = dynamic_cast<pe_phys_shape::CompoundShape*>(shape);
                     for (auto shape_child : shape_compound->getShapes()) {
                         pe::Transform trans_child = rb->getTransform() * shape_child.local_transform;
                         switch (shape_child.shape->getType()) {
-                            case pe_phys_shape::ShapeType::Box: {
+                            case pe_phys_shape::ShapeType::ST_Box: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::BoxShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
                                     writer.addMesh(mesh, shape_child.shape->getGlobalId());
@@ -875,7 +875,7 @@ namespace pe_intf {
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
                             }
-                            case pe_phys_shape::Cylinder: {
+                            case pe_phys_shape::ShapeType::ST_Cylinder: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::CylinderShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
                                     writer.addMesh(mesh, shape_child.shape->getGlobalId());
@@ -883,7 +883,7 @@ namespace pe_intf {
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
                             }
-                            case pe_phys_shape::ShapeType::ConvexMesh: {
+                            case pe_phys_shape::ShapeType::ST_ConvexMesh: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
                                     writer.addMesh(mesh, shape_child.shape->getGlobalId());
@@ -891,7 +891,7 @@ namespace pe_intf {
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
                             }
-                            case pe_phys_shape::ShapeType::Sphere: {
+                            case pe_phys_shape::ShapeType::ST_Sphere: {
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
                                     pe::Mesh sphere_mesh = PE_SPHERE_DEFAULT_MESH;
                                     for (auto& v : sphere_mesh.vertices) {
@@ -1056,7 +1056,7 @@ namespace pe_intf {
                 continue;
             }
             auto type = rb.first->getCollisionShape()->getType();
-            if (type != pe_phys_shape::ShapeType::Compound) {
+            if (type != pe_phys_shape::ShapeType::ST_Compound) {
                 updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
                 if (!rb.first->isSleep()) {
                     Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
@@ -1108,49 +1108,49 @@ namespace pe_intf {
             pe::Array<int> ids;
             auto type = rb->getCollisionShape()->getType();
             switch (type) {
-                case pe_phys_shape::ShapeType::Box:
+                case pe_phys_shape::ShapeType::ST_Box:
                     ids.push_back(Viewer::addCube(dynamic_cast<pe_phys_shape::BoxShape *>(rb->getCollisionShape())->getSize()));
                     Viewer::updateTransform(ids[0], type, rb->getTransform());
                     updateColor(ids[0], type, rb->getTag(), rb->isKinematic());
                     break;
-                case pe_phys_shape::ShapeType::Sphere:
+                case pe_phys_shape::ShapeType::ST_Sphere:
                     ids.push_back(Viewer::addSphere(dynamic_cast<pe_phys_shape::SphereShape *>(rb->getCollisionShape())->getRadius()));
                     Viewer::updateTransform(ids[0], type, rb->getTransform());
-                    updateColor(ids[0], pe_phys_shape::ShapeType::Sphere, rb->getTag(), rb->isKinematic());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::ST_Sphere, rb->getTag(), rb->isKinematic());
                     break;
-                case pe_phys_shape::ShapeType::Cylinder:
+                case pe_phys_shape::ShapeType::ST_Cylinder:
                     ids.push_back(Viewer::addCylinder(dynamic_cast<pe_phys_shape::CylinderShape *>(rb->getCollisionShape())->getRadius(),
                                                          dynamic_cast<pe_phys_shape::CylinderShape *>(rb->getCollisionShape())->getHeight()));
                     Viewer::updateTransform(ids[0], type, rb->getTransform());
-                    updateColor(ids[0], pe_phys_shape::ShapeType::Cylinder, rb->getTag(), rb->isKinematic());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::ST_Cylinder, rb->getTag(), rb->isKinematic());
                     break;
-                case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
+                case pe_phys_shape::ShapeType::ST_ConvexMesh: case pe_phys_shape::ShapeType::ST_ConcaveMesh:
                     ids.push_back(Viewer::addMesh(dynamic_cast<pe_phys_shape::ConvexMeshShape *>(rb->getCollisionShape())->getMesh()));
                     Viewer::updateTransform(ids[0], type, rb->getTransform());
-                    updateColor(ids[0], pe_phys_shape::ShapeType::ConvexMesh, rb->getTag(), rb->isKinematic());
+                    updateColor(ids[0], pe_phys_shape::ShapeType::ST_ConvexMesh, rb->getTag(), rb->isKinematic());
                     break;
-                case pe_phys_shape::ShapeType::Compound:
+                case pe_phys_shape::ShapeType::ST_Compound:
                     int i = 0;
                     for (auto& s : dynamic_cast<pe_phys_shape::CompoundShape *>(rb->getCollisionShape())->getShapes()) {
                         auto sub_type = s.shape->getType();
                         switch (sub_type) {
-                            case pe_phys_shape::ShapeType::Box:
+                            case pe_phys_shape::ShapeType::ST_Box:
                                 ids.push_back(Viewer::addCube(dynamic_cast<pe_phys_shape::BoxShape *>(s.shape)->getSize()));
                                 Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                                 updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
                                 break;
-                            case pe_phys_shape::ShapeType::Sphere:
+                            case pe_phys_shape::ShapeType::ST_Sphere:
                                 ids.push_back(Viewer::addSphere(dynamic_cast<pe_phys_shape::SphereShape *>(s.shape)->getRadius()));
                                 Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                                 updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
                                 break;
-                            case pe_phys_shape::ShapeType::Cylinder:
+                            case pe_phys_shape::ShapeType::ST_Cylinder:
                                 ids.push_back(Viewer::addCylinder(dynamic_cast<pe_phys_shape::CylinderShape *>(s.shape)->getRadius(),
                                                                      dynamic_cast<pe_phys_shape::CylinderShape *>(s.shape)->getHeight()));
                                 Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                                 updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
                                 break;
-                            case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
+                            case pe_phys_shape::ShapeType::ST_ConvexMesh: case pe_phys_shape::ShapeType::ST_ConcaveMesh:
                                 ids.push_back(Viewer::addMesh(dynamic_cast<pe_phys_shape::ConvexMeshShape *>(s.shape)->getMesh()));
                                 Viewer::updateTransform(ids[i], sub_type, rb->getTransform() * s.local_transform);
                                 updateColor(ids[i++], sub_type, rb->getTag(), rb->isKinematic());
@@ -1185,16 +1185,16 @@ namespace pe_intf {
         }
 
         switch (type) {
-            case pe_phys_shape::ShapeType::Box:
+            case pe_phys_shape::ShapeType::ST_Box:
                 Viewer::updateColor(id, type, pe::Vector3(0.3, 0.3, 0.8));
                 break;
-            case pe_phys_shape::ShapeType::Sphere:
+            case pe_phys_shape::ShapeType::ST_Sphere:
                 Viewer::updateColor(id, type, pe::Vector3(0.8, 0.3, 0.3));
                 break;
-            case pe_phys_shape::ShapeType::Cylinder:
+            case pe_phys_shape::ShapeType::ST_Cylinder:
                 Viewer::updateColor(id, type, pe::Vector3(0.3, 0.8, 0.3));
                 break;
-            case pe_phys_shape::ShapeType::ConvexMesh: case pe_phys_shape::ShapeType::ConcaveMesh:
+            case pe_phys_shape::ShapeType::ST_ConvexMesh: case pe_phys_shape::ShapeType::ST_ConcaveMesh:
                 Viewer::updateColor(id, type, pe::Vector3(0.8, 0.8, 0.3));
             default:
                 break;

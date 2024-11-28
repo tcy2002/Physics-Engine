@@ -23,6 +23,8 @@ namespace utils {
 
         size_t rows() const { return _rows; }
         size_t cols() const { return _cols; }
+        void resize(size_t M, size_t N);
+        void resize(size_t M, size_t N, Scalar value);
 
         Scalar* operator[](size_t i) { return _data[i]; }
         const Scalar* operator[](size_t i) const { return _data[i]; }

@@ -5,10 +5,10 @@
 namespace pe_phys_shape {
 
     void CompoundShape::addShape(const pe::Transform& pos, pe::Real massRatio, Shape *shape) {
-        if (shape->getType() == ShapeType::Compound) {
+        if (shape->getType() == ShapeType::ST_Compound) {
             throw std::runtime_error("CompoundShape cannot contain another CompoundShape");
         }
-        if (shape->getType() == ShapeType::ConcaveMesh) {
+        if (shape->getType() == ShapeType::ST_ConcaveMesh) {
             throw std::runtime_error("CompoundShape cannot contain ConcaveMeshShape");
         }
         if (massRatio < PE_EPS) {

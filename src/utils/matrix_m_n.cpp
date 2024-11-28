@@ -84,6 +84,36 @@ MatrixMN<Scalar>& MatrixMN<Scalar>::operator=(MatrixMN&& other) noexcept {
     return *this;
 }
 
+template<typename Scalar>
+void MatrixMN<Scalar>::resize(size_t M, size_t N) {
+    if (M == _rows && N == _cols) {
+        return;
+    }
+    if (_data != nullptr) {
+        for (size_t i = 0; i < _rows; i++) {
+            delete[] _data[i];
+        }
+        delete[] _data;
+    }
+    _rows = M;
+    _cols = N;
+    _data = new Scalar*[_rows];
+    for (size_t i = 0; i < _rows; i++) {
+        _data[i] = new Scalar[_cols];
+    }
+}
+
+template<typename Scalar>
+void MatrixMN<Scalar>::resize(size_t M, size_t N, Scalar value) {
+    resize(M, N);
+    for (size_t i = 0; i < _rows; i++) {
+        for (size_t j = 0; j < _cols; j++) {
+            _data[i][j] = value;
+        }
+    }
+}
+
+
 template <typename Scalar>
 MatrixMN<Scalar>::~MatrixMN() {
     if (_data == nullptr) {

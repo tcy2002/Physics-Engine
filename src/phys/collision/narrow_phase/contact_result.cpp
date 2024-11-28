@@ -34,8 +34,7 @@ namespace pe_phys_collision {
         _world_normal(pe::Vector3::up()),
         _local_pos_a(pe::Vector3::zeros()),
         _local_pos_b(pe::Vector3::zeros()),
-        _distance(PE_REAL_MAX),
-        _applied_impulse(pe::Vector3::zeros()) {}
+        _distance(PE_REAL_MAX) {}
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                                const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance):
@@ -43,8 +42,7 @@ namespace pe_phys_collision {
         _world_normal(world_normal),
         _local_pos_a(local_pos_a),
         _local_pos_b(local_pos_b),
-        _distance(distance),
-        _applied_impulse(pe::Vector3::zeros()) {
+        _distance(distance) {
         _tangents.resize(4);
         getOrthoUnits(world_normal, _tangents[0], _tangents[1]);
         _tangents[2] = -_tangents[0];
@@ -100,7 +98,6 @@ namespace pe_phys_collision {
             for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                 if (!_points[i].isValid()) {
                     _points[i] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
-                    _points[i].setAppliedImpulse(pe::Vector3::zeros());
                     found = true;
                     break;
                 }
@@ -117,7 +114,6 @@ namespace pe_phys_collision {
                 }
                 if (idx >= 0) {
                     _points[idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
-                    _points[idx].setAppliedImpulse(pe::Vector3::zeros());
                 }
             }
         }

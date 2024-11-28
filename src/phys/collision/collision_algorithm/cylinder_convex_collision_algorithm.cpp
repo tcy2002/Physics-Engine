@@ -11,10 +11,10 @@ namespace pe_phys_collision {
     bool CylinderConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                             pe::Transform trans_a, pe::Transform trans_b,
                                                             pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
-               shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder))) {
             return false;
                }
         constexpr auto margin = PE_MARGIN;
@@ -37,12 +37,12 @@ namespace pe_phys_collision {
             shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
             trans_a, trans_b, margin, refScale, result);
 #   else
-        auto shape_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b;
-        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
-        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
-        auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
+        auto shape_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? shape_a : shape_b;
+        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
+        auto& trans_mesh = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? trans_a : trans_b;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh);
         bool ret = getClosestPoints(shape_mesh, shape_cyl, trans_mesh, trans_cyl, margin, result);
         result.setSwapFlag(false);
 
@@ -109,7 +109,7 @@ namespace pe_phys_collision {
     bool CylinderConvexCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape *shape_mesh, pe_phys_shape::CylinderShape *shape_cyl,
                                                             const pe::Transform &trans_mesh, const pe::Transform &trans_cyl,
                                                             pe::Real margin, ContactResult &result) {
-        auto shape = shape_mesh->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto shape = shape_mesh->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                      dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_mesh) :
                      dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_mesh);
         auto& mesh = shape->getMesh();

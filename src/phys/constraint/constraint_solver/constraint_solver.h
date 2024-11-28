@@ -6,9 +6,9 @@
 
 namespace pe_phys_constraint {
 
-    enum ConstraintSolverType {
-        ST_SEQUENTIAL_IMPULSE,
-        ST_PRIMAL_DUAL,
+    enum class ConstraintSolverType {
+        CST_SEQUENTIAL_IMPULSE,
+        CST_PRIMAL_DUAL,
     };
 
     class ConstraintSolver {

@@ -4,9 +4,6 @@
 #include "vehicle_raycaster.h"
 #include "phys/raycast/raycast_solver/default_raycast_solver.h"
 #include "wheel_info.h"
-#include "phys/raycast/raycast_solver/default_raycast_solver.h"
-#include "utils/jacobian_entry.h"
-#include "phys/fracture/fracture_utils/fracture_data.h"
 
 namespace pe_phys_vehicle {
 

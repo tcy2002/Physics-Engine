@@ -27,9 +27,9 @@ namespace pe_phys_shape {
         void getIntersectFaces(const pe::Vector3& AA, const pe::Vector3& BB, pe::Array<int>& intersect) const;
 
         ConvexMeshShape() {}
-        virtual ~ConvexMeshShape() override {}
-        virtual ShapeType getType() const override { return ShapeType::ConvexMesh; }
-        virtual bool isConvex() const override { return true; }
+        virtual ~ConvexMeshShape() {}
+        ShapeType getType() const override { return ShapeType::ST_ConvexMesh; }
+        bool isConvex() const override { return true; }
         PE_API virtual void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
         PE_API virtual bool localIsInside(const pe::Vector3& point) const override;
         PE_API virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,

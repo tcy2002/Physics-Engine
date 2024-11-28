@@ -12,10 +12,10 @@ namespace pe_phys_collision {
     bool BoxCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                          pe::Transform trans_a, pe::Transform trans_b,
                                                          pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Box))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Box &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Box))) {
             return false;
         }
         constexpr auto margin = PE_MARGIN;
@@ -37,16 +37,16 @@ namespace pe_phys_collision {
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
                                                                 trans_a, trans_b, margin, refScale, result);
 #   else
-        auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
-        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
-        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
-        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
+        auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b);
+        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
+        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
 
         const pe::Real cyl_r = shape_cyl->getRadius();
         const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
         const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
         bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
         result.setSwapFlag(false);
 

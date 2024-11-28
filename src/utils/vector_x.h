@@ -21,6 +21,8 @@ namespace utils {
         ~VectorX() { delete[] _data; }
 
         size_t size() const { return _size; }
+        void resize(size_t size);
+        void resize(size_t size, Scalar value);
 
         Scalar& operator[](size_t i) { return _data[i]; }
         const Scalar& operator[](size_t i) const { return _data[i]; }
@@ -39,6 +41,7 @@ namespace utils {
 
         Scalar norm() const;
         Scalar norm2() const;
+        Scalar mean() const;
         VectorX normalized() const;
         void normalize();
         VectorX mult(const VectorX& v) const;

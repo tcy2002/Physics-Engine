@@ -4,8 +4,8 @@
 
 namespace pe_phys_shape {
 
-    enum ShapeType {
-        Box = 0, Sphere = 1, Cylinder = 2, ConvexMesh = 3, ConcaveMesh = 4, Compound = 5
+    enum class ShapeType {
+        ST_Box, ST_Sphere, ST_Cylinder, ST_ConvexMesh, ST_ConcaveMesh, ST_Compound
     };
 
     class Shape {

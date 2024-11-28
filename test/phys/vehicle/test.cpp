@@ -68,8 +68,8 @@ void testTank() {
     ground->setKinematic(true);
     world->addRigidBody(ground);
     int ground_id = pe_intf::Viewer::addCube(ground_shape->getSize() - PE_TEST_GROUND_MARGIN * 2);
-    pe_intf::Viewer::updateColor(ground_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.3, 0.3, 0.8));
-    pe_intf::Viewer::updateTransform(ground_id, pe_phys_shape::ShapeType::Box, ground->getTransform());
+    pe_intf::Viewer::updateColor(ground_id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.3, 0.3, 0.8));
+    pe_intf::Viewer::updateTransform(ground_id, pe_phys_shape::ShapeType::ST_Box, ground->getTransform());
 
     // add a slope
     auto box = new pe_phys_object::RigidBody();
@@ -81,8 +81,8 @@ void testTank() {
     box->setKinematic(true);
     world->addRigidBody(box);
     int box_id = pe_intf::Viewer::addCube(shape_box->getSize() - PE_TEST_GROUND_MARGIN * 2);
-    pe_intf::Viewer::updateColor(box_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.3, 0.3));
-    pe_intf::Viewer::updateTransform(box_id, pe_phys_shape::ShapeType::Box, box->getTransform());
+    pe_intf::Viewer::updateColor(box_id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.3, 0.3));
+    pe_intf::Viewer::updateTransform(box_id, pe_phys_shape::ShapeType::ST_Box, box->getTransform());
     id_map[box_id] = box;
 
     // add some steps
@@ -94,8 +94,8 @@ void testTank() {
         step->setKinematic(true);
         world->addRigidBody(step);
         int step_id = pe_intf::Viewer::addCube(shape_step->getSize() - PE_TEST_GROUND_MARGIN * 2);
-        pe_intf::Viewer::updateColor(step_id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.3, 0.3));
-        pe_intf::Viewer::updateTransform(step_id, pe_phys_shape::ShapeType::Box, step->getTransform());
+        pe_intf::Viewer::updateColor(step_id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.3, 0.3));
+        pe_intf::Viewer::updateTransform(step_id, pe_phys_shape::ShapeType::ST_Box, step->getTransform());
         id_map[step_id] = step;
     }
 
@@ -107,15 +107,15 @@ void testTank() {
         if (i % 3 == 0) {
             rb = createBoxRigidBody(pe::Vector3(0, 10 + i * 1.1, -50), pe::Vector3(0.2, 0.2, 0.2), mass);
             id = pe_intf::Viewer::addCube(pe::Vector3(0.2, 0.2, 0.2));
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.3, 0.8, 0.3));
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.3, 0.8, 0.3));
         } else if (i % 3 == 1) {
             rb = createSphereRigidBody(pe::Vector3(0, 10 + i * 1.1, -50), 0.1, mass);
             id = pe_intf::Viewer::addSphere(0.1);
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.3, 0.8, 0.3));
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Vector3(0.3, 0.8, 0.3));
         } else {
             rb = createCylinderRigidBody(pe::Vector3(0, 10 + i * 1.1, -50), 0.1, 0.2, mass);
             id = pe_intf::Viewer::addCylinder(0.1, 0.2);
-            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Cylinder, pe::Vector3(0.3, 0.8, 0.3));
+            pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Cylinder, pe::Vector3(0.3, 0.8, 0.3));
         }
         world->addRigidBody(rb);
         id_map[id] = rb;
@@ -132,22 +132,22 @@ void testTank() {
     // add body to viewer
     auto shape_b = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getBody()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_b->getSize());
-    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.8, 0.3));
-    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, tank->getBody()->getTransform());
+    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.8, 0.3));
+    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, tank->getBody()->getTransform());
     id_map[id] = tank->getBody();
 
     // add turret to viewer
     auto shape_t = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getTurret()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_t->getSize());
-    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.8, 0.3));
-    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, tank->getTurret()->getTransform());
+    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.8, 0.3));
+    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, tank->getTurret()->getTransform());
     id_map[id] = tank->getTurret();
 
     // add barrel to viewer
     auto shape_r = dynamic_cast<pe_phys_shape::BoxShape*>(tank->getBarrel()->getCollisionShape());
     id = pe_intf::Viewer::addCube(shape_r->getSize());
-    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.8, 0.3));
-    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, tank->getBarrel()->getTransform());
+    pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.8, 0.3));
+    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, tank->getBarrel()->getTransform());
     id_map[id] = tank->getBarrel();
 
     // add wheels to viewer
@@ -158,8 +158,8 @@ void testTank() {
         auto shape = dynamic_cast<pe_phys_shape::CylinderShape*>(wheel->getCollisionShape());
 #   endif
         id = pe_intf::Viewer::addCylinder(shape->getRadius(), 0.5);
-        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Cylinder, pe::Vector3(0.8, 0.8, 0.3));
-        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Cylinder, wheel->getTransform());
+        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Cylinder, pe::Vector3(0.8, 0.8, 0.3));
+        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Cylinder, wheel->getTransform());
         id_map[id] = wheel;
     }
 
@@ -167,8 +167,8 @@ void testTank() {
     for (auto& track : tank->getTrackSegments()) {
         auto shape = dynamic_cast<pe_phys_shape::BoxShape*>(track->getCollisionShape());
         id = pe_intf::Viewer::addCube(shape->getSize());
-        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::Box, pe::Vector3(0.8, 0.8, 0.3));
-        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::Box, track->getTransform());
+        pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Box, pe::Vector3(0.8, 0.8, 0.3));
+        pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Box, track->getTransform());
         id_map[id] = track;
     }
 
@@ -185,9 +185,9 @@ void testTank() {
         world->step();
         tank->advance(world->getDt());
         for (auto rb : id_map) {
-            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::Box, rb.second->getTransform());
-            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::Cylinder, rb.second->getTransform());
-            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::Sphere, rb.second->getTransform());
+            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::ST_Box, rb.second->getTransform());
+            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::ST_Cylinder, rb.second->getTransform());
+            pe_intf::Viewer::updateTransform(rb.first, pe_phys_shape::ShapeType::ST_Sphere, rb.second->getTransform());
         }
 
         if (pe_intf::Viewer::getKeyState('i') == 0) {

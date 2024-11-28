@@ -8,9 +8,9 @@ namespace pe_phys_collision {
 
 	class ConcaveConvexCollisionAlgorithm : public CollisionAlgorithm {
 	public:
-		virtual bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
-                                      pe::Transform trans_a, pe::Transform trans_b,
-			                          pe::Real refScale, ContactResult& result) override;
+		bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
+		                      pe::Transform trans_a, pe::Transform trans_b,
+		                      pe::Real refScale, ContactResult& result) override;
 
 		static bool getClosestPoints(pe_phys_shape::ConcaveMeshShape* shape_concave, pe_phys_shape::Shape* shape_convex,
 		                             const pe::Transform& trans_concave, const pe::Transform& trans_convex,

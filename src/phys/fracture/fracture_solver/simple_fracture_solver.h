@@ -21,7 +21,7 @@ namespace pe_phys_fracture {
         SimpleFractureSolver() { _voronoi = new BowyerWatsonVoronoiCalculator(); }
         virtual ~SimpleFractureSolver() { delete _voronoi;}
 
-        PE_API virtual void solve(const pe::Array<FractureSource>& sources) override;
+        PE_API void solve(const pe::Array<FractureSource>& sources) override;
     };
 
 } // namespace pe_phys_fracture

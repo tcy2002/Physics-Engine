@@ -6,22 +6,22 @@ namespace pe_phys_collision {
     bool BoxSphereCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                        pe::Transform trans_a, pe::Transform trans_b,
                                                        pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Box &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Sphere) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::Sphere &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Box))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Box &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Sphere) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Box))) {
             return false;
         }
 
-        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
-        const auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Box ? shape_a : shape_b);
-        const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
-        const auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
+        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? shape_a : shape_b);
+        const auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b);
+        const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? trans_a : trans_b;
+        const auto trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
         const pe::Vector3 center_sph = trans_sph.getOrigin();
         const pe::Real radius_sph = shape_sph->getRadius();
         constexpr auto margin = PE_MARGIN;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Box);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
         bool ret = getClosestPoints(shape_sph, shape_box, trans_sph, trans_box, center_sph, radius_sph, margin, result);
         result.setSwapFlag(false);
 

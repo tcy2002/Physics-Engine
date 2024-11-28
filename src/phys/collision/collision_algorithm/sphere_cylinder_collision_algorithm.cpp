@@ -8,21 +8,21 @@ namespace pe_phys_collision {
     bool SphereCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                             pe::Transform trans_a, pe::Transform trans_b,
                                                             pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::Sphere &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Cylinder) ||
-              (shape_a->getType() == pe_phys_shape::ShapeType::Cylinder &&
-               shape_b->getType() == pe_phys_shape::ShapeType::Sphere))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder) ||
+              (shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder &&
+               shape_b->getType() == pe_phys_shape::ShapeType::ST_Sphere))) {
             return false;
         }
 
-        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? shape_a : shape_b);
-        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
-        const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::Sphere ? trans_a : trans_b;
-        const auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? trans_a : trans_b;
+        const auto shape_sph = dynamic_cast<pe_phys_shape::SphereShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? shape_a : shape_b);
+        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+        const auto trans_sph = shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere ? trans_a : trans_b;
+        const auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
 
         constexpr auto margin = PE_MARGIN;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::Sphere);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere);
         bool ret = getClosestPoints(shape_sph, shape_cyl, trans_sph, trans_cyl, margin, result);
         result.setSwapFlag(false);
 

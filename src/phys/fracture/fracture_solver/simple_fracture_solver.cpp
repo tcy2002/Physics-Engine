@@ -131,9 +131,9 @@ namespace pe_phys_fracture {
         // retrieve mesh data from different shapes
         pe_phys_shape::Shape* shape = _fracturable_object->getCollisionShape();
         pe::Mesh mesh;
-        if (shape->getType() == pe_phys_shape::ShapeType::ConvexMesh) {
+        if (shape->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) {
             mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMesh();
-        } else if (shape->getType() == pe_phys_shape::ShapeType::Box) {
+        } else if (shape->getType() == pe_phys_shape::ShapeType::ST_Box) {
             mesh = dynamic_cast<pe_phys_shape::BoxShape *>(shape)->getMesh();
         } else return;
 

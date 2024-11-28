@@ -6,7 +6,6 @@ add_library(PEViewer STATIC intf/viewer.cpp intf/simulator.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp
         utils/thread_pool.cpp
-        utils/jacobian_entry.cpp
         utils/bvh.cpp
         utils/file_system.cpp)
 

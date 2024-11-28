@@ -67,8 +67,9 @@ void objToMesh(pe::Mesh& mesh, const std::string& filename, pe::Real size) {
 void testConstruct() {
     ConvexMeshShape meshShape;
     meshShape.setMesh(PE_CYLINDER_DEFAULT_MESH);
+    std::cout << meshShape.getLocalInertia() << std::endl;
 
-    ASSERT_EQUAL_INT(meshShape.getType(), ShapeType::ConvexMesh)
+    ASSERT_EQUAL_INT(meshShape.getType(), ShapeType::ST_ConvexMesh)
     ASSERT_EQUAL_INT(meshShape.isConvex(), true)
 
     auto& edges = meshShape.getUniqueEdges();

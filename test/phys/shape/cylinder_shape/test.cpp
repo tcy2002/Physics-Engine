@@ -9,7 +9,7 @@ using namespace pe_phys_shape;
 void testConstruct() {
     CylinderShape cyl(0.5, 1.0);
 
-    ASSERT_EQUAL_INT(cyl.getType(), ShapeType::Cylinder)
+    ASSERT_EQUAL_INT(cyl.getType(), ShapeType::ST_Cylinder)
     ASSERT_EQUAL_INT(cyl.isConvex(), true)
     ASSERT_EQUAL(cyl.getRadius(), 0.5);
     ASSERT_EQUAL(cyl.getHeight(), 1.0);

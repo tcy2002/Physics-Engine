@@ -16,7 +16,6 @@ namespace pe_phys_collision {
         COMMON_MEMBER_SET_GET(pe::Vector3, local_pos_b, LocalPosB)
 
         COMMON_MEMBER_SET_GET(pe::Real, distance, Distance)
-        COMMON_MEMBER_SET_GET(pe::Vector3, applied_impulse, AppliedImpulse)
 
         pe::Array<pe::Vector3> _tangents;
     public:

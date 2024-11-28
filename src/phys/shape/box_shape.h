@@ -17,13 +17,13 @@ namespace pe_phys_shape {
 
     public:
         PE_API explicit BoxShape(const pe::Vector3& size);
-        virtual ~BoxShape() override {}
-        virtual ShapeType getType() const override { return ShapeType::Box; }
-        virtual bool isConvex() const override { return true; }
-        PE_API virtual void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
-        PE_API virtual bool localIsInside(const pe::Vector3& point) const override;
-        PE_API virtual void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
-                                    pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
+        virtual ~BoxShape() {}
+        ShapeType getType() const override { return ShapeType::ST_Box; }
+        bool isConvex() const override { return true; }
+        PE_API void getAABB(const pe::Transform& transform, pe::Vector3& min, pe::Vector3& max) const override;
+        PE_API bool localIsInside(const pe::Vector3& point) const override;
+        PE_API void project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
+                            pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const override;
     };
 
 } // namespace pe_phys_shape

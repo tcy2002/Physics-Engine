@@ -11,7 +11,7 @@ namespace pe_phys_raycast {
                                      pe_phys_shape::Shape* shape, pe::Transform trans,
                                      pe::Real& distance, pe::Vector3& hit_point, pe::Vector3& hit_normal) {
 
-        auto shape_mesh = shape->getType() == pe_phys_shape::ShapeType::ConvexMesh ?
+        auto shape_mesh = shape->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
             dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape) :
             dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape);
         const pe::Mesh* mesh = &shape_mesh->getMesh();

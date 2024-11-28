@@ -7,8 +7,8 @@ namespace pe_phys_collision {
     bool SphereSphereCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
                                                           pe::Real refScale, ContactResult& result) {
-        if (shape_a->getType() != pe_phys_shape::ShapeType::Sphere ||
-            shape_b->getType() != pe_phys_shape::ShapeType::Sphere) {
+        if (shape_a->getType() != pe_phys_shape::ShapeType::ST_Sphere ||
+            shape_b->getType() != pe_phys_shape::ShapeType::ST_Sphere) {
             return false;
         }
 

@@ -9,24 +9,24 @@ namespace pe_phys_collision {
     bool ConcaveConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                            pe::Transform trans_a, pe::Transform trans_b,
                                                            pe::Real refScale, ContactResult& result) {
-        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh &&
-            shape_b->getType() == pe_phys_shape::ShapeType::ConcaveMesh) ||
-            (shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh &&
-                shape_b->getType() == pe_phys_shape::ShapeType::ConvexMesh))) {
+        if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh &&
+            shape_b->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh) ||
+            (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh &&
+                shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh))) {
             return false;
         }
 
-        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
-        auto shape_convex = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? shape_a : shape_b);
-        auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
-        auto trans_convex = shape_a->getType() == pe_phys_shape::ShapeType::ConvexMesh ? trans_a : trans_b;
+        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh ? shape_a : shape_b);
+        auto shape_convex = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? shape_a : shape_b);
+        auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh ? trans_a : trans_b;
+        auto trans_convex = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
         auto& mesh_convex = shape_convex->getMesh();
         auto& edges_convex = shape_convex->getUniqueEdges();
 
         constexpr auto margin = PE_MARGIN;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh);
         bool ret = getClosestPoints(
             shape_concave, shape_convex, trans_concave, trans_convex, edges_convex,
             mesh_concave, mesh_convex, margin, refScale, result);
