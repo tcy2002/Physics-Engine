@@ -1,8 +1,8 @@
 #include "file_system.h"
+#include <algorithm>
 
 namespace utils {
-    void StringTools::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters)
-    {
+    void StringTools::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
         std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
         std::string::size_type pos = str.find_first_of(delimiters, lastPos);
 
@@ -14,15 +14,13 @@ namespace utils {
         }
     }
 
-    std::string StringTools::to_upper(const std::string& str)
-    {
+    std::string StringTools::to_upper(const std::string& str) {
         std::string res = str;
         std::transform(res.begin(), res.end(), res.begin(), ::toupper);
         return res;
     }
 
-    std::string FileSystem::getFilePath(const std::string &path)
-    {
+    std::string FileSystem::getFilePath(const std::string &path) {
         std::string npath = normalizePath(path);
 
         std::string result = npath;
@@ -42,8 +40,7 @@ namespace utils {
         return result;
     }
 
-    std::string FileSystem::getFileName(const std::string &path)
-    {
+    std::string FileSystem::getFileName(const std::string &path) {
         std::string npath = normalizePath(path);
 
         std::string result = npath;
@@ -63,8 +60,7 @@ namespace utils {
         return result;
     }
 
-    std::string FileSystem::getFileNameWithExt(const std::string &path)
-    {
+    std::string FileSystem::getFileNameWithExt(const std::string &path) {
         std::string npath = normalizePath(path);
 
         std::string result = npath;
@@ -79,8 +75,7 @@ namespace utils {
         return result;
     }
 
-    std::string FileSystem::getFileExt(const std::string &path)
-    {
+    std::string FileSystem::getFileExt(const std::string &path) {
         std::string npath = normalizePath(path);
 
         std::string result = npath;
@@ -92,8 +87,7 @@ namespace utils {
         return result;
     }
 
-    bool FileSystem::isRelativePath(const std::string &path)
-    {
+    bool FileSystem::isRelativePath(const std::string &path) {
         std::string npath = normalizePath(path);
 
         // Windows
@@ -105,8 +99,7 @@ namespace utils {
         return true;
     }
 
-    int FileSystem::makeDir(const std::string &path)
-    {
+    int FileSystem::makeDir(const std::string &path) {
         std::string npath = normalizePath(path);
 
         struct stat st;
@@ -131,8 +124,7 @@ namespace utils {
         return status;
     }
 
-    int FileSystem::makeDirs(const std::string &path)
-    {
+    int FileSystem::makeDirs(const std::string &path) {
         char *pp;
         char *sp;
         int  status;
@@ -161,24 +153,13 @@ namespace utils {
         return status;
     }
 
-    std::string FileSystem::normalizePath(const std::string &path)
-    {
+    std::string FileSystem::normalizePath(const std::string &path) {
         if (path.size() == 0)
             return path;
         std::string result = path;
         std::replace(result.begin(), result.end(), '\\', '/');
         std::vector<std::string> tokens;
         StringTools::tokenize(result, tokens, "/");
-        // unsigned int index = 0;
-        // while (index < tokens.size())
-        // {
-        //     if ((tokens[index] == "..") && (index > 0))
-        //     {
-        //         tokens.erase(tokens.begin() + index - 1, tokens.begin() + index + 1);
-        //         index-=2;
-        //     }
-        //     index++;
-        // }
         result = "";
         if (path[0] == '/')
             result = "/";
@@ -189,8 +170,7 @@ namespace utils {
         return result;
     }
 
-    bool FileSystem::fileExists(const std::string& fileName)
-    {
+    bool FileSystem::fileExists(const std::string& fileName) {
         if (FILE *file = fopen(fileName.c_str(), "r"))
         {
             fclose(file);
@@ -200,8 +180,7 @@ namespace utils {
             return false;
     }
 
-    std::string FileSystem::getProgramPath()
-    {
+    std::string FileSystem::getProgramPath() {
         char buffer[1000];
 #ifdef WIN32
         GetModuleFileName(NULL, buffer, 1000);
@@ -216,8 +195,7 @@ namespace utils {
 
     }
 
-    bool FileSystem::copyFile(const std::string &source, const std::string &dest)
-    {
+    bool FileSystem::copyFile(const std::string &source, const std::string &dest) {
         const size_t bufferSize = 8192;
         char buffer[bufferSize];
         size_t size;
@@ -239,24 +217,21 @@ namespace utils {
         return true;
     }
 
-    bool FileSystem::isFile(const std::string &path)
-    {
+    bool FileSystem::isFile(const std::string &path) {
         struct stat st;
         if (!stat(path.c_str(), &st))
             return S_ISREG(st.st_mode);
         return false;
     }
 
-    bool FileSystem::isDirectory(const std::string &path)
-    {
+    bool FileSystem::isDirectory(const std::string &path) {
         struct stat st;
         if (!stat(path.c_str(), &st))
             return S_ISDIR(st.st_mode);
         return false;
     }
 
-    bool FileSystem::getFilesInDirectory(const std::string& path, std::vector<std::string> &res)
-    {
+    bool FileSystem::getFilesInDirectory(const std::string& path, std::vector<std::string> &res) {
 #ifdef WIN32
         std::string p = path + "\\*";
         WIN32_FIND_DATA data;
@@ -291,29 +266,9 @@ namespace utils {
         int dialogType,
         const std::string &initialDir,
         const std::string &filterName,
-        const std::string &filter)
-    {
+        const std::string &filter) {
         std::string initDir = normalizePath(initialDir);
         std::replace(initDir.begin(), initDir.end(), '/', '\\');
-#   ifdef PE_UTILS_USE_NFD
-        std::string filename = "";
-        NFD_Init();
-        nfdchar_t* outPath;
-        nfdfilteritem_t filterItem[1] = { { filterName.c_str(), filter.c_str() } };
-        nfdresult_t result;
-        if (dialogType == 0) {
-            result = NFD_OpenDialog(&outPath, filterItem, 1, initDir.c_str());
-        } else {
-            result = NFD_SaveDialog(&outPath, filterItem, 1, initDir.c_str(), "");
-        }
-        if (result == NFD_OKAY)
-        {
-            filename = outPath;
-            NFD_FreePath(outPath);
-        }
-        NFD_Quit();
-        return filename;
-#   else
         OPENFILENAME ofn;       // common dialog box structure
         char fileNameBuffer[512];
         fileNameBuffer[0] = '\0';
@@ -340,7 +295,6 @@ namespace utils {
                 return std::string(fileNameBuffer);
         }
         return "";
-#   endif
     }
 #endif
 

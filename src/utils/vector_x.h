@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <common/vector3.h>
 
 namespace utils {
 
@@ -9,20 +10,24 @@ namespace utils {
     protected:
         Scalar* _data;
         size_t _size;
+        bool _sub_ref = false;
 
     public:
         VectorX(): _data(nullptr), _size(0) {}
         explicit VectorX(size_t size): _data(new Scalar[size]), _size(size) {}
-        VectorX(size_t size, Scalar value);
+        VectorX(size_t size, Scalar* data): _data(data), _size(size) {}
+        explicit VectorX(const common::Vector3<Scalar>& vec3);
+        VectorX(Scalar value, size_t size);
         VectorX(const VectorX& other);
         VectorX(VectorX&& other) noexcept;
         VectorX& operator=(const VectorX& other);
         VectorX& operator=(VectorX&& other) noexcept;
-        ~VectorX() { delete[] _data; }
+        ~VectorX();
 
         size_t size() const { return _size; }
         void resize(size_t size);
         void resize(size_t size, Scalar value);
+        void setValue(Scalar v);
 
         Scalar& operator[](size_t i) { return _data[i]; }
         const Scalar& operator[](size_t i) const { return _data[i]; }
@@ -45,11 +50,19 @@ namespace utils {
         VectorX normalized() const;
         void normalize();
         VectorX mult(const VectorX& v) const;
+        VectorX div(const VectorX& v) const;
         Scalar dot(const VectorX& v) const;
+        VectorX getSubVector(size_t size, size_t start) const;
+        VectorX getRefSubVector(size_t size, size_t start);
+        void setSubVector(const VectorX& vec, size_t start);
+        common::Vector3<Scalar> toVector3() const;
 
         static const VectorX& zeros(size_t size);
         static const VectorX& ones(size_t size);
     };
+
+    template <typename Scalar>
+    VectorX<Scalar> operator*(Scalar s, const VectorX<Scalar>& v);
 
     template <typename Scalar>
     std::ostream& operator<<(std::ostream& os, const VectorX<Scalar>& v);

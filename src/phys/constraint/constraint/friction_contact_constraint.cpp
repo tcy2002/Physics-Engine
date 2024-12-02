@@ -4,7 +4,7 @@
 
 // style-checked
 namespace pe_phys_constraint {
-    
+
     void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& param) {
         if (!_contact_result) return;
         const int point_size = PE_MIN(PE_MAX_CONTACT_POINT, _contact_result->getPointSize());
@@ -128,9 +128,9 @@ namespace pe_phys_constraint {
         _nsf = new NonSmoothContactForce;
 
         // map object to index
-        _object_to_index.clear();
+        _object2index.clear();
         for (size_t i = 0; i < _objects->size(); i++) {
-            _object_to_index[(*_objects)[i]] = i;
+            _object2index[(*_objects)[i]] = i;
         }
 
         // scalar values
@@ -158,20 +158,85 @@ namespace pe_phys_constraint {
         _mass_mat = pe::MatrixMN(_n_rigid_dof, _n_rigid_dof);
 
         // init the velocity vectors
-        PrimalDualUtils::initVelocity(*_objects, param.gravity, param.dt, _vel_old, _vel);
-        pe::Real char_mass = 1, char_speed = 1;
-        PrimalDualUtils::nonDimensionalParams(param.dt, param.gravity, *_objects, *_contact_results, char_mass, char_speed);
-        _vel_old /= char_speed;
-        _vel /= char_speed;
+        _dt = param.dt;
+        PrimalDualUtils::initVelocity(*_objects, param.gravity, _dt, _vel_old, _vel);
+        PrimalDualUtils::nonDimensionalParams(_dt, param.gravity, *_objects, *_contact_results, _char_mass, _char_speed);
+        _vel_old /= _char_speed;
+        _vel /= _char_speed;
 
         // init the mass matrix
-        PrimalDualUtils::initMassMatrix(*_objects, char_mass, _mass_mat);
+        PrimalDualUtils::initMassMatrix(*_objects, _char_mass, _mass_mat);
+
+        // init the sparse matrix structure
+        pe::Set<pe::KV<size_t, size_t>> obj_pairs;
+        pe::Array<pe::KV<pe::KV<size_t, size_t>, bool>> triplets;
+        _nsf->linearSystemReserve(*_contact_results, *_objects, _object2index, obj_pairs, triplets);
+        for (const auto& p : triplets) {
+            if (p.second) {
+                _A[p.first.first][p.first.second] = 1;
+            }
+        }
+        // TODO: what is matPointer?
 
         // init forces and lambda
+        _nsf->preprocess(*_contact_results, *_objects, _object2index, _vel, _dt, _char_mass, _char_speed);
+        _nsf->initForces(_forces, _lambda);
     }
 
-    void FrictionContactConstraint::iteratePrimalDual(int iter) {
+    bool FrictionContactConstraint::iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+                                                      pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
+                                                      pe::Real& exit_err, pe::Real tol) {
+        _nsf->calcConstraints(_vel, _forces, _lambda);
+        const pe::Real s_dual_gap = _nsf->surrogateDualGap(_lambda);
 
+        const pe::Real mu = s_dual_gap * R(0.1);
+        PrimalDualUtils::calcResiduals(true, *_contact_results, _contact_size, *_objects, _object2index,
+                                       _vel, _forces, _lambda, _vel_old, _mass_mat, _char_mass, _char_speed,
+                                       _dt, mu, ru, rf, wrf, rl, _nsf);
+
+        const pe::VectorX ac_vec = _nsf->ACVector(*_contact_results, *_objects, _object2index, _vel, _forces, _lambda);
+        const pe::Real err = ru.norm2() + wrf.norm2() + rl.norm2();
+        const pe::Real s_err = ru.norm2() + wrf.norm2() + rl.norm2();
+        const pe::Real sac_err = ru.norm2() + ac_vec.norm2() + rl.norm2();
+        const pe::Real eps = R(1e-4) * PE_POW(err, R(0.333333));
+        const pe::Real m_err = ru.norm2() / _n_rigid_dof;
+        exit_err = PE_MAX(m_err, wrf.norm() / _n_force_dof);
+        exit_err = PE_MAX(exit_err, rl.norm() / _n_constraint_dof);
+        exit_err = PE_MAX(exit_err, s_dual_gap);
+        exit_err = PE_MIN(exit_err, PE_MAX(m_err, ac_vec.norm() / _contact_size));
+        if (exit_err < tol) {
+            return false;
+        }
+
+        _rhs.setValue(0);
+        _A.setValue(0);
+        // TODO: what is matPointer?
+
+        // calculate the linear system
+        //_nsf->linearSystemAddition(*_contact_results, _contact_size, *_objects, _object2index, _lambda, rf, rl, eps, _rhs, matPointer);
+
+        _rhs -= ru;
+
+        pe::VectorX d(_A.rows());
+        for (size_t i = 0; i < _n_objects; i++) {
+            if ((*_objects)[i]->isKinematic()) {
+                d.getRefSubVector(6, i * 6).setValue(0);
+            }
+        }
+        // scale linear system for better convergence
+        for (size_t i = 0; i < _A.rows(); i++) {
+            d[i] = PE_SQRT(_A[i][i]);
+        }
+        for (size_t i = 0; i < _A.rows(); i++) {
+            for (size_t j = 0; j < _A.cols(); j++) {
+                _A[i][j] *= d[i] * d[j];
+            }
+        }
+        _rhs = _rhs.mult(d);
+
+        size_t max_cg_it = 1000;
+        size_t iters = 0;
+        // TODO: what is amgcl
     }
 
 } // namespace pe_phys_constraint

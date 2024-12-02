@@ -6,11 +6,11 @@ namespace pe_intf {
     std::thread* viewer_thread = nullptr;
     pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map; // NOLINT
 
-    common::Vector3<float> Viewer::convertVector3(pe::Vector3 vector) {
+    common::Vector3<float> Viewer::convertVector3(const pe::Vector3& vector) {
         return {F(vector.x), F(vector.y), F(vector.z)};
     }
 
-    common::Matrix3x3<float> Viewer::convertMatrix3(pe::Matrix3 matrix) {
+    common::Matrix3x3<float> Viewer::convertMatrix3(const pe::Matrix3& matrix) {
         return {
             F(matrix[0][0]), F(matrix[0][1]), F(matrix[0][2]),
             F(matrix[1][0]), F(matrix[1][1]), F(matrix[1][2]),
@@ -18,7 +18,7 @@ namespace pe_intf {
         };
     }
 
-    common::Transform<float> Viewer::convertTransform(pe::Transform transform) {
+    common::Transform<float> Viewer::convertTransform(const pe::Transform& transform) {
         return {convertMatrix3(transform.getBasis()), convertVector3(transform.getOrigin())};
     }
 

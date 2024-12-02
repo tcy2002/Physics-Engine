@@ -9,7 +9,7 @@ namespace pe_phys_collision {
         if (PE_ABS(normal.z) > R(0.7071)) {
             // choose tangent in y-z plane
             const pe::Real a = normal.y * normal.y + normal.z * normal.z;
-            const pe::Real k = R(1.0) / std::sqrt(a);
+            const pe::Real k = R(1.0) / PE_SQRT(a);
             tangent1.x = 0;
             tangent1.y = -normal.z * k;
             tangent1.z = normal.y * k;
@@ -19,7 +19,7 @@ namespace pe_phys_collision {
         } else {
             // choose tangent in x-y plane
             const pe::Real a = normal.x * normal.x + normal.y * normal.y;
-            const pe::Real k = R(1.0) / std::sqrt(a);
+            const pe::Real k = R(1.0) / PE_SQRT(a);
             tangent1.x = -normal.y * k;
             tangent1.y = normal.x * k;
             tangent1.z = 0;
@@ -37,16 +37,36 @@ namespace pe_phys_collision {
         _distance(PE_REAL_MAX) {}
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
+                               const pe_phys_object::RigidBody* object_a, const pe_phys_object::RigidBody* object_b,
+                               const pe::Vector3& world_vel_a, const pe::Vector3& world_vel_b,
                                const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance):
         _world_pos(world_pos),
         _world_normal(world_normal),
         _local_pos_a(local_pos_a),
         _local_pos_b(local_pos_b),
         _distance(distance) {
-        _tangents.resize(4);
         getOrthoUnits(world_normal, _tangents[0], _tangents[1]);
-        _tangents[2] = -_tangents[0];
-        _tangents[3] = -_tangents[1];
+
+        // for primal-dual
+        // const pe::Vector3 axis = pe::Vector3(1, 0, 0).cross(world_normal);
+        // const pe::Real c = pe::Vector3(1, 0, 0).dot(world_normal);
+        // const pe::Real angle = std::atan2(axis.norm(), c);
+        // const pe::Matrix3 rot = pe::Matrix3::fromRotation(axis, angle);
+        // const auto rot_x = pe::MatrixMN(rot);
+        //
+        // const pe::Vector3 c1 = world_pos - object_a->getTransform().getOrigin();
+        // const pe::Vector3 c2 = world_pos - object_b->getTransform().getOrigin();
+        // trans1 = pe::MatrixMN(6, 3);
+        // trans2 = pe::MatrixMN(6, 3);
+        // trans1.setSubMatrix(rot_x, 0, 0);
+        // trans2.setSubMatrix(-rot_x, 0, 0);
+        //
+        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(0))), 3, 0, false);
+        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(1))), 3, 1, false);
+        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(2))), 3, 2, false);
+        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(0))), 3, 0, false);
+        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(1))), 3, 1, false);
+        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(2))), 3, 2, false);
     }
 
     ContactResult::ContactResult():
@@ -59,7 +79,7 @@ namespace pe_phys_collision {
                                    pe_phys_object::RigidBody* object_b) {
         _object_a = object_a;
         _object_b = object_b;
-        _friction_coeff = std::sqrt(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
+        _friction_coeff = PE_SQRT(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
         _restitution_coeff = object_a->getRestitutionCoeff() * object_b->getRestitutionCoeff();
     }
 
@@ -84,20 +104,22 @@ namespace pe_phys_collision {
 
         const pe::Vector3 local_pos_a = _object_a->getTransform().inverseTransform(point_a);
         const pe::Vector3 local_pos_b = _object_b->getTransform().inverseTransform(point_b);
+        const pe::Vector3 world_vel_a = _object_a->getLinearVelocityAtLocalPoint(local_pos_a);
+        const pe::Vector3 world_vel_b = _object_b->getLinearVelocityAtLocalPoint(local_pos_b);
 
         // find the same closest point
         const int cp_idx = getExistingClosestPoint(local_pos_b);
         if (cp_idx >= 0) {
             // if found, update the contact point info when the new depth is bigger
             if (depth < _points[cp_idx].getDistance()) {
-                _points[cp_idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+                _points[cp_idx] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
             }
         } else {
             // otherwise, find an empty slot and replace it
             bool found = false;
             for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                 if (!_points[i].isValid()) {
-                    _points[i] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+                    _points[i] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
                     found = true;
                     break;
                 }
@@ -113,7 +135,7 @@ namespace pe_phys_collision {
                     }
                 }
                 if (idx >= 0) {
-                    _points[idx] = ContactPoint(point, n, local_pos_a, local_pos_b, depth);
+                    _points[idx] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
                 }
             }
         }

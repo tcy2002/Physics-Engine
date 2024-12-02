@@ -18,16 +18,30 @@ public:
         // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
-        // add a ground
-        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                    pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(250, 10, 250), 10000);
-        rb->setKinematic(true);
-        _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
+        // // add a ground
+        // auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        //                                             pe::Vector3(0, -5, 0)),
+        //                               pe::Vector3(250, 10, 250), 10000);
+        // rb->setKinematic(true);
+        // _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
         // cube tower
-        addPyramidCubes();
+        // addPyramidCubes();
         // addUniformCubes();
+
+        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+                                              pe::Vector3(0, 0, 0)),
+                                pe::Vector3(1, 1, 1), 1);
+        rb->setKinematic(true);
+        _world.addRigidBody(rb);
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3(1, 2, 3), PE_PI / 6),
+                                              pe::Vector3(0, 2, 0)),
+                                pe::Vector3(1, 1, 1), 1);
+        _world.addRigidBody(rb);
+    }
+
+    void step() override {
+
     }
 
     void addPyramidCubes() {

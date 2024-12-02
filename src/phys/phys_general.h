@@ -104,29 +104,14 @@ namespace pe {
 //// other date types
 #include "utils/hash_vector.h"
 namespace pe {
-    template <typename T>
-    using Array = std::vector<T>;
-
-    template <typename T>
-    using Queue = std::queue<T>;
-
-    template <typename K, typename V>
-    using Map = std::map<K, V>;
-
-    template <typename V>
-    using Set = std::set<V>;
-
-    template <typename V>
-    using HashSet = std::unordered_set<V>;
-
-    template <typename K, typename V>
-    using HashMap = std::unordered_map<K, V>;
-
-    template <typename T, typename HashFunc, typename EqualFunc>
-    using HashList = utils::hash_vector<T, HashFunc, EqualFunc>;
-
-    template <typename T1, typename T2>
-    using KV = std::pair<T1, T2>;
+    template <typename T> using Array = std::vector<T>;
+    template <typename T> using Queue = std::queue<T>;
+    template <typename K, typename V> using Map = std::map<K, V>;
+    template <typename V> using Set = std::set<V>;
+    template <typename V> using HashSet = std::unordered_set<V>;
+    template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
+    template <typename T, typename HashFunc, typename EqualFunc> using HashList = utils::hash_vector<T, HashFunc, EqualFunc>;
+    template <typename T1, typename T2> using KV = std::pair<T1, T2>;
 
     using Uint32HashList = HashList<uint32_t, std::hash<uint32_t>, std::equal_to<uint32_t>>;
 

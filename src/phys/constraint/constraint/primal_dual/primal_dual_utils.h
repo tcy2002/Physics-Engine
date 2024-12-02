@@ -71,7 +71,7 @@ namespace pe_phys_constraint {
         }
 
         static void initMassMatrix(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                  pe::Real char_mass, pe::MatrixMN& m) {
+                                   pe::Real char_mass, pe::MatrixMN& m) {
             for (size_t i = 0; i < objects.size(); i++) {
                 if (objects[i]->isKinematic()) {
                     for (int j = 0; j < 6; j++) {
@@ -90,6 +90,30 @@ namespace pe_phys_constraint {
                     }
                 }
             }
+        }
+
+        static void calcResiduals(
+            bool use_stored_constraints,
+            const pe::Array<pe_phys_collision::ContactResult*>& contacts,
+            size_t contact_size,
+            const pe::Array<pe_phys_object::RigidBody*>& objects,
+            const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
+            const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda, const pe::VectorX& vel_old,
+            const pe::MatrixMN& mass_mat, pe::Real char_mass, pe::Real char_speed, pe::Real dt, pe::Real mu,
+            pe::VectorX& ru, pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
+            NonSmoothForceBase* _nsf) {
+            pe::VectorX ru_add;
+            ru = mass_mat * (vel - vel_old);
+            for (size_t i = 0; i < objects.size(); i++) {
+                if (objects[i]->isKinematic()) {
+                    ru.getRefSubVector(6, i * 6).setValue(0);
+                }
+            }
+            pe::VectorX f_weight = _nsf->calcTangentWeight(contacts, objects, object2index, vel, forces, char_mass);
+            _nsf->nonSmoothResiduals(contacts, contact_size, objects, object2index,
+                vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
+            ru += ru_add;
+            wrf = rf.mult(f_weight);
         }
     };
 

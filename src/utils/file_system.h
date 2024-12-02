@@ -1,17 +1,13 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
-#include <algorithm>
 #include <string>
 #include <sstream>
-
 #include <sys/stat.h>
 #ifdef WIN32
 #include <direct.h>
 #define NOMINMAX
 #include "windows.h"
-#include <commdlg.h>
 #else
 #include <unistd.h>
 #include <dirent.h>
@@ -23,10 +19,6 @@
 
 #ifndef S_ISREG
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
-#endif
-
-#ifdef PE_UTILS_USE_NFD
-#include "nfd.h"
 #endif
 
 namespace utils

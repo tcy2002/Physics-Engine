@@ -47,8 +47,11 @@ namespace pe_phys_constraint {
         pe::VectorX _rhs;
         pe::MatrixMN _A;
         pe::MatrixMN _mass_mat;
+        pe::Real _char_mass;
+        pe::Real _char_speed;
+        pe::Real _dt;
         NonSmoothForceBase* _nsf;
-        pe::Map<pe_phys_object::RigidBody*, size_t> _object_to_index;
+        pe::Map<pe_phys_object::RigidBody*, size_t> _object2index;
         const pe::Array<pe_phys_object::RigidBody*>* _objects = nullptr;
         const pe::Array<pe_phys_collision::ContactResult*>* _contact_results = nullptr;
     public:
@@ -67,7 +70,9 @@ namespace pe_phys_constraint {
 
         // for primal-dual solver
         void initPrimalDual(const ConstraintParam& param) override;
-        void iteratePrimalDual(int iter) override;
+        bool iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+                               pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
+                               pe::Real& exit_err, pe::Real tol) override;
     };
 
 } // namespace pe_phys_constraint

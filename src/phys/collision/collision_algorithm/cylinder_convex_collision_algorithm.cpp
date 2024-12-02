@@ -106,23 +106,32 @@ namespace pe_phys_collision {
         return true;
     }
 
-    bool CylinderConvexCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape *shape_mesh, pe_phys_shape::CylinderShape *shape_cyl,
-                                                            const pe::Transform &trans_mesh, const pe::Transform &trans_cyl,
+    bool CylinderConvexCollisionAlgorithm::getClosestPoints(pe_phys_shape::Shape *shape_o, pe_phys_shape::CylinderShape *shape_cyl,
+                                                            const pe::Transform &trans_o, const pe::Transform &trans_cyl,
                                                             pe::Real margin, ContactResult &result) {
-        auto shape = shape_mesh->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
-                     dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape_mesh) :
-                     dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_mesh);
-        auto& mesh = shape->getMesh();
+        auto& mesh = shape_o->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
+                     dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape_o)->getMesh() :
+                     shape_o->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh ?
+                     dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape_o)->getMesh() :
+                     dynamic_cast<pe_phys_shape::BoxShape*>(shape_o)->getMesh();
         const pe::Real cyl_r = shape_cyl->getRadius();
         const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
-        pe::Transform trans_cyl2mesh = trans_mesh.inverse() * trans_cyl;
+        pe::Transform trans_cyl2mesh = trans_o.inverse() * trans_cyl;
         pe::Vector3 axis_cyl = trans_cyl2mesh.getBasis().getColumn(1);
         pe::Vector3 pos_cyl = trans_cyl2mesh.getOrigin();
 
-        pe::Vector3 cyl_AA, cyl_BB;
-        shape_cyl->getAABB(trans_cyl2mesh, cyl_AA, cyl_BB);
         pe::Array<int> intersect;
-        shape->getIntersectFaces(cyl_AA, cyl_BB, intersect);
+        if (shape_o->getType() == pe_phys_shape::ShapeType::ST_Box) {
+            intersect = {0, 1, 2, 3, 4, 5};
+        } else {
+            pe::Vector3 cyl_BB, cyl_AA;
+            shape_cyl->getAABB(trans_cyl2mesh, cyl_AA, cyl_BB);
+            if (shape_o->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) {
+                dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape_o)->getIntersectFaces(cyl_AA, cyl_BB, intersect);
+            } else {
+                dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape_o)->getIntersectFaces(cyl_AA, cyl_BB, intersect);
+            }
+        }
 
 #   define ADD_CONTACT_POINT_ON_MESH(face, mesh, pos, dir, l, margin, trans) \
         do { \
@@ -158,7 +167,7 @@ namespace pe_phys_collision {
                 const pe::Vector3 pos_seg = pos_cyl + d_x * dir_x[i_dir] * cyl_r + d_y * dir_y[i_dir] * cyl_h;
                 const pe::Vector3 dir_seg = (dir_x[i_dir] == dir_y[i_dir] ? d_y : d_x) * -dir_x[i_dir];
                 const pe::Real l_seg = (dir_x[i_dir] == dir_y[i_dir] ? cyl_h : cyl_r) * 2;
-                ADD_CONTACT_POINT_ON_MESH(f, mesh, pos_seg, dir_seg, l_seg, margin, trans_mesh);
+                ADD_CONTACT_POINT_ON_MESH(f, mesh, pos_seg, dir_seg, l_seg, margin, trans_o);
             }
             // to obtain stability, add two more contact points
             if (vertical_flag) {
@@ -166,7 +175,7 @@ namespace pe_phys_collision {
                     const pe::Vector3 pos_seg = pos_cyl + d_z * dir_x[i_dir] * cyl_r + d_y * dir_y[i_dir] * cyl_h;
                     const pe::Vector3 dir_seg = d_y * -dir_x[i_dir];
                     const pe::Real l_seg = cyl_h * 2;
-                    ADD_CONTACT_POINT_ON_MESH(f, mesh, pos_seg, dir_seg, l_seg, margin, trans_mesh);
+                    ADD_CONTACT_POINT_ON_MESH(f, mesh, pos_seg, dir_seg, l_seg, margin, trans_o);
                 }
             }
         }
@@ -185,7 +194,7 @@ namespace pe_phys_collision {
                     pe::Vector3 p1 = start_seg + dir_seg * t1;
                     pe::Vector3 p2 = start_seg + dir_seg * t2;
                     pe::Vector3 p_mid = (p1 + p2) / 2;
-                    BoxCylinderCollisionAlgorithm::addContactPointOnCylinder(p_mid, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_mesh, margin, result);
+                    BoxCylinderCollisionAlgorithm::addContactPointOnCylinder(p_mid, pos_cyl, axis_cyl, cyl_r, cyl_h, trans_o, margin, result);
                 }
             }
         }

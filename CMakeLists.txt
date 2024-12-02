@@ -29,12 +29,6 @@ include_directories(${ENGINE_INCLUDE_DIR})
 include_directories(${EXTERN_INCLUDE_DIR})
 include_directories(${SV_INCLUDE_DIR})
 
-# Third party
-add_definitions(-DPE_UTILS_USE_NFD)
-add_subdirectory(${EXTERN_INCLUDE_DIR}/nfd)
-include_directories(${EXTERN_INCLUDE_DIR}/nfd/include)
-set_target_properties(nfd PROPERTIES LINKER_LANGUAGE CXX FOLDER ThirdParty)
-
 add_subdirectory(src)
 add_subdirectory(examples)
 if(TEST_ENABLED)

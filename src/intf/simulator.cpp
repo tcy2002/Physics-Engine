@@ -578,8 +578,8 @@ namespace pe_intf {
             tinygltf::Buffer _buffer_animation_translation;
             tinygltf::Buffer _buffer_animation_rotation;
 
-            uint32_t _mesh_counter = 0;
-            uint32_t _accessor_counter = 0;
+            int _mesh_counter = 0;
+            int _accessor_counter = 0;
             size_t _buffer_position_offset = 0;
             size_t _buffer_normal_offset = 0;
             size_t _buffer_index_offset = 0;
@@ -588,6 +588,7 @@ namespace pe_intf {
             size_t _buffer_animation_rotation_offset = 0;
 
             pe::Map<uint32_t, uint32_t> _mesh2nodeId;
+            pe::Array<int> _mesh_type;
 
             pe::Array<pe::Array<pe::Vector3>> _animation_translation;
             pe::Array<pe::Array<pe::Quaternion>> _animation_rotation;
@@ -605,6 +606,24 @@ namespace pe_intf {
                 _root.name = "root";
             }
             ~GltfWriter() {
+                for (int i = 0; i < 4; i++) {
+                    tinygltf::Node node;
+                    switch (i) {
+                        case 0: node.name = "box"; break;
+                        case 1: node.name = "cylinder"; break;
+                        case 2: node.name = "mesh"; break;
+                        case 3: node.name = "sphere"; break;
+                        default: break;
+                    }
+                    for (int j = 0; j < I(_mesh_type.size()); j++) {
+                        if (_mesh_type[j] == i) {
+                            node.children.push_back(j);
+                        }
+                    }
+                    _model.nodes.push_back(node);
+                    _root.children.push_back(_mesh_counter++);
+                }
+
                 _model.nodes.push_back(_root);
 
                 tinygltf::Scene scene;
@@ -717,12 +736,12 @@ namespace pe_intf {
                 return _mesh2nodeId.find(id) != _mesh2nodeId.end();
             }
 
-            void addMesh(const pe::Mesh& mesh, const uint32_t id) {
+            void addMesh(const pe::Mesh& mesh, const uint32_t id, const int type) {
                 tinygltf::Node node;
                 node.name = "node-" + std::to_string(_mesh_counter);
                 node.mesh = _mesh_counter;
-                _root.children.push_back(_mesh_counter);
                 _mesh2nodeId[id] = _mesh_counter;
+                _mesh_type.push_back(type);
 
                 tinygltf::Mesh gltf_mesh;
                 gltf_mesh.name = "mesh-" + std::to_string(_mesh_counter);
@@ -829,7 +848,7 @@ namespace pe_intf {
                 case pe_phys_shape::ShapeType::ST_Box: {
                     auto& mesh = dynamic_cast<pe_phys_shape::BoxShape*>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
-                        writer.addMesh(mesh, shape->getGlobalId());
+                        writer.addMesh(mesh, shape->getGlobalId(), 0);
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
@@ -837,7 +856,7 @@ namespace pe_intf {
                 case pe_phys_shape::ShapeType::ST_Cylinder: {
                     auto& mesh = dynamic_cast<pe_phys_shape::CylinderShape *>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
-                        writer.addMesh(mesh, shape->getGlobalId());
+                        writer.addMesh(mesh, shape->getGlobalId(), 1);
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
@@ -846,7 +865,7 @@ namespace pe_intf {
                     auto& mesh = shape->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh ?
                         dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape)->getMesh() : dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape)->getMesh();
                     if (!writer.isTrackingMesh(shape->getGlobalId())) {
-                        writer.addMesh(mesh, shape->getGlobalId());
+                        writer.addMesh(mesh, shape->getGlobalId(), 2);
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
@@ -857,7 +876,7 @@ namespace pe_intf {
                         for (auto& v : sphere_mesh.vertices) {
                             v.position *= dynamic_cast<pe_phys_shape::SphereShape*>(shape)->getRadius() * 2;
                         }
-                        writer.addMesh(sphere_mesh, shape->getGlobalId());
+                        writer.addMesh(sphere_mesh, shape->getGlobalId(), 3);
                     }
                     writer.addAnimation(shape->getGlobalId(), rb->getTransform(), _world.getDt() * frame);
                     break;
@@ -870,7 +889,7 @@ namespace pe_intf {
                             case pe_phys_shape::ShapeType::ST_Box: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::BoxShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
-                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId(), 0);
                                 }
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
@@ -878,7 +897,7 @@ namespace pe_intf {
                             case pe_phys_shape::ShapeType::ST_Cylinder: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::CylinderShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
-                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId(), 1);
                                 }
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
@@ -886,7 +905,7 @@ namespace pe_intf {
                             case pe_phys_shape::ShapeType::ST_ConvexMesh: {
                                 auto& mesh = dynamic_cast<pe_phys_shape::ConvexMeshShape*>(shape_child.shape)->getMesh();
                                 if (!writer.isTrackingMesh(shape_child.shape->getGlobalId())) {
-                                    writer.addMesh(mesh, shape_child.shape->getGlobalId());
+                                    writer.addMesh(mesh, shape_child.shape->getGlobalId(), 2);
                                 }
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;
@@ -897,7 +916,7 @@ namespace pe_intf {
                                     for (auto& v : sphere_mesh.vertices) {
                                         v.position *= dynamic_cast<pe_phys_shape::SphereShape*>(shape_child.shape)->getRadius() * 2;
                                     }
-                                    writer.addMesh(sphere_mesh, shape_child.shape->getGlobalId());
+                                    writer.addMesh(sphere_mesh, shape_child.shape->getGlobalId(), 3);
                                 }
                                 writer.addAnimation(shape_child.shape->getGlobalId(), trans_child, _world.getDt() * frame);
                                 break;

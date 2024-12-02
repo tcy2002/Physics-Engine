@@ -4,8 +4,9 @@
 #include "phys/shape/default_mesh.h"
 #include "phys/shape/convex_mesh_shape.h"
 #include "convex_convex_collision_algorithm.h"
+#include "cylinder_convex_collision_algorithm.h"
 
-// box-cylinder collision (from damps, with some bugs fixed)
+// box-cylinder collision (from damps, still has bugs)
 // style-checked.
 namespace pe_phys_collision {
 
@@ -20,22 +21,33 @@ namespace pe_phys_collision {
         }
         constexpr auto margin = PE_MARGIN;
 
-#   if false
-        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
+#   if true
+        auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ?
                        dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a)->getMesh() :
                        dynamic_cast<pe_phys_shape::BoxShape *>(shape_a)->getMesh();
-        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
+        auto& mesh_b = shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder ?
                        dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getMesh() :
                        dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getMesh();
-        auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ?
+        auto& edges_a = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ?
                         dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_a)->getUniqueEdges();
-        auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::Cylinder ?
+        auto& edges_b = shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder ?
                         dynamic_cast<pe_phys_shape::CylinderShape *>(shape_b)->getUniqueEdges() :
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getUniqueEdges();
 
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
                                                                 trans_a, trans_b, margin, refScale, result);
+#   elif false
+        const auto shape_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b;
+        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
+        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
+
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
+        bool ret = CylinderConvexCollisionAlgorithm::getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, margin, result);
+        result.setSwapFlag(false);
+
+        return ret;
 #   else
         auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b);
         auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);

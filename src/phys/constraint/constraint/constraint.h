@@ -42,7 +42,9 @@ namespace pe_phys_constraint {
 
         // for primal-dual solver
         virtual void initPrimalDual(const ConstraintParam& param) {}
-        virtual void iteratePrimalDual(int iter) {}
+        virtual bool iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+                                       pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
+                                       pe::Real& exit_err, pe::Real tol) { return false; }
     };
 
 } // namespace pe_phys_constraint

@@ -19,15 +19,15 @@ namespace pe_phys_collision {
         constexpr auto margin = PE_MARGIN;
 
 #   if false
-        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? shape_a : shape_b);
-        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::Cylinder ? shape_a : shape_b);
-        auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh ? trans_a : trans_b;
-        auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::Box ? trans_a : trans_b;
+        auto shape_concave = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh ? shape_a : shape_b);
+        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+        auto trans_concave = shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh ? trans_a : trans_b;
+        auto trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
         auto& mesh_concave = shape_concave->getMesh();
         auto& mesh_cyl = shape_cyl->getMesh();
         auto& edges_cyl = shape_cyl->getUniqueEdges();
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ConcaveMesh);
+        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh);
         bool ret = ConcaveConvexCollisionAlgorithm::getClosestPoints(
             shape_concave, shape_cyl, trans_concave, trans_cyl, edges_cyl,
             mesh_concave, mesh_cyl, margin, refScale, result);

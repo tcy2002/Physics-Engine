@@ -11,8 +11,8 @@ namespace pe_phys_collision {
                               pe::Transform trans_a, pe::Transform trans_b,
                               pe::Real refScale, ContactResult& result) override;
 
-        static bool getClosestPoints(pe_phys_shape::Shape* shape_mesh, pe_phys_shape::CylinderShape* shape_cyl,
-                                     const pe::Transform& trans_mesh, const pe::Transform& trans_cyl,
+        static bool getClosestPoints(pe_phys_shape::Shape* shape_o, pe_phys_shape::CylinderShape* shape_cyl,
+                                     const pe::Transform& trans_o, const pe::Transform& trans_cyl,
                                      pe::Real margin, ContactResult& result);
 
         static bool intersectSegmentFace(const pe::Mesh::Face& face, const pe::Mesh& mesh,

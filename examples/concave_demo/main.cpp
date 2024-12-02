@@ -1,4 +1,5 @@
 #include "intf/simulator.h"
+#include <random>
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -13,13 +14,13 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
+        // _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
+        // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
+        // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(30, 10, 30), 10000);
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)),
+                                      pe::Vector3(30, 1, 30), 10000, 0.3, 0.5);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
@@ -39,7 +40,7 @@ public:
             }
         }
 
-        c = 15;
+        c = 10;
         m = c / 2;
         int h = 3;
         for (int i = 0; i < c; i++) {
@@ -47,13 +48,17 @@ public:
                 for (int k = 0; k < h; k++) {
                     pe_phys_object::RigidBody* rb = nullptr;
                     if ((i + j + k) % 3 == 0) {
-                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
-                        pe::Vector3(R(0.8), R(0.8), R(0.8)), 1);
+                        // ice density: 0.9 g/cm^3
+                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                        pe::Vector3(R(0.8), R(0.8), R(0.8)), 0.4608, 0.02, 0.5);
                     } else if ((i + j + k) % 3 == 1) {
-                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)),
-                        R(0.4), 1);
+                        // metal density: 7.8 g/cm^3
+                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                        R(0.4), 2.091, 0.5, 0.55);
                     } else {
-                        rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m, 12 + k, j - m)), R(0.3), 1, 1);
+                        // wood density: 0.6 g/cm^3
+                        rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                            R(0.3), 1.0, 0.1696, 0.8, 0.6);
                     }
                     _world.addRigidBody(rb);
                 }
@@ -64,6 +69,11 @@ public:
     }
 
 protected:
+    static pe::Real random(pe::Real Scalar) {
+        static std::default_random_engine e(COMMON_GetTickCount());
+        static std::uniform_real_distribution<pe::Real> r(-0.5, 0.5);
+        return Scalar * r(e);
+    }
     static pe_phys_object::RigidBody* createConcaveRigidBody(const std::string& obj_path, const pe::Transform& trans, pe::Real mass, pe::Real size) {
         static pe::Mesh mesh;
         if (mesh.empty())
@@ -83,7 +93,7 @@ protected:
     }
 
     static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
-                                                         const pe::Vector3& size, pe::Real mass) {
+                                                         const pe::Vector3& size, pe::Real mass, pe::Real friction, pe::Real restitution) {
         /* This function creates a box-shaped rigidbody */
 
         auto rb = new pe_phys_object::RigidBody();
@@ -91,14 +101,14 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(friction); // friction coefficient
+        rb->setRestitutionCoeff(restitution); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(0); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
     static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
-                                                            pe::Real radius, pe::Real mass) {
+                                                            pe::Real radius, pe::Real mass, pe::Real friction, pe::Real restitution) {
         /* This function creates a sphere-shaped rigidbody */
 
         auto rb = new pe_phys_object::RigidBody();
@@ -106,14 +116,14 @@ protected:
         auto shape = new pe_phys_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
-        rb->setAngularDamping(R(0.8));
+        rb->setFrictionCoeff(friction);
+        rb->setRestitutionCoeff(restitution);
+        rb->setAngularDamping(0.6);
         return rb;
     }
 
     static pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Transform& trans,
-                                                              pe::Real radius, pe::Real height, pe::Real mass) {
+                                                              pe::Real radius, pe::Real height, pe::Real mass, pe::Real friction, pe::Real restitution) {
         /* This function creates a cylinder-shaped rigidbody */
 
         auto rb = new pe_phys_object::RigidBody();
@@ -121,9 +131,9 @@ protected:
         auto shape = new pe_phys_shape::CylinderShape(radius, height);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
-        rb->setAngularDamping(R(0.8));
+        rb->setFrictionCoeff(friction);
+        rb->setRestitutionCoeff(restitution);
+        rb->setAngularDamping(0);
         return rb;
     }
 };
