@@ -55,6 +55,8 @@
 
   - 11.17 convex-cylinder碰撞：面片vs圆柱体
 
+  - 12.3 将线性几何工具换成eigen
+
 - TODO:
 
   - 复杂约束（hinge，slider等）
@@ -89,7 +91,7 @@
 
 ![fracture.gif](./screenshots/fracture.gif)
 
-- 城镇坦克作战场景
+- 城镇坦克对战场景
   
   - 建筑物实时毁伤，坦克发射的炮弹会摧毁建筑物
 
@@ -102,6 +104,10 @@
 - 导出gltf在win自带3D Viewer中的效果
 
 ![gltf](./screenshots/gltf.gif)
+
+- terrain demo
+
+![terrain](./screenshots/tank_terrain.gif)
 
 ### 开发日志
 
