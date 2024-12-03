@@ -8,7 +8,7 @@ using namespace pe_phys_collision;
 pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vector3& size) {
     auto rb = new pe_phys_object::RigidBody();
     rb->setCollisionShape(new pe_phys_shape::BoxShape(size));
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     return rb;
 }
 
@@ -27,7 +27,6 @@ void testBoxBox() {
     for (int i = 0; i < result.getPointSize(); i++) {
         auto& p = result.getContactPoint(i);
         std::cout << p.getDistance() << " ";
-        std::cout << p.getAppliedImpulse();
         std::cout << p.getWorldPos();
         std::cout << p.getWorldNormal();
         std::cout << p.getLocalPosA();

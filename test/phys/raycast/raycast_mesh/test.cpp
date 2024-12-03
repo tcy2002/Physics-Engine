@@ -18,8 +18,8 @@ void testRaycastMesh() {
 	auto shape = new pe_phys_shape::ConvexMeshShape();
     shape->setMesh(PE_CYLINDER_DEFAULT_MESH);
     obj->setCollisionShape(shape);
-    obj->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1.0, 0)));
-    ret = rm.processRaycast(start, direction, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
+    obj->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 1.0, 0)));
+    ret = rm.processRaycast(start, direction, 100, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
     std::cout << ret << hit_point << hit_normal << distance << std::endl;
 }
 

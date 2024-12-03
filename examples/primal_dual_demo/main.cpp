@@ -29,12 +29,12 @@ public:
         // addPyramidCubes();
         // addUniformCubes();
 
-        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                               pe::Vector3(0, 0, 0)),
                                 pe::Vector3(1, 1, 1), 1);
         rb->setKinematic(true);
         _world.addRigidBody(rb);
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3(1, 2, 3), PE_PI / 6),
+        rb = createBoxRigidBody(pe::Transform(Eigen::AngleAxis<pe::Real>(PE_PI / R(6), pe::Vector3(1, 2, 3)).toRotationMatrix(),
                                               pe::Vector3(0, 2, 0)),
                                 pe::Vector3(1, 1, 1), 1);
         _world.addRigidBody(rb);
@@ -46,39 +46,39 @@ public:
 
     void addPyramidCubes() {
         // add box1
-        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                    pe::Vector3(0, 2.6, 0)),
                                 pe::Vector3(1.2, 1.2, 1.2), 1);
         _world.addRigidBody(rb);
 
         // add box2
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                   pe::Vector3(0, 4.1, 0)),
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                              pe::Vector3(0, 4.1, 0)),
                                 pe::Vector3(1.8, 1.8, 1.8), 1);
         _world.addRigidBody(rb);
 
         // add box3
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                   pe::Vector3(0, 6.3, 0)),
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                              pe::Vector3(0, 6.3, 0)),
                                 pe::Vector3(2.6, 2.6, 2.6), 1);
         _world.addRigidBody(rb);
 
         // add box4
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                   pe::Vector3(0, 9.4, 0)),
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                              pe::Vector3(0, 9.4, 0)),
                                 pe::Vector3(3.6, 3.6, 3.6), 1);
         _world.addRigidBody(rb);
 
         // add box5
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                   pe::Vector3(0, 13.6, 0)),
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                              pe::Vector3(0, 13.6, 0)),
                                 pe::Vector3(4.8, 4.8, 4.8), 1);
         _world.addRigidBody(rb);
     }
 
     void addUniformCubes() {
         for (int i = 0; i < 5; i++) {
-            auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+            auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                        pe::Vector3(0, 2.6 + 1.2 * i, 0)),
                                         pe::Vector3(1.2, 1.2, 1.2), 1);
             _world.addRigidBody(rb);

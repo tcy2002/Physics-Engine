@@ -6,7 +6,7 @@ void testViewer() {
     int id = pe_intf::Viewer::addCylinder(1.2, 1.0);
     pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Cylinder, pe::Vector3(0.3, 0.3, 0.7));
 
-    pe::Transform transform = pe::Transform::identity();
+    pe::Transform transform = pe::Transform::Identity();
     pe::Transform rotation;
     rotation.setEulerRotation(0, 0, 0.01);
     while (pe_intf::Viewer::getKeyState('q') != 0 && pe_intf::Viewer::isOpen()) {

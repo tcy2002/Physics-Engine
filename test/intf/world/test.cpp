@@ -54,7 +54,7 @@ void objToMesh(pe::Mesh& mesh, const std::string &filename) {
 pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, pe::Real mass, const std::string& filename) {
     auto rb = new pe_phys_object::RigidBody();
     rb->setMass(mass);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     pe::Mesh mesh;
@@ -63,7 +63,7 @@ pe_phys_object::RigidBody* createMeshRigidBody(const pe::Vector3& pos, pe::Real 
     shape->setMesh(mesh);
     rb->setCollisionShape(shape);
     pe::Vector3 aabb_min, aabb_max;
-    shape->getAABB(pe::Transform::identity(), aabb_min, aabb_max);
+    shape->getAABB(pe::Transform::Identity(), aabb_min, aabb_max);
     return rb;
 }
 
@@ -72,7 +72,7 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     rb->setMass(mass);
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -84,7 +84,7 @@ pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Rea
     rb->setMass(mass);
     auto shape = new pe_phys_shape::SphereShape(radius);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -96,7 +96,7 @@ pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::R
     rb->setMass(mass);
     auto shape = new pe_phys_shape::CylinderShape(radius, height);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -108,7 +108,7 @@ pe_phys_object::FracturableObject* createFracturableObject(const pe::Vector3& po
     rb->setMass(1.0);
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -148,8 +148,7 @@ void testWorld() {
 #ifdef PE_TEST_SINGLE
     auto rb4 = createMeshRigidBody(pe::Vector3(0, 0, 0), 1,
                                    CURRENT_TEST_SOURCE_DIR "\\test.obj");
-    pe::Matrix3 mat;
-    mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / pe::Real(5.0));
+    pe::Matrix3 mat = Eigen::AngleAxis<pe::Real>(-PE_PI / R(5.0), pe::Vector3::UnitZ()).toRotationMatrix();
     rb4->setTransform(pe::Transform(mat, pe::Vector3(0, 2.2, 0)));
 #endif
 
@@ -253,7 +252,7 @@ void testWorld() {
                 for (int i = 0; i < cr->getPointSize(); i++) {
                     auto p = cr->getContactPoint(i).getWorldPos();
                     auto id = pe_intf::Viewer::addSphere(0.1);
-                    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Transform(pe::Matrix3::identity(), p));
+                    pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Transform(pe::Matrix3::Identity(), p));
                     pe_intf::Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Vector3(0.3, 0.8, 0.8));
                     ids.push_back(id);
                 }
@@ -268,7 +267,7 @@ void testWorld() {
         pe_intf::Viewer::updateCubeTransform(id3, rb3->getTransform());
 #   endif
 #   ifdef PE_TEST_SINGLE
-        pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ConvexMesh, rb4->getTransform());
+        pe_intf::Viewer::updateTransform(id4, pe_phys_shape::ShapeType::ST_ConvexMesh, rb4->getTransform());
 #   endif
         for (int i = 0; i < ids.size(); i++) {
             pe_intf::Viewer::updateTransform(ids[i], pe_phys_shape::ShapeType::ST_Box, rbs[i]->getTransform());
@@ -290,7 +289,7 @@ void testWorld() {
                 auto point = cr->getContactPoint(i).getWorldPos();
                 int id = pe_intf::Viewer::addSphere(0.05);
                 pe_intf::Viewer::updateSphereColor(id, {1, 0, 0});
-                pe_intf::Viewer::updateSphereTransform(id, pe::Transform(pe::Matrix3::identity(), point));
+                pe_intf::Viewer::updateSphereTransform(id, pe::Transform(pe::Matrix3::Identity(), point));
                 debug_points.push_back(id);
             }
         }

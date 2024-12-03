@@ -18,8 +18,8 @@ void meshToObj(const pe::Mesh &mesh, const std::string &filename) {
     for (auto& point : mesh.vertices) {
         auto& p = point.position;
         auto& n = point.normal;
-        file << "v " << p.x << " " << p.y << " " << p.z << std::endl;
-        file << "vn " << n.x << " " << n.y << " " << n.z << std::endl;
+        file << "v " << p.x() << " " << p.y() << " " << p.z() << std::endl;
+        file << "vn " << n.x() << " " << n.y() << " " << n.z() << std::endl;
     }
     for (auto& face: mesh.faces) {
         file << "f";
@@ -86,24 +86,24 @@ void testAABB() {
     meshShape.setMesh(PE_CYLINDER_DEFAULT_MESH);
     pe::Vector3 min, max;
 
-    meshShape.getAABB(pe::Transform::identity(), min, max);
-    ASSERT_EQUAL(min.x, -0.5)
-    ASSERT_EQUAL(min.y, -0.5)
-    ASSERT_EQUAL(min.z, -0.5)
-    ASSERT_EQUAL(max.x, 0.5)
-    ASSERT_EQUAL(max.y, 0.5)
-    ASSERT_EQUAL(max.z, 0.5)
+    meshShape.getAABB(pe::Transform::Identity(), min, max);
+    ASSERT_EQUAL(min.x(), -0.5)
+    ASSERT_EQUAL(min.y(), -0.5)
+    ASSERT_EQUAL(min.z(), -0.5)
+    ASSERT_EQUAL(max.x(), 0.5)
+    ASSERT_EQUAL(max.y(), 0.5)
+    ASSERT_EQUAL(max.z(), 0.5)
 
     pe::Transform transform;
-    transform.setRotation(pe::Vector3::up(), PE_PI / 4);
+    transform.setRotation(pe::Vector3::UnitY(), PE_PI / 4);
     transform.setTranslation(pe::Vector3(1., 2., 3.));
     meshShape.getAABB(transform, min, max);
-    ASSERT_EQUAL(min.x, 0.5)
-    ASSERT_EQUAL(min.y, 1.5)
-    ASSERT_EQUAL(min.z, 2.5)
-    ASSERT_EQUAL(max.x, 1.5)
-    ASSERT_EQUAL(max.y, 2.5)
-    ASSERT_EQUAL(max.z, 3.5)
+    ASSERT_EQUAL(min.x(), 0.5)
+    ASSERT_EQUAL(min.y(), 1.5)
+    ASSERT_EQUAL(min.z(), 2.5)
+    ASSERT_EQUAL(max.x(), 1.5)
+    ASSERT_EQUAL(max.y(), 2.5)
+    ASSERT_EQUAL(max.z(), 3.5)
 }
 
 void testIsInside() {
@@ -124,44 +124,44 @@ void testProject() {
     pe::Real min, max;
     pe::Vector3 minPoint, maxPoint;
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::up(), min, max, minPoint, maxPoint);
+    meshShape.project(pe::Transform::Identity(), pe::Vector3::UnitY(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
-    ASSERT_EQUAL(minPoint.y, -0.5)
-    ASSERT_EQUAL(maxPoint.y, 0.5)
+    ASSERT_EQUAL(minPoint.y(), -0.5)
+    ASSERT_EQUAL(maxPoint.y(), 0.5)
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::right(), min, max, minPoint, maxPoint);
+    meshShape.project(pe::Transform::Identity(), pe::Vector3::UnitX(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
-    ASSERT_EQUAL(minPoint.x, -0.5)
-    ASSERT_EQUAL(maxPoint.x, 0.5)
+    ASSERT_EQUAL(minPoint.x(), -0.5)
+    ASSERT_EQUAL(maxPoint.x(), 0.5)
 
-    meshShape.project(pe::Transform::identity(), pe::Vector3::forward(), min, max, minPoint, maxPoint);
+    meshShape.project(pe::Transform::Identity(), pe::Vector3::UnitZ(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, -0.5)
     ASSERT_EQUAL(max, 0.5)
-    ASSERT_EQUAL(minPoint.z, -0.5)
-    ASSERT_EQUAL(maxPoint.z, 0.5)
+    ASSERT_EQUAL(minPoint.z(), -0.5)
+    ASSERT_EQUAL(maxPoint.z(), 0.5)
 
     pe::Transform transform;
     transform.setRotation({0, 1, 0}, PE_PI / 4);
     transform.setTranslation({2, 2, 2});
-    meshShape.project(transform, pe::Vector3::up(), min, max, minPoint, maxPoint);
+    meshShape.project(transform, pe::Vector3::UnitY(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
-    ASSERT_EQUAL(minPoint.y, 1.5)
-    ASSERT_EQUAL(maxPoint.y, 2.5)
+    ASSERT_EQUAL(minPoint.y(), 1.5)
+    ASSERT_EQUAL(maxPoint.y(), 2.5)
 
-    meshShape.project(transform, pe::Vector3::right(), min, max, minPoint, maxPoint);
+    meshShape.project(transform, pe::Vector3::UnitX(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
-    ASSERT_EQUAL(minPoint.x, 1.5)
-    ASSERT_EQUAL(maxPoint.x, 2.5)
+    ASSERT_EQUAL(minPoint.x(), 1.5)
+    ASSERT_EQUAL(maxPoint.x(), 2.5)
 
-    meshShape.project(transform, pe::Vector3::forward(), min, max, minPoint, maxPoint);
+    meshShape.project(transform, pe::Vector3::UnitZ(), min, max, minPoint, maxPoint);
     ASSERT_EQUAL(min, 1.5)
     ASSERT_EQUAL(max, 2.5)
-    ASSERT_EQUAL(minPoint.z, 1.5)
-    ASSERT_EQUAL(maxPoint.z, 2.5)
+    ASSERT_EQUAL(minPoint.z(), 1.5)
+    ASSERT_EQUAL(maxPoint.z(), 2.5)
 }
 
 int main() {

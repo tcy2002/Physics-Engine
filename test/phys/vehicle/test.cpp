@@ -14,7 +14,7 @@ pe_phys_object::RigidBody* createBoxRigidBody(const pe::Vector3& pos, const pe::
     rb->setMass(mass);
     auto shape = new pe_phys_shape::BoxShape(size);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -26,7 +26,7 @@ pe_phys_object::RigidBody* createSphereRigidBody(const pe::Vector3& pos, pe::Rea
     rb->setMass(mass);
     auto shape = new pe_phys_shape::SphereShape(radius);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -38,7 +38,7 @@ pe_phys_object::RigidBody* createCylinderRigidBody(const pe::Vector3& pos, pe::R
     rb->setMass(mass);
     auto shape = new pe_phys_shape::CylinderShape(radius, height);
     rb->setCollisionShape(shape);
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.5);
     rb->setAngularDamping(0.8);
@@ -62,7 +62,7 @@ void testTank() {
     auto ground = new pe_phys_object::RigidBody();
     auto ground_shape = new pe_phys_shape::BoxShape(pe::Vector3(1000, 1, 1000));
     ground->setCollisionShape(ground_shape);
-    pe::Matrix3 mat = pe::Matrix3::identity();
+    pe::Matrix3 mat = pe::Matrix3::Identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), -PE_PI / 12);
     ground->setTransform(pe::Transform(mat, pe::Vector3(0, -0.5, 0)));
     ground->setKinematic(true);
@@ -75,8 +75,7 @@ void testTank() {
     auto box = new pe_phys_object::RigidBody();
     auto shape_box = new pe_phys_shape::BoxShape(pe::Vector3(10, 0.3, 10));
     box->setCollisionShape(shape_box);
-    mat = pe::Matrix3::identity();
-    mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / 12);
+    mat = Eigen::AngleAxis<pe::Real>(PE_PI / 12, pe::Vector3::UnitX()).toRotationMatrix();
     box->setTransform(pe::Transform(mat, pe::Vector3(0, 1.4, -10)));
     box->setKinematic(true);
     world->addRigidBody(box);
@@ -90,7 +89,7 @@ void testTank() {
         auto step = new pe_phys_object::RigidBody();
         auto shape_step = new pe_phys_shape::BoxShape(pe::Vector3(10, 0.3, 10));
         step->setCollisionShape(shape_step);
-        step->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0.15 + 0.3 * i, -30 - i * 0.5)));
+        step->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0.15 + 0.3 * i, -30 - i * 0.5)));
         step->setKinematic(true);
         world->addRigidBody(step);
         int step_id = pe_intf::Viewer::addCube(shape_step->getSize() - PE_TEST_GROUND_MARGIN * 2);
@@ -124,7 +123,7 @@ void testTank() {
 
     // init tank
     auto tank = new TankTemplate();
-    mat = pe::Matrix3::identity();
+    mat = pe::Matrix3::Identity();
 //    mat.setRotation(pe::Vector3(0, 0, 1), PE_PI);
     tank->setTransform(pe::Transform(mat, pe::Vector3(0, 1.3, 0)));
     tank->init(world);

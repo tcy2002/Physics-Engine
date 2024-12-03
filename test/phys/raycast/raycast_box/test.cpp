@@ -20,10 +20,10 @@ void testRaycastBox() {
 
     auto obj = new pe_phys_object::RigidBody();
     obj->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(1000, 1, 1000)));
-    obj->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
+    obj->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -0.5, 0)));
     start = pe::Vector3(0, 0.7, 0);
     direction = pe::Vector3(0, -1, 0).normalized();
-    ret = rb.processRaycast(start, direction, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
+    ret = rb.processRaycast(start, direction, 100, obj->getCollisionShape(), obj->getTransform(), distance, hit_point, hit_normal);
     std::cout << ret << hit_point << hit_normal << distance << std::endl;
 }
 

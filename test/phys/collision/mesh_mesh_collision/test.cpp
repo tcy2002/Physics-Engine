@@ -11,9 +11,9 @@ using namespace pe_phys_collision;
 pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
     pe::Mesh result = PE_CYLINDER_DEFAULT_MESH;
     for (auto& v : result.vertices) {
-        v.position.y *= height;
-        v.position.x *= (radius / 0.5);
-        v.position.z *= (radius / 0.5);
+        v.position.y() *= height;
+        v.position.x() *= (radius / 0.5);
+        v.position.z() *= (radius / 0.5);
     }
     return std::move(result);
 }
@@ -21,24 +21,24 @@ pe::Mesh resizeCylinder(pe::Real radius, pe::Real height) {
 pe::Mesh resizeBox(const pe::Vector3& size) {
     pe::Mesh result = PE_BOX_DEFAULT_MESH;
     for (auto& v : result.vertices) {
-        v.position = v.position.mult(size);
+        v.position = v.position.cwiseProduct(size);
     }
     return std::move(result);
 }
 
 void testMeshMesh() {
     pe::Mesh mesh;
-    pe::Mesh::saveToObj(CURRENT_TEST_SOURCE_DIR "/mesh.obj", mesh, pe::Vector3::ones());
+    pe::Mesh::saveToObj(CURRENT_TEST_SOURCE_DIR "/mesh.obj", mesh, pe::Vector3::Ones());
     auto rb1 = new pe_phys_object::RigidBody();
     auto shape = new pe_phys_shape::ConvexMeshShape();
     shape->setMesh(mesh);
     rb1->setCollisionShape(shape);
-    rb1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)));
+    rb1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0, 0)));
     auto rb2 = new pe_phys_object::RigidBody();
     shape = new pe_phys_shape::ConvexMeshShape();
     shape->setMesh(resizeBox({20, 1, 20}));
     rb2->setCollisionShape(shape);
-    rb2->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)));
+    rb2->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -0.5, 0)));
 
     auto alg = new ConvexConvexCollisionAlgorithm();
     ContactResult result;

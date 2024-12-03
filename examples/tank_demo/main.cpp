@@ -21,25 +21,24 @@ public:
         _world.setGravity(pe::Vector3(0, R(-9.8), 0));
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                     pe::Vector3(0, -5, 0)),
                                       pe::Vector3(50, 10, 50), 8);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a slope
-        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                     pe::Vector3(0, 0, 0)),
                                       pe::Vector3(10, R(0.3), 10), 8);
         rb2->setKinematic(true);
-        pe::Matrix3 mat;
-        mat.setRotation(pe::Vector3(1, 0, 0), PE_PI / R(12.0));
+        pe::Matrix3 mat = Eigen::AngleAxis<pe::Real>(PE_PI / R(12), pe::Vector3(1, 0, 0)).toRotationMatrix();
         rb2->setTransform(pe::Transform(mat, pe::Vector3(0, R(1.4), -10)));
         _world.addRigidBody(rb2);
 
         // add a tank
         _tank1 = new pe_phys_vehicle::TankTemplate();
-        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
+        _tank1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 5, 0)));
         _tank1->init(&_world);
     }
 

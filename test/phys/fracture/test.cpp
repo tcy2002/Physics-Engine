@@ -18,7 +18,7 @@ void testFracture() {
     fo->setThreshold(1.0);
     fo->setMass(1.0);
     fo->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(4, 4, 4)));
-    fo->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(2, 2, 2)));
+    fo->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(2, 2, 2)));
 
     FractureSolver* solver = new SimpleFractureSolver();
     solver->setFracturableObject(fo);
@@ -27,7 +27,7 @@ void testFracture() {
     for (auto frag : solver->getFragments()) {
         auto shape = (pe_phys_shape::ConvexMeshShape*)(frag->getCollisionShape());
         auto mesh = shape->getMesh();
-        pe::Mesh::saveToObj("test" + std::to_string(k++) + ".obj", mesh, pe::Vector3::ones());
+        pe::Mesh::saveToObj("test" + std::to_string(k++) + ".obj", mesh, pe::Vector3::Ones());
     }
 };
 

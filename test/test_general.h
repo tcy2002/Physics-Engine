@@ -4,8 +4,6 @@
 #include <random>
 #include <sys/timeb.h>
 #include "utils/logger.h"
-#include "common/vector3.h"
-#include "common/matrix3x3.h"
 #include "common/transform.h"
 
 #define T_EPS 1e-4
@@ -17,13 +15,13 @@
 // compare two vector
 #define ASSERT_VECTOR3_EQUAL(a, b) \
 do { auto&& ao = a; auto&& bo = b; \
-ASSERT(EQUAL(ao.x, bo.x) && EQUAL(ao.y, bo.y) && EQUAL(ao.z, bo.z), "vector3 not equal"); } while (0)
+ASSERT(EQUAL(ao.x(), bo.x()) && EQUAL(ao.y(), bo.y()) && EQUAL(ao.z(), bo.z()), "vector3 not equal"); } while (0)
 // compare two matrix
 #define ASSERT_MATRIX3_EQUAL(a, b) \
 do { auto&& ao = a; auto&& bo = b; \
-ASSERT(EQUAL(ao[0][0], bo[0][0]) && EQUAL(ao[0][1], bo[0][1]) && EQUAL(ao[0][2], bo[0][2]) && \
-       EQUAL(ao[1][0], bo[1][0]) && EQUAL(ao[1][1], bo[1][1]) && EQUAL(ao[1][2], bo[1][2]) && \
-       EQUAL(ao[2][0], bo[2][0]) && EQUAL(ao[2][1], bo[2][1]) && EQUAL(ao[2][2], bo[2][2]), \
+ASSERT(EQUAL(ao(0, 0), bo(0, 0)) && EQUAL(ao(0, 1), bo(0, 1)) && EQUAL(ao(0, 2), bo(0, 2)) && \
+       EQUAL(ao(1, 0), bo(1, 0)) && EQUAL(ao(1, 1), bo(1, 1)) && EQUAL(ao(1, 2), bo(1, 2)) && \
+       EQUAL(ao(2, 0), bo(2, 0)) && EQUAL(ao(2, 1), bo(2, 1)) && EQUAL(ao(2, 2), bo(2, 2)), \
        "matrix3 not equal"); } while (0)
 
 #define ASSERT(exp, msg) \

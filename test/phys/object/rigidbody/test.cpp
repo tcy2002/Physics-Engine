@@ -8,7 +8,7 @@ RigidBody* createRigidBody() {
     RigidBody* rb = new RigidBody();
     rb->setMass(2.0);
     rb->setCollisionShape(new pe_phys_shape::BoxShape(pe::Vector3(1.0, 1.0, 1.0)));
-    rb->setTransform(pe::Transform::identity());
+    rb->setTransform(pe::Transform::Identity());
     return rb;
 }
 
@@ -18,8 +18,7 @@ void testVelocity() {
     rb->setAngularVelocity(pe::Vector3(0.0, 1.0, 0.0));
     rb->step(0.01);
     ASSERT_VECTOR3_EQUAL(rb->getTransform().getOrigin(), pe::Vector3(0.01, 0.0, 0.0));
-    pe::Matrix3 rot;
-    rot.setRotation(pe::Vector3(0.0, 1.0, 0.0), 0.01);
+    pe::Matrix3 rot = Eigen::AngleAxis<pe::Real>(0.01, pe::Vector3::UnitY()).toRotationMatrix();
     ASSERT_MATRIX3_EQUAL(rb->getTransform().getBasis(), rot);
 }
 

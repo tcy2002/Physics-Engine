@@ -10,8 +10,8 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
     auto rb = new pe_phys_object::RigidBody();
     rb->setMass(1.0);
     rb->setCollisionShape(new pe_phys_shape::BoxShape(size));
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    pe::Real x = size.x, y = size.y, z = size.z;
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
+    pe::Real x = size.x(), y = size.y(), z = size.z();
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(1.0);
     return rb;

@@ -1,5 +1,5 @@
 #include "test_general.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_constraint_solver.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
 #include "phys/collision/narrow_phase/simple_narrow_phase.h"
 #include "phys/shape/box_shape.h"
 #include "utils/thread_pool.h"
@@ -10,8 +10,8 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
     auto rb = new pe_phys_object::RigidBody();
     rb->setMass(1.0);
     rb->setCollisionShape(new pe_phys_shape::BoxShape(size));
-    rb->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
-    pe::Real x = size.x, y = size.y, z = size.z;
+    rb->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
+    pe::Real x = size.x(), y = size.y(), z = size.z();
     rb->setFrictionCoeff(0.5);
     rb->setRestitutionCoeff(0.8);
     return rb;
@@ -30,7 +30,7 @@ void testFrictionContactConstraint() {
     pe::Array<pe_phys_collision::ContactResult*> result;
     np.calcContactResults(pairs, result);
     auto solver = new SequentialImpulseSolver();
-    solver->setupSolver(pe::Real(0.01), {rb1, rb2}, result, {});
+    solver->setupSolver(pe::Real(0.01), {0, -9.8, 0}, { rb1, rb2 }, result, {});
     solver->solve();
 
     std::cout << rb1->getLinearVelocity() << std::endl;
