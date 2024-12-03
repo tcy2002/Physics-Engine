@@ -53,8 +53,6 @@ namespace pe_intf { // interface
 
 } // namespace pe_intf
 
-
-
 #define PE_CONFIG_MAIN() \
 int main(int argc, char** argv) { \
     pe_intf::Simulator sim; \

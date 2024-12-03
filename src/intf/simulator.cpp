@@ -100,7 +100,7 @@ namespace pe_intf {
         // save configuration
         //////////////////////////////////////////////////////////////////////////
         nlohmann::json data;
-        data["Configuration"]["gravity"] = {_world.getGravity().x, _world.getGravity().y, _world.getGravity().z};
+        data["Configuration"]["gravity"] = {_world.getGravity().x(), _world.getGravity().y(), _world.getGravity().z()};
         data["Configuration"]["sleep_linear_velocity2_threshold"] = _world.getSleepLinVel2Threshold();
         data["Configuration"]["sleep_angular_velocity2_threshold"] = _world.getSleepAngVel2Threshold();
         data["Configuration"]["sleep_time_threshold"] = _world.getSleepTimeThreshold();
@@ -119,8 +119,8 @@ namespace pe_intf {
             if (!rb->isKinematic()) {
                 rb_data["linear_damping"] = rb->getLinearDamping();
                 rb_data["angular_damping"] = rb->getAngularDamping();
-                rb_data["linear_velocity"] = {rb->getLinearVelocity().x, rb->getLinearVelocity().y, rb->getLinearVelocity().z};
-                rb_data["angular_velocity"] = {rb->getAngularVelocity().x, rb->getAngularVelocity().y, rb->getAngularVelocity().z};
+                rb_data["linear_velocity"] = {rb->getLinearVelocity().x(), rb->getLinearVelocity().y(), rb->getLinearVelocity().z()};
+                rb_data["angular_velocity"] = {rb->getAngularVelocity().x(), rb->getAngularVelocity().y(), rb->getAngularVelocity().z()};
             }
             rb_data["lifetime"] = rb->getLifeTime();
             rb_data["fracturable"] = rb->isFracturable();
@@ -128,11 +128,11 @@ namespace pe_intf {
                 rb_data["fracture_threshold"] = static_cast<pe_phys_object::FracturableObject*>(rb)->getThreshold();
             }
             auto transform = rb->getTransform();
-            rb_data["position"] = {transform.getOrigin().x, transform.getOrigin().y, transform.getOrigin().z};
+            rb_data["position"] = {transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z()};
             auto rot = transform.getBasis();
-            rb_data["rotation"] = {rot[0][0], rot[0][1], rot[0][2],
-                                     rot[1][0], rot[1][1], rot[1][2],
-                                     rot[2][0], rot[2][1], rot[2][2]};
+            rb_data["rotation"] = {rot(0, 0), rot(0, 1), rot(0, 2),
+                                     rot(1, 0), rot(1, 1), rot(1, 2),
+                                     rot(2, 0), rot(2, 1), rot(2, 2)};
             rb_data["mass"] = rb->getMass();
             rb_data["friction"] = rb->getFrictionCoeff();
             rb_data["restitution"] = rb->getRestitutionCoeff();
@@ -141,7 +141,7 @@ namespace pe_intf {
                 case pe_phys_shape::ShapeType::ST_Box: {
                     rb_data["type"] = "box";
                     auto size = dynamic_cast<pe_phys_shape::BoxShape*>(shape)->getSize();
-                    rb_data["scale"] = {size.x, size.y, size.z};
+                    rb_data["scale"] = {size.x(), size.y(), size.z()};
                     break;
                 }
                 case pe_phys_shape::ShapeType::ST_Sphere: {
@@ -161,14 +161,14 @@ namespace pe_intf {
                     rb_data["type"] = "convex";
                     rb_data["mesh"] = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                     pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getScale();
-                    rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
+                    rb_data["scale"] = {scale.x(), scale.y(), scale.z()}; // user should change this in the json file
                     break;
                 }
                 case pe_phys_shape::ShapeType::ST_ConcaveMesh: {
                     rb_data["type"] = "concave";
                     rb_data["mesh"] = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                     pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConcaveMeshShape *>(shape)->getScale();
-                    rb_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
+                    rb_data["scale"] = {scale.x(), scale.y(), scale.z()}; // user should change this in the json file
                     break;
                 }
                 case pe_phys_shape::ShapeType::ST_Compound: {
@@ -179,16 +179,16 @@ namespace pe_intf {
                     for (auto& s : shapes) {
                         nlohmann::json shape_data;
                         shape_data["mass_ratio"] = s.mass_ratio;
-                        shape_data["position"] = {s.local_transform.getOrigin().x, s.local_transform.getOrigin().y, s.local_transform.getOrigin().z};
+                        shape_data["position"] = {s.local_transform.getOrigin().x(), s.local_transform.getOrigin().y(), s.local_transform.getOrigin().z()};
                         auto rot = s.local_transform.getBasis();
-                        shape_data["rotation"] = {rot[0][0], rot[0][1], rot[0][2],
-                                                  rot[1][0], rot[1][1], rot[1][2],
-                                                  rot[2][0], rot[2][1], rot[2][2]};
+                        shape_data["rotation"] = {rot(0, 0), rot(0, 1), rot(0, 2),
+                                                  rot(1, 0), rot(1, 1), rot(1, 2),
+                                                  rot(2, 0), rot(2, 1), rot(2, 2)};
                         switch (s.shape->getType()) {
                             case pe_phys_shape::ShapeType::ST_Box: {
                                 shape_data["type"] = "box";
                                 auto size = dynamic_cast<pe_phys_shape::BoxShape*>(s.shape)->getSize();
-                                shape_data["scale"] = {size.x, size.y, size.z};
+                                shape_data["scale"] = {size.x(), size.y(), size.z()};
                                 break;
                             }
                             case pe_phys_shape::ShapeType::ST_Sphere: {
@@ -208,7 +208,7 @@ namespace pe_intf {
                                 shape_data["type"] = "convex";
                                 shape_data["mesh"] = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getMeshPath(); // user should change this in the json file
                                 pe::Vector3 scale = dynamic_cast<pe_phys_shape::ConvexMeshShape *>(shape)->getScale();
-                                shape_data["scale"] = {scale.x, scale.y, scale.z}; // user should change this in the json file
+                                shape_data["scale"] = {scale.x(), scale.y(), scale.z()}; // user should change this in the json file
                                 break;
                             }
                             default:
@@ -229,8 +229,8 @@ namespace pe_intf {
         for (auto ds : _world.getFractureSources()) {
             nlohmann::json ds_data;
             ds_data["type"] = ds.type == pe_phys_fracture::FractureType::Sphere ? "sphere" : "cylinder";
-            ds_data["position"] = {ds.position.x, ds.position.y, ds.position.z};
-            ds_data["intensity"] = {ds.intensity.x, ds.intensity.y, ds.intensity.z};
+            ds_data["position"] = {ds.position.x(), ds.position.y(), ds.position.z()};
+            ds_data["intensity"] = {ds.intensity.x(), ds.intensity.y(), ds.intensity.z()};
             dss.push_back(ds_data);
         }
         PE_LOG_CUSTOM_INFO << "Saved " << dss.size() << " damage sources." << PE_CUSTOM_ENDL;
@@ -356,14 +356,15 @@ namespace pe_intf {
                     lifetime = lifetime < 0 ? PE_REAL_MAX : lifetime;
                     rb_obj->setLifeTime(lifetime);
                 }
-                auto transform = pe::Transform::identity();
+                auto transform = pe::Transform::Identity();
                 if (jsonArrayExists(rb, "position", 0, nlohmann::json::value_t::number_float))
                     transform.setOrigin(pe::Vector3(rb["position"][0], rb["position"][1], rb["position"][2]));
                 if (jsonArrayExists(rb, "rotation", 0, nlohmann::json::value_t::number_float)) {
                     if (rb["rotation"].size() >= 9) {
-                        auto m = pe::Matrix3(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2],
-                                             rb["rotation"][3], rb["rotation"][4], rb["rotation"][5],
-                                             rb["rotation"][6], rb["rotation"][7], rb["rotation"][8]);
+                        pe::Matrix3 m;
+                        m << rb["rotation"][0], rb["rotation"][1], rb["rotation"][2],
+                            rb["rotation"][3], rb["rotation"][4], rb["rotation"][5],
+                            rb["rotation"][6], rb["rotation"][7], rb["rotation"][8];
                         transform.setBasis(m);
                     } else if (rb["rotation"].size() >= 4) {
                         auto q = pe::Quaternion(rb["rotation"][0], rb["rotation"][1], rb["rotation"][2], rb["rotation"][3]);
@@ -433,15 +434,16 @@ namespace pe_intf {
                             }
                             for (auto& s : shapes) {
                                 pe::Real mass_ratio = 1.0;
-                                pe::Transform local_transform = pe::Transform::identity();
+                                pe::Transform local_transform = pe::Transform::Identity();
                                 if (jsonNodeExists(s, "mass_ratio", nlohmann::json::value_t::number_float)) mass_ratio = s["mass_ratio"];
                                 if (jsonArrayExists(s, "position", 3, nlohmann::json::value_t::number_float))
                                     local_transform.setOrigin(pe::Vector3(s["position"][0], s["position"][1], s["position"][2]));
                                 if (jsonArrayExists(s, "rotation", 0, nlohmann::json::value_t::number_float)) {
                                     if (s["rotation"].size() >= 9) {
-                                        auto m = pe::Matrix3(s["rotation"][0], s["rotation"][1], s["rotation"][2],
-                                                             s["rotation"][3], s["rotation"][4], s["rotation"][5],
-                                                             s["rotation"][6], s["rotation"][7], s["rotation"][8]);
+                                        pe::Matrix3 m;
+                                        m << s["rotation"][0], s["rotation"][1], s["rotation"][2],
+                                            s["rotation"][3], s["rotation"][4], s["rotation"][5],
+                                            s["rotation"][6], s["rotation"][7], s["rotation"][8];
                                         local_transform.setBasis(m);
                                     } else if (s["rotation"].size() >= 4) {
                                         auto q = pe::Quaternion(s["rotation"][0], s["rotation"][1], s["rotation"][2], s["rotation"][3]);
@@ -670,9 +672,9 @@ namespace pe_intf {
                     pe::Array<float> data;
                     data.reserve(translation_accessor.count * 3);
                     for (auto& v : _animation_translation[i]) {
-                        data.push_back(F(v.x));
-                        data.push_back(F(v.y));
-                        data.push_back(F(v.z));
+                        data.push_back(F(v.x()));
+                        data.push_back(F(v.y()));
+                        data.push_back(F(v.z()));
                     }
                     _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -691,10 +693,10 @@ namespace pe_intf {
                     data.clear();
                     data.reserve(rotation_accessor.count * 4);
                     for (auto& q : _animation_rotation[i]) {
-                        data.push_back(F(q.x));
-                        data.push_back(F(q.y));
-                        data.push_back(F(q.z));
-                        data.push_back(F(q.w));
+                        data.push_back(F(q.x()));
+                        data.push_back(F(q.y()));
+                        data.push_back(F(q.z()));
+                        data.push_back(F(q.w()));
                     }
                     _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -768,9 +770,9 @@ namespace pe_intf {
                 pe::Array<float> data;
                 data.reserve(position_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(F(v.position.x));
-                    data.push_back(F(v.position.y));
-                    data.push_back(F(v.position.z));
+                    data.push_back(F(v.position.x()));
+                    data.push_back(F(v.position.y()));
+                    data.push_back(F(v.position.z()));
                 }
                 _buffer_position.data.insert(_buffer_position.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -789,9 +791,9 @@ namespace pe_intf {
                 data.clear();
                 data.reserve(normal_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(F(v.normal.x));
-                    data.push_back(F(v.normal.y));
-                    data.push_back(F(v.normal.z));
+                    data.push_back(F(v.normal.x()));
+                    data.push_back(F(v.normal.y()));
+                    data.push_back(F(v.normal.z()));
                 }
                 _buffer_normal.data.insert(_buffer_normal.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -834,7 +836,7 @@ namespace pe_intf {
                 auto& anim_rot = _animation_rotation[_mesh2nodeId[id]];
                 auto& anim_time = _animation_time_step[_mesh2nodeId[id]];
                 anim_trans.push_back(transform.getOrigin());
-                anim_rot.push_back(pe::Quaternion::fromRotationMatrix(transform.getBasis()));
+                anim_rot.push_back(pe::Quaternion(transform.getBasis()));
                 anim_time.push_back(time_step);
             }
 

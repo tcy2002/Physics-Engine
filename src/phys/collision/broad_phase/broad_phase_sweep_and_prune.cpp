@@ -15,13 +15,13 @@ namespace pe_phys_collision {
         });
 
         // sweep the sorted array and find collision pairs
-        pe::Vector3 s = pe::Vector3::zeros(), s2 = pe::Vector3::zeros();
+        pe::Vector3 s = pe::Vector3::Zero(), s2 = pe::Vector3::Zero();
         for (int i = 0; i < I(objects.size()); i++) {
             // update sum and sum of squares to calculate mean and variance
             pe_phys_object::RigidBody* cb1 = objects[i];
             pe::Vector3 center = (cb1->getAABBMin() + cb1->getAABBMax()) * 0.5;
             s += center;
-            s2 += center.mult(center);
+            s2 += center.cwiseProduct(center);
 
             // test collision pairs
             for (int j = i + 1; j < I(objects.size()); j++) {
@@ -34,10 +34,10 @@ namespace pe_phys_collision {
         }
 
         // update axis sorted to be the one with the largest variance
-        pe::Vector3 v = s2 - s.mult(s) / R(objects.size());
+        pe::Vector3 v = s2 - s.cwiseProduct(s) / R(objects.size());
         _target_axis = 0;
-        if (v.y > v.x) _target_axis = 1;
-        if (v.z > v[_target_axis]) _target_axis = 2;
+        if (v.y() > v.x()) _target_axis = 1;
+        if (v.z() > v[_target_axis]) _target_axis = 2;
     }
 
 } // namespace pe_phys_collision

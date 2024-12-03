@@ -25,13 +25,12 @@ public:
 
         // tank 1
         _tank1 = new pe_phys_vehicle::TankTemplate();
-        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 5, 0)));
+        _tank1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 5, 0)));
         _tank1->init(&_world);
 
         // tank 2
         _tank2 = new pe_phys_vehicle::TankTemplate();
-        pe::Matrix3 mat;
-        mat.setRotation(pe::Vector3(0, 1, 0), PE_PI);
+        pe::Matrix3 mat = Eigen::AngleAxis<pe::Real>(PE_PI, pe::Vector3::UnitY()).toRotationMatrix();
         _tank2->setTransform(pe::Transform(mat, pe::Vector3(0, 5, -160)));
         _tank2->init(&_world);
 

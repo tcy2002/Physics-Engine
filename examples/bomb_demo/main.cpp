@@ -10,7 +10,7 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
         use_gui = true;
-        max_frame = 1000;
+        //max_frame = 1000;
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
@@ -20,7 +20,7 @@ public:
         _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                     pe::Vector3(0, -5, 0)),
                                       pe::Vector3(250, 10, 250), 10000);
         rb1->setKinematic(true);
@@ -45,7 +45,7 @@ public:
         // createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
-        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
+        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                        pe::Vector3(0, 2, 50)),
                                          R(1.5), 50);
         rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
@@ -71,12 +71,11 @@ public:
             pe::Real offset = (i % 2) * angle / R(2.0);
             for (int n = 0; n < brick_per_layer; n++) {
                 pe::Real brick_angle = offset + n * angle;
-                pe::Matrix3 mat;
-                mat.setRotation(pe::Vector3(0, 1, 0), -brick_angle);
+                pe::Matrix3 mat = Eigen::AngleAxis<pe::Real>(-brick_angle, pe::Vector3::UnitY()).toRotationMatrix();
                 pe::Vector3 vec;
-                vec.x = radius * std::cos(brick_angle);
-                vec.y = brick_height * R(0.5 + i);
-                vec.z = radius * std::sin(brick_angle);
+                vec.x() = radius * std::cos(brick_angle);
+                vec.y() = brick_height * R(0.5 + i);
+                vec.z() = radius * std::sin(brick_angle);
                 auto rb = createBoxRigidBody(pe::Transform(mat, pos + vec),
                                              pe::Vector3(brick_width, brick_height, brick_length), 1.0);
                 _world.addRigidBody(rb);

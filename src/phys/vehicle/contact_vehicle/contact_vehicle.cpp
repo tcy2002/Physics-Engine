@@ -28,7 +28,7 @@ namespace pe_phys_vehicle {
     pe_phys_object::RigidBody& ContactVehicle::getFixedBody() {
         static pe_phys_object::RigidBody s_fixed;
         s_fixed.setCollisionShape(new pe_phys_shape::SphereShape(0.0));
-        s_fixed.setTransform(pe::Transform::identity());
+        s_fixed.setTransform(pe::Transform::Identity());
         s_fixed.setMass(0.0);
         return s_fixed;
     }
@@ -80,24 +80,21 @@ namespace pe_phys_vehicle {
         //rotate around steering over de wheelAxleWS
         pe::Real steering = wheel.m_steering;
 
-        pe::Matrix3 steeringMat;
-        steeringMat.setRotation(up, steering);
-
-        pe::Matrix3 rotatingMat;
-        rotatingMat.setRotation(right, -wheel.m_rotation);
+        pe::Matrix3 steeringMat = Eigen::AngleAxis<pe::Real>(steering, up).toRotationMatrix();
+        pe::Matrix3 rotatingMat = Eigen::AngleAxis<pe::Real>(-wheel.m_rotation, right).toRotationMatrix();
 
         pe::Matrix3 basis2;
-        basis2[0][m_indexRightAxis] = -right[0];
-        basis2[1][m_indexRightAxis] = -right[1];
-        basis2[2][m_indexRightAxis] = -right[2];
+        basis2(0, m_indexRightAxis) = -right[0];
+        basis2(1, m_indexRightAxis) = -right[1];
+        basis2(2, m_indexRightAxis) = -right[2];
 
-        basis2[0][m_indexUpAxis] = up[0];
-        basis2[1][m_indexUpAxis] = up[1];
-        basis2[2][m_indexUpAxis] = up[2];
+        basis2(0, m_indexUpAxis) = up[0];
+        basis2(1, m_indexUpAxis) = up[1];
+        basis2(2, m_indexUpAxis) = up[2];
 
-        basis2[0][m_indexForwardAxis] = fwd[0];
-        basis2[1][m_indexForwardAxis] = fwd[1];
-        basis2[2][m_indexForwardAxis] = fwd[2];
+        basis2(0, m_indexForwardAxis) = fwd[0];
+        basis2(1, m_indexForwardAxis) = fwd[1];
+        basis2(2, m_indexForwardAxis) = fwd[2];
 
         wheel.m_worldTransform.setBasis(steeringMat * rotatingMat * basis2);
         wheel.m_worldTransform.setOrigin(
@@ -136,7 +133,7 @@ namespace pe_phys_vehicle {
         // get the closest point from the contact info
         pe_phys_collision::ContactPoint* closest_point = nullptr;
         pe::Real maxDepth = PE_REAL_MIN;
-        uint32_t rb_id = ((pe_phys_object::RigidBody*)wheel.m_clientInfo)->getGlobalId();
+        uint32_t rb_id = static_cast<pe_phys_object::RigidBody*>(wheel.m_clientInfo)->getGlobalId();
         for (auto cr : m_world->_contact_results) {
             if (cr->getObjectA()->getGlobalId() == rb_id || cr->getObjectB()->getGlobalId() == rb_id) {
                 for (int i = 0; i < PE_MIN(1, cr->getPointSize()); i++) {
@@ -154,7 +151,7 @@ namespace pe_phys_vehicle {
 
         if (closest_point) {
             // if the contact point is on the side of the wheel, ignore it
-            if (PE_APPROX_EQUAL(closest_point->getWorldNormal().cross(wheel.m_contactInfo.m_wheelAxleWS).norm2(), 0)) {
+            if (PE_APPROX_EQUAL(closest_point->getWorldNormal().cross(wheel.m_contactInfo.m_wheelAxleWS).squaredNorm(), 0)) {
                 return 0;
             }
             if ((closest_point->getWorldPos() - wheel.m_contactInfo.m_wheelCenterWS)
@@ -173,10 +170,8 @@ namespace pe_phys_vehicle {
             wheel.m_contactInfo.m_groundObject = &getFixedBody();  ///@todo for driving on dynamic/movable objects!;
 
             // calculate suspension length
-            pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
-                    .dot(getForwardVector());
-            pe::Real whlExtent =
-                    std::sqrt(PE_MAX(0, wheel.m_wheelsRadius * wheel.m_wheelsRadius - fwdExtent * fwdExtent));
+            pe::Real fwdExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS).dot(getForwardVector());
+            pe::Real whlExtent = PE_SQRT(PE_MAX(0, wheel.m_wheelsRadius * wheel.m_wheelsRadius - fwdExtent * fwdExtent));
             pe::Real susExtent = (wheel.m_contactInfo.m_contactPointWS - wheel.m_contactInfo.m_hardPointWS)
                     .dot(wheel.m_contactInfo.m_wheelDirectionWS);
             if (wheel.m_contactInfo.m_contactNormalWS.dot(wheel.m_contactInfo.m_wheelDirectionWS) < pe::Real(0.0)) {
@@ -278,7 +273,7 @@ namespace pe_phys_vehicle {
 
         updateFriction(step);
 
-        for (i = 0; i < (int)m_wheelInfo.size(); i++) {
+        for (i = 0; i < I(m_wheelInfo.size()); i++) {
             ContactWheelInfo& wheel = m_wheelInfo[i];
             pe::Vector3 relPos = wheel.m_contactInfo.m_hardPointWS - getRigidBody()->getTransform().getOrigin();
             pe::Vector3 vel = getRigidBody()->getLinearVelocityAtLocalPoint(relPos);
@@ -287,16 +282,16 @@ namespace pe_phys_vehicle {
                 const pe::Transform& chassisWorldTransform = getChassisWorldTransform();
 
                 pe::Vector3 fwd(
-                        chassisWorldTransform.getBasis()[0][m_indexForwardAxis],
-                        chassisWorldTransform.getBasis()[1][m_indexForwardAxis],
-                        chassisWorldTransform.getBasis()[2][m_indexForwardAxis]);
+                        chassisWorldTransform.getBasis()(0, m_indexForwardAxis),
+                        chassisWorldTransform.getBasis()(1, m_indexForwardAxis),
+                        chassisWorldTransform.getBasis()(2, m_indexForwardAxis));
 
                 pe::Real proj = fwd.dot(wheel.m_contactInfo.m_contactNormalWS);
                 fwd -= wheel.m_contactInfo.m_contactNormalWS * proj;
 
-                pe::Real proj2 = fwd.dot(vel);
+                const pe::Real proj2 = fwd.dot(vel);
 
-                wheel.m_deltaRotation = (proj2 * step) / (wheel.m_wheelsRadius);
+                wheel.m_deltaRotation = proj2 * step / wheel.m_wheelsRadius;
                 wheel.m_rotation += wheel.m_deltaRotation;
             } else {
                 wheel.m_rotation += wheel.m_deltaRotation;
@@ -335,7 +330,7 @@ namespace pe_phys_vehicle {
     void ContactVehicle::updateSuspension(pe::Real deltaTime) {
         (void)deltaTime;
 
-        pe::Real chassisMass = R(1.) / m_chassisBody->getInvMass();
+        const pe::Real chassisMass = R(1.) / m_chassisBody->getInvMass();
 
         for (int w_it = 0; w_it < getNumWheels(); w_it++) {
             ContactWheelInfo& wheel_info = m_wheelInfo[w_it];
@@ -344,11 +339,11 @@ namespace pe_phys_vehicle {
                 pe::Real force;
                 //	Spring
                 {
-                    pe::Real susp_length = wheel_info.getSuspensionRestLength();
-                    pe::Real current_length = wheel_info.m_contactInfo.m_suspensionLength -
+                    const pe::Real suspension_length = wheel_info.getSuspensionRestLength();
+                    const pe::Real current_length = wheel_info.m_contactInfo.m_suspensionLength -
                             wheel_info.m_contactInfo.m_contactDepth;
 
-                    pe::Real length_diff = (susp_length - current_length);
+                    const pe::Real length_diff = (suspension_length - current_length);
 
                     force = wheel_info.m_suspensionStiffness * length_diff *
                             wheel_info.m_clippedInvContactDotSuspension;
@@ -356,15 +351,15 @@ namespace pe_phys_vehicle {
 
                 // Damper
                 {
-                    pe::Real projected_rel_vel = wheel_info.m_suspensionRelativeVelocity;
                     {
-                        pe::Real susp_damping;
+                        const pe::Real projected_rel_vel = wheel_info.m_suspensionRelativeVelocity;
+                        pe::Real suspension_damping;
                         if (projected_rel_vel < 0) {
-                            susp_damping = wheel_info.m_wheelsDampingCompression;
+                            suspension_damping = wheel_info.m_wheelsDampingCompression;
                         } else {
-                            susp_damping = wheel_info.m_wheelsDampingRelaxation;
+                            suspension_damping = wheel_info.m_wheelsDampingRelaxation;
                         }
-                        force -= susp_damping * projected_rel_vel;
+                        force -= suspension_damping * projected_rel_vel;
                     }
                 }
 
@@ -395,33 +390,31 @@ namespace pe_phys_vehicle {
                 m_frictionPositionWorld(frictionPosWorld),
                 m_frictionDirectionWorld(frictionDirectionWorld),
                 m_maxImpulse(maxImpulse) {
-            pe::Real denom0 = body0->getImpulseDenominator(
+            const pe::Real denom0 = body0->getImpulseDenominator(
                     frictionPosWorld, frictionDirectionWorld);
-            pe::Real denom1 = body1->getImpulseDenominator(
+            const pe::Real denom1 = body1->getImpulseDenominator(
                     frictionPosWorld, frictionDirectionWorld);
-            pe::Real relaxation = R(1.0);
+            constexpr auto relaxation = R(1.0);
             m_jacDiagABInv = relaxation / (denom0 + denom1);
         }
     };
 
     static pe::Real calcRollingFriction(WheelContactPoint& contactPoint, int numWheelsOnGround) {
-        pe::Real j1;
-
         const pe::Vector3& contactPosWorld = contactPoint.m_frictionPositionWorld;
 
-        pe::Vector3 rel_pos1 = contactPosWorld - contactPoint.m_body0->getTransform().getOrigin();
-        pe::Vector3 rel_pos2 = contactPosWorld - contactPoint.m_body1->getTransform().getOrigin();
+        const pe::Vector3 rel_pos1 = contactPosWorld - contactPoint.m_body0->getTransform().getOrigin();
+        const pe::Vector3 rel_pos2 = contactPosWorld - contactPoint.m_body1->getTransform().getOrigin();
 
-        pe::Real maxImpulse = contactPoint.m_maxImpulse;
+        const pe::Real maxImpulse = contactPoint.m_maxImpulse;
 
-        pe::Vector3 vel1 = contactPoint.m_body0->getLinearVelocityAtLocalPoint(rel_pos1);
-        pe::Vector3 vel2 = contactPoint.m_body1->getLinearVelocityAtLocalPoint(rel_pos2);
-        pe::Vector3 vel = vel1 - vel2;
+        const pe::Vector3 vel1 = contactPoint.m_body0->getLinearVelocityAtLocalPoint(rel_pos1);
+        const pe::Vector3 vel2 = contactPoint.m_body1->getLinearVelocityAtLocalPoint(rel_pos2);
+        const pe::Vector3 vel = vel1 - vel2;
 
-        pe::Real vRel = contactPoint.m_frictionDirectionWorld.dot(vel);
+        const pe::Real vRel = contactPoint.m_frictionDirectionWorld.dot(vel);
 
         // calculate j that moves us to zero relative velocity
-        j1 = -vRel * contactPoint.m_jacDiagABInv / R(numWheelsOnGround);
+        pe::Real j1 = -vRel * contactPoint.m_jacDiagABInv / R(numWheelsOnGround);
         j1 = PE_MIN(j1, maxImpulse);
         j1 = PE_MAX(j1, -maxImpulse);
 
@@ -435,37 +428,37 @@ namespace pe_phys_vehicle {
         (void)timeStep;
         (void)distance;
 
-        pe::Real normalLenSqr = normal.norm();
+        const pe::Real normalLenSqr = normal.norm();
         if (normalLenSqr > R(1.1)) {
             impulse = 0;
             return;
         }
-        pe::Vector3 rel_pos1 = pos1 - body1.getTransform().getOrigin();
-        pe::Vector3 rel_pos2 = pos2 - body2.getTransform().getOrigin();
+        const pe::Vector3 rel_pos1 = pos1 - body1.getTransform().getOrigin();
+        const pe::Vector3 rel_pos2 = pos2 - body2.getTransform().getOrigin();
         //this jacobian entry could be re-used for all iterations
 
-        pe::Vector3 vel1 = body1.getLinearVelocityAtLocalPoint(rel_pos1);
-        pe::Vector3 vel2 = body2.getLinearVelocityAtLocalPoint(rel_pos2);
-        pe::Vector3 vel = vel1 - vel2;
+        const pe::Vector3 vel1 = body1.getLinearVelocityAtLocalPoint(rel_pos1);
+        const pe::Vector3 vel2 = body2.getLinearVelocityAtLocalPoint(rel_pos2);
+        const pe::Vector3 vel = vel1 - vel2;
 
-        JacobianEntry jac(body1.getTransform().getBasis().transposed(),
-                          body2.getTransform().getBasis().transposed(),
-                          rel_pos1, rel_pos2, normal,
-                          body1.getLocalInvInertia().getDiag(), body1.getInvMass(),
-                          pe::Vector3::zeros(), 0);
+        const JacobianEntry jac(body1.getTransform().getBasis().transpose(),
+                                body2.getTransform().getBasis().transpose(),
+                                rel_pos1, rel_pos2, normal,
+                                body1.getLocalInvInertia().diagonal(), body1.getInvMass(),
+                                pe::Vector3::Zero(), 0);
 
-        pe::Real jacDiagAB = jac.getDiagonal();
-        pe::Real jacDiagABInv = R(1.) / jacDiagAB;
+        const pe::Real jacDiagAB = jac.getDiagonal();
+        const pe::Real jacDiagABInv = R(1.) / jacDiagAB;
 
-        pe::Real rel_vel = normal.dot(vel);
+        const pe::Real rel_vel = normal.dot(vel);
 
-        pe::Real contactDamping = R(0.2);
+        constexpr auto contactDamping = R(0.2);
 
 #   ifdef ONLY_USE_LINEAR_MASS
         Real massTerm = Real(1.) / (body1.getInvMass() + body2.getInvMass());
 	    impulse = -contactDamping * rel_vel * massTerm;
 #   else
-        pe::Real velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
+        const pe::Real velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
         impulse = velocityImpulse;
 #   endif
     }
@@ -473,7 +466,7 @@ namespace pe_phys_vehicle {
     static pe::Real sideFrictionStiffness2 = R(1.0);
     void ContactVehicle::updateFriction(pe::Real timeStep) {
         //calculate the impulse, so that the wheels don't move sidewards
-        int numWheel = getNumWheels();
+        const int numWheel = getNumWheels();
         if (!numWheel)
             return;
 
@@ -487,8 +480,7 @@ namespace pe_phys_vehicle {
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
             ContactWheelInfo& wheelInfo = m_wheelInfo[i];
-            class pe_phys_object::RigidBody* groundObject =
-                    (class pe_phys_object::RigidBody*)wheelInfo.m_contactInfo.m_groundObject;
+            auto groundObject = static_cast<class pe_phys_object::RigidBody*>(wheelInfo.m_contactInfo.m_groundObject);
             if (groundObject)
                 m_numWheelsOnGround++;
             m_sideImpulse[i] = 0;
@@ -499,17 +491,16 @@ namespace pe_phys_vehicle {
             for (int i = 0; i < getNumWheels(); i++) {
                 ContactWheelInfo& wheelInfo = m_wheelInfo[i];
 
-                class pe_phys_object::RigidBody* groundObject =
-                        (class pe_phys_object::RigidBody*)wheelInfo.m_contactInfo.m_groundObject;
+                auto groundObject = static_cast<pe_phys_object::RigidBody*>(wheelInfo.m_contactInfo.m_groundObject);
 
                 if (groundObject) {
                     const pe::Transform& wheelTrans = getWheelTransformWS(i);
 
                     pe::Matrix3 wheelBasis0 = wheelTrans.getBasis();
                     m_axle[i] = -pe::Vector3(
-                            wheelBasis0[0][m_indexRightAxis],
-                            wheelBasis0[1][m_indexRightAxis],
-                            wheelBasis0[2][m_indexRightAxis]);
+                            wheelBasis0(0, m_indexRightAxis),
+                            wheelBasis0(1, m_indexRightAxis),
+                            wheelBasis0(2, m_indexRightAxis));
 
                     const pe::Vector3& surfNormalWS = wheelInfo.m_contactInfo.m_contactNormalWS;
                     pe::Real proj = m_axle[i].dot(surfNormalWS);
@@ -529,24 +520,23 @@ namespace pe_phys_vehicle {
             }
         }
 
-        pe::Real sideFactor = R(1.);
-        pe::Real fwdFactor = R(0.5);
+        constexpr auto sideFactor = R(1.);
+        constexpr auto fwdFactor = R(0.5);
 
         bool sliding = false;
         {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
                 ContactWheelInfo& wheelInfo = m_wheelInfo[wheel];
-                class pe_phys_object::RigidBody* groundObject =
-                        (class pe_phys_object::RigidBody*)wheelInfo.m_contactInfo.m_groundObject;
+                auto groundObject = static_cast<class pe_phys_object::RigidBody*>(wheelInfo.m_contactInfo.m_groundObject);
 
-                pe::Real rollingFriction;
+                pe::Real rollingFriction = 0;
 
                 if (groundObject) {
-                    if (wheelInfo.m_engineForce != 0.f) {
+                    if (wheelInfo.m_engineForce != 0) {
                         rollingFriction = wheelInfo.m_engineForce * timeStep;
                     } else {
-                        pe::Real maxImpulse = (wheelInfo.m_brake != 0) ?
-                                wheelInfo.m_brake : wheelInfo.m_rollDamping;
+                        const pe::Real maxImpulse = wheelInfo.m_brake != 0 ?
+                            wheelInfo.m_brake : wheelInfo.m_rollDamping;
                         WheelContactPoint contactPt(m_chassisBody, groundObject,
                                                     wheelInfo.m_contactInfo.m_contactPointWS,
                                                     m_forwardWS[wheel], maxImpulse);
@@ -568,22 +558,22 @@ namespace pe_phys_vehicle {
                 if (groundObject) {
                     m_wheelInfo[wheel].m_skidInfo = R(1.);
 
-                    pe::Real maxImp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
-                    pe::Real maxImpSide = maxImp;
+                    const pe::Real maxImp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
+                    const pe::Real maxImpSide = maxImp;
 
-                    pe::Real maxImpSquared = maxImp * maxImpSide;
+                    const pe::Real maxImpSquared = maxImp * maxImpSide;
 
                     m_forwardImpulse[wheel] = rollingFriction;  //wheelInfo.m_engineForce* timeStep;
 
-                    pe::Real x = (m_forwardImpulse[wheel]) * fwdFactor;
-                    pe::Real y = (m_sideImpulse[wheel]) * sideFactor;
+                    const pe::Real x = m_forwardImpulse[wheel] * fwdFactor;
+                    const pe::Real y = m_sideImpulse[wheel] * sideFactor;
 
-                    pe::Real impulseSquared = (x * x + y * y);
+                    const pe::Real impulseSquared = x * x + y * y;
 
                     if (impulseSquared > maxImpSquared) {
                         sliding = true;
 
-                        pe::Real factor = maxImp / std::sqrt(impulseSquared);
+                        const pe::Real factor = maxImp / PE_SQRT(impulseSquared);
 
                         m_wheelInfo[wheel].m_skidInfo *= factor;
                     }
@@ -607,20 +597,15 @@ namespace pe_phys_vehicle {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
                 ContactWheelInfo& wheelInfo = m_wheelInfo[wheel];
 
-                pe::Vector3 rel_pos = wheelInfo.m_contactInfo.m_contactPointWS -
-                                      m_chassisBody->getTransform().getOrigin();
+                pe::Vector3 rel_pos = wheelInfo.m_contactInfo.m_contactPointWS -  m_chassisBody->getTransform().getOrigin();
 
                 if (m_forwardImpulse[wheel] != 0) {
-                    m_chassisBody->applyImpulse(rel_pos,
-                                                m_forwardWS[wheel] * (m_forwardImpulse[wheel]));
+                    m_chassisBody->applyImpulse(rel_pos, m_forwardWS[wheel] * (m_forwardImpulse[wheel]));
                 }
                 if (m_sideImpulse[wheel] != 0) {
-                    class pe_phys_object::RigidBody* groundObject =
-                            (class pe_phys_object::RigidBody*)m_wheelInfo[wheel].m_contactInfo.m_groundObject;
+                    auto groundObject = static_cast<class pe_phys_object::RigidBody*>(m_wheelInfo[wheel].m_contactInfo.m_groundObject);
 
-                    pe::Vector3 rel_pos2 = wheelInfo.m_contactInfo.m_contactPointWS -
-                                           groundObject->getTransform().getOrigin();
-
+                    pe::Vector3 rel_pos2 = wheelInfo.m_contactInfo.m_contactPointWS - groundObject->getTransform().getOrigin();
                     pe::Vector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 
 #if defined ROLLING_INFLUENCE_FIX  // fix. It only worked if car's up was along Y - VT.
@@ -642,9 +627,9 @@ namespace pe_phys_vehicle {
         const pe::Transform& chassisTrans = getChassisWorldTransform();
 
         pe::Vector3 forwardW(
-                chassisTrans.getBasis()[0][m_indexForwardAxis],
-                chassisTrans.getBasis()[1][m_indexForwardAxis],
-                chassisTrans.getBasis()[2][m_indexForwardAxis]);
+                chassisTrans.getBasis()(0, m_indexForwardAxis),
+                chassisTrans.getBasis()(1, m_indexForwardAxis),
+                chassisTrans.getBasis()(2, m_indexForwardAxis));
 
         return forwardW;
     }
@@ -653,9 +638,9 @@ namespace pe_phys_vehicle {
         const pe::Transform& chassisTrans = getChassisWorldTransform();
 
         pe::Vector3 up(
-                chassisTrans.getBasis()[0][m_indexUpAxis],
-                chassisTrans.getBasis()[1][m_indexUpAxis],
-                chassisTrans.getBasis()[2][m_indexUpAxis]);
+                chassisTrans.getBasis()(0, m_indexUpAxis),
+                chassisTrans.getBasis()(1, m_indexUpAxis),
+                chassisTrans.getBasis()(2, m_indexUpAxis));
 
         return up;
     }

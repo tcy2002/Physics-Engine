@@ -21,18 +21,18 @@ namespace pe_phys_constraint {
                 if (diff.norm() < 1e-10 && PE_ABS(c_diff) < 1e-10) {
                     break;
                 }
-                pe::MatrixMN h = pe::MatrixMN::identity(in.size()) - l * hessian(out);
+                pe::MatrixMN h = pe::MatrixMN::Identity(in.size(), in.size()) - l * hessian(out);
                 pe::MatrixMN lhs(in.size() + 1, in.size() + 1);
                 pe::VectorX rhs(in.size() + 1);
                 for (size_t j = 0; j < in.size(); j++) {
                     for (size_t k = 0; k < in.size(); k++) {
-                        lhs[j][k] = h[j][k];
+                        lhs(j, k) = h(j, k);
                     }
-                    lhs[j][in.size()] = -g[j];
-                    lhs[in.size()][j] = -g[j];
+                    lhs(j, in.size()) = -g[j];
+                    lhs(in.size(), j) = -g[j];
                     rhs[j] = diff[j];
                 }
-                lhs[in.size()][in.size()] = 0;
+                lhs(in.size(), in.size()) = 0;
                 rhs[in.size()] = -c_diff;
                 // TODO
             }

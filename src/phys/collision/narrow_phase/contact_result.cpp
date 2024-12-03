@@ -6,34 +6,34 @@ namespace pe_phys_collision {
 
     void ContactPoint::getOrthoUnits(pe::Vector3 normal, pe::Vector3 &tangent1, pe::Vector3 &tangent2) {
         normal.normalize();
-        if (PE_ABS(normal.z) > R(0.7071)) {
+        if (PE_ABS(normal.z()) > R(0.7071)) {
             // choose tangent in y-z plane
-            const pe::Real a = normal.y * normal.y + normal.z * normal.z;
+            const pe::Real a = normal.y() * normal.y() + normal.z() * normal.z();
             const pe::Real k = R(1.0) / PE_SQRT(a);
-            tangent1.x = 0;
-            tangent1.y = -normal.z * k;
-            tangent1.z = normal.y * k;
-            tangent2.x = a * k;
-            tangent2.y = -normal.x * tangent1.z;
-            tangent2.z = normal.x * tangent1.y;
+            tangent1.x() = 0;
+            tangent1.y() = -normal.z() * k;
+            tangent1.z() = normal.y() * k;
+            tangent2.x() = a * k;
+            tangent2.y() = -normal.x() * tangent1.z();
+            tangent2.z() = normal.x() * tangent1.y();
         } else {
             // choose tangent in x-y plane
-            const pe::Real a = normal.x * normal.x + normal.y * normal.y;
+            const pe::Real a = normal.x() * normal.x() + normal.y() * normal.y();
             const pe::Real k = R(1.0) / PE_SQRT(a);
-            tangent1.x = -normal.y * k;
-            tangent1.y = normal.x * k;
-            tangent1.z = 0;
-            tangent2.x = -normal.z * tangent1.y;
-            tangent2.y = normal.z * tangent1.x;
-            tangent2.z = a * k;
+            tangent1.x() = -normal.y() * k;
+            tangent1.y() = normal.x() * k;
+            tangent1.z() = 0;
+            tangent2.x() = -normal.z() * tangent1.y();
+            tangent2.y() = normal.z() * tangent1.x();
+            tangent2.z() = a * k;
         }
     }
 
     ContactPoint::ContactPoint():
         _world_pos(PE_VEC_MAX),
-        _world_normal(pe::Vector3::up()),
-        _local_pos_a(pe::Vector3::zeros()),
-        _local_pos_b(pe::Vector3::zeros()),
+        _world_normal(pe::Vector3::UnitY()),
+        _local_pos_a(pe::Vector3::Zero()),
+        _local_pos_b(pe::Vector3::Zero()),
         _distance(PE_REAL_MAX) {}
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,

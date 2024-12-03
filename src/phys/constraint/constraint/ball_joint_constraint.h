@@ -18,7 +18,7 @@ namespace pe_phys_constraint {
     public:
         ConstraintType getType() const override { return ConstraintType::CT_BALL_JOINT; }
 
-        BallJointConstraint(): _anchor_a(pe::Vector3::zeros()), _anchor_b(pe::Vector3::zeros()) {}
+        BallJointConstraint(): _anchor_a(pe::Vector3::Zero()), _anchor_b(pe::Vector3::Zero()) {}
         virtual ~BallJointConstraint() {}
 
         PE_API void initSequentialImpulse(const ConstraintParam& param) override;

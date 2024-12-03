@@ -38,10 +38,10 @@ namespace pe_phys_collision {
         const pe::Real c_h = shape_cyl->getHeight() * pe::Real(0.5);
         const pe::Vector3 s_pos = trans_cyl.inverseTransform(trans_sph.getOrigin());
 
-        const pe::Real r = PE_SQRT(s_pos.x * s_pos.x + s_pos.z * s_pos.z);
-        const pe::Real d = PE_ABS(s_pos.y) - c_h;
+        const pe::Real r = PE_SQRT(s_pos.x() * s_pos.x() + s_pos.z() * s_pos.z());
+        const pe::Real d = PE_ABS(s_pos.y()) - c_h;
 
-        if (s_pos.y < -c_h - s_r || s_pos.y > c_h + s_r ||
+        if (s_pos.y() < -c_h - s_r || s_pos.y() > c_h + s_r ||
         r * r > (c_r + s_r) * (c_r + s_r) ||
         (d > 0 && r > c_r && (r - c_r) * (r - c_r) + d * d > s_r * s_r)) {
             return false;
@@ -50,20 +50,21 @@ namespace pe_phys_collision {
         pe::Vector3 normal;
         pe::Vector3 ptOnSph;
         pe::Real depth;
-        if (s_pos.y >= -c_h && s_pos.y <= c_h && r > 0) { // r > 0 to avoid normalizing zero vector
+        if (s_pos.y() >= -c_h && s_pos.y() <= c_h && r > 0) { // r > 0 to avoid normalizing zero vector
             // hit the side
-            normal = pe::Vector3(-s_pos.x, 0, -s_pos.z).normalized();
+            normal = pe::Vector3(-s_pos.x(), 0, -s_pos.z()).normalized();
             ptOnSph = normal * s_r + s_pos;
             depth = c_r + s_r - r;
         } else if (r <= c_r) {
             // hit the bottom or top
-            normal = s_pos.y > 0 ? -pe::Vector3::up() : pe::Vector3::up();
+            normal = pe::Vector3::UnitY();
+            if (s_pos.y() > 0) normal = -normal;
             ptOnSph = s_pos + normal * s_r;
-            depth = s_r + c_h - PE_ABS(s_pos.y);
+            depth = s_r + c_h - PE_ABS(s_pos.y());
         } else {
             // hit at the edge
-            pe::Vector3 ptOnCyl = pe::Vector3(s_pos.x, 0, s_pos.z).normalized() * c_r;
-            ptOnCyl.y = s_pos.y > 0 ? c_h : -c_h;
+            pe::Vector3 ptOnCyl = pe::Vector3(s_pos.x(), 0, s_pos.z()).normalized() * c_r;
+            ptOnCyl.y() = s_pos.y() > 0 ? c_h : -c_h;
             normal = (ptOnCyl - s_pos).normalized();
             ptOnSph = normal * s_r + s_pos;
             depth = s_r - (s_pos - ptOnCyl).norm();

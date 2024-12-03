@@ -38,8 +38,8 @@ namespace pe_phys_fracture {
 
         void clear() { _vertices.clear(); _triangles.clear(); _faces.clear(); _tetrahedrons.clear(); }
 
-        uint32_t vertex_count() const { return (uint32_t)_vertices.size(); }
-        uint32_t add_vertex(const pe::Vector3& p, const pe::Vector3& n = pe::Vector3::zeros());
+        uint32_t vertex_count() const { return _vertices.size(); }
+        uint32_t add_vertex(const pe::Vector3& p, const pe::Vector3& n = pe::Vector3::Zero());
         vertex get_vertex(uint32_t idx) { return _vertices[idx]; }
         void remove_vertex(uint32_t idx, bool direct = false);
         void clear_vertices() { _vertices.clear(); }

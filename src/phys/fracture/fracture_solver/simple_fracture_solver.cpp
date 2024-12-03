@@ -156,7 +156,7 @@ namespace pe_phys_fracture {
             if (!fragments[i].empty()) {
                 auto filename = path + "/fragment-" + std::to_string(i) + ".obj";
                 auto rb = addMesh(fragments[i], world_trans, filename);
-                pe::Mesh::saveToObj(filename, fragments[i], pe::Vector3::ones());
+                pe::Mesh::saveToObj(filename, fragments[i], pe::Vector3::Ones());
                 pe::Vector3 vel = rb->getLinearVelocity();
                 vel += forces[i] / rb->getMass();
                 rb->setLinearVelocity(vel);

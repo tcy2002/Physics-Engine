@@ -1,7 +1,6 @@
 #pragma once
 
-#include <common/vector3.h>
-#include <common/matrix3x3.h>
+#include <common/general.h>
 #include <common/mesh.h>
 #include <vector>
 

@@ -13,8 +13,8 @@ namespace pe_phys_raycast {
         const pe::Real proj2center = std::sqrt(PE_MAX(center2start * center2start - start2proj * start2proj, 0));
 
         if (proj2center > radius) {
-            hit_point = pe::Vector3::zeros();
-            hit_normal = pe::Vector3::zeros();
+            hit_point = pe::Vector3::Zero();
+            hit_normal = pe::Vector3::Zero();
             distance = PE_REAL_MAX;
             return false;
         } else {

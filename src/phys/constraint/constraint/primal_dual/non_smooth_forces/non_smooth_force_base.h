@@ -17,7 +17,7 @@ namespace pe_phys_constraint {
                                 const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
                                 const pe::VectorX& vel, pe::Real dt, pe::Real char_mass, pe::Real char_speed) = 0;
         virtual pe::Real surrogateDualGap(const pe::VectorX& lambda) {
-            return -lambda.mult(_constraint_val).mean();
+            return -lambda.cwiseProduct(_constraint_val).mean();
         }
         virtual void nonSmoothResiduals(const pe::Array<pe_phys_collision::ContactResult*>& contacts,
                                         size_t contact_size,
@@ -31,7 +31,7 @@ namespace pe_phys_constraint {
                                               const pe::Array<pe_phys_object::RigidBody*>& objects,
                                               const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
                                               const pe::VectorX& vel, const pe::VectorX& forces,
-                                              pe::Real char_mass) { return pe::VectorX::ones(forces.size()); }
+                                              pe::Real char_mass) { return pe::VectorX::Ones(forces.size()); }
         virtual void linearSystemReserve(const pe::Array<pe_phys_collision::ContactResult*>& contacts,
                                          const pe::Array<pe_phys_object::RigidBody*>& objects,
                                          const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
@@ -83,7 +83,7 @@ namespace pe_phys_constraint {
                                      const pe::Array<pe_phys_object::RigidBody*>& objects,
                                      const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
                                      const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda) {
-            return pe::VectorX::zeros(forces.size());
+            return pe::VectorX::Zero(forces.size());
         }
 
         pe::Real restitution = 0;

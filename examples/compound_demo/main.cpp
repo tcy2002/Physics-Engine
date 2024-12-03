@@ -18,25 +18,25 @@ public:
         _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(30, 10, 30), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add some other dynamic objects
-        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
+        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 2, 0)),
                                       pe::Vector3(1, 1, 1), 1);
         _world.addRigidBody(rb2);
-        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(pe::Real(0.1), 4, pe::Real(0.1))),
+        auto rb3 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(pe::Real(0.1), 4, pe::Real(0.1))),
                                          R(0.5), 1);
         _world.addRigidBody(rb3);
-        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6, 0)),
+        auto rb4 = createCylinderRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 6, 0)),
                                            R(0.4), 1, 1);
         _world.addRigidBody(rb4);
 
         // add some compound-shaped rigidbodies
         for (int i = 0; i < 10; i++) {
-            auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::identity(),
+            auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                             pe::Vector3(0, 10 + i * 4, 0)), 1);
             _world.addRigidBody(rb);
         }
@@ -58,20 +58,20 @@ protected:
         auto shape6 = new pe_phys_shape::CylinderShape(R(0.2), 1);
         auto shape7 = new pe_phys_shape::CylinderShape(R(0.2), 1);
         auto shape = new pe_phys_shape::CompoundShape();
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);
-        shape->addShape(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -1, 0)), pe::Real(0.1), shape3);
+        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
+        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);
+        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -1, 0)), pe::Real(0.1), shape3);
         pe::Transform trans1;
-        trans1.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans1.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         trans1.setTranslation(pe::Vector3(1, 0, 0));
         shape->addShape(trans1, R(0.1), shape4);
-        trans1.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans1.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         trans1.setTranslation(pe::Vector3(-1, 0, 0));
         shape->addShape(trans1, R(0.1), shape5);
-        trans1.setRotation(pe::Vector3::right(), PE_PI / 2);
+        trans1.setRotation(pe::Vector3::UnitX(), PE_PI / 2);
         trans1.setTranslation(pe::Vector3(0, 0, 1));
         shape->addShape(trans1, R(0.1), shape6);
-        trans1.setRotation(pe::Vector3::right(), PE_PI / 2);
+        trans1.setRotation(pe::Vector3::UnitX(), PE_PI / 2);
         trans1.setTranslation(pe::Vector3(0, 0, -1));
         shape->addShape(trans1, R(0.1), shape7);
         rb->setCollisionShape(shape);

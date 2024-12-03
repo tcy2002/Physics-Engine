@@ -18,13 +18,13 @@ public:
         _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(30, 10, 30), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a fracturable box
-        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
+        auto rb3 = createFracturableObject(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 2, 0)),
                                            pe::Vector3(4, 4, 4), 1);
         _world.addRigidBody(rb3);
         pe_phys_fracture::FractureSource src;
@@ -38,13 +38,13 @@ public:
         for (int i = 0; i < 30; i++) {
             pe_phys_object::RigidBody* rb;
             if (i % 3 == 0) {
-                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
+                rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
                                         pe::Vector3(1, 1, 1), R(1.0));
             } else if (i % 3 == 1) {
-                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
+                rb = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
                     R(0.5), R(1.0));
             } else {
-                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
+                rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 6 + i * R(1.1), 0)),
                     R(0.45), R(1.0), R(1.0));
             }
             _world.addRigidBody(rb);

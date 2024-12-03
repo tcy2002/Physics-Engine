@@ -13,6 +13,7 @@ namespace pe_phys_vehicle {
         body->setCollisionShape(shape_b);
         body->setTransform(_transform);
         body->setMass(_bodyMass);
+        body->setTag("chassis");
         auto c = this;
         body->addCollisionCallback([dw, c](pe_phys_object::RigidBody* self, pe_phys_object::RigidBody* other,
                                         const pe::Vector3& pos, const pe::Vector3& nor, const pe::Vector3& vel) {
@@ -125,22 +126,22 @@ namespace pe_phys_vehicle {
         auto& bodyLinVel = body->getLinearVelocity();
         auto& bodyAngVel = body->getAngularVelocity();
 
-        pe::Transform transTurret = bodyTrans * pe::Transform(pe::Matrix3::identity(), cabinTrl);
+        pe::Transform transTurret = bodyTrans * pe::Transform(pe::Matrix3::Identity(), cabinTrl);
         cabin->setTransform(transTurret);
         cabin->setLinearVelocity(bodyLinVel);
         cabin->setAngularVelocity(bodyAngVel);
     }
 
     void CarTemplate::updateWheelsTransform() {
-        static pe::Matrix3 wheelRot = pe::Matrix3::identity();
+        static pe::Matrix3 wheelRot = pe::Matrix3::Identity();
         static pe::Real theta = PE_PI / R(2.0);
         static bool init = false;
         if (!init) {
             init = true;
-            wheelRot[0][0] = cos(theta);
-            wheelRot[0][1] = -sin(theta);
-            wheelRot[1][0] = sin(theta);
-            wheelRot[1][1] = cos(theta);
+            wheelRot(0, 0) = cos(theta);
+            wheelRot(0, 1) = -sin(theta);
+            wheelRot(1, 0) = sin(theta);
+            wheelRot(1, 1) = cos(theta);
         }
 
         for (int i = 0; i < (int)wheels.size(); i++) {
@@ -159,7 +160,7 @@ namespace pe_phys_vehicle {
     }
 
     CarTemplate::CarTemplate():
-            _transform(pe::Transform::identity()),
+            _transform(pe::Transform::Identity()),
             _bodyWidth(R(2.3)),
             _bodyLength(R(7.)),
             _bodyHeight(R(1.0)),
@@ -194,6 +195,7 @@ namespace pe_phys_vehicle {
         updateCabinTransform();
         updateWheelsTransform();
         vehicle->updateVehicle(step);
+        _transform = body->getTransform();
     }
 
     void CarTemplate::idle() {

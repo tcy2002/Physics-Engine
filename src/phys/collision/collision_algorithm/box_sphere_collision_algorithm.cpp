@@ -31,48 +31,48 @@ namespace pe_phys_collision {
     static pe::Real getSpherePenetration(const pe::Vector3 &half_extent, const pe::Vector3 &pos_sph2box,
                                          pe::Vector3& closest_point, pe::Vector3& normal) {
         //project the center of the sphere on the closest face of the box
-        pe::Real face_dist = half_extent.x - pos_sph2box.x;
+        pe::Real face_dist = half_extent.x() - pos_sph2box.x();
         pe::Real min_dist = face_dist;
-        closest_point.x = half_extent.x;
+        closest_point.x() = half_extent.x();
         normal = {1, 0, 0};
 
-        face_dist = half_extent.x + pos_sph2box.x;
+        face_dist = half_extent.x() + pos_sph2box.x();
         if (face_dist < min_dist) {
             min_dist = face_dist;
             closest_point = pos_sph2box;
-            closest_point.x = -half_extent.x;
+            closest_point.x() = -half_extent.x();
             normal = {-1, 0, 0};
         }
 
-        face_dist = half_extent.y - pos_sph2box.y;
+        face_dist = half_extent.y() - pos_sph2box.y();
         if (face_dist < min_dist) {
             min_dist = face_dist;
             closest_point = pos_sph2box;
-            closest_point.y = half_extent.x;
+            closest_point.y() = half_extent.x();
             normal = {0, 1, 0};
         }
 
-        face_dist = half_extent.y + pos_sph2box.y;
+        face_dist = half_extent.y() + pos_sph2box.y();
         if (face_dist < min_dist) {
             min_dist = face_dist;
             closest_point = pos_sph2box;
-            closest_point.y = -half_extent.y;
+            closest_point.y() = -half_extent.y();
             normal = {0, -1, 0};
         }
 
-        face_dist = half_extent.z - pos_sph2box.z;
+        face_dist = half_extent.z() - pos_sph2box.z();
         if (face_dist < min_dist) {
             min_dist = face_dist;
             closest_point = pos_sph2box;
-            closest_point.z = half_extent.z;
+            closest_point.z() = half_extent.z();
             normal = {0, 0, 1};
         }
 
-        face_dist = half_extent.z + pos_sph2box.z;
+        face_dist = half_extent.z() + pos_sph2box.z();
         if (face_dist < min_dist) {
             min_dist = face_dist;
             closest_point = pos_sph2box;
-            closest_point.z = -half_extent.z;
+            closest_point.z() = -half_extent.z();
             normal = {0, 0, -1};
         }
 
@@ -90,17 +90,17 @@ namespace pe_phys_collision {
 
         // Determine the closest point to the sphere center in the box
         pe::Vector3 closest_point = pos_sph2box;
-        closest_point.x = PE_MIN(boxHalfExtent.x, closest_point.x);
-        closest_point.x = PE_MAX(-boxHalfExtent.x, closest_point.x);
-        closest_point.y = PE_MIN(boxHalfExtent.y, closest_point.y);
-        closest_point.y = PE_MAX(-boxHalfExtent.y, closest_point.y);
-        closest_point.z = PE_MIN(boxHalfExtent.z, closest_point.z);
-        closest_point.z = PE_MAX(-boxHalfExtent.z, closest_point.z);
+        closest_point.x() = PE_MIN(boxHalfExtent.x(), closest_point.x());
+        closest_point.x() = PE_MAX(-boxHalfExtent.x(), closest_point.x());
+        closest_point.y() = PE_MIN(boxHalfExtent.y(), closest_point.y());
+        closest_point.y() = PE_MAX(-boxHalfExtent.y(), closest_point.y());
+        closest_point.z() = PE_MIN(boxHalfExtent.z(), closest_point.z());
+        closest_point.z() = PE_MAX(-boxHalfExtent.z(), closest_point.z());
 
         normal = pos_sph2box - closest_point;
 
         //if there is no penetration, we are done
-        const pe::Real dist2 = normal.norm2();
+        const pe::Real dist2 = normal.squaredNorm();
         if (dist2 > radius_sph * radius_sph) {
             return false;
         }

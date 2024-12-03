@@ -12,27 +12,35 @@ namespace pe_phys_object {
         }
         _collision_shape = shape;
         _local_inertia = _collision_shape->getLocalInertia() * _mass;
-        _local_inv_inertia = _local_inertia.inverse();
+        if (_mass > PE_EPS) {
+            _local_inv_inertia = _local_inertia.inverse();
+        } else {
+            _local_inv_inertia = pe::Matrix3::Zero();
+        }
         updateWorldInertia();
     }
-
 
     void RigidBody::setMass(pe::Real mass) {
         _mass = mass;
         _inv_mass = mass > PE_EPS ? R(1.0) / mass : 0;
-        _local_inertia = pe::Matrix3::identity() * mass;
         if (_collision_shape != nullptr) {
             _local_inertia = _collision_shape->getLocalInertia() * mass;
+        } else if (_mass > PE_EPS) {
+            _local_inertia = pe::Matrix3::Identity() * mass;
+        } else {
+            _local_inertia = pe::Matrix3::Zero();
         }
         if (_mass > PE_EPS) {
             _local_inv_inertia = _local_inertia.inverse();
+        } else {
+            _local_inv_inertia = pe::Matrix3::Zero();
         }
         updateWorldInertia();
     }
 
     void RigidBody::updateWorldInertia() {
-        _world_inertia = _transform.getBasis() * _local_inertia * _transform.getBasis().transposed();
-        _world_inv_inertia = _transform.getBasis() * _local_inv_inertia * _transform.getBasis().transposed();
+        _world_inertia = _transform.getBasis() * _local_inertia * _transform.getBasis().transpose();
+        _world_inv_inertia = _transform.getBasis() * _local_inv_inertia * _transform.getBasis().transpose();
     }
 
     void RigidBody::setTransform(const pe::Transform &transform) {
@@ -68,25 +76,25 @@ namespace pe_phys_object {
             _ignore_collision(false),
             _mass(1.),
             _inv_mass(1.),
-            _local_inertia(pe::Matrix3::identity()),
-            _local_inv_inertia(pe::Matrix3::identity()),
-            _world_inertia(pe::Matrix3::identity()),
-            _world_inv_inertia(pe::Matrix3::identity()),
+            _local_inertia(pe::Matrix3::Identity()),
+            _local_inv_inertia(pe::Matrix3::Identity()),
+            _world_inertia(pe::Matrix3::Identity()),
+            _world_inv_inertia(pe::Matrix3::Identity()),
             _life_time(PE_REAL_MAX),
             _last_time(0),
             _friction_coeff(0.5),
             _restitution_coeff(0.5),
             _linear_damping(0.0),
             _angular_damping(0.0),
-            _transform(pe::Transform::identity()),
-            _linear_velocity(pe::Vector3::zeros()),
-            _angular_velocity(pe::Vector3::zeros()),
-            _force(pe::Vector3::zeros()),
-            _torque(pe::Vector3::zeros()),
-            _temp_linear_velocity(pe::Vector3::zeros()),
-            _temp_angular_velocity(pe::Vector3::zeros()),
-            _aabb_min(pe::Vector3::zeros()),
-            _aabb_max(pe::Vector3::zeros()),
+            _transform(pe::Transform::Identity()),
+            _linear_velocity(pe::Vector3::Zero()),
+            _angular_velocity(pe::Vector3::Zero()),
+            _force(pe::Vector3::Zero()),
+            _torque(pe::Vector3::Zero()),
+            _temp_linear_velocity(pe::Vector3::Zero()),
+            _temp_angular_velocity(pe::Vector3::Zero()),
+            _aabb_min(pe::Vector3::Zero()),
+            _aabb_max(pe::Vector3::Zero()),
             _sleep(false),
             _sleep_time(0),
             _static_count(0),
@@ -130,11 +138,13 @@ namespace pe_phys_object {
     }
 
     void RigidBody::syncTempVelocity() {
+        if (isKinematic()) return;
         _linear_velocity = _temp_linear_velocity;
         _angular_velocity = _temp_angular_velocity;
     }
 
     void RigidBody::clearTempVelocity() {
+        if (isKinematic()) return;
         _temp_linear_velocity = _linear_velocity;
         _temp_angular_velocity = _angular_velocity;
     }
@@ -164,8 +174,8 @@ namespace pe_phys_object {
         if (isKinematic()) return;
         _linear_velocity += _force * _inv_mass * dt;
         _angular_velocity += _world_inv_inertia * (_torque * dt);
-        _force = pe::Vector3::zeros();
-        _torque = pe::Vector3::zeros();
+        _force = pe::Vector3::Zero();
+        _torque = pe::Vector3::Zero();
     }
 
     void RigidBody::applyDamping(pe::Real dt) {
@@ -189,10 +199,10 @@ namespace pe_phys_object {
 
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
 #   ifdef PE_USE_QUATERNION
-        auto q = pe::Quaternion::fromRotationMatrix(_transform.getBasis());
+        auto q = pe::Quaternion(_transform.getBasis());
         const pe::Vector3 dr = _angular_velocity * dt * R(0.5);
-        const auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
-        q += dq;
+        const auto dq = pe::Quaternion(0, dr.x(), dr.y(), dr.z()) * q;
+        q = pe::Quaternion(q.w() + dq.w(), q.x() + dq.x(), q.y() + dq.y(), q.z() + dq.z());
         q.normalize();
         _transform.setBasis(q.toRotationMatrix());
 #   else

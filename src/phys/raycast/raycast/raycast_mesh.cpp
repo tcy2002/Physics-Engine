@@ -17,16 +17,16 @@ namespace pe_phys_raycast {
         const pe::Mesh* mesh = &shape_mesh->getMesh();
 
         const pe::Vector3 start_local = trans.inverseTransform(start);
-        const pe::Vector3 dir_local = trans.getBasis().transposed() * direction;
+        const pe::Vector3 dir_local = trans.getBasis().transpose() * direction;
         const pe::Vector3 end_local = start_local + dir_local * max_dist;
-        const pe::Vector3 box_min = pe::Vector3::min2(start_local, end_local) - pe::Vector3::ones() * R(0.1);
-        const pe::Vector3 box_max = pe::Vector3::max2(start_local, end_local) + pe::Vector3::ones() * R(0.1);
+        const pe::Vector3 box_min = PE_VEC_MIN2(start_local, end_local) - pe::Vector3::Ones() * R(0.1);
+        const pe::Vector3 box_max = PE_VEC_MAX2(start_local, end_local) + pe::Vector3::Ones() * R(0.1);
         pe::Array<int> hit_faces;
         shape_mesh->getIntersectFaces(box_min, box_max, hit_faces);
 
         distance = PE_REAL_MAX;
-        hit_point = pe::Vector3::zeros();
-        hit_normal = pe::Vector3::zeros();
+        hit_point = pe::Vector3::Zero();
+        hit_normal = pe::Vector3::Zero();
         for (const auto fi : hit_faces) {
             auto& face = mesh->faces[fi];
             pe::Real d;

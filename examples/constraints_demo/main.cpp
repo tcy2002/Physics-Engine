@@ -19,20 +19,20 @@ public:
         _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(30, 10, 30), 10000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add a ball base
-        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0.5, 0)),
+        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0.5, 0)),
                                          R(0.5), 10);
         rb2->setKinematic(true);
         _world.addRigidBody(rb2);
 
         // add a stick
         pe::Transform trans;
-        trans.setRotation(pe::Vector3::forward(), PE_PI / 6);
+        trans.setRotation(pe::Vector3::UnitZ(), PE_PI / 6);
         trans.setOrigin(pe::Vector3(-R(3.3) * PE_SIN(PE_PI / 6), R(3.3) * PE_COS(PE_PI / 6) + R(0.5), 0));
         auto rb3 = createCylinderRigidBody(trans, R(0.2), 6, 1);
         rb2->addIgnoreCollisionId(rb3->getGlobalId());
@@ -47,14 +47,14 @@ public:
         _world.addConstraint(c1);
 
         // add the second sphere base
-        trans.setBasis(pe::Matrix3::identity());
+        trans.setBasis(pe::Matrix3::Identity());
         trans.setOrigin(pe::Vector3(R(-6.6) * PE_SIN(PE_PI / 6), R(6.6) * PE_COS(PE_PI / 6) + R(0.5), 0));
         auto rb4 = createSphereRigidBody(trans, R(0.4), 10);
         rb4->addIgnoreCollisionId(rb3->getGlobalId());
         _world.addRigidBody(rb4);
 
         // add the second stick
-        trans.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        trans.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         trans.setOrigin(pe::Vector3(R(-3.3) - R(6.6) * PE_SIN(PE_PI / 6), R(6.6) * PE_COS(PE_PI / 6) + R(0.5), 0));
         auto rb5 = createCylinderRigidBody(trans, R(0.2), 6, 1);
         rb4->addIgnoreCollisionId(rb5->getGlobalId());

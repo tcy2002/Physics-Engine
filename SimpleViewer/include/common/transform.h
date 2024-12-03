@@ -1,19 +1,19 @@
 #pragma once
 
-#include "vector3.h"
-#include "matrix3x3.h"
+#include "general.h"
+#include <Eigen/Geometry>
 
 namespace common {
 
     template<typename Scalar>
     class Transform {
     protected:
-        COMMON_MEMBER_SET_GET(Matrix3x3<Scalar>, basis, Basis)
+        COMMON_MEMBER_SET_GET(Matrix3<Scalar>, basis, Basis)
         COMMON_MEMBER_SET_GET(Vector3<Scalar>, origin, Origin)
 
     public:
-        Transform(): _basis(Matrix3x3<Scalar>::identity()), _origin(Vector3<Scalar>::zeros()) {}
-        Transform(const Matrix3x3<Scalar>& basis, const Vector3<Scalar>& origin): _basis(basis), _origin(origin) {}
+        Transform(): _basis(Matrix3<Scalar>::Identity()), _origin(Vector3<Scalar>::Zero()) {}
+        Transform(const Matrix3<Scalar>& basis, const Vector3<Scalar>& origin): _basis(basis), _origin(origin) {}
 
         enum RotType {
             S_XYZ, S_YZX, S_ZXY, S_XZY, S_ZYX, S_YXZ,
@@ -32,7 +32,7 @@ namespace common {
         COMMON_FORCE_INLINE Transform inverse() const;
         COMMON_FORCE_INLINE Vector3<Scalar> inverseTransform(const Vector3<Scalar>& v) const;
 
-        COMMON_FORCE_INLINE static Transform const& identity();
+        COMMON_FORCE_INLINE static Transform const& Identity();
     };
 
     template<typename Scalar>

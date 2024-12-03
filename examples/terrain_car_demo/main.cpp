@@ -26,7 +26,7 @@ public:
 
         // add a terrain ground
         auto rb1 = createConcaveRigidBody(TERRAIN_CAR_DEMO_SOURCE_DIR "/terrain.obj",
-                                          pe::Transform(pe::Matrix3::identity(), pe::Vector3(-10, -1200, -10)),
+                                          pe::Transform(pe::Matrix3::Identity(), pe::Vector3(-10, -1200, -10)),
                                           10000, 0.1);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
@@ -38,7 +38,7 @@ public:
 
         // add a tank
         _tank1 = new pe_phys_vehicle::TankTemplate();
-        _tank1->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 13, 0)));
+        _tank1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 13, 0)));
         _tank1->init(&_world);
     }
 

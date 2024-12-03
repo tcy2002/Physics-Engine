@@ -7,15 +7,15 @@ namespace pe_intf {
     pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map; // NOLINT
 
     common::Vector3<float> Viewer::convertVector3(const pe::Vector3& vector) {
-        return {F(vector.x), F(vector.y), F(vector.z)};
+        return {F(vector.x()), F(vector.y()), F(vector.z())};
     }
 
-    common::Matrix3x3<float> Viewer::convertMatrix3(const pe::Matrix3& matrix) {
-        return {
-            F(matrix[0][0]), F(matrix[0][1]), F(matrix[0][2]),
-            F(matrix[1][0]), F(matrix[1][1]), F(matrix[1][2]),
-            F(matrix[2][0]), F(matrix[2][1]), F(matrix[2][2])
-        };
+    common::Matrix3<float> Viewer::convertMatrix3(const pe::Matrix3& matrix) {
+        common::Matrix3<float> result;
+        result << F(matrix(0, 0)), F(matrix(0, 1)), F(matrix(0, 2)),
+                  F(matrix(1, 0)), F(matrix(1, 1)), F(matrix(1, 2)),
+                  F(matrix(2, 0)), F(matrix(2, 1)), F(matrix(2, 2));
+        return std::move(result);
     }
 
     common::Transform<float> Viewer::convertTransform(const pe::Transform& transform) {
@@ -26,11 +26,11 @@ namespace pe_intf {
         common::Mesh<float> result;
         result.vertices.resize(mesh.vertices.size());
         result.faces.resize(mesh.faces.size());
-        for (int i = 0; i < mesh.vertices.size(); i++) {
+        for (size_t i = 0; i < mesh.vertices.size(); i++) {
             result.vertices[i].position = convertVector3(mesh.vertices[i].position);
             result.vertices[i].normal = convertVector3(mesh.vertices[i].normal);
         }
-        for (int i = 0; i < result.faces.size(); i++) {
+        for (size_t i = 0; i < result.faces.size(); i++) {
             result.faces[i].indices = mesh.faces[i].indices;
             result.faces[i].normal = convertVector3(mesh.faces[i].normal);
         }
@@ -88,7 +88,7 @@ namespace pe_intf {
     int Viewer::addCube(const pe::Vector3& size) {
         int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CUBE, true,
-                F(size.x), F(size.y), F(size.z)));
+                F(size.x()), F(size.y()), F(size.z())));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CUBE;
         return id;
     }

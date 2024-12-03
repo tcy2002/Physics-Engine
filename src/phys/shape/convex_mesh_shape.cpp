@@ -51,9 +51,9 @@ namespace pe_phys_shape {
                 auto& v2 = _mesh.vertices[face.indices[i + 2]].position;
 
                 // get vertices of triangle t
-                pe::Real x0 = v0.x, y0 = v0.y, z0 = v0.z;
-                pe::Real x1 = v1.x, y1 = v1.y, z1 = v1.z;
-                pe::Real x2 = v2.x, y2 = v2.y, z2 = v2.z;
+                pe::Real x0 = v0.x(), y0 = v0.y(), z0 = v0.z();
+                pe::Real x1 = v1.x(), y1 = v1.y(), z1 = v1.z();
+                pe::Real x2 = v2.x(), y2 = v2.y(), z2 = v2.z();
 
                 // get edges and cross product of edges
                 pe::Real a1 = x1 - x0, b1 = y1 - y0, c1 = z1 - z0;
@@ -91,12 +91,12 @@ namespace pe_phys_shape {
         pe::Vector3 cm = {intg[1] / _volume, intg[2] / _volume, intg[3] / _volume};
 
         // inertia tensor relative to center of mass
-        _local_inertia[0][0] = intg[5] + intg[6] - _volume * (cm.y * cm.y + cm.z * cm.z);
-        _local_inertia[1][1] = intg[4] + intg[6] - _volume * (cm.z * cm.z + cm.x * cm.x);
-        _local_inertia[2][2] = intg[4] + intg[5] - _volume * (cm.x * cm.x + cm.y * cm.y);
-        _local_inertia[0][1] = _local_inertia[1][0] = -intg[7] + _volume * cm.x * cm.y;
-        _local_inertia[1][2] = _local_inertia[2][1] = -intg[8] + _volume * cm.y * cm.z;
-        _local_inertia[0][2] = _local_inertia[2][0] = -intg[9] + _volume * cm.z * cm.x;
+        _local_inertia(0, 0) = intg[5] + intg[6] - _volume * (cm.y() * cm.y() + cm.z() * cm.z());
+        _local_inertia(1, 1) = intg[4] + intg[6] - _volume * (cm.z() * cm.z() + cm.x() * cm.x());
+        _local_inertia(2, 2) = intg[4] + intg[5] - _volume * (cm.x() * cm.x() + cm.y() * cm.y());
+        _local_inertia(0, 1) = _local_inertia(1, 0) = -intg[7] + _volume * cm.x() * cm.y();
+        _local_inertia(1, 2) = _local_inertia(2, 1) = -intg[8] + _volume * cm.y() * cm.z();
+        _local_inertia(0, 2) = _local_inertia(2, 0) = -intg[9] + _volume * cm.z() * cm.x();
         _local_inertia /= _volume;
 #   endif
         for (auto& v : _mesh.vertices) {
@@ -142,8 +142,8 @@ namespace pe_phys_shape {
         auto &pos = transform.getOrigin();
         for (auto &p: _mesh.vertices) {
             auto v = rot * p.position;
-            min = pe::Vector3::min2(min, v);
-            max = pe::Vector3::max2(max, v);
+            min = PE_VEC_MIN2(min, v);
+            max = PE_VEC_MAX2(max, v);
         }
         min += pos;
         max += pos;
@@ -161,7 +161,7 @@ namespace pe_phys_shape {
                                   pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
         const pe::Matrix3 rot = transform.getBasis();
         const pe::Vector3 trans = transform.getOrigin();
-        const pe::Vector3 local_axis = rot.transposed() * axis;
+        const pe::Vector3 local_axis = rot.transpose() * axis;
         const pe::Real offset = trans.dot(axis);
 
         minProj = PE_REAL_MAX;

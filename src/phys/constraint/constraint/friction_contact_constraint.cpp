@@ -173,7 +173,7 @@ namespace pe_phys_constraint {
         _nsf->linearSystemReserve(*_contact_results, *_objects, _object2index, obj_pairs, triplets);
         for (const auto& p : triplets) {
             if (p.second) {
-                _A[p.first.first][p.first.second] = 1;
+                _A(p.first.first, p.first.second) = 1;
             }
         }
         // TODO: what is matPointer?
@@ -195,11 +195,11 @@ namespace pe_phys_constraint {
                                        _dt, mu, ru, rf, wrf, rl, _nsf);
 
         const pe::VectorX ac_vec = _nsf->ACVector(*_contact_results, *_objects, _object2index, _vel, _forces, _lambda);
-        const pe::Real err = ru.norm2() + wrf.norm2() + rl.norm2();
-        const pe::Real s_err = ru.norm2() + wrf.norm2() + rl.norm2();
-        const pe::Real sac_err = ru.norm2() + ac_vec.norm2() + rl.norm2();
+        const pe::Real err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
+        const pe::Real s_err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
+        const pe::Real sac_err = ru.squaredNorm() + ac_vec.squaredNorm() + rl.squaredNorm();
         const pe::Real eps = R(1e-4) * PE_POW(err, R(0.333333));
-        const pe::Real m_err = ru.norm2() / _n_rigid_dof;
+        const pe::Real m_err = ru.squaredNorm() / _n_rigid_dof;
         exit_err = PE_MAX(m_err, wrf.norm() / _n_force_dof);
         exit_err = PE_MAX(exit_err, rl.norm() / _n_constraint_dof);
         exit_err = PE_MAX(exit_err, s_dual_gap);
@@ -208,8 +208,8 @@ namespace pe_phys_constraint {
             return false;
         }
 
-        _rhs.setValue(0);
-        _A.setValue(0);
+        _rhs.setConstant(0);
+        _A.setConstant(0);
         // TODO: what is matPointer?
 
         // calculate the linear system
@@ -220,19 +220,19 @@ namespace pe_phys_constraint {
         pe::VectorX d(_A.rows());
         for (size_t i = 0; i < _n_objects; i++) {
             if ((*_objects)[i]->isKinematic()) {
-                d.getRefSubVector(6, i * 6).setValue(0);
+                d.segment<6>(i * 6).setConstant(0);
             }
         }
         // scale linear system for better convergence
         for (size_t i = 0; i < _A.rows(); i++) {
-            d[i] = PE_SQRT(_A[i][i]);
+            d[i] = PE_SQRT(_A(i, i));
         }
         for (size_t i = 0; i < _A.rows(); i++) {
             for (size_t j = 0; j < _A.cols(); j++) {
-                _A[i][j] *= d[i] * d[j];
+                _A(i, j) *= d[i] * d[j];
             }
         }
-        _rhs = _rhs.mult(d);
+        _rhs = _rhs.cwiseProduct(d);
 
         size_t max_cg_it = 1000;
         size_t iters = 0;

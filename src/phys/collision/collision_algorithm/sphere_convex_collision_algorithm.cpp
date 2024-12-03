@@ -94,7 +94,7 @@ namespace pe_phys_collision {
                                       pe::Vector3& resultNormal, pe::Real& depth) {
         const pe::Real radiusWithThreshold = sphereRadius;
         pe::Vector3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]);
-        const pe::Real l2 = normal.norm2();
+        const pe::Real l2 = normal.squaredNorm();
         bool hasContact = false;
         pe::Vector3 contactPoint;
 
@@ -142,7 +142,7 @@ namespace pe_phys_collision {
 
         if (hasContact) {
             const pe::Vector3 contactToCentre = sphereCenter - contactPoint;
-            const pe::Real distanceSqr = contactToCentre.norm2();
+            const pe::Real distanceSqr = contactToCentre.squaredNorm();
 
             if (distanceSqr < radiusWithThreshold * radiusWithThreshold) {
                 if (distanceSqr > PE_EPS * PE_EPS) {

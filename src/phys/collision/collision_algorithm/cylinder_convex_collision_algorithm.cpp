@@ -116,9 +116,9 @@ namespace pe_phys_collision {
                      dynamic_cast<pe_phys_shape::BoxShape*>(shape_o)->getMesh();
         const pe::Real cyl_r = shape_cyl->getRadius();
         const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
-        pe::Transform trans_cyl2mesh = trans_o.inverse() * trans_cyl;
-        pe::Vector3 axis_cyl = trans_cyl2mesh.getBasis().getColumn(1);
-        pe::Vector3 pos_cyl = trans_cyl2mesh.getOrigin();
+        const pe::Transform trans_cyl2mesh = trans_o.inverse() * trans_cyl;
+        const pe::Vector3 axis_cyl = trans_cyl2mesh.getBasis().col(1);
+        const pe::Vector3& pos_cyl = trans_cyl2mesh.getOrigin();
 
         pe::Array<int> intersect;
         if (shape_o->getType() == pe_phys_shape::ShapeType::ST_Box) {
@@ -156,7 +156,7 @@ namespace pe_phys_collision {
             pe::Vector3 d_x, d_y = axis_cyl, d_z;
             bool vertical_flag = false;
             if (PE_APPROX_EQUAL(PE_ABS(a_dot_c), 1)) {
-                d_z = axis_cyl.cross(pe::Vector3::right()).normalized();
+                d_z = axis_cyl.cross(pe::Vector3::UnitX()).normalized();
                 d_x = axis_cyl.cross(d_z).normalized();
                 vertical_flag = true;
             } else {

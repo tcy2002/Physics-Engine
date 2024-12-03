@@ -19,7 +19,7 @@ public:
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -0.5, 0)),
+        auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -0.5, 0)),
                                       pe::Vector3(30, 1, 30), 10000, 0.3, 0.5);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
@@ -35,7 +35,7 @@ public:
         for (int i = 0; i < c; i++) {
             for (int j = 0; j < c; j++) {
                 auto rb = createConcaveRigidBody(CONCAVE_DEMO_SOURCE_DIR "/bunny.obj",
-                pe::Transform(pe::Matrix3::identity(), pe::Vector3(i * 10 - m, 1, j * 10 - m)), 100, 3);
+                pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i * 10 - m, 1, j * 10 - m)), 100, 3);
                 _world.addRigidBody(rb);
             }
         }
@@ -49,15 +49,15 @@ public:
                     pe_phys_object::RigidBody* rb = nullptr;
                     if ((i + j + k) % 3 == 0) {
                         // ice density: 0.9 g/cm^3
-                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
                         pe::Vector3(R(0.8), R(0.8), R(0.8)), 0.4608, 0.02, 0.5);
                     } else if ((i + j + k) % 3 == 1) {
                         // metal density: 7.8 g/cm^3
-                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                        rb = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
                         R(0.4), 2.091, 0.5, 0.55);
                     } else {
                         // wood density: 0.6 g/cm^3
-                        rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
+                        rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
                             R(0.3), 1.0, 0.1696, 0.8, 0.6);
                     }
                     _world.addRigidBody(rb);

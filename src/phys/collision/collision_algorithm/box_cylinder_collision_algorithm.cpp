@@ -21,7 +21,35 @@ namespace pe_phys_collision {
         }
         constexpr auto margin = PE_MARGIN;
 
-#   if true
+        if (result.getObjectA()->getTag() == "wheel") {
+#       if false
+            const auto shape_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b;
+            const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape*>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+            auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
+            auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
+
+            result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
+            bool ret = CylinderConvexCollisionAlgorithm::getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, margin, result);
+            result.setSwapFlag(false);
+
+            return ret;
+#       else
+            auto shape_box = dynamic_cast<pe_phys_shape::BoxShape*>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b);
+            auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape*>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
+            auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
+            auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
+
+            const pe::Real cyl_r = shape_cyl->getRadius();
+            const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
+            const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
+
+            result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
+            bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
+            result.setSwapFlag(false);
+
+            return ret;
+#       endif
+        }
         auto& mesh_a = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ?
                        dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a)->getMesh() :
                        dynamic_cast<pe_phys_shape::BoxShape *>(shape_a)->getMesh();
@@ -37,33 +65,7 @@ namespace pe_phys_collision {
 
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
                                                                 trans_a, trans_b, margin, refScale, result);
-#   elif false
-        const auto shape_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b;
-        const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
-        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
-        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
 
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
-        bool ret = CylinderConvexCollisionAlgorithm::getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, margin, result);
-        result.setSwapFlag(false);
-
-        return ret;
-#   else
-        auto shape_box = dynamic_cast<pe_phys_shape::BoxShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b);
-        auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape *>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);
-        auto& trans_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? trans_a : trans_b;
-        auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
-
-        const pe::Real cyl_r = shape_cyl->getRadius();
-        const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
-        const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
-
-        result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
-        bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
-        result.setSwapFlag(false);
-
-        return ret;
-#   endif
     }
 
     static bool pointInsideBox(const pe::Vector3& half_extent, const pe::Vector3& loc) {
@@ -86,7 +88,7 @@ namespace pe_phys_collision {
         // Find point projection on box face and calculate normal and penetration
         // (still working in the box frame)
         pe::Vector3 p = pc;
-        pe::Vector3 n = pe::Vector3::zeros();
+        pe::Vector3 n = pe::Vector3::Zero();
         pe::Real penetration;
         if (i_face > 0) {
             // "positive" box face
@@ -117,7 +119,7 @@ namespace pe_phys_collision {
         // Find the closest point on cylindrical surface to the given location
         const pe::Vector3 r = p - pos_cyl;
         const pe::Real dist_y = r.dot(axis_cyl);
-        const pe::Real dist_xz = PE_SQRT(r.norm2() - dist_y * dist_y);
+        const pe::Real dist_xz = PE_SQRT(r.squaredNorm() - dist_y * dist_y);
         const pe::Real dist2side = radius_cyl - dist_xz;
         const pe::Real dist2top = h_cyl - PE_ABS(dist_y);
 
@@ -172,13 +174,13 @@ namespace pe_phys_collision {
         t_min = PE_REAL_MIN;
         t_max = PE_REAL_MAX;
 
-        if (PE_ABS(axis_cyl.x) < tol) {
+        if (PE_ABS(axis_cyl.x()) < tol) {
             // Segment parallel to the box x-faces
-            if (PE_ABS(pos_cyl.x) > half_extent.x)
+            if (PE_ABS(pos_cyl.x()) > half_extent.x())
                 return false;
         } else {
-            const pe::Real t1 = (-half_extent.x - pos_cyl.x) / axis_cyl.x;
-            const pe::Real t2 = (+half_extent.x - pos_cyl.x) / axis_cyl.x;
+            const pe::Real t1 = (-half_extent.x() - pos_cyl.x()) / axis_cyl.x();
+            const pe::Real t2 = (+half_extent.x() - pos_cyl.x()) / axis_cyl.x();
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -187,13 +189,13 @@ namespace pe_phys_collision {
                 return false;
         }
 
-        if (PE_ABS(axis_cyl.y) < tol) {
+        if (PE_ABS(axis_cyl.y()) < tol) {
             // Segment parallel to the box y-faces
-            if (PE_ABS(pos_cyl.y) > half_extent.y)
+            if (PE_ABS(pos_cyl.y()) > half_extent.y())
                 return false;
         } else {
-            const pe::Real t1 = (-half_extent.y - pos_cyl.y) / axis_cyl.y;
-            const pe::Real t2 = (+half_extent.y - pos_cyl.y) / axis_cyl.y;
+            const pe::Real t1 = (-half_extent.y() - pos_cyl.y()) / axis_cyl.y();
+            const pe::Real t2 = (+half_extent.y() - pos_cyl.y()) / axis_cyl.y();
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -202,13 +204,13 @@ namespace pe_phys_collision {
                 return false;
         }
 
-        if (PE_ABS(axis_cyl.z) < tol) {
+        if (PE_ABS(axis_cyl.z()) < tol) {
             // Capsule axis parallel to the box z-faces
-            if (PE_ABS(pos_cyl.z) > half_extent.z)
+            if (PE_ABS(pos_cyl.z()) > half_extent.z())
                 return false;
         } else {
-            const pe::Real t1 = (-half_extent.z - pos_cyl.z) / axis_cyl.z;
-            const pe::Real t2 = (+half_extent.z - pos_cyl.z) / axis_cyl.z;
+            const pe::Real t1 = (-half_extent.z() - pos_cyl.z()) / axis_cyl.z();
+            const pe::Real t2 = (+half_extent.z() - pos_cyl.z()) / axis_cyl.z();
 
             t_min = PE_MAX(t_min, PE_MIN(t1, t2));
             t_max = PE_MIN(t_max, PE_MAX(t1, t2));
@@ -249,7 +251,7 @@ namespace pe_phys_collision {
         // a == 0 indicates line parallel to cylinder axis
         if (PE_ABS(a) < tol) {
             // line parallel to cylinder axis
-            const pe::Real dist2 = (v - v_cd * axis_cyl).norm2();
+            const pe::Real dist2 = (v - v_cd * axis_cyl).squaredNorm();
             if (dist2 > radius_cyl * radius_cyl) {
                 return false;
             }
@@ -306,7 +308,7 @@ namespace pe_phys_collision {
                                                          pe::Real radius_cyl, pe::Real height_cyl, const pe::Vector3 &box_half_extent,
                                                          pe::Real margin, ContactResult &result) {
         const pe::Transform trans_cyl2box = trans_box.inverse() * trans_cyl;
-        const pe::Vector3 axis_cyl = trans_cyl2box.getBasis().getColumn(1);
+        const pe::Vector3 axis_cyl = trans_cyl2box.getBasis().col(1);
         const pe::Vector3 pos_cyl = trans_cyl2box.getOrigin();
 
         // - Loop over each direction of the box frame (i.e., each of the 3 face normals).
@@ -319,7 +321,7 @@ namespace pe_phys_collision {
         //   midpoint candidate.
         for (int i_dir = 0; i_dir < 3; i_dir++) {
             // current box direction
-            pe::Vector3 n_dir = pe::Vector3::zeros();
+            pe::Vector3 n_dir = pe::Vector3::Zero();
             n_dir[i_dir] = 1;
 
             if (PE_ABS(axis_cyl[i_dir] - 1) < PE_EPS || PE_ABS(axis_cyl[i_dir] + 1) < PE_EPS) {
@@ -357,7 +359,7 @@ namespace pe_phys_collision {
         //   and their midpoint.
         for (int i_dir = 0; i_dir < 3; i_dir++) {
             // current box edge direction and half-length
-            pe::Vector3 e_d = pe::Vector3::zeros();
+            pe::Vector3 e_d = pe::Vector3::Zero();
             e_d[i_dir] = 1;
             const pe::Real e_h = box_half_extent[i_dir];
             // The other two box directions

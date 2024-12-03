@@ -17,7 +17,15 @@ COMMON_FORCE_INLINE unsigned long long COMMON_GetMicroTickCount() {
     return std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
 }
-#define COMMON_USleep(ms) std::this_thread::sleep_for(std::chrono::microseconds(ms))
+#define COMMON_USleep(us) std::this_thread::sleep_for(std::chrono::microseconds(us))
+
+//// linear types
+#include <Eigen/Core>
+namespace common {
+    template <typename Scalar> using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
+    template <typename Scalar> using Matrix3 = Eigen::Matrix<Scalar, 3, 3>;
+    template <typename Scalar> using Quaternion = Eigen::Quaternion<Scalar>;
+} // namespace common
 
 //// member getter and setter
 #define COMMON_BOOL_SET_GET(name, Name) \

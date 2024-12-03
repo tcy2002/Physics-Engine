@@ -6,8 +6,8 @@ namespace pe_phys_raycast {
 
     struct RaycastResult {
         pe::Real m_distance = PE_REAL_MAX;
-        pe::Vector3 m_hitPoint = pe::Vector3::zeros();
-        pe::Vector3 m_hitNormal = pe::Vector3::zeros();
+        pe::Vector3 m_hitPoint = pe::Vector3::Zero();
+        pe::Vector3 m_hitNormal = pe::Vector3::Zero();
         const pe_phys_object::RigidBody* m_collisionObject = nullptr;
         bool hasHit() const { return m_collisionObject != nullptr; }
     };

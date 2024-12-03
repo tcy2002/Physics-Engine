@@ -10,7 +10,7 @@ protected:
 
     Component *bottom;
 
-    pe::Transform _transform = pe::Transform::identity();
+    pe::Transform _transform = pe::Transform::Identity();
 
     const pe::Real _bottom_radius = R(0.5);
     const pe::Real _bottom_height = R(1.8);
@@ -63,69 +63,69 @@ protected:
 
     void initializeParams() {
         // arm
-        _bottom_neck_transform.setRotation(-pe::Vector3::forward(), PE_PI / 2);
+        _bottom_neck_transform.setRotation(-pe::Vector3::UnitZ(), PE_PI / 2);
         _bottom_neck_transform.setOrigin({_bottom_neck_height / 2, 0, 0});
-        _lower_arm_transform.setRotation(-pe::Vector3::right(), PE_PI / 2);
+        _lower_arm_transform.setRotation(-pe::Vector3::UnitX(), PE_PI / 2);
         _lower_arm_transform.setOrigin({0, _bottom_neck_height / 4, -_lower_arm_height / 2});
-        _middle_neck_transform.setRotation(-pe::Vector3::right(), PE_PI / 2);
+        _middle_neck_transform.setRotation(-pe::Vector3::UnitX(), PE_PI / 2);
         _middle_neck_transform.setOrigin({0, _lower_arm_height / 2, -_middle_neck_height / 5});
-        _upper_arm_transform.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        _upper_arm_transform.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         _upper_arm_transform.setOrigin({-_upper_arm_height / 2, _middle_neck_height / 4, 0});
-        _top_neck_transform.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        _top_neck_transform.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         _top_neck_transform.setOrigin({-_middle_neck_height / 8, _upper_arm_height / 2, 0});
-        _hand_transform.setRotation(pe::Vector3::forward(), PE_PI / 2);
+        _hand_transform.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
         _hand_transform.setOrigin({_hand_height / 8, _top_neck_height / 2, 0});
 
         // hand
-        _palm_transform.setRotation(pe::Vector3::right(), PE_PI);
+        _palm_transform.setRotation(pe::Vector3::UnitX(), PE_PI);
         _palm_transform.setOrigin({0,-_hand_height / 2,0});
-        _lower_finger_transform.setBasis(pe::Matrix3::identity());
-        _lower_finger_transform.setOrigin({0,_lower_finger_size.y / 2,0});
-        _knuckle_transform.setBasis(pe::Matrix3::identity());
-        _knuckle_transform.setOrigin({0,_lower_finger_size.y / 2,0});
-        _upper_finger_transform.setBasis(pe::Matrix3::identity());
-        _upper_finger_transform.setOrigin({0, _upper_finger_size.y / 2, 0});
-        _finger_tip_transform.setBasis(pe::Matrix3::identity());
-        _finger_tip_transform.setOrigin({0, _upper_finger_size.y / 2, 0});
+        _lower_finger_transform.setBasis(pe::Matrix3::Identity());
+        _lower_finger_transform.setOrigin({0,_lower_finger_size.y() / 2,0});
+        _knuckle_transform.setBasis(pe::Matrix3::Identity());
+        _knuckle_transform.setOrigin({0,_lower_finger_size.y() / 2,0});
+        _upper_finger_transform.setBasis(pe::Matrix3::Identity());
+        _upper_finger_transform.setOrigin({0, _upper_finger_size.y() / 2, 0});
+        _finger_tip_transform.setBasis(pe::Matrix3::Identity());
+        _finger_tip_transform.setOrigin({0, _upper_finger_size.y() / 2, 0});
     }
 
     void updateRotation() {
         // arm
-        pe::Transform tmp = pe::Transform::identity();
+        pe::Transform tmp = pe::Transform::Identity();
         bottom->local_transform.setOrigin(pe::Vector3(0, _bottom_height / 2, 0));
-        bottom->local_transform.setRotation(pe::Vector3::up(), _bottom_rotation);
+        bottom->local_transform.setRotation(pe::Vector3::UnitY(), _bottom_rotation);
         auto bottom_neck = bottom->children[0];
-        tmp.setRotation(pe::Vector3::up(), _bottom_rotation);
+        tmp.setRotation(pe::Vector3::UnitY(), _bottom_rotation);
         bottom_neck->local_transform = tmp * _bottom_neck_transform;
         auto lower_arm = bottom_neck->children[0];
-        tmp.setRotation(pe::Vector3::up(), _bottom_neck_rotation);
+        tmp.setRotation(pe::Vector3::UnitY(), _bottom_neck_rotation);
         lower_arm->local_transform = tmp * _lower_arm_transform;
         auto middle_neck = lower_arm->children[0];
         middle_neck->local_transform = _middle_neck_transform;
         auto upper_arm = middle_neck->children[0];
-        tmp.setRotation(pe::Vector3::up(), _middle_neck_rotation);
+        tmp.setRotation(pe::Vector3::UnitY(), _middle_neck_rotation);
         upper_arm->local_transform = tmp * _upper_arm_transform;
         auto top_neck = upper_arm->children[0];
         top_neck->local_transform = _top_neck_transform;
         auto hand = top_neck->children[0];
-        tmp.setRotation(-pe::Vector3::up(), _top_neck_rotation);
+        tmp.setRotation(-pe::Vector3::UnitY(), _top_neck_rotation);
         hand->local_transform = tmp * _hand_transform;
 
         // hand
         auto palm = hand->children[0];
         palm->local_transform = _palm_transform;
         pe::Transform tmp2;
-        tmp.setRotation(pe::Vector3::right(), _lower_finger_rotation);
+        tmp.setRotation(pe::Vector3::UnitX(), _lower_finger_rotation);
         auto lower_finger1 = palm->children[0];
         lower_finger1->local_transform = tmp * _lower_finger_transform;
         auto lower_finger2 = palm->children[1];
-        tmp2.setRotation(pe::Vector3::up(), PE_PI / 2);
+        tmp2.setRotation(pe::Vector3::UnitY(), PE_PI / 2);
         lower_finger2->local_transform = tmp2 * tmp * _lower_finger_transform;
         auto lower_finger3 = palm->children[2];
-        tmp2.setRotation(pe::Vector3::up(), PE_PI);
+        tmp2.setRotation(pe::Vector3::UnitY(), PE_PI);
         lower_finger3->local_transform = tmp2 * tmp * _lower_finger_transform;
         auto lower_finger4 = palm->children[3];
-        tmp2.setRotation(pe::Vector3::up(), -PE_PI / 2);
+        tmp2.setRotation(pe::Vector3::UnitY(), -PE_PI / 2);
         lower_finger4->local_transform = tmp2 * tmp * _lower_finger_transform;
         auto knuckle1 = lower_finger1->children[0];
         knuckle1->local_transform = _knuckle_transform;
@@ -135,7 +135,7 @@ protected:
         knuckle3->local_transform = _knuckle_transform;
         auto knuckle4 = lower_finger4->children[0];
         knuckle4->local_transform = _knuckle_transform;
-        tmp.setRotation(-pe::Vector3::right(), _upper_finger_rotation);
+        tmp.setRotation(-pe::Vector3::UnitX(), _upper_finger_rotation);
         auto upper_finger1 = knuckle1->children[0];
         upper_finger1->local_transform = tmp * _upper_finger_transform;
         auto upper_finger2 = knuckle2->children[0];
@@ -157,42 +157,42 @@ protected:
     void initializeArm(pe_intf::World* world) {
         // arm
         bottom = new Component();
-        bottom->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _bottom_radius, _bottom_height, 1);
+        bottom->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _bottom_radius, _bottom_height, 1);
         bottom->rigidbody->setKinematic(true);
         bottom->rigidbody->setTag("color:0.3,0.3,0.8");
         world->addRigidBody(bottom->rigidbody);
         auto bottom_neck = new Component();
-        bottom_neck->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _bottom_neck_radius, _bottom_neck_height, 1);
+        bottom_neck->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _bottom_neck_radius, _bottom_neck_height, 1);
         bottom_neck->rigidbody->setKinematic(true);
         bottom_neck->rigidbody->setTag("color:0.3,0.3,0.8");
         world->addRigidBody(bottom_neck->rigidbody);
         bottom->children.push_back(bottom_neck);
         auto lower_arm = new Component();
-        lower_arm->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _lower_arm_radius, _lower_arm_height, 1);
+        lower_arm->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _lower_arm_radius, _lower_arm_height, 1);
         lower_arm->rigidbody->setKinematic(true);
         lower_arm->rigidbody->setTag("color:0.3,0.3,0.8");
         world->addRigidBody(lower_arm->rigidbody);
         bottom_neck->children.push_back(lower_arm);
         auto middle_neck = new Component();
-        middle_neck->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _middle_neck_radius, _middle_neck_height, 1);
+        middle_neck->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _middle_neck_radius, _middle_neck_height, 1);
         middle_neck->rigidbody->setKinematic(true);
         middle_neck->rigidbody->setTag("color:0.3,0.3,0.8");
         world->addRigidBody(middle_neck->rigidbody);
         lower_arm->children.push_back(middle_neck);
         auto upper_arm = new Component();
-        upper_arm->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _upper_arm_radius, _upper_arm_height, 1);
+        upper_arm->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _upper_arm_radius, _upper_arm_height, 1);
         upper_arm->rigidbody->setKinematic(true);
         upper_arm->rigidbody->setTag("color:0.3,0.3,0.8");
         world->addRigidBody(upper_arm->rigidbody);
         middle_neck->children.push_back(upper_arm);
         auto top_neck = new Component();
-        top_neck->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _top_neck_radius, _top_neck_height, 1);
+        top_neck->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _top_neck_radius, _top_neck_height, 1);
         top_neck->rigidbody->setKinematic(true);
         top_neck->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(top_neck->rigidbody);
         upper_arm->children.push_back(top_neck);
         auto hand = new Component();
-        hand->rigidbody = createCylinderRigidBody(pe::Transform::identity(), _hand_radius, _hand_height, 1);
+        hand->rigidbody = createCylinderRigidBody(pe::Transform::Identity(), _hand_radius, _hand_height, 1);
         hand->rigidbody->setKinematic(true);
         hand->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(hand->rigidbody);
@@ -200,103 +200,103 @@ protected:
 
         // hand
         auto palm = new Component();
-        palm->rigidbody = createSphereRigidBody(pe::Transform::identity(), _palm_radius, 1);
+        palm->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _palm_radius, 1);
         palm->rigidbody->setKinematic(true);
         palm->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(palm->rigidbody);
         hand->children.push_back(palm);
         auto lower_finger1 = new Component();
-        lower_finger1->rigidbody = createBoxRigidBody(pe::Transform::identity(), _lower_finger_size, 1);
+        lower_finger1->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _lower_finger_size, 1);
         lower_finger1->rigidbody->setKinematic(true);
         lower_finger1->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(lower_finger1->rigidbody);
         palm->children.push_back(lower_finger1);
         auto lower_finger2 = new Component();
-        lower_finger2->rigidbody = createBoxRigidBody(pe::Transform::identity(), _lower_finger_size, 1);
+        lower_finger2->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _lower_finger_size, 1);
         lower_finger2->rigidbody->setKinematic(true);
         lower_finger2->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(lower_finger2->rigidbody);
         palm->children.push_back(lower_finger2);
         auto lower_finger3 = new Component();
-        lower_finger3->rigidbody = createBoxRigidBody(pe::Transform::identity(), _lower_finger_size, 1);
+        lower_finger3->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _lower_finger_size, 1);
         lower_finger3->rigidbody->setKinematic(true);
         lower_finger3->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(lower_finger3->rigidbody);
         palm->children.push_back(lower_finger3);
         auto lower_finger4 = new Component();
-        lower_finger4->rigidbody = createBoxRigidBody(pe::Transform::identity(), _lower_finger_size, 1);
+        lower_finger4->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _lower_finger_size, 1);
         lower_finger4->rigidbody->setKinematic(true);
         lower_finger4->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(lower_finger4->rigidbody);
         palm->children.push_back(lower_finger4);
         auto knuckle1 = new Component();
-        knuckle1->rigidbody = createSphereRigidBody(pe::Transform::identity(), _knuckle_radius, 1);
+        knuckle1->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _knuckle_radius, 1);
         knuckle1->rigidbody->setKinematic(true);
         knuckle1->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(knuckle1->rigidbody);
         lower_finger1->children.push_back(knuckle1);
         auto knuckle2 = new Component();
-        knuckle2->rigidbody = createSphereRigidBody(pe::Transform::identity(), _knuckle_radius, 1);
+        knuckle2->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _knuckle_radius, 1);
         knuckle2->rigidbody->setKinematic(true);
         knuckle2->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(knuckle2->rigidbody);
         lower_finger2->children.push_back(knuckle2);
         auto knuckle3 = new Component();
-        knuckle3->rigidbody = createSphereRigidBody(pe::Transform::identity(), _knuckle_radius, 1);
+        knuckle3->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _knuckle_radius, 1);
         knuckle3->rigidbody->setKinematic(true);
         knuckle3->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(knuckle3->rigidbody);
         lower_finger3->children.push_back(knuckle3);
         auto knuckle4 = new Component();
-        knuckle4->rigidbody = createSphereRigidBody(pe::Transform::identity(), _knuckle_radius, 1);
+        knuckle4->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _knuckle_radius, 1);
         knuckle4->rigidbody->setKinematic(true);
         knuckle4->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(knuckle4->rigidbody);
         lower_finger4->children.push_back(knuckle4);
         auto upper_finger1 = new Component();
-        upper_finger1->rigidbody = createBoxRigidBody(pe::Transform::identity(), _upper_finger_size, 1);
+        upper_finger1->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _upper_finger_size, 1);
         upper_finger1->rigidbody->setKinematic(true);
         upper_finger1->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(upper_finger1->rigidbody);
         knuckle1->children.push_back(upper_finger1);
         auto upper_finger2 = new Component();
-        upper_finger2->rigidbody = createBoxRigidBody(pe::Transform::identity(), _upper_finger_size, 1);
+        upper_finger2->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _upper_finger_size, 1);
         upper_finger2->rigidbody->setKinematic(true);
         upper_finger2->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(upper_finger2->rigidbody);
         knuckle2->children.push_back(upper_finger2);
         auto upper_finger3 = new Component();
-        upper_finger3->rigidbody = createBoxRigidBody(pe::Transform::identity(), _upper_finger_size, 1);
+        upper_finger3->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _upper_finger_size, 1);
         upper_finger3->rigidbody->setKinematic(true);
         upper_finger3->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(upper_finger3->rigidbody);
         knuckle3->children.push_back(upper_finger3);
         auto upper_finger4 = new Component();
-        upper_finger4->rigidbody = createBoxRigidBody(pe::Transform::identity(), _upper_finger_size, 1);
+        upper_finger4->rigidbody = createBoxRigidBody(pe::Transform::Identity(), _upper_finger_size, 1);
         upper_finger4->rigidbody->setKinematic(true);
         upper_finger4->rigidbody->setTag("color:0.8,0.3,0.3");
         world->addRigidBody(upper_finger4->rigidbody);
         knuckle4->children.push_back(upper_finger4);
         auto finger_tip1 = new Component();
-        finger_tip1->rigidbody = createSphereRigidBody(pe::Transform::identity(), _finger_tip_radius, 1);
+        finger_tip1->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _finger_tip_radius, 1);
         finger_tip1->rigidbody->setKinematic(true);
         finger_tip1->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(finger_tip1->rigidbody);
         upper_finger1->children.push_back(finger_tip1);
         auto finger_tip2 = new Component();
-        finger_tip2->rigidbody = createSphereRigidBody(pe::Transform::identity(), _finger_tip_radius, 1);
+        finger_tip2->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _finger_tip_radius, 1);
         finger_tip2->rigidbody->setKinematic(true);
         finger_tip2->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(finger_tip2->rigidbody);
         upper_finger2->children.push_back(finger_tip2);
         auto finger_tip3 = new Component();
-        finger_tip3->rigidbody = createSphereRigidBody(pe::Transform::identity(), _finger_tip_radius, 1);
+        finger_tip3->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _finger_tip_radius, 1);
         finger_tip3->rigidbody->setKinematic(true);
         finger_tip3->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(finger_tip3->rigidbody);
         upper_finger3->children.push_back(finger_tip3);
         auto finger_tip4 = new Component();
-        finger_tip4->rigidbody = createSphereRigidBody(pe::Transform::identity(), _finger_tip_radius, 1);
+        finger_tip4->rigidbody = createSphereRigidBody(pe::Transform::Identity(), _finger_tip_radius, 1);
         finger_tip4->rigidbody->setKinematic(true);
         finger_tip4->rigidbody->setTag("color:0.8,0.8,0.3");
         world->addRigidBody(finger_tip4->rigidbody);
@@ -439,7 +439,7 @@ public:
         // _world.setSleepTimeThreshold(pe::Real(1.0));     // sleep time threshold
 
         // add a ground
-        auto rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
+        auto rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(50, 10, 50), 10000);
         rb->setKinematic(true);
         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
@@ -453,16 +453,16 @@ public:
         createContainer({-7, 0, 0}, 6, 1, 0.3);
 
         // add some items
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(8, 0.8, 1)),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(8, 0.8, 1)),
                                           pe::Vector3(1, 1, 1), R(0.1));
         _world.addRigidBody(rb);
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(8, 0.8, -1)),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(8, 0.8, -1)),
                                           pe::Vector3(1, 1, 1), R(0.1));
         _world.addRigidBody(rb);
-        rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(6, 0.8, 1)),
+        rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(6, 0.8, 1)),
                                             R(0.5), R(0.1));
         _world.addRigidBody(rb);
-        rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(6, 0.8, -1)),
+        rb = MechanicalArm::createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(6, 0.8, -1)),
                                             R(0.5), R(0.1));
         _world.addRigidBody(rb);
     }
@@ -551,27 +551,27 @@ public:
     }
 
     void createContainer(const pe::Vector3& origin, pe::Real w, pe::Real h, pe::Real t) {
-        auto rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), {origin.x, origin.y+t/2, origin.z}),
+        auto rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), {origin.x(), origin.y() +t/2, origin.z() }),
             pe::Vector3(w, t, w), 1);
         rb->setKinematic(true);
         rb->setTag("color:0.7,0.5,0.3");
         _world.addRigidBody(rb);
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), {origin.x+t/2-w/2, origin.y+t/2+h/2, origin.z}),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), {origin.x() +t/2-w/2, origin.y() +t/2+h/2, origin.z() }),
             pe::Vector3(t, h - t, w), 1);
         rb->setKinematic(true);
         _world.addRigidBody(rb);
         rb->setTag("color:0.7,0.5,0.3");
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), {origin.x-t/2+w/2, origin.y+t/2+h/2, origin.z}),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), {origin.x() -t/2+w/2, origin.y() +t/2+h/2, origin.z() }),
             pe::Vector3(t, h - t, w), 1);
         rb->setKinematic(true);
         _world.addRigidBody(rb);
         rb->setTag("color:0.7,0.5,0.3");
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), {origin.x, origin.y+t/2+h/2, origin.z+t/2-w/2}),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), {origin.x(), origin.y() +t/2+h/2, origin.z() + t / 2 - w / 2}),
             pe::Vector3(w, h - t, t), 1);
         rb->setKinematic(true);
         _world.addRigidBody(rb);
         rb->setTag("color:0.7,0.5,0.3");
-        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), {origin.x, origin.y+t/2+h/2, origin.z-t/2+w/2}),
+        rb = MechanicalArm::createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), {origin.x(), origin.y() +t/2+h/2, origin.z() -t/2+w/2}),
             pe::Vector3(w, h - 0.3, 0.3), 1);
         rb->setKinematic(true);
         rb->setTag("color:0.7,0.5,0.3");

@@ -12,15 +12,15 @@ namespace pe_phys_constraint {
                 const auto vel_ = obj->getLinearVelocity();
                 const auto ang_vel = obj->getAngularVelocity();
                 const pe::Vector3 acc = gravity * dt;
-                vel_old[offset] = vel[offset] = vel_.x;
-                vel_old[offset + 1] = vel[offset + 1] = vel_.y;
-                vel_old[offset + 2] = vel[offset + 2] = vel_.z;
-                vel_old[offset + 3] = vel[offset + 3] = ang_vel.x;
-                vel_old[offset + 4] = vel[offset + 4] = ang_vel.y;
-                vel_old[offset + 5] = vel[offset + 5] = ang_vel.z;
-                vel_old[offset] += acc.x;
-                vel_old[offset + 1] += acc.y;
-                vel_old[offset + 2] += acc.z;
+                vel_old[offset] = vel[offset] = vel_.x();
+                vel_old[offset + 1] = vel[offset + 1] = vel_.y();
+                vel_old[offset + 2] = vel[offset + 2] = vel_.z();
+                vel_old[offset + 3] = vel[offset + 3] = ang_vel.x();
+                vel_old[offset + 4] = vel[offset + 4] = ang_vel.y();
+                vel_old[offset + 5] = vel[offset + 5] = ang_vel.z();
+                vel_old[offset] += acc.x();
+                vel_old[offset + 1] += acc.y();
+                vel_old[offset + 2] += acc.z();
             }
         }
 
@@ -76,16 +76,16 @@ namespace pe_phys_constraint {
                 if (objects[i]->isKinematic()) {
                     for (int j = 0; j < 6; j++) {
                         const size_t index = i * 6 + j;
-                        m[index][index] = 1;
+                        m(index, index) = 1;
                     }
                 } else {
                     const size_t offset = i * 6;
                     const pe::Real mass = objects[i]->getMass();
-                    m[offset][offset] = m[offset + 1][offset + 1] = m[offset + 2][offset + 2] = mass / char_mass;
+                    m(offset, offset) = m(offset + 1, offset + 1) = m(offset + 2, offset + 2) = mass / char_mass;
                     const auto& inertia = objects[i]->getWorldInertia();
                     for (int i = 0; i < 3; i++) {
                         for (int j = 0; j < 3; j++) {
-                            m[offset + 3 + i][offset + 3 + j] = inertia[i][j] / char_mass;
+                            m(offset + 3 + i, offset + 3 + j) = inertia(i, j) / char_mass;
                         }
                     }
                 }
@@ -106,14 +106,14 @@ namespace pe_phys_constraint {
             ru = mass_mat * (vel - vel_old);
             for (size_t i = 0; i < objects.size(); i++) {
                 if (objects[i]->isKinematic()) {
-                    ru.getRefSubVector(6, i * 6).setValue(0);
+                    ru.segment<6>(i * 6).setConstant(0);
                 }
             }
             pe::VectorX f_weight = _nsf->calcTangentWeight(contacts, objects, object2index, vel, forces, char_mass);
             _nsf->nonSmoothResiduals(contacts, contact_size, objects, object2index,
                 vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
             ru += ru_add;
-            wrf = rf.mult(f_weight);
+            wrf = rf.cwiseProduct(f_weight);
         }
     };
 

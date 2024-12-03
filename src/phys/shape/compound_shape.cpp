@@ -19,18 +19,18 @@ namespace pe_phys_shape {
         _volume += shape->getVolume();
 
         // update local inertia and volume
-        _local_inertia = pe::Matrix3::zeros();
+        _local_inertia = pe::Matrix3::Zero();
         for (auto& s: _shapes) {
             pe::Matrix3 s_inertia = s.shape->getLocalInertia();
             pe::Vector3 p = s.local_transform.getOrigin();
             pe::Matrix3 rot = s.local_transform.getBasis();
-            pe::Matrix3 t_inertia = pe::Matrix3::identity() * (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+            pe::Matrix3 t_inertia = pe::Matrix3::Identity() * (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    t_inertia[i][j] -= p[i] * p[j];
+                    t_inertia(i, j) -= p[i] * p[j];
                 }
             }
-            _local_inertia += (rot * s_inertia * rot.transposed() + t_inertia) * (s.mass_ratio / _mass_ratio);
+            _local_inertia += (rot * s_inertia * rot.transpose() + t_inertia) * (s.mass_ratio / _mass_ratio);
         }
     }
 
@@ -40,8 +40,8 @@ namespace pe_phys_shape {
         for (auto& s: _shapes) {
             pe::Vector3 s_min, s_max;
             s.shape->getAABB(transform * s.local_transform, s_min, s_max);
-            min = pe::Vector3::min2(min, s_min);
-            max = pe::Vector3::max2(max, s_max);
+            min = PE_VEC_MIN2(min, s_min);
+            max = PE_VEC_MAX2(max, s_max);
         }
     }
 

@@ -3,7 +3,7 @@
 #include "phys/phys_general.h"
 
 namespace pe_phys_vehicle {
-    
+
     class JacobianEntry {
     public:
         JacobianEntry() {}
@@ -27,8 +27,8 @@ namespace pe_phys_vehicle {
         // for two constraints on sharing two same rigidbodies (for example two contact points between two rigidbodies)
         pe::Real getNonDiagonal(const JacobianEntry& jacB, pe::Real massInvA, pe::Real massInvB) const;
 
-        pe::Real getRelativeVelocity(const pe::Vector3& linvelA, const pe::Vector3& angvelA,
-                                     const pe::Vector3& linvelB, const pe::Vector3& angvelB);
+        pe::Real getRelativeVelocity(const pe::Vector3& lin_vel_a, const pe::Vector3& ang_vel_a,
+                                     const pe::Vector3& lin_vel_b, const pe::Vector3& ang_Vel_b) const;
 
     private:
         pe::Vector3 m_linearJointAxis;
@@ -39,5 +39,5 @@ namespace pe_phys_vehicle {
         //Optimization: can be stored in the w/last component of one of the vectors
         pe::Real m_Adiag;
     };
-    
+
 } // namespace pe_phys_vehicle

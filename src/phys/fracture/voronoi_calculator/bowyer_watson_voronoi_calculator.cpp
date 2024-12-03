@@ -7,8 +7,8 @@ namespace pe_phys_fracture {
         pe::Vector3 _min(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX);
         pe::Vector3 _max(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN);
         for (auto& p : points) {
-            _min = pe::Vector3::min2(_min, p);
-            _max = pe::Vector3::max2(_max, p);
+            _min = PE_VEC_MIN2(_min, p);
+            _max = PE_VEC_MAX2(_max, p);
         }
 
         // dilate to include all possible points
@@ -19,9 +19,9 @@ namespace pe_phys_fracture {
 
         // add bounding points
         const uint32_t v1i = _manager.add_vertex(_min);
-        const uint32_t v2i = _manager.add_vertex({_max.x, _max.y, _min.z});
-        const uint32_t v3i = _manager.add_vertex({_max.x, _min.y, _max.z});
-        const uint32_t v4i = _manager.add_vertex({_min.x, _max.y, _max.z});
+        const uint32_t v2i = _manager.add_vertex({ _max.x(), _max.y(), _min.z() });
+        const uint32_t v3i = _manager.add_vertex({ _max.x(), _min.y(), _max.z() });
+        const uint32_t v4i = _manager.add_vertex({ _min.x(), _max.y(), _max.z() });
 
         // add bounding triangles
         const uint32_t t1i = _manager.add_triangle(v1i, v2i, v3i);

@@ -40,8 +40,8 @@ namespace pe_intf {
             }
             const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
-                if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
-                    rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
+                if (rb->getLinearVelocity().squaredNorm() >= _sleep_lin_vel2_threshold * ratio ||
+                    rb->getAngularVelocity().squaredNorm() >= _sleep_ang_vel2_threshold * ratio) {
                     rb->setSleep(false);
                     rb->resetSleepTime();
                 }
@@ -52,13 +52,13 @@ namespace pe_intf {
                     return;
                 }
                 rb->applyDamping(_dt);
-                if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold * ratio &&
-                    rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold * ratio) {
+                if (rb->getLinearVelocity().squaredNorm() < _sleep_lin_vel2_threshold * ratio &&
+                    rb->getAngularVelocity().squaredNorm() < _sleep_ang_vel2_threshold * ratio) {
                     rb->updateSleepTime(_dt);
                     if (rb->getSleepTime() >= _sleep_time_threshold) {
                         rb->setSleep(true);
-                        rb->setLinearVelocity(pe::Vector3::zeros());
-                        rb->setAngularVelocity(pe::Vector3::zeros());
+                        rb->setLinearVelocity(pe::Vector3::Zero());
+                        rb->setAngularVelocity(pe::Vector3::Zero());
                     }
                 } else {
                     rb->resetSleepTime();
@@ -73,8 +73,8 @@ namespace pe_intf {
             if (rb->isKinematic()) continue;
             const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
-                if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold * ratio ||
-                    rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold * ratio) {
+                if (rb->getLinearVelocity().squaredNorm() >= _sleep_lin_vel2_threshold * ratio ||
+                    rb->getAngularVelocity().squaredNorm() >= _sleep_ang_vel2_threshold * ratio) {
                     rb->setSleep(false);
                     rb->resetSleepTime();
                 }
@@ -85,13 +85,13 @@ namespace pe_intf {
                     continue;
                 }
                 rb->applyDamping(_dt);
-                if (rb->getLinearVelocity().norm2() < _sleep_lin_vel2_threshold * ratio &&
-                    rb->getAngularVelocity().norm2() < _sleep_ang_vel2_threshold * ratio) {
+                if (rb->getLinearVelocity().squaredNorm() < _sleep_lin_vel2_threshold * ratio &&
+                    rb->getAngularVelocity().squaredNorm() < _sleep_ang_vel2_threshold * ratio) {
                     rb->updateSleepTime(_dt);
                     if (rb->getSleepTime() >= _sleep_time_threshold) {
                         rb->setSleep(true);
-                        rb->setLinearVelocity(pe::Vector3::zeros());
-                        rb->setAngularVelocity(pe::Vector3::zeros());
+                        rb->setLinearVelocity(pe::Vector3::Zero());
+                        rb->setAngularVelocity(pe::Vector3::Zero());
                     }
                 } else {
                     rb->resetSleepTime();
@@ -120,9 +120,9 @@ namespace pe_intf {
             const auto rb2 = cr->getObjectB();
             if (rb1->getCollisionCallbacks().empty() && rb2->getCollisionCallbacks().empty()) return;
 
-            pe::Vector3 pos = pe::Vector3::zeros();
-            pe::Vector3 nor = pe::Vector3::zeros();
-            pe::Vector3 vel = pe::Vector3::zeros();
+            pe::Vector3 pos = pe::Vector3::Zero();
+            pe::Vector3 nor = pe::Vector3::Zero();
+            pe::Vector3 vel = pe::Vector3::Zero();
             pe::Real depth = 0;
             for (int j = 0; j < cr->getPointSize(); j++) {
                 pos += cr->getContactPoint(j).getWorldPos();
@@ -150,9 +150,9 @@ namespace pe_intf {
             const auto rb2 = cr->getObjectB();
             if (rb1->getCollisionCallbacks().empty() && rb2->getCollisionCallbacks().empty()) continue;
 
-            pe::Vector3 pos = pe::Vector3::zeros();
-            pe::Vector3 nor = pe::Vector3::zeros();
-            pe::Vector3 vel = pe::Vector3::zeros();
+            pe::Vector3 pos = pe::Vector3::Zero();
+            pe::Vector3 nor = pe::Vector3::Zero();
+            pe::Vector3 vel = pe::Vector3::Zero();
             pe::Real depth = 0;
             for (int i = 0; i < cr->getPointSize(); i++) {
                 pos += cr->getContactPoint(i).getWorldPos();

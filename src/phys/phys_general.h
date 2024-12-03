@@ -71,12 +71,7 @@
 
 //// geometry types
 #include <common/mesh.h>
-#include <common/vector3.h>
-#include <common/matrix3x3.h>
 #include <common/transform.h>
-#include <common/quaternion.h>
-#include "utils/vector_x.h"
-#include "utils/matrix_m_n.h"
 namespace pe {
 #ifdef PE_USE_DOUBLE
     using Real = double;
@@ -84,17 +79,23 @@ namespace pe {
     using Real = float;
 #endif
     using Mesh = common::Mesh<Real>;
+    using Vector2 = Eigen::Matrix<Real, 2, 1>;
     using Vector3 = common::Vector3<Real>;
-    using Matrix3 = common::Matrix3x3<Real>;
+    using Vector4 = Eigen::Matrix<Real, 4, 1>;
+    using Matrix2 = Eigen::Matrix<Real, 2, 2>;
+    using Matrix3 = common::Matrix3<Real>;
+    using Matrix4 = Eigen::Matrix<Real, 4, 4>;
     using Transform = common::Transform<Real>;
     using Quaternion = common::Quaternion<Real>;
-    using VectorX = utils::VectorX<Real>;
-    using MatrixMN = utils::MatrixMN<Real>;
+    using VectorX = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
+    using MatrixMN = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
 } // namespace pe
 
 //// vector3
 #define PE_VEC_MAX pe::Vector3(PE_REAL_MAX, PE_REAL_MAX, PE_REAL_MAX)
 #define PE_VEC_MIN pe::Vector3(PE_REAL_MIN, PE_REAL_MIN, PE_REAL_MIN)
+#define PE_VEC_MAX2(v1, v2) pe::Vector3(PE_MAX(v1.x(), v2.x()), PE_MAX(v1.y(), v2.y()), PE_MAX(v1.z(), v2.z()))
+#define PE_VEC_MIN2(v1, v2) pe::Vector3(PE_MIN(v1.x(), v2.x()), PE_MIN(v1.y(), v2.y()), PE_MIN(v1.z(), v2.z()))
 
 //// math
 #define PE_EPS pe::Real(0.00001)
@@ -117,14 +118,14 @@ namespace pe {
 
     struct Vector3Equal {
         bool operator()(const pe::Vector3& a, const pe::Vector3& b) const {
-            return PE_APPROX_EQUAL(a.x, b.x) && PE_APPROX_EQUAL(a.y, b.y) && PE_APPROX_EQUAL(a.z, b.z);
+            return PE_APPROX_EQUAL(a.x(), b.x()) && PE_APPROX_EQUAL(a.y(), b.y()) && PE_APPROX_EQUAL(a.z(), b.z());
         }
     };
     struct Vector3Hash {
         uint32_t operator()(const pe::Vector3& v) const {
-            auto x = UI(std::round(v.x / PE_EPS));
-            auto y = UI(std::round(v.y / PE_EPS));
-            auto z = UI(std::round(v.z / PE_EPS));
+            auto x = UI(std::round(v.x() / PE_EPS));
+            auto y = UI(std::round(v.y() / PE_EPS));
+            auto z = UI(std::round(v.z() / PE_EPS));
             uint32_t h = 0x995af;
             h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
             h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);

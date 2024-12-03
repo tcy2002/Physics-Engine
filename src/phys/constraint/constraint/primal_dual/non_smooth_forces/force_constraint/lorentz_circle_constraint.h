@@ -28,9 +28,9 @@ namespace pe_phys_constraint {
             const pe::Real r2 = in[1] * in[1] + in[2] * in[2] + p;
             pe::MatrixMN ret(2, 2);
             const pe::Real r3 = r2 * PE_SQRT(r2);
-            ret[0][0] = in[2] * in[2] + p;
-            ret[0][1] = ret[1][0] = -in[1] * in[2];
-            ret[1][1] = in[1] * in[1] + p;
+            ret(0, 0) = in[2] * in[2] + p;
+            ret(0, 1) = ret(1, 0) = -in[1] * in[2];
+            ret(1, 1) = in[1] * in[1] + p;
             ret /= r3;
             return std::move(ret);
         }

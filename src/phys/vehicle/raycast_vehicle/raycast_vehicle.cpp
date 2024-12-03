@@ -28,7 +28,7 @@ namespace pe_phys_vehicle {
     pe_phys_object::RigidBody& RaycastVehicle::getFixedBody() {
         static pe_phys_object::RigidBody s_fixed;
         s_fixed.setCollisionShape(new pe_phys_shape::SphereShape(0.0));
-        s_fixed.setTransform(pe::Transform::identity());
+        s_fixed.setTransform(pe::Transform::Identity());
         s_fixed.setMass(0.0);
         return s_fixed;
     }
@@ -81,24 +81,21 @@ namespace pe_phys_vehicle {
         //rotate around steering over de wheelAxleWS
         pe::Real steering = wheel.m_steering;
 
-        pe::Matrix3 steeringMat;
-        steeringMat.setRotation(up, steering);
-
-        pe::Matrix3 rotatingMat;
-        rotatingMat.setRotation(right, -wheel.m_rotation);
+        pe::Matrix3 steeringMat = Eigen::AngleAxis<pe::Real>(steering, up).toRotationMatrix();
+        pe::Matrix3 rotatingMat = Eigen::AngleAxis<pe::Real>(-wheel.m_rotation, right).toRotationMatrix();
 
         pe::Matrix3 basis2;
-        basis2[0][m_indexRightAxis] = -right[0];
-        basis2[1][m_indexRightAxis] = -right[1];
-        basis2[2][m_indexRightAxis] = -right[2];
+        basis2(0, m_indexRightAxis) = -right[0];
+        basis2(1, m_indexRightAxis) = -right[1];
+        basis2(2, m_indexRightAxis) = -right[2];
 
-        basis2[0][m_indexUpAxis] = up[0];
-        basis2[1][m_indexUpAxis] = up[1];
-        basis2[2][m_indexUpAxis] = up[2];
+        basis2(0, m_indexUpAxis) = up[0];
+        basis2(1, m_indexUpAxis) = up[1];
+        basis2(2, m_indexUpAxis) = up[2];
 
-        basis2[0][m_indexForwardAxis] = fwd[0];
-        basis2[1][m_indexForwardAxis] = fwd[1];
-        basis2[2][m_indexForwardAxis] = fwd[2];
+        basis2(0, m_indexForwardAxis) = fwd[0];
+        basis2(1, m_indexForwardAxis) = fwd[1];
+        basis2(2, m_indexForwardAxis) = fwd[2];
 
         wheel.m_worldTransform.setBasis(steeringMat * rotatingMat * basis2);
         wheel.m_worldTransform.setOrigin(
@@ -248,16 +245,16 @@ namespace pe_phys_vehicle {
                 const pe::Transform& chassisWorldTransform = getChassisWorldTransform();
 
                 pe::Vector3 fwd(
-                        chassisWorldTransform.getBasis()[0][m_indexForwardAxis],
-                        chassisWorldTransform.getBasis()[1][m_indexForwardAxis],
-                        chassisWorldTransform.getBasis()[2][m_indexForwardAxis]);
+                        chassisWorldTransform.getBasis()(0, m_indexForwardAxis),
+                        chassisWorldTransform.getBasis()(1, m_indexForwardAxis),
+                        chassisWorldTransform.getBasis()(2, m_indexForwardAxis));
 
-                pe::Real proj = fwd.dot(wheel.m_raycastInfo.m_contactNormalWS);
+                const pe::Real proj = fwd.dot(wheel.m_raycastInfo.m_contactNormalWS);
                 fwd -= wheel.m_raycastInfo.m_contactNormalWS * proj;
 
-                pe::Real proj2 = fwd.dot(vel);
+                const pe::Real proj2 = fwd.dot(vel);
 
-                wheel.m_deltaRotation = (proj2 * step) / (wheel.m_wheelsRadius);
+                wheel.m_deltaRotation = proj2 * step / wheel.m_wheelsRadius;
                 wheel.m_rotation += wheel.m_deltaRotation;
             } else {
                 wheel.m_rotation += wheel.m_deltaRotation;
@@ -400,33 +397,32 @@ namespace pe_phys_vehicle {
             impulse = 0;
             return;
         }
-        pe::Vector3 rel_pos1 = pos1 - body1.getTransform().getOrigin();
-        pe::Vector3 rel_pos2 = pos2 - body2.getTransform().getOrigin();
+        const pe::Vector3 rel_pos1 = pos1 - body1.getTransform().getOrigin();
+        const pe::Vector3 rel_pos2 = pos2 - body2.getTransform().getOrigin();
         //this jacobian entry could be re-used for all iterations
 
-        pe::Vector3 vel1 = body1.getLinearVelocityAtLocalPoint(rel_pos1);
-        pe::Vector3 vel2 = body2.getLinearVelocityAtLocalPoint(rel_pos2);
-        pe::Vector3 vel = vel1 - vel2;
+        const pe::Vector3 vel1 = body1.getLinearVelocityAtLocalPoint(rel_pos1);
+        const pe::Vector3 vel2 = body2.getLinearVelocityAtLocalPoint(rel_pos2);
+        const pe::Vector3 vel = vel1 - vel2;
 
-        JacobianEntry jac(body1.getTransform().getBasis().transposed(),
-                          body2.getTransform().getBasis().transposed(),
-                          rel_pos1, rel_pos2, normal,
-                          body1.getLocalInvInertia().getDiag(), body1.getInvMass(),
-                          pe::Vector3(0.0f, 0.0f, 0.0f), 0.0f);
+        const JacobianEntry jac(body1.getTransform().getBasis().transpose(),
+                                body2.getTransform().getBasis().transpose(),
+                                rel_pos1, rel_pos2, normal,
+                                body1.getLocalInvInertia().diagonal(), body1.getInvMass(),
+                                pe::Vector3(0.0f, 0.0f, 0.0f), 0.0f);
 
-        pe::Real jacDiagAB = jac.getDiagonal();
-        pe::Real jacDiagABInv = R(1.) / jacDiagAB;
+        const pe::Real jacDiagAB = jac.getDiagonal();
+        const pe::Real jacDiagABInv = R(1.) / jacDiagAB;
 
-        pe::Real rel_vel = normal.dot(vel);
+        const pe::Real rel_vel = normal.dot(vel);
 
-        pe::Real contactDamping = R(0.2);
+        constexpr auto contactDamping = R(0.2);
 
 #   ifdef ONLY_USE_LINEAR_MASS
         Real massTerm = Real(1.) / (body1.getInvMass() + body2.getInvMass());
 	    impulse = -contactDamping * rel_vel * massTerm;
 #   else
-        pe::Real velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
-        impulse = velocityImpulse;
+        impulse = -contactDamping * rel_vel * jacDiagABInv;
 #   endif
     }
 
@@ -447,8 +443,7 @@ namespace pe_phys_vehicle {
         //collapse all those loops into one!
         for (int i = 0; i < getNumWheels(); i++) {
             RaycastWheelInfo& wheelInfo = m_wheelInfo[i];
-            class pe_phys_object::RigidBody* groundObject =
-                    (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+            auto groundObject = static_cast<pe_phys_object::RigidBody*>(wheelInfo.m_raycastInfo.m_groundObject);
             if (groundObject)
                 m_numWheelsOnGround++;
             m_sideImpulse[i] = 0;
@@ -459,17 +454,16 @@ namespace pe_phys_vehicle {
             for (int i = 0; i < getNumWheels(); i++) {
                 RaycastWheelInfo& wheelInfo = m_wheelInfo[i];
 
-                class pe_phys_object::RigidBody* groundObject =
-                        (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+                auto groundObject = static_cast<class pe_phys_object::RigidBody *>(wheelInfo.m_raycastInfo.m_groundObject);
 
                 if (groundObject) {
                     const pe::Transform& wheelTrans = getWheelTransformWS(i);
 
                     pe::Matrix3 wheelBasis0 = wheelTrans.getBasis();
                     m_axle[i] = -pe::Vector3(
-                            wheelBasis0[0][m_indexRightAxis],
-                            wheelBasis0[1][m_indexRightAxis],
-                            wheelBasis0[2][m_indexRightAxis]);
+                            wheelBasis0(0, m_indexRightAxis),
+                            wheelBasis0(1, m_indexRightAxis),
+                            wheelBasis0(2, m_indexRightAxis));
 
                     const pe::Vector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
                     pe::Real proj = m_axle[i].dot(surfNormalWS);
@@ -488,24 +482,23 @@ namespace pe_phys_vehicle {
             }
         }
 
-        pe::Real sideFactor = R(1.);
-        pe::Real fwdFactor = R(0.5);
+        constexpr auto sideFactor = R(1.);
+        constexpr auto  fwdFactor = R(0.5);
 
         bool sliding = false;
         {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
                 RaycastWheelInfo& wheelInfo = m_wheelInfo[wheel];
-                class pe_phys_object::RigidBody* groundObject =
-                        (class pe_phys_object::RigidBody*)wheelInfo.m_raycastInfo.m_groundObject;
+                auto groundObject = static_cast<class pe_phys_object::RigidBody *>(wheelInfo.m_raycastInfo.m_groundObject);
 
-                pe::Real rollingFriction;
+                pe::Real rollingFriction = 0;
 
                 if (groundObject) {
                     if (wheelInfo.m_engineForce != 0) {
                         rollingFriction = wheelInfo.m_engineForce * timeStep;
                     } else {
-                        pe::Real maxImpulse = (wheelInfo.m_brake != 0) ?
-                                wheelInfo.m_brake : wheelInfo.m_rollDamping;
+                        const pe::Real maxImpulse = wheelInfo.m_brake != 0 ?
+                            wheelInfo.m_brake : wheelInfo.m_rollDamping;
                         WheelContactPoint contactPt(m_chassisBody, groundObject,
                                                     wheelInfo.m_raycastInfo.m_contactPointWS,
                                                     m_forwardWS[wheel], maxImpulse);
@@ -527,22 +520,22 @@ namespace pe_phys_vehicle {
                 if (groundObject) {
                     m_wheelInfo[wheel].m_skidInfo = R(1.);
 
-                    pe::Real maxImp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
-                    pe::Real maxImpSide = maxImp;
+                    const pe::Real maxImp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
+                    const pe::Real maxImpSide = maxImp;
 
-                    pe::Real maxImpSquared = maxImp * maxImpSide;
+                    const pe::Real maxImpSquared = maxImp * maxImpSide;
 
                     m_forwardImpulse[wheel] = rollingFriction;  //wheelInfo.m_engineForce* timeStep;
 
-                    pe::Real x = (m_forwardImpulse[wheel]) * fwdFactor;
-                    pe::Real y = (m_sideImpulse[wheel]) * sideFactor;
+                    const pe::Real x = (m_forwardImpulse[wheel]) * fwdFactor;
+                    const pe::Real y = (m_sideImpulse[wheel]) * sideFactor;
 
-                    pe::Real impulseSquared = (x * x + y * y);
+                    const pe::Real impulseSquared = x * x + y * y;
 
                     if (impulseSquared > maxImpSquared) {
                         sliding = true;
 
-                        pe::Real factor = maxImp / std::sqrt(impulseSquared);
+                        const pe::Real factor = maxImp / PE_SQRT(impulseSquared);
 
                         m_wheelInfo[wheel].m_skidInfo *= factor;
                     }
@@ -566,25 +559,20 @@ namespace pe_phys_vehicle {
             for (int wheel = 0; wheel < getNumWheels(); wheel++) {
                 RaycastWheelInfo& wheelInfo = m_wheelInfo[wheel];
 
-                pe::Vector3 rel_pos = wheelInfo.m_raycastInfo.m_contactPointWS -
-                                      m_chassisBody->getTransform().getOrigin();
+                pe::Vector3 rel_pos = wheelInfo.m_raycastInfo.m_contactPointWS - m_chassisBody->getTransform().getOrigin();
 
                 if (m_forwardImpulse[wheel] != 0) {
-                    m_chassisBody->applyImpulse(rel_pos,
-                                                m_forwardWS[wheel] * (m_forwardImpulse[wheel]));
+                    m_chassisBody->applyImpulse(rel_pos, m_forwardWS[wheel] * (m_forwardImpulse[wheel]));
                 }
                 if (m_sideImpulse[wheel] != 0) {
-                    class pe_phys_object::RigidBody* groundObject =
-                            (class pe_phys_object::RigidBody*)m_wheelInfo[wheel].m_raycastInfo.m_groundObject;
+                    auto groundObject = static_cast<class pe_phys_object::RigidBody *>(m_wheelInfo[wheel].m_raycastInfo.m_groundObject);
 
-                    pe::Vector3 rel_pos2 = wheelInfo.m_raycastInfo.m_contactPointWS -
-                                           groundObject->getTransform().getOrigin();
-
+                    pe::Vector3 rel_pos2 = wheelInfo.m_raycastInfo.m_contactPointWS - groundObject->getTransform().getOrigin();
                     pe::Vector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 
 #if defined ROLLING_INFLUENCE_FIX  // fix. It only worked if car's up was along Y - VT.
-                    pe::Vector3 vChassisWorldUp = getRigidBody()->getTransform().getBasis().getColumn(m_indexUpAxis);
-                    rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * (1.f - wheelInfo.m_rollInfluence));
+                    const pe::Vector3 vChassisWorldUp = getRigidBody()->getTransform().getBasis().col(m_indexUpAxis);
+                    rel_pos -= vChassisWorldUp * (vChassisWorldUp.dot(rel_pos) * (R(1) - wheelInfo.m_rollInfluence));
 #else
                     rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
 #endif
@@ -601,9 +589,9 @@ namespace pe_phys_vehicle {
         const pe::Transform& chassisTrans = getChassisWorldTransform();
 
         pe::Vector3 forwardW(
-                chassisTrans.getBasis()[0][m_indexForwardAxis],
-                chassisTrans.getBasis()[1][m_indexForwardAxis],
-                chassisTrans.getBasis()[2][m_indexForwardAxis]);
+                chassisTrans.getBasis()(0, m_indexForwardAxis),
+                chassisTrans.getBasis()(1, m_indexForwardAxis),
+                chassisTrans.getBasis()(2, m_indexForwardAxis));
 
         return forwardW;
     }
@@ -612,9 +600,9 @@ namespace pe_phys_vehicle {
         const pe::Transform& chassisTrans = getChassisWorldTransform();
 
         pe::Vector3 up(
-                chassisTrans.getBasis()[0][m_indexUpAxis],
-                chassisTrans.getBasis()[1][m_indexUpAxis],
-                chassisTrans.getBasis()[2][m_indexUpAxis]);
+                chassisTrans.getBasis()(0, m_indexUpAxis),
+                chassisTrans.getBasis()(1, m_indexUpAxis),
+                chassisTrans.getBasis()(2, m_indexUpAxis));
 
         return up;
     }
@@ -636,9 +624,9 @@ namespace pe_phys_vehicle {
             result.m_hitPointInWorld = res.m_hitPoint;
             result.m_hitNormalInWorld = res.m_hitNormal;
             result.m_distFraction = res.m_distance;
-            return (void*)res.m_collisionObject;
+            return (void *)res.m_collisionObject;
         }
-        return 0;
+        return nullptr;
     }
 
 } // namespace pe_phys_vehicle

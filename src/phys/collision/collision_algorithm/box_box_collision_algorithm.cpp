@@ -143,7 +143,8 @@ namespace pe_phys_collision {
         int max_c = 4;
 
         constexpr pe::Real fudge_factor = 1.05;
-        pe::Vector3 p, pp, normalC{0,0,0}, *normalR = nullptr;
+        bool use_normalR = false;
+        pe::Vector3 p, pp, normalC{0,0,0}, normalR;
         pe::Real A[3], B[3], Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
         int i, j, invert_normal, code;
 
@@ -153,7 +154,7 @@ namespace pe_phys_collision {
         const pe::Matrix3& R1 = trans_a.getBasis();
         const pe::Matrix3& R2 = trans_b.getBasis();
         p = p2 - p1;
-        pp = R1.transposed() * p;  // get pp = p relative to body 1
+        pp = R1.transpose() * p;  // get pp = p relative to body 1
 
         // get side lengths / 2
         const auto& side1 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_a)->getSize();
@@ -166,16 +167,16 @@ namespace pe_phys_collision {
         B[2] = side2[2] * R(0.5);
 
         // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
-        pe::Matrix3 Rij = R1.transposed() * R2;
-        Q11 = PE_ABS(Rij[0][0]);
-        Q12 = PE_ABS(Rij[0][1]);
-        Q13 = PE_ABS(Rij[0][2]);
-        Q21 = PE_ABS(Rij[1][0]);
-        Q22 = PE_ABS(Rij[1][1]);
-        Q23 = PE_ABS(Rij[1][2]);
-        Q31 = PE_ABS(Rij[2][0]);
-        Q32 = PE_ABS(Rij[2][1]);
-        Q33 = PE_ABS(Rij[2][2]);
+        pe::Matrix3 Rij = R1.transpose() * R2;
+        Q11 = PE_ABS(Rij(0, 0));
+        Q12 = PE_ABS(Rij(0, 1));
+        Q13 = PE_ABS(Rij(0, 2));
+        Q21 = PE_ABS(Rij(1, 0));
+        Q22 = PE_ABS(Rij(1, 1));
+        Q23 = PE_ABS(Rij(1, 2));
+        Q31 = PE_ABS(Rij(2, 0));
+        Q32 = PE_ABS(Rij(2, 1));
+        Q33 = PE_ABS(Rij(2, 2));
 
         // for all 15 possible separating axes:
         //   * see if the axis separates the boxes. if so, return 0.
@@ -192,7 +193,8 @@ namespace pe_phys_collision {
         if (s2 > 0) return 0;               \
         if (s2 > s) {                       \
             s = s2;                         \
-            normalR = &norm;                \
+            normalR = norm;                 \
+            use_normalR = true;             \
             invert_normal = ((expr1) < 0);  \
             code = (cc);                    \
         }
@@ -202,14 +204,14 @@ namespace pe_phys_collision {
         code = 0;
 
         // separating axis = u1,u2,u3
-        TST(pp[0], A[0] + B[0] * Q11 + B[1] * Q12 + B[2] * Q13, R1.getColumn(0), 1)
-        TST(pp[1], A[1] + B[0] * Q21 + B[1] * Q22 + B[2] * Q23, R1.getColumn(1), 2)
-        TST(pp[2], A[2] + B[0] * Q31 + B[1] * Q32 + B[2] * Q33, R1.getColumn(2), 3)
+        TST(pp[0], A[0] + B[0] * Q11 + B[1] * Q12 + B[2] * Q13, R1.col(0), 1)
+        TST(pp[1], A[1] + B[0] * Q21 + B[1] * Q22 + B[2] * Q23, R1.col(1), 2)
+        TST(pp[2], A[2] + B[0] * Q31 + B[1] * Q32 + B[2] * Q33, R1.col(2), 3)
 
         // separating axis = v1,v2,v3
-        TST(R2.getColumn(0).dot(p), A[0] * Q11 + A[1] * Q21 + A[2] * Q31 + B[0], R2.getColumn(0), 4)
-        TST(R2.getColumn(1).dot(p), A[0] * Q12 + A[1] * Q22 + A[2] * Q32 + B[1], R2.getColumn(1), 5)
-        TST(R2.getColumn(2).dot(p), A[0] * Q13 + A[1] * Q23 + A[2] * Q33 + B[2], R2.getColumn(2), 6)
+        TST(R2.col(0).dot(p), A[0] * Q11 + A[1] * Q21 + A[2] * Q31 + B[0], R2.col(0), 4)
+        TST(R2.col(1).dot(p), A[0] * Q12 + A[1] * Q22 + A[2] * Q32 + B[1], R2.col(1), 5)
+        TST(R2.col(2).dot(p), A[0] * Q13 + A[1] * Q23 + A[2] * Q33 + B[2], R2.col(2), 6)
 
         // note: cross product axes need to be scaled when s is computed.
         // normal (n1,n2,n3) is relative to box 1.
@@ -222,7 +224,7 @@ namespace pe_phys_collision {
             s2 /= l;                                            \
             if (s2 * fudge_factor > s) {                        \
                 s = s2;                                         \
-                normalR = nullptr;                              \
+                use_normalR = false;                            \
                 normalC[0] = (n1) / l;                          \
                 normalC[1] = (n2) / l;                          \
                 normalC[2] = (n3) / l;                          \
@@ -244,19 +246,19 @@ namespace pe_phys_collision {
         Q33 += PE_EPS;
 
         // separating axis = u1 x (v1,v2,v3)
-        TST(pp[2] * Rij[1][0] - pp[1] * Rij[2][0], (A[1] * Q31 + A[2] * Q21 + B[1] * Q13 + B[2] * Q12), 0, -Rij[2][0], Rij[1][0], 7)
-        TST(pp[2] * Rij[1][1] - pp[1] * Rij[2][1], (A[1] * Q32 + A[2] * Q22 + B[0] * Q13 + B[2] * Q11), 0, -Rij[2][1], Rij[1][1], 8)
-        TST(pp[2] * Rij[1][2] - pp[1] * Rij[2][2], (A[1] * Q33 + A[2] * Q23 + B[0] * Q12 + B[1] * Q11), 0, -Rij[2][2], Rij[1][2], 9)
+        TST(pp[2] * Rij(1, 0) - pp[1] * Rij(2, 0), (A[1] * Q31 + A[2] * Q21 + B[1] * Q13 + B[2] * Q12), 0, -Rij(2, 0), Rij(1, 0), 7)
+        TST(pp[2] * Rij(1, 1) - pp[1] * Rij(2, 1), (A[1] * Q32 + A[2] * Q22 + B[0] * Q13 + B[2] * Q11), 0, -Rij(2, 1), Rij(1, 1), 8)
+        TST(pp[2] * Rij(1, 2) - pp[1] * Rij(2, 2), (A[1] * Q33 + A[2] * Q23 + B[0] * Q12 + B[1] * Q11), 0, -Rij(2, 2), Rij(1, 2), 9)
 
         // separating axis = u2 x (v1,v2,v3)
-        TST(pp[0] * Rij[2][0] - pp[2] * Rij[0][0], (A[0] * Q31 + A[2] * Q11 + B[1] * Q23 + B[2] * Q22), Rij[2][0], 0, -Rij[0][0], 10)
-        TST(pp[0] * Rij[2][1] - pp[2] * Rij[0][1], (A[0] * Q32 + A[2] * Q12 + B[0] * Q23 + B[2] * Q21), Rij[2][1], 0, -Rij[0][1], 11)
-        TST(pp[0] * Rij[2][2] - pp[2] * Rij[0][2], (A[0] * Q33 + A[2] * Q13 + B[0] * Q22 + B[1] * Q21), Rij[2][2], 0, -Rij[0][2], 12)
+        TST(pp[0] * Rij(2, 0) - pp[2] * Rij(0, 0), (A[0] * Q31 + A[2] * Q11 + B[1] * Q23 + B[2] * Q22), Rij(2, 0), 0, -Rij(0, 0), 10)
+        TST(pp[0] * Rij(2, 1) - pp[2] * Rij(0, 1), (A[0] * Q32 + A[2] * Q12 + B[0] * Q23 + B[2] * Q21), Rij(2, 1), 0, -Rij(0, 1), 11)
+        TST(pp[0] * Rij(2, 2) - pp[2] * Rij(0, 2), (A[0] * Q33 + A[2] * Q13 + B[0] * Q22 + B[1] * Q21), Rij(2, 2), 0, -Rij(0, 2), 12)
 
         // separating axis = u3 x (v1,v2,v3)
-        TST(pp[1] * Rij[0][0] - pp[0] * Rij[1][0], (A[0] * Q21 + A[1] * Q11 + B[1] * Q33 + B[2] * Q32), -Rij[1][0], Rij[0][0], 0, 13)
-        TST(pp[1] * Rij[0][1] - pp[0] * Rij[1][1], (A[0] * Q22 + A[1] * Q12 + B[0] * Q33 + B[2] * Q31), -Rij[1][1], Rij[0][1], 0, 14)
-        TST(pp[1] * Rij[0][2] - pp[0] * Rij[1][2], (A[0] * Q23 + A[1] * Q13 + B[0] * Q32 + B[1] * Q31), -Rij[1][2], Rij[0][2], 0, 15)
+        TST(pp[1] * Rij(0, 0) - pp[0] * Rij(1, 0), (A[0] * Q21 + A[1] * Q11 + B[1] * Q33 + B[2] * Q32), -Rij(1, 0), Rij(0, 0), 0, 13)
+        TST(pp[1] * Rij(0, 1) - pp[0] * Rij(1, 1), (A[0] * Q22 + A[1] * Q12 + B[0] * Q33 + B[2] * Q31), -Rij(1, 1), Rij(0, 1), 0, 14)
+        TST(pp[1] * Rij(0, 2) - pp[0] * Rij(1, 2), (A[0] * Q23 + A[1] * Q13 + B[0] * Q32 + B[1] * Q31), -Rij(1, 2), Rij(0, 2), 0, 15)
 
 #   undef TST
 
@@ -264,8 +266,8 @@ namespace pe_phys_collision {
 
         // if we get to this point, the boxes interpenetrate. compute the normal
         // in global coordinates.
-        if (normalR) {
-            normal = *normalR;
+        if (use_normalR) {
+            normal = normalR;
         } else {
             normal = R1 * normalC;
         }
@@ -287,33 +289,33 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R1.getColumn(j)) > 0 ? R(1.0) : R(-1.0);
-                pa[0] += sign * A[j] * R1[0][j];
-                pa[1] += sign * A[j] * R1[1][j];
-                pa[2] += sign * A[j] * R1[2][j];
+                sign = normal.dot(R1.col(j)) > 0 ? R(1.0) : R(-1.0);
+                pa[0] += sign * A[j] * R1(0, j);
+                pa[1] += sign * A[j] * R1(1, j);
+                pa[2] += sign * A[j] * R1(2, j);
             }
 
             // find a point pb on the intersecting edge of box 2
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R2.getColumn(j)) > 0 ? R(-1.0) : R(1.0);
-                pb[0] += sign * B[j] * R2[0][j];
-                pb[1] += sign * B[j] * R2[1][j];
-                pb[2] += sign * B[j] * R2[2][j];
+                sign = normal.dot(R2.col(j)) > 0 ? R(-1.0) : R(1.0);
+                pb[0] += sign * B[j] * R2(0, j);
+                pb[1] += sign * B[j] * R2(1, j);
+                pb[2] += sign * B[j] * R2(2, j);
             }
 
             pe::Real alpha, beta;
             pe::Vector3 ua, ub;
             {
                 int quotient = ((code)-7) / 3, remainder = ((code)-7) % 3;
-                ua[0] = R1[0][quotient];
-                ua[1] = R1[1][quotient];
-                ua[2] = R1[2][quotient];
+                ua[0] = R1(0, quotient);
+                ua[1] = R1(1, quotient);
+                ua[2] = R1(2, quotient);
 
-                ub[0] = R2[0][remainder];
-                ub[1] = R2[1][remainder];
-                ub[2] = R2[2][remainder];
+                ub[0] = R2(0, quotient);
+                ub[1] = R2(1, quotient);
+                ub[2] = R2(2, quotient);
             }
 
             pe::Vector3 b_a = pb - pa;
@@ -384,7 +386,7 @@ namespace pe_phys_collision {
             normal2[1] = -normal[1];
             normal2[2] = -normal[2];
         }
-        nr = Rb.transposed() * normal2;
+        nr = Rb.transpose() * normal2;
         anr[0] = PE_ABS(nr[0]);
         anr[1] = PE_ABS(nr[1]);
         anr[2] = PE_ABS(nr[2]);
@@ -419,14 +421,14 @@ namespace pe_phys_collision {
         pe::Vector3 center;
         if (nr[lan_r] < 0) {
             const pe::Real sb_lan_r = Sb[lan_r];
-            center[0] = pb[0] - pa[0] + sb_lan_r * Rb[0][lan_r];
-            center[1] = pb[1] - pa[1] + sb_lan_r * Rb[1][lan_r];
-            center[2] = pb[2] - pa[2] + sb_lan_r * Rb[2][lan_r];
+            center[0] = pb[0] - pa[0] + sb_lan_r * Rb(0, lan_r);
+            center[1] = pb[1] - pa[1] + sb_lan_r * Rb(1, lan_r);
+            center[2] = pb[2] - pa[2] + sb_lan_r * Rb(2, lan_r);
         } else {
             const pe::Real sb_lan_r = Sb[lan_r];
-            center[0] = pb[0] - pa[0] - sb_lan_r * Rb[0][lan_r];
-            center[1] = pb[1] - pa[1] - sb_lan_r * Rb[1][lan_r];
-            center[2] = pb[2] - pa[2] - sb_lan_r * Rb[2][lan_r];
+            center[0] = pb[0] - pa[0] - sb_lan_r * Rb(0, lan_r);
+            center[1] = pb[1] - pa[1] - sb_lan_r * Rb(1, lan_r);
+            center[2] = pb[2] - pa[2] - sb_lan_r * Rb(2, lan_r);
         }
 
         // find the normal and non-normal axis numbers of the reference box
@@ -449,15 +451,15 @@ namespace pe_phys_collision {
         // find the four corners of the incident face, in reference-face coordinates
         pe::Real quad[8];  // 2D coordinate of incident face (x,y pairs)
         pe::Real c1, c2, m11, m12, m21, m22;
-        c1 = center.dot(Ra.getColumn(code1));
-        c2 = center.dot(Ra.getColumn(code2));
+        c1 = center.dot(Ra.col(code1));
+        c2 = center.dot(Ra.col(code2));
         // optimize this? - we have already computed this data above, but it is not
         // stored in an easy-to-index format. for now it's quicker just to recompute
         // the four dot products.
-        m11 = Ra.getColumn(code1).dot(Rb.getColumn(a1));
-        m12 = Ra.getColumn(code1).dot(Rb.getColumn(a2));
-        m21 = Ra.getColumn(code2).dot(Rb.getColumn(a1));
-        m22 = Ra.getColumn(code2).dot(Rb.getColumn(a2));
+        m11 = Ra.col(code1).dot(Rb.col(a1));
+        m12 = Ra.col(code1).dot(Rb.col(a2));
+        m21 = Ra.col(code2).dot(Rb.col(a1));
+        m22 = Ra.col(code2).dot(Rb.col(a2));
         {
             const pe::Real k1 = m11 * Sb[a1];
             const pe::Real k2 = m21 * Sb[a1];
@@ -500,9 +502,9 @@ namespace pe_phys_collision {
         for (j = 0; j < n; j++) {
             pe::Real k1 = m22 * (ret[j * 2] - c1) - m12 * (ret[j * 2 + 1] - c2);
             pe::Real k2 = -m21 * (ret[j * 2] - c1) + m11 * (ret[j * 2 + 1] - c2);
-            point[c_num * 3 + 0] = center[0] + k1 * Rb[0][a1] + k2 * Rb[0][a2];
-            point[c_num * 3 + 1] = center[1] + k1 * Rb[1][a1] + k2 * Rb[1][a2];
-            point[c_num * 3 + 2] = center[2] + k1 * Rb[2][a1] + k2 * Rb[2][a2];
+            point[c_num * 3 + 0] = center[0] + k1 * Rb(0, a1) + k2 * Rb(0, a2);
+            point[c_num * 3 + 1] = center[1] + k1 * Rb(1, a1) + k2 * Rb(1, a2);
+            point[c_num * 3 + 2] = center[2] + k1 * Rb(2, a1) + k2 * Rb(2, a2);
 
             dep[c_num] = Sa[codeN] - normal2.dot(pe::Vector3(point[c_num * 3], point[c_num * 3 + 1], point[c_num * 3 + 2]));
             if (dep[c_num] >= 0) {

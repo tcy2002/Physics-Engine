@@ -167,35 +167,35 @@ namespace pe_phys_vehicle {
         auto& bodyAngVel = body->getAngularVelocity();
 
         pe::Matrix3 rotTurret;
-        rotTurret.setRotation(pe::Vector3::up(), turretAngle);
-        pe::Transform transTurret = bodyTrans * pe::Transform(rotTurret, turretTrl);
+        rotTurret = Eigen::AngleAxis<pe::Real>(turretAngle, pe::Vector3::UnitY());
+        const pe::Transform transTurret = bodyTrans * pe::Transform(rotTurret, turretTrl);
         turret->setTransform(transTurret);
         turret->setLinearVelocity(bodyLinVel);
         turret->setAngularVelocity(bodyAngVel);
 
-        auto rotBarrel = pe::Matrix3::identity();
-        rotBarrel.setRotation(pe::Vector3::right(), barrelAngle);
+        pe::Matrix3 rotBarrel = pe::Matrix3::Identity();
+        rotBarrel = Eigen::AngleAxis<pe::Real>(barrelAngle, pe::Vector3::UnitX());
         auto barrelTrlUp = pe::Vector3(0, _barrelLength / 2 * std::sin(barrelAngle),
                                          -_barrelLength / 2 * (std::cos(barrelAngle) - 1));
-        pe::Transform transBarrel = transTurret * pe::Transform(rotBarrel, barrelTrl + barrelTrlUp);
+        const pe::Transform transBarrel = transTurret * pe::Transform(rotBarrel, barrelTrl + barrelTrlUp);
         barrel->setTransform(transBarrel);
         barrel->setLinearVelocity(bodyLinVel);
         barrel->setAngularVelocity(bodyAngVel);
     }
 
     void TankTemplate::updateWheelsTransform() {
-        static pe::Matrix3 wheelRot = pe::Matrix3::identity();
+        static pe::Matrix3 wheelRot = pe::Matrix3::Identity();
         static pe::Real theta = PE_PI / R(2.0);
         static bool init = false;
         if (!init) {
             init = true;
-            wheelRot[0][0] = cos(theta);
-            wheelRot[0][1] = -sin(theta);
-            wheelRot[1][0] = sin(theta);
-            wheelRot[1][1] = cos(theta);
+            wheelRot(0, 0) = cos(theta);
+            wheelRot(0, 1) = -sin(theta);
+            wheelRot(1, 0) = sin(theta);
+            wheelRot(1, 1) = cos(theta);
         }
 
-        for (int i = 0; i < (int)wheels.size(); i++) {
+        for (int i = 0; i < I(wheels.size()); i++) {
             auto& wi = vehicle->getWheelInfo(i);
             pe::Transform tr = wi.m_worldTransform;
             tr.setBasis(tr.getBasis() * wheelRot);
@@ -229,9 +229,8 @@ namespace pe_phys_vehicle {
 
             auto dir = (p1 - p2).normalized();
             auto vec = (p2 - wheel).normalized();
-            auto alpha = leftVec.dot(vec.cross(upVec)) < 0 ? acos(vec.y) : -acos(vec.y);
-            pe::Matrix3 rotMat;
-            rotMat.setRotation(leftVec, alpha);
+            auto alpha = leftVec.dot(vec.cross(upVec)) < 0 ? PE_ACOS(vec.y()) : -PE_ACOS(vec.y());
+            pe::Matrix3 rotMat = Eigen::AngleAxis<pe::Real>(alpha, leftVec).toRotationMatrix();
             pe::Real restLength = (p1 - p2).norm() - offset;
             if (restLength < 0) {
                 offset = -restLength;
@@ -262,9 +261,8 @@ namespace pe_phys_vehicle {
                 angle -= length / radius;
                 while (angle > 0) {
                     auto vec3 = rotateVector3(vec2, leftVec, -angle);
-                    auto theta = leftVec.dot(vec3.cross(upVec)) < 0 ? acos(vec3.y) : -acos(vec3.y);
-                    pe::Matrix3 rot;
-                    rot.setRotation(leftVec, theta);
+                    auto theta = leftVec.dot(vec3.cross(upVec)) < 0 ? PE_ACOS(vec3.y()) : -PE_ACOS(vec3.y());
+                    pe::Matrix3 rot = Eigen::AngleAxis<pe::Real>(theta, leftVec).toRotationMatrix();
                     auto center = wheel + vec3 * radius;
                     pe::Transform trans = bodyTrans * pe::Transform(rot, center);
                     trackSegments[segStartIdx + segIdx]->setTransform(trans);
@@ -360,7 +358,7 @@ namespace pe_phys_vehicle {
     }
 
     TankTemplate::TankTemplate():
-            _transform(pe::Transform::identity()),
+            _transform(pe::Transform::Identity()),
             _bodyWidth(R(2.3)),
             _bodyLength(R(7.)),
             _bodyHeight(R(1.0)),
@@ -416,16 +414,16 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::shoot(pe_intf::World *dw, pe::Real speed, pe::Real mass, pe::Real radius, pe::Real lifeTime) {
         // calculate the position and direction of the bullet
-        auto pos = barrel->getTransform().getOrigin();
-        auto dir = barrel->getTransform().getBasis() * pe::Vector3(0, 0, -1);
+        pe::Vector3 pos = barrel->getTransform().getOrigin();
+        const pe::Vector3 dir = barrel->getTransform().getBasis() * pe::Vector3(0, 0, -1);
         pos += dir * _barrelLength / 2;
-        auto vel = dir * speed;
+        const pe::Vector3 vel = dir * speed;
 
         // create the bullet
         auto bullet = new pe_phys_object::RigidBody();
         auto shape = new pe_phys_shape::SphereShape(radius);
         bullet->setCollisionShape(shape);
-        bullet->setTransform(pe::Transform(pe::Matrix3::identity(), pos));
+        bullet->setTransform(pe::Transform(pe::Matrix3::Identity(), pos));
         bullet->setMass(mass);
         bullet->setLinearVelocity(vel);
         bullet->setLifeTime(lifeTime);

@@ -91,22 +91,22 @@ namespace pe_phys_object {
 
         // for primal-dual
         pe::MatrixMN getMassMatrix6x6() const {
-            pe::MatrixMN mass_mat(0, 6, 6);
-            mass_mat[0][0] = mass_mat[1][1] = mass_mat[2][2] = _mass;
+            pe::MatrixMN mass_mat(6, 6);
+            mass_mat(0, 0) = mass_mat(1, 1) = mass_mat(2, 2) = _mass;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    mass_mat[i + 3][j + 3] = _world_inertia[i][j];
+                    mass_mat(i + 3, j + 3) = _world_inertia(i, j);
                 }
             }
             return std::move(mass_mat);
         }
 
         pe::MatrixMN getInvMassMatrix6x6() const {
-            pe::MatrixMN inv_mass_mat(0, 6, 6);
-            inv_mass_mat[0][0] = inv_mass_mat[1][1] = inv_mass_mat[2][2] = _inv_mass;
+            pe::MatrixMN inv_mass_mat(6, 6);
+            inv_mass_mat(0, 0) = inv_mass_mat(1, 1) = inv_mass_mat(2, 2) = _inv_mass;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    inv_mass_mat[i + 3][j + 3] = _world_inv_inertia[i][j];
+                    inv_mass_mat(i + 3, j + 3) = _world_inv_inertia(i, j);
                 }
             }
             return std::move(inv_mass_mat);

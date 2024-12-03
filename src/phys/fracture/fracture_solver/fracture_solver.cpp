@@ -37,7 +37,7 @@ namespace pe_phys_fracture {
         for (auto& src : sources) {
             pe::Vector3 local_impact_pos = world_trans.inverseTransform(src.position);
             pe::Vector3 intensity = src.intensity;
-            pe::Real impact_radius = (PE_ABS(intensity.x) + PE_ABS(intensity.y) + PE_ABS(intensity.z))
+            pe::Real impact_radius = (PE_ABS(intensity.x()) + PE_ABS(intensity.y()) + PE_ABS(intensity.z()))
                                      / (R(3.0) * threshold);
             if (impact_radius < R(0.01)) continue;
             if (src.type == FractureType::Sphere) {
@@ -49,7 +49,7 @@ namespace pe_phys_fracture {
                     }
                 }
             } else if (src.type == FractureType::Cylinder) {
-                pe::Vector3 direction = (world_trans.getBasis().transposed() * intensity).normalized();
+                pe::Vector3 direction = (world_trans.getBasis().transpose() * intensity).normalized();
                 pe::Matrix3 rot = from_two_vectors(pe::Vector3(0, 0, 1), direction);
                 const auto point_count = (int)(impact_radius * CYLINDER_DENSITY);
                 for (int i = 0; i < point_count; i++) {
@@ -63,7 +63,7 @@ namespace pe_phys_fracture {
         }
         if (points.size() <= 2) return false;
 
-        forces.assign(points.size(), pe::Vector3::zeros());
+        forces.assign(points.size(), pe::Vector3::Zero());
         for (int i = 0; i < (int)points.size(); i++) {
             pe::Vector3 pos = world_trans * points[i];
             for (auto& src : sources) {
@@ -81,7 +81,7 @@ namespace pe_phys_fracture {
         auto rb = new pe_phys_object::RigidBody();
         auto convexMesh = new pe_phys_shape::ConvexMeshShape();
         convexMesh->setMeshPath(obj_path);
-        convexMesh->setScale(pe::Vector3::ones());
+        convexMesh->setScale(pe::Vector3::Ones());
         const pe::Vector3 offset = convexMesh->setMesh(mesh);
         rb->setCollisionShape(convexMesh);
         rb->setTransform(pe::Transform(trans.getBasis(), trans.getOrigin() + offset));

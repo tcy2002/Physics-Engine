@@ -6,14 +6,14 @@ namespace pe_phys_fracture {
         const pe::Vector3 c = a.cross(b);
         const pe::Real s = c.norm();
         const pe::Real c_ = a.dot(b);
-        pe::Matrix3 c_hat = pe::Matrix3::zeros();
-        c_hat[0][1] = -c.z;
-        c_hat[0][2] = c.y;
-        c_hat[1][0] = c.z;
-        c_hat[1][2] = -c.x;
-        c_hat[2][0] = -c.y;
-        c_hat[2][1] = c.x;
-        return pe::Matrix3::identity() + c_hat + c_hat * c_hat * (1 - c_) / (s * s);
+        pe::Matrix3 c_hat = pe::Matrix3::Zero();
+        c_hat(0, 1) = -c.z();
+        c_hat(0, 2) = c.y();
+        c_hat(1, 0) = c.z();
+        c_hat(1, 2) = -c.x();
+        c_hat(2, 0) = -c.y();
+        c_hat(2, 1) = c.x();
+        return pe::Matrix3::Identity() + c_hat + c_hat * c_hat * (1 - c_) / (s * s);
     }
 
     void calc_tet_bounding_sphere(const pe::Vector3& v1, const pe::Vector3& v2,

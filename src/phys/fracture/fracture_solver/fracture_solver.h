@@ -11,8 +11,8 @@ namespace pe_phys_fracture {
 
     struct FractureSource {
         FractureType type;
-        pe::Vector3 position = pe::Vector3::zeros();
-        pe::Vector3 intensity = pe::Vector3::ones();
+        pe::Vector3 position = pe::Vector3::Zero();
+        pe::Vector3 intensity = pe::Vector3::Ones();
     };
 
     class FractureSolver {

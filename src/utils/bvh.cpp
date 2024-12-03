@@ -8,23 +8,23 @@ namespace utils {
     }
 
     Vector3 min_vector3(const Mesh& mesh, const Mesh::Face& face) {
-        BVH_REAL min_x = BVH_MAX, min_y = BVH_MAX, min_z = BVH_MAX;
+        auto min_x = BVH_MAX, min_y = BVH_MAX, min_z = BVH_MAX;
         for (unsigned int index : face.indices) {
             auto& pos = mesh.vertices[index].position;
-            if (pos.x < min_x) min_x = pos.x;
-            if (pos.y < min_y) min_y = pos.y;
-            if (pos.z < min_z) min_z = pos.z;
+            if (pos.x() < min_x) min_x = pos.x();
+            if (pos.y() < min_y) min_y = pos.y();
+            if (pos.z() < min_z) min_z = pos.z();
         }
         return { min_x, min_y, min_z };
     }
 
     Vector3 max_vector3(const Mesh& mesh, const Mesh::Face& face) {
-        BVH_REAL max_x = BVH_MIN, max_y = BVH_MIN, max_z = BVH_MIN;
+        auto max_x = BVH_MIN, max_y = BVH_MIN, max_z = BVH_MIN;
         for (unsigned int index : face.indices) {
             auto& pos = mesh.vertices[index].position;
-            if (pos.x > max_x) max_x = pos.x;
-            if (pos.y > max_y) max_y = pos.y;
-            if (pos.z > max_z) max_z = pos.z;
+            if (pos.x() > max_x) max_x = pos.x();
+            if (pos.y() > max_y) max_y = pos.y();
+            if (pos.z() > max_z) max_z = pos.z();
         }
         return { max_x, max_y, max_z };
     }
@@ -48,13 +48,13 @@ namespace utils {
 
         for (int i = l; i <= r; i++) {
             Vector3 tmp = min_vector3(mesh, mesh.faces[i]);
-            if (tmp.x < node->AA.x) node->AA.x = tmp.x;
-            if (tmp.y < node->AA.y) node->AA.y = tmp.y;
-            if (tmp.z < node->AA.z) node->AA.z = tmp.z;
+            if (tmp.x() < node->AA.x()) node->AA.x() = tmp.x();
+            if (tmp.y() < node->AA.y()) node->AA.y() = tmp.y();
+            if (tmp.z() < node->AA.z()) node->AA.z() = tmp.z();
             tmp = max_vector3(mesh, mesh.faces[i]);
-            if (tmp.x > node->BB.x) node->BB.x = tmp.x;
-            if (tmp.y > node->BB.y) node->BB.y = tmp.y;
-            if (tmp.z > node->BB.z) node->BB.z = tmp.z;
+            if (tmp.x() > node->BB.x()) node->BB.x() = tmp.x();
+            if (tmp.y() > node->BB.y()) node->BB.y() = tmp.y();
+            if (tmp.z() > node->BB.z()) node->BB.z() = tmp.z();
         }
 
         if (r - l + 1 <= n) {
@@ -63,9 +63,9 @@ namespace utils {
             return node;
         }
 
-        BVH_REAL len_x = node->BB.x - node->AA.x;
-        BVH_REAL len_y = node->BB.y - node->AA.y;
-        BVH_REAL len_z = node->BB.z - node->AA.z;
+        const BVH_REAL len_x = node->BB.x() - node->AA.x();
+        const BVH_REAL len_y = node->BB.y() - node->AA.y();
+        const BVH_REAL len_z = node->BB.z() - node->AA.z();
 
         if (len_x >= len_y && len_x >= len_z)
             std::sort(mesh.faces.begin() + l, mesh.faces.begin() + r + 1, [this, &mesh](const Mesh::Face& a, const Mesh::Face& b) { return cmp(mesh, a, b, 0); });
@@ -74,7 +74,7 @@ namespace utils {
         else
             std::sort(mesh.faces.begin() + l, mesh.faces.begin() + r + 1, [this, &mesh](const Mesh::Face& a, const Mesh::Face& b) { return cmp(mesh, a, b, 2); });
 
-        int mid = (l + r) / 2;
+        const int mid = (l + r) / 2;
         node->left = buildBVH(mesh, l, mid, n);
         node->right = buildBVH(mesh, mid + 1, r, n);
         if (node->left != nullptr) node->size += node->left->size;
@@ -110,8 +110,8 @@ namespace utils {
             auto node = stack.back();
             stack.pop_back();
             if (node == nullptr) continue;
-            if (node->AA.x > BB.x || node->AA.y > BB.y || node->AA.z > BB.z) continue;
-            if (node->BB.x < AA.x || node->BB.y < AA.y || node->BB.z < AA.z) continue;
+            if (node->AA.x() > BB.x() || node->AA.y() > BB.y() || node->AA.z() > BB.z()) continue;
+            if (node->BB.x() < AA.x() || node->BB.y() < AA.y() || node->BB.z() < AA.z()) continue;
             if (node->n > 0) {
                 for (int i = 0; i < node->n; i++) {
                     intersect.push_back(node->index + i);

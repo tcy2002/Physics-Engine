@@ -38,8 +38,6 @@
 
 #include <vector>
 #include "common/mesh.h"
-#include "common/vector3.h"
-#include "common/matrix3x3.h"
 #include "common/transform.h"
 
 #ifdef _MSC_VER

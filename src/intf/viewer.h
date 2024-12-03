@@ -12,7 +12,7 @@ namespace pe_intf { // interface
         static pe::HashMap<int, simple_viewer::ObjType> _obj_map;
 
         static COMMON_FORCE_INLINE common::Vector3<float> convertVector3(const pe::Vector3& vector);
-        static COMMON_FORCE_INLINE common::Matrix3x3<float> convertMatrix3(const pe::Matrix3& matrix);
+        static COMMON_FORCE_INLINE common::Matrix3<float> convertMatrix3(const pe::Matrix3& matrix);
         static COMMON_FORCE_INLINE common::Transform<float> convertTransform(const pe::Transform& transform);
         static COMMON_FORCE_INLINE common::Mesh<float> convertMesh(const pe::Mesh& mesh);
 

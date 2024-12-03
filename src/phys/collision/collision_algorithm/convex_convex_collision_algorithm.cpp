@@ -46,12 +46,12 @@ namespace pe_phys_collision {
                     p_out.push_back(endVertex);
                 } else {
                     // Start < 0, end >= 0, so output intersection
-                    p_out.push_back(firstVertex.lerp(endVertex, R(ds * 1.f / (ds - de))));
+                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * R(ds * 1.f / (ds - de)));
                 }
             } else {
                 if (de < 0) {
                     // Start >= 0, end < 0 so output intersection and end
-                    p_out.push_back(firstVertex.lerp(endVertex, R(ds * 1.f / (ds - de))));
+                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * R(ds * 1.f / (ds - de)));
                     p_out.push_back(endVertex);
                 }
             }
@@ -245,7 +245,7 @@ namespace pe_phys_collision {
     static bool isOnLine(const pe::Vector3& v0, const pe::Vector3& v1, const pe::Vector3& v2) {
         const pe::Vector3 edge = v1 - v0;
         const pe::Vector3 normal = edge.cross(v2 - v0);
-        return normal.norm2() < PE_EPS;
+        return normal.squaredNorm() < PE_EPS;
     }
 
     static bool findSeparatingAxis(const pe_phys_shape::Shape* shape_a, const pe_phys_shape::Shape* shape_b,
@@ -379,7 +379,7 @@ namespace pe_phys_collision {
             segmentsClosestPoints(pts_vector, offset_a, offset_b, t_a, t_b,
                                   translation, dir_a, h_len_a, dir_b, h_len_b);
 
-            pe::Real nl_sqrt = pts_vector.norm2();
+            pe::Real nl_sqrt = pts_vector.squaredNorm();
             if (nl_sqrt > PE_EPS) {
                 pe::Real nl = std::sqrt(nl_sqrt);
                 pts_vector *= R(1.0) / nl;

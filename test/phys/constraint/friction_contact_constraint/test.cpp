@@ -36,13 +36,11 @@ void testFrictionContactConstraint() {
     rb1->clearTempVelocity();
     rb2->clearTempVelocity();
     fcc.initSequentialImpulse(param);
-    fcc.warmStart();
     for (int i = 0; i < 8; i++) {
         fcc.iterateSequentialImpulse(i);
     }
     rb1->syncTempVelocity();
     rb2->syncTempVelocity();
-    fcc.afterSequentialImpulse();
 
     std::cout << rb1->getLinearVelocity() << std::endl;
     std::cout << rb2->getLinearVelocity() << std::endl;
