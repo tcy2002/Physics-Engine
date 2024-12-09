@@ -846,21 +846,21 @@ Packet psqrt_complex(const Packet& a) {
   Packet result = pselect(negative_real_mask, negative_real_result, positive_real_result);
 
   // Step 6. Handle special cases for infinities:
-  // * If z is (x,+âˆž), the result is (+âˆž,+âˆž) even if x is NaN
-  // * If z is (x,-âˆž), the result is (+âˆž,-âˆž) even if x is NaN
-  // * If z is (-âˆž,y), the result is (0*|y|,+âˆž) for finite or NaN y
-  // * If z is (+âˆž,y), the result is (+âˆž,0*|y|) for finite or NaN y
+  // * If z is (x,+¡Þ), the result is (+¡Þ,+¡Þ) even if x is NaN
+  // * If z is (x,-¡Þ), the result is (+¡Þ,-¡Þ) even if x is NaN
+  // * If z is (-¡Þ,y), the result is (0*|y|,+¡Þ) for finite or NaN y
+  // * If z is (+¡Þ,y), the result is (+¡Þ,0*|y|) for finite or NaN y
   const RealPacket cst_pos_inf = pset1<RealPacket>(NumTraits<RealScalar>::infinity());
   Packet is_inf;
   is_inf.v = pcmp_eq(a_abs, cst_pos_inf);
   Packet is_real_inf;
   is_real_inf.v = pand(is_inf.v, real_mask);
   is_real_inf = por(is_real_inf, pcplxflip(is_real_inf));
-  // prepare packet of (+âˆž,0*|y|) or (0*|y|,+âˆž), depending on the sign of the infinite real part.
+  // prepare packet of (+¡Þ,0*|y|) or (0*|y|,+¡Þ), depending on the sign of the infinite real part.
   Packet real_inf_result;
   real_inf_result.v = pmul(a_abs, pset1<Packet>(Scalar(RealScalar(1.0), RealScalar(0.0))).v);
   real_inf_result.v = pselect(negative_real_mask.v, pcplxflip(real_inf_result).v, real_inf_result.v);
-  // prepare packet of (+âˆž,+âˆž) or (+âˆž,-âˆž), depending on the sign of the infinite imaginary part.
+  // prepare packet of (+¡Þ,+¡Þ) or (+¡Þ,-¡Þ), depending on the sign of the infinite imaginary part.
   Packet is_imag_inf;
   is_imag_inf.v = pandnot(is_inf.v, real_mask);
   is_imag_inf = por(is_imag_inf, pcplxflip(is_imag_inf));

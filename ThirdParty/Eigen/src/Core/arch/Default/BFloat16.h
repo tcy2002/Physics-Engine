@@ -139,8 +139,8 @@ namespace Eigen {
 
 namespace bfloat16_impl {
 
-// We need to distinguish â€˜clang as the CUDA compilerâ€™ from â€˜clang as the host compiler,
-// invoked by NVCCâ€™ (e.g. on MacOS). The former needs to see both host and device implementation
+// We need to distinguish ¡®clang as the CUDA compiler¡¯ from ¡®clang as the host compiler,
+// invoked by NVCC¡¯ (e.g. on MacOS). The former needs to see both host and device implementation
 // of the functions, while the latter can only deal with one of them.
 #if !defined(EIGEN_HAS_NATIVE_BF16) || (EIGEN_COMP_CLANG && !EIGEN_COMP_NVCC) // Emulate support for bfloat16 floats
 
