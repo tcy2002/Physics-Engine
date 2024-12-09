@@ -82,8 +82,8 @@ namespace pe_phys_collision {
     static bool getSphereDistance(const pe_phys_shape::BoxShape* shape_box, const pe::Transform& trans_box,
                                   const pe::Vector3& center_sph, const pe::Real radius_sph,
                                   pe::Vector3& pt_on_box, pe::Vector3& normal, pe::Real& dist) {
-        const pe::Vector3 boxHalfExtent = shape_box->getSize() / R(2.0);
-        dist = R(1.0);
+        const pe::Vector3 boxHalfExtent = shape_box->getSize() / PE_R(2.0);
+        dist = PE_R(1.0);
 
         // convert the sphere position to the box's local space
         const pe::Vector3 pos_sph2box = trans_box.inverseTransform(center_sph);

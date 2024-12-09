@@ -39,14 +39,14 @@ namespace pe_phys_shape {
     } while (0)
 
         constexpr pe::Real mult[10] = {
-            R(1.0) / 6, R(1.0) / 24, R(1.0) / 24, R(1.0) / 24, R(1.0) / 60,
-            R(1.0) / 60, R(1.0) / 60, R(1.0) / 120, R(1.0) / 120, R(1.0) / 120
+            PE_R(1.0) / 6, PE_R(1.0) / 24, PE_R(1.0) / 24, PE_R(1.0) / 24, PE_R(1.0) / 60,
+            PE_R(1.0) / 60, PE_R(1.0) / 60, PE_R(1.0) / 120, PE_R(1.0) / 120, PE_R(1.0) / 120
         };
         pe::Real intg[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         for (auto& face : _mesh.faces) {
             auto& v0 = _mesh.vertices[face.indices[0]].position;
-            for (int i = 0; i < I(face.indices.size()) - 2; i++) {
+            for (int i = 0; i < PE_I(face.indices.size()) - 2; i++) {
                 auto& v1 = _mesh.vertices[face.indices[i + 1]].position;
                 auto& v2 = _mesh.vertices[face.indices[i + 2]].position;
 
@@ -109,15 +109,15 @@ namespace pe_phys_shape {
 
         // calculate unique edges: each edge is represented by two vertices,
         _unique_edges.clear();
-        pe::Vector3HashList vert_map(UI(_mesh.vertices.size()));
+        pe::Vector3HashList vert_map(PE_UI(_mesh.vertices.size()));
         pe::Map<pe::KV<uint32_t, uint32_t>, bool> edge_map;
         for (auto& f : _mesh.faces) {
-            for (int i = 0; i < I(f.indices.size()); i++) {
+            for (int i = 0; i < PE_I(f.indices.size()); i++) {
                 auto v0 = f.indices[i];
                 auto v1 = f.indices[(i + 1) % f.indices.size()];
-                int id0 = I(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
+                int id0 = PE_I(vert_map.find(_mesh.vertices[v0].position) - vert_map.begin());
                 if (id0 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v0].position); }
-                int id1 = I(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
+                int id1 = PE_I(vert_map.find(_mesh.vertices[v1].position) - vert_map.begin());
                 if (id1 == vert_map.size()) { vert_map.push_back(_mesh.vertices[v1].position); }
                 if (id0 > id1) std::swap(id0, id1);
                 if (edge_map.find({id0, id1}) == edge_map.end()) {

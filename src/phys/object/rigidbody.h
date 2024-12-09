@@ -52,8 +52,8 @@ namespace pe_phys_object {
         std::mutex _temp_linear_velocity_mutex;
         std::mutex _temp_angular_velocity_mutex;
     public:
-        PE_API pe::Vector3 getTempLinearVelocity();
-        PE_API pe::Vector3 getTempAngularVelocity();
+        PE_API const pe::Vector3& getTempLinearVelocity();
+        PE_API const pe::Vector3& getTempAngularVelocity();
         PE_API void setTempLinearVelocity(const pe::Vector3& v);
         PE_API void setTempAngularVelocity(const pe::Vector3& v);
 

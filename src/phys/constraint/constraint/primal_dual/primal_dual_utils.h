@@ -7,10 +7,10 @@ namespace pe_phys_constraint {
         static void initVelocity(const pe::Array<pe_phys_object::RigidBody*>& objects,
                                  const pe::Vector3& gravity, pe::Real dt, pe::VectorX& vel_old, pe::VectorX& vel) {
             for (size_t i = 0; i < objects.size(); i++) {
-                const pe_phys_object::RigidBody* obj = objects[i];
+                auto obj = objects[i];
                 const size_t offset = i * 6;
-                const auto vel_ = obj->getLinearVelocity();
-                const auto ang_vel = obj->getAngularVelocity();
+                const auto& vel_ = obj->getTempLinearVelocity();
+                const auto& ang_vel = obj->getTempAngularVelocity();
                 const pe::Vector3 acc = gravity * dt;
                 vel_old[offset] = vel[offset] = vel_.x();
                 vel_old[offset + 1] = vel[offset + 1] = vel_.y();
@@ -66,30 +66,30 @@ namespace pe_phys_constraint {
                 }
             }
             char_speed /= mass_sum;
-            char_speed = PE_MAX(char_speed, gravity.norm() * dt * R(0.25));
-            char_speed = PE_MAX(char_speed, R(1e-4));
+            char_speed = PE_MAX(char_speed, gravity.norm() * dt * PE_R(0.25));
+            char_speed = PE_MAX(char_speed, PE_R(1e-4));
         }
 
         static void initMassMatrix(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                   pe::Real char_mass, pe::MatrixMN& m) {
-            for (size_t i = 0; i < objects.size(); i++) {
+                                   pe::Real char_mass, pe::SparseMatrix& m) {
+            pe::Array<Eigen::Triplet<pe::Real>> mass_triplets;
+            for (int i = 0; i < PE_I(objects.size()); i++) {
                 if (objects[i]->isKinematic()) {
                     for (int j = 0; j < 6; j++) {
-                        const size_t index = i * 6 + j;
-                        m(index, index) = 1;
+                        mass_triplets.push_back({ i * 6 + j, i * 6 + j, 1 });
                     }
                 } else {
-                    const size_t offset = i * 6;
-                    const pe::Real mass = objects[i]->getMass();
-                    m(offset, offset) = m(offset + 1, offset + 1) = m(offset + 2, offset + 2) = mass / char_mass;
-                    const auto& inertia = objects[i]->getWorldInertia();
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            m(offset + 3 + i, offset + 3 + j) = inertia(i, j) / char_mass;
+                    pe::Matrix6 masses = objects[i]->getMassMatrix6x6() / char_mass;
+                    for (int j = 0; j < 6; j++) {
+                        for (int k = 0; k < 6; k++) {
+                            if (masses(j, k)) {
+                                mass_triplets.push_back({ i * 6 + j, i * 6 + k, masses(j, k) });
+                            }
                         }
                     }
                 }
             }
+            m.setFromTriplets(mass_triplets.begin(), mass_triplets.end());
         }
 
         static void calcResiduals(
@@ -114,6 +114,74 @@ namespace pe_phys_constraint {
                 vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
             ru += ru_add;
             wrf = rf.cwiseProduct(f_weight);
+        }
+
+        struct LineSearchResult {
+            pe::VectorX newU;
+            pe::VectorX newF;
+            pe::VectorX newL;
+            pe::Real stepSize;
+            pe::Real sErr;
+            pe::Real acErr;
+        };
+
+        static LineSearchResult lineSearch(
+            const pe::Array<pe_phys_collision::ContactResult*>& contacts,
+            size_t contact_size,
+            const pe::Array<pe_phys_object::RigidBody*>& objects,
+            const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
+            const pe::SparseMatrix& mass_mat,
+            const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda,
+            const pe::VectorX& du, const pe::VectorX& df, const pe::VectorX& dl,
+            const pe::VectorX& vels_old, pe::Real s_err, pe::Real sac_err, pe::Real mu, pe::Real dt,
+            pe::Real char_speed, pe::Real char_mass, int max_linear_search,
+            NonSmoothForceBase* _nsf) {
+            pe::Real step = 1.0;
+            LineSearchResult res;
+            res.newU = vel;
+            res.newF = forces;
+            res.newL = lambda;
+            res.sErr = s_err;
+            res.acErr = sac_err;
+            res.stepSize = 0;
+            for (int step_it = 0; step_it < max_linear_search; step_it++) {
+                pe::VectorX du_in = step * du;
+                pe::VectorX df_in = step * df;
+                pe::VectorX dl_in = step * dl;
+
+                _nsf->filterLineSearch(contacts, contact_size, objects, object2index, vel, forces, lambda, mu, char_mass, du_in, df_in, dl_in);
+                
+                const pe::VectorX l_inner = lambda + PE_R(0.99) * dl_in;
+                const pe::VectorX v_inner = vel + PE_R(0.99) * du_in;
+                const pe::VectorX f_inner = forces + PE_R(0.99) * df_in;
+
+                pe::VectorX ru_in, rf_in, wrf_in, rl_in;
+                calcResiduals(false, contacts, contact_size, objects, object2index, v_inner, f_inner, l_inner, vels_old, mass_mat, 
+                    char_mass, char_speed, dt, mu, ru_in, rf_in, wrf_in, rl_in, _nsf);
+
+                const pe::Real in_err = ru_in.squaredNorm() + wrf_in.squaredNorm() + rl_in.squaredNorm();
+                const pe::VectorX ac_vec_in = _nsf->ACVector(contacts, objects, object2index, v_inner, f_inner);
+                const pe::Real sac_err_in = ru_in.squaredNorm() + ac_vec_in.squaredNorm() + rl_in.squaredNorm();
+                const pe::Real g_err = -du_in.dot(ru_in) + df_in.dot(rf_in) + dl_in.cwiseQuotient(l_inner).dot(rl_in);
+
+                bool in_err_acpt = in_err < s_err;
+                bool ac_err_acpt = sac_err_in < sac_err;
+                bool acpt = in_err_acpt || ac_err_acpt;
+                if ((acpt && g_err > 0) || (step_it == max_linear_search - 1)) {
+                    if (acpt) {
+                        res.newU = v_inner;
+                        res.newF = f_inner;
+                        res.newL = l_inner;
+                        res.stepSize = step;
+                        res.sErr = in_err;
+                        res.acErr = sac_err_in;
+                        return res;
+                    }
+                    break;
+                }
+                step *= PE_R(0.5);
+            }
+            return res;
         }
     };
 

@@ -13,7 +13,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
         // _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
@@ -50,15 +50,15 @@ public:
                     if ((i + j + k) % 3 == 0) {
                         // ice density: 0.9 g/cm^3
                         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
-                        pe::Vector3(R(0.8), R(0.8), R(0.8)), 0.4608, 0.02, 0.5);
+                        pe::Vector3(PE_R(0.8), PE_R(0.8), PE_R(0.8)), 0.4608, 0.02, 0.5);
                     } else if ((i + j + k) % 3 == 1) {
                         // metal density: 7.8 g/cm^3
                         rb = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
-                        R(0.4), 2.091, 0.5, 0.55);
+                        PE_R(0.4), 2.091, 0.5, 0.55);
                     } else {
                         // wood density: 0.6 g/cm^3
                         rb = createCylinderRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(i - m + random(0.001), 12 + k, j - m + random(0.001))),
-                            R(0.3), 1.0, 0.1696, 0.8, 0.6);
+                            PE_R(0.3), 1.0, 0.1696, 0.8, 0.6);
                     }
                     _world.addRigidBody(rb);
                 }
@@ -86,8 +86,8 @@ protected:
         shape->setMesh(mesh);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
+        rb->setFrictionCoeff(PE_R(0.5));
+        rb->setRestitutionCoeff(PE_R(0.5));
         rb->setKinematic(true);
         return rb;
     }

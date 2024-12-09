@@ -40,8 +40,8 @@ namespace pe_phys_collision {
             auto& trans_cyl = shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? trans_a : trans_b;
 
             const pe::Real cyl_r = shape_cyl->getRadius();
-            const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
-            const pe::Vector3 box_half_extent = shape_box->getSize() / R(2.0);
+            const pe::Real cyl_h = shape_cyl->getHeight() / PE_R(2.0);
+            const pe::Vector3 box_half_extent = shape_box->getSize() / PE_R(2.0);
 
             result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_Box);
             bool ret = getClosestPoints(shape_box, shape_cyl, trans_box, trans_cyl, cyl_r, cyl_h, box_half_extent, margin, result);
@@ -242,7 +242,7 @@ namespace pe_phys_collision {
         const pe::Real v_cd = v.dot(axis_cyl);
         const pe::Real v_sd = v.dot(dir_seg);
         const pe::Real v_v = v.dot(v);
-        const pe::Real a = R(1.0) - cd_sd * cd_sd;
+        const pe::Real a = PE_R(1.0) - cd_sd * cd_sd;
         const pe::Real b = v_sd - v_cd * cd_sd;
         const pe::Real c = v_v - v_cd * v_cd - radius_cyl * radius_cyl;
 

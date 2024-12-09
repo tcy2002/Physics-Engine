@@ -19,8 +19,8 @@ namespace pe_phys_constraint {
         }
 
         // clear old constraints
-        const int old_size = I(_fcc_constraints.size());
-        const int new_size = I(contact_results.size());
+        const int old_size = PE_I(_fcc_constraints.size());
+        const int new_size = PE_I(contact_results.size());
         if (old_size < new_size) {
             _fcc_constraints.resize(new_size);
             for (int i = old_size; i < new_size; i++) {
@@ -35,12 +35,12 @@ namespace pe_phys_constraint {
 
         _param.dt = dt;
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(UI(contact_results.size()), [&](int i){
+        utils::ThreadPool::forLoop(PE_UI(contact_results.size()), [&](int i){
             const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
             fcc->setContactResult(*contact_results[i]);
             fcc->initSequentialImpulse(_param);
         });
-        utils::ThreadPool::forLoop(UI(constraints.size()), [&](int i){
+        utils::ThreadPool::forLoop(PE_UI(constraints.size()), [&](int i){
             constraints[i]->initSequentialImpulse(_param);
         });
 #   else
@@ -62,10 +62,10 @@ namespace pe_phys_constraint {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
 #   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forLoop(UI(_fcc_constraints.size()),[&](int i){
+            utils::ThreadPool::forLoop(PE_UI(_fcc_constraints.size()),[&](int i){
                 _fcc_constraints[i]->iterateSequentialImpulse(i);
             });
-            utils::ThreadPool::forLoop(UI(_other_constraints.size()),[&](int i){
+            utils::ThreadPool::forLoop(PE_UI(_other_constraints.size()),[&](int i){
                 _other_constraints[i]->iterateSequentialImpulse(i);
             });
 #   else
@@ -80,7 +80,7 @@ namespace pe_phys_constraint {
 
         // sync velocity
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(UI(_collision_objects.size()),[&](int i){
+        utils::ThreadPool::forLoop(PE_UI(_collision_objects.size()),[&](int i){
             _collision_objects[i]->syncTempVelocity();
         });
 #   else

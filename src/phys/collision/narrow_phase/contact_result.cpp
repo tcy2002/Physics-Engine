@@ -6,10 +6,10 @@ namespace pe_phys_collision {
 
     void ContactPoint::getOrthoUnits(pe::Vector3 normal, pe::Vector3 &tangent1, pe::Vector3 &tangent2) {
         normal.normalize();
-        if (PE_ABS(normal.z()) > R(0.7071)) {
+        if (PE_ABS(normal.z()) > PE_R(0.7071)) {
             // choose tangent in y-z plane
             const pe::Real a = normal.y() * normal.y() + normal.z() * normal.z();
-            const pe::Real k = R(1.0) / PE_SQRT(a);
+            const pe::Real k = PE_R(1.0) / PE_SQRT(a);
             tangent1.x() = 0;
             tangent1.y() = -normal.z() * k;
             tangent1.z() = normal.y() * k;
@@ -19,7 +19,7 @@ namespace pe_phys_collision {
         } else {
             // choose tangent in x-y plane
             const pe::Real a = normal.x() * normal.x() + normal.y() * normal.y();
-            const pe::Real k = R(1.0) / PE_SQRT(a);
+            const pe::Real k = PE_R(1.0) / PE_SQRT(a);
             tangent1.x() = -normal.y() * k;
             tangent1.y() = normal.x() * k;
             tangent1.z() = 0;

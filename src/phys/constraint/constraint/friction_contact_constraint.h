@@ -45,8 +45,9 @@ namespace pe_phys_constraint {
         pe::VectorX _forces;
         pe::VectorX _lambda;
         pe::VectorX _rhs;
-        pe::MatrixMN _A;
-        pe::MatrixMN _mass_mat;
+        pe::SparseMatrix _A;
+        pe::SparseMatrix _mass_mat;
+        pe::Map<pe::KV<size_t, size_t>, pe::Real*> _mat_pointers;
         pe::Real _char_mass;
         pe::Real _char_speed;
         pe::Real _dt;
@@ -70,7 +71,9 @@ namespace pe_phys_constraint {
 
         // for primal-dual solver
         void initPrimalDual(const ConstraintParam& param) override;
-        bool iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+        bool iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::CG& cg, pe::Real& hu,
+                               pe::VectorX& du, pe::VectorX& df, pe::VectorX& dl,
+                               pe::VectorX& ru, pe::VectorX& ru_add,
                                pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                pe::Real& exit_err, pe::Real tol) override;
     };

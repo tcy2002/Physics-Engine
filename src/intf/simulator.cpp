@@ -617,7 +617,7 @@ namespace pe_intf {
                         case 3: node.name = "sphere"; break;
                         default: break;
                     }
-                    for (int j = 0; j < I(_mesh_type.size()); j++) {
+                    for (int j = 0; j < PE_I(_mesh_type.size()); j++) {
                         if (_mesh_type[j] == i) {
                             node.children.push_back(j);
                         }
@@ -636,7 +636,7 @@ namespace pe_intf {
 
                 tinygltf::Animation animation;
                 animation.name = "animation";
-                int anim_count = I(_animation_translation.size());
+                int anim_count = PE_I(_animation_translation.size());
                 for (int i = 0; i < anim_count; i++) {
                     tinygltf::AnimationChannel channel_translation;
                     channel_translation.target_path = "translation";
@@ -672,9 +672,9 @@ namespace pe_intf {
                     pe::Array<float> data;
                     data.reserve(translation_accessor.count * 3);
                     for (auto& v : _animation_translation[i]) {
-                        data.push_back(F(v.x()));
-                        data.push_back(F(v.y()));
-                        data.push_back(F(v.z()));
+                        data.push_back(PE_F(v.x()));
+                        data.push_back(PE_F(v.y()));
+                        data.push_back(PE_F(v.z()));
                     }
                     _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -693,10 +693,10 @@ namespace pe_intf {
                     data.clear();
                     data.reserve(rotation_accessor.count * 4);
                     for (auto& q : _animation_rotation[i]) {
-                        data.push_back(F(q.x()));
-                        data.push_back(F(q.y()));
-                        data.push_back(F(q.z()));
-                        data.push_back(F(q.w()));
+                        data.push_back(PE_F(q.x()));
+                        data.push_back(PE_F(q.y()));
+                        data.push_back(PE_F(q.z()));
+                        data.push_back(PE_F(q.w()));
                     }
                     _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -715,7 +715,7 @@ namespace pe_intf {
                     data.clear();
                     data.reserve(time_step_accessor.count);
                     for (auto& t : _animation_time_step[i]) {
-                        data.push_back(F(t));
+                        data.push_back(PE_F(t));
                     }
                     _buffer_animation_time_step.data.insert(_buffer_animation_time_step.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -770,9 +770,9 @@ namespace pe_intf {
                 pe::Array<float> data;
                 data.reserve(position_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(F(v.position.x()));
-                    data.push_back(F(v.position.y()));
-                    data.push_back(F(v.position.z()));
+                    data.push_back(PE_F(v.position.x()));
+                    data.push_back(PE_F(v.position.y()));
+                    data.push_back(PE_F(v.position.z()));
                 }
                 _buffer_position.data.insert(_buffer_position.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -791,9 +791,9 @@ namespace pe_intf {
                 data.clear();
                 data.reserve(normal_accessor.count * 3);
                 for (auto& v : mesh.vertices) {
-                    data.push_back(F(v.normal.x()));
-                    data.push_back(F(v.normal.y()));
-                    data.push_back(F(v.normal.z()));
+                    data.push_back(PE_F(v.normal.x()));
+                    data.push_back(PE_F(v.normal.y()));
+                    data.push_back(PE_F(v.normal.z()));
                 }
                 _buffer_normal.data.insert(_buffer_normal.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
@@ -951,7 +951,7 @@ namespace pe_intf {
             return;
         }
 
-        pe::Real dt = R(1.0) / R(target_framerate);
+        pe::Real dt = PE_R(1.0) / PE_R(target_framerate);
         _world.setDt(dt);
         init();
         if (use_gui) {
@@ -1012,7 +1012,7 @@ namespace pe_intf {
             }
 
             static int saved_file_count = 0;
-            static int program_tick = I(COMMON_GetTickCount());
+            static int program_tick = PE_I(COMMON_GetTickCount());
             if ((use_gui && Viewer::getKeyState('n') == 0) || _saving) {
                 if (!utils::FileSystem::isDirectory(save_path)) {
                     utils::FileSystem::makeDir(save_path);
@@ -1035,11 +1035,11 @@ namespace pe_intf {
             }
         }
 
-        pe::Real total_time = R(total_tick) * R(0.000001);
-        pe::Real step_time = R(total_step_tick) * R(0.000001);
+        pe::Real total_time = PE_R(total_tick) * PE_R(0.000001);
+        pe::Real step_time = PE_R(total_step_tick) * PE_R(0.000001);
         std::cout << "frame count: " << frame << std::endl;
-	    std::cout << "simulation time: " << step_time << "s, simulation fps: " << R(frame) / step_time << std::endl;
-        std::cout << "total time: " << total_time << "s, fps: " << R(frame) / total_time << std::endl;
+	    std::cout << "simulation time: " << step_time << "s, simulation fps: " << PE_R(frame) / step_time << std::endl;
+        std::cout << "total time: " << total_time << "s, fps: " << PE_R(frame) / total_time << std::endl;
         std::cout << "update status time: " << _world.update_status_time << "s " << _world.update_status_time / total_time << std::endl;
         std::cout << "broad phase time: " << _world.broad_phase_time << "s " << _world.broad_phase_time / total_time << std::endl;
         std::cout << "narrow phase time: " << _world.narrow_phase_time << "s " << _world.narrow_phase_time / total_time << std::endl;

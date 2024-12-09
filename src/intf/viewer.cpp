@@ -7,14 +7,14 @@ namespace pe_intf {
     pe::HashMap<int, simple_viewer::ObjType> Viewer::_obj_map; // NOLINT
 
     common::Vector3<float> Viewer::convertVector3(const pe::Vector3& vector) {
-        return {F(vector.x()), F(vector.y()), F(vector.z())};
+        return {PE_F(vector.x()), PE_F(vector.y()), PE_F(vector.z())};
     }
 
     common::Matrix3<float> Viewer::convertMatrix3(const pe::Matrix3& matrix) {
         common::Matrix3<float> result;
-        result << F(matrix(0, 0)), F(matrix(0, 1)), F(matrix(0, 2)),
-                  F(matrix(1, 0)), F(matrix(1, 1)), F(matrix(1, 2)),
-                  F(matrix(2, 0)), F(matrix(2, 1)), F(matrix(2, 2));
+        result << PE_F(matrix(0, 0)), PE_F(matrix(0, 1)), PE_F(matrix(0, 2)),
+                  PE_F(matrix(1, 0)), PE_F(matrix(1, 1)), PE_F(matrix(1, 2)),
+                  PE_F(matrix(2, 0)), PE_F(matrix(2, 1)), PE_F(matrix(2, 2));
         return std::move(result);
     }
 
@@ -88,7 +88,7 @@ namespace pe_intf {
     int Viewer::addCube(const pe::Vector3& size) {
         int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CUBE, true,
-                F(size.x()), F(size.y()), F(size.z())));
+                PE_F(size.x()), PE_F(size.y()), PE_F(size.z())));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CUBE;
         return id;
     }
@@ -104,7 +104,7 @@ namespace pe_intf {
     int Viewer::addSphere(pe::Real radius) {
         int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_SPHERE, true,
-                F(radius)));
+                PE_F(radius)));
         _obj_map[id] = simple_viewer::ObjType::OBJ_SPHERE;
         return id;
     }
@@ -112,7 +112,7 @@ namespace pe_intf {
     int Viewer::addCylinder(pe::Real radius, pe::Real height) {
         int id = addObj(simple_viewer::ObjInitParam(
                 simple_viewer::ObjType::OBJ_CYLINDER, true,
-                F(radius), F(height)));
+                PE_F(radius), PE_F(height)));
         _obj_map[id] = simple_viewer::ObjType::OBJ_CYLINDER;
         return id;
     }

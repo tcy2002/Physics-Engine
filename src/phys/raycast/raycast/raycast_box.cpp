@@ -11,7 +11,7 @@ namespace pe_phys_raycast {
         const pe::Vector3 dir_local = trans.getBasis().transpose() * direction;
 
         if (rayHitBox(start_local, dir_local,
-                      -size / R(2.0), size / R(2.0),
+                      -size / PE_R(2.0), size / PE_R(2.0),
                       distance, hit_point, hit_normal)) {
             if (distance <= max_dist) {
                 hit_point = trans * hit_point;
@@ -50,11 +50,11 @@ namespace pe_phys_raycast {
         hit_point = start + dir * t_enter;
         hit_normal = pe::Vector3::Zero();
         if (t_enter == t_min.x()) {
-            hit_normal.x() = dir.x() > 0 ? R(-1.0) : R(1.0);
+            hit_normal.x() = dir.x() > 0 ? PE_R(-1.0) : PE_R(1.0);
         } else if (t_enter == t_min.y()) {
-            hit_normal.y() = dir.y() > 0 ? R(-1.0) : R(1.0);
+            hit_normal.y() = dir.y() > 0 ? PE_R(-1.0) : PE_R(1.0);
         } else {
-            hit_normal.z() = dir.z() > 0 ? R(-1.0) : R(1.0);
+            hit_normal.z() = dir.z() > 0 ? PE_R(-1.0) : PE_R(1.0);
         }
 
         return true;

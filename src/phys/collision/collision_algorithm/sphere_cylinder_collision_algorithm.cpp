@@ -76,5 +76,4 @@ namespace pe_phys_collision {
         return true;
     }
 
-
 } // pe_phys_collision

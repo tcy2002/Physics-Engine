@@ -46,12 +46,12 @@ namespace pe_phys_collision {
                     p_out.push_back(endVertex);
                 } else {
                     // Start < 0, end >= 0, so output intersection
-                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * R(ds * 1.f / (ds - de)));
+                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * PE_R(ds * 1.f / (ds - de)));
                 }
             } else {
                 if (de < 0) {
                     // Start >= 0, end < 0 so output intersection and end
-                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * R(ds * 1.f / (ds - de)));
+                    p_out.emplace_back(firstVertex + (endVertex - firstVertex) * PE_R(ds * 1.f / (ds - de)));
                     p_out.push_back(endVertex);
                 }
             }
@@ -179,7 +179,7 @@ namespace pe_phys_collision {
         const pe::Real dir_a_dot_trans = dir_a.dot(translation);
         const pe::Real dir_b_dot_trans = dir_b.dot(translation);
 
-        const pe::Real d = R(1.0) - dir_a_dot_dir_b * dir_a_dot_dir_b;
+        const pe::Real d = PE_R(1.0) - dir_a_dot_dir_b * dir_a_dot_dir_b;
 
         if (d == 0) {
             t_a = 0;
@@ -267,7 +267,7 @@ namespace pe_phys_collision {
             const pe::Vector3 normal = face.normal;
             pe::Vector3 face_a_normal_w = trans_a.getBasis() * normal;
             if (delta_c2.dot(face_a_normal_w) < 0)
-                face_a_normal_w *= R(-1.0);
+                face_a_normal_w *= PE_R(-1.0);
 
             pe::Real d;
             pe::Vector3 w_a, w_b;
@@ -289,7 +289,7 @@ namespace pe_phys_collision {
             const pe::Vector3 normal = face.normal;
             pe::Vector3 world_normal = trans_b.getBasis() * normal;
             if (delta_c2.dot(world_normal) < 0) {
-                world_normal *= R(-1.0);
+                world_normal *= PE_R(-1.0);
             }
 
             pe::Real d;
@@ -332,7 +332,7 @@ namespace pe_phys_collision {
                 if (!PE_APPROX_EQUAL(cross.norm(), 0)) {
                     cross.normalize();
                     if (delta_c2.dot(cross) < 0) {
-                        cross *= R(-1.0);
+                        cross *= PE_R(-1.0);
                     }
 
                     pe::Real dist;
@@ -382,9 +382,9 @@ namespace pe_phys_collision {
             pe::Real nl_sqrt = pts_vector.squaredNorm();
             if (nl_sqrt > PE_EPS) {
                 pe::Real nl = std::sqrt(nl_sqrt);
-                pts_vector *= R(1.0) / nl;
+                pts_vector *= PE_R(1.0) / nl;
                 if (pts_vector.dot(delta_c2) < 0) {
-                    pts_vector *= R(-1.0);
+                    pts_vector *= PE_R(-1.0);
                 }
                 pe::Vector3 ptOnB = witness_point_b + offset_b;
                 pe::Real distance = nl;

@@ -32,13 +32,13 @@ namespace pe_intf {
 
     void World::updateObjectStatus() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(UI(_collision_objects.size()), [&](int i) {
+        utils::ThreadPool::forLoop(PE_UI(_collision_objects.size()), [&](int i) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) {
                 rb->step(_dt); // only update AABB
                 return;
             }
-            const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            const auto ratio = (rb->getStaticCount() + 1) / PE_R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().squaredNorm() >= _sleep_lin_vel2_threshold * ratio ||
                     rb->getAngularVelocity().squaredNorm() >= _sleep_ang_vel2_threshold * ratio) {
@@ -113,7 +113,7 @@ namespace pe_intf {
 
     void World::execCollisionCallbacks() {
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(UI(_contact_results.size()), [&](int i) {
+        utils::ThreadPool::forLoop(PE_UI(_contact_results.size()), [&](int i) {
             const auto& cr = _contact_results[i];
             if (cr->getPointSize() == 0) return;
             const auto rb1 = cr->getObjectA();
@@ -133,7 +133,7 @@ namespace pe_intf {
             }
             pos /= cr->getPointSize();
             nor.normalize();
-            depth /= R(cr->getPointSize());
+            depth /= PE_R(cr->getPointSize());
             vel /= cr->getPointSize();
 
             for (auto& cb : rb1->getCollisionCallbacks()) {
@@ -180,7 +180,7 @@ namespace pe_intf {
         if (_fracture_sources.empty()) {
             return;
         }
-        for (int i = 0; i < I(_collision_objects.size()); i++) {
+        for (int i = 0; i < PE_I(_collision_objects.size()); i++) {
             auto rb = _collision_objects[i];
             if (rb->isFracturable()) {
                 _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);
@@ -206,7 +206,7 @@ namespace pe_intf {
     }
 
     void World::removeRigidBody(pe_phys_object::RigidBody *rigidbody) {
-        for (int i = 0; i < I(_collision_objects.size()); i++) {
+        for (int i = 0; i < PE_I(_collision_objects.size()); i++) {
             if (_collision_objects[i]->getGlobalId() == rigidbody->getGlobalId()) {
                 _collision_objects.erase(_collision_objects.begin() + i);
                 _rigidbodies_to_remove.push_back(rigidbody);
@@ -221,7 +221,7 @@ namespace pe_intf {
     }
 
     void World::removeConstraint(pe_phys_constraint::Constraint *constraint) {
-        for (int i = 0; i < I(_constraints.size()); i++) {
+        for (int i = 0; i < PE_I(_constraints.size()); i++) {
             if (_constraints[i]->getGlobalId() == constraint->getGlobalId()) {
                 _constraints.erase(_constraints.begin() + i);
                 break;
@@ -240,26 +240,26 @@ namespace pe_intf {
         // external force
         applyExternalForce();
         auto end = COMMON_GetMicroTickCount();
-        update_status_time += R(end - start) * R(0.000001);
+        update_status_time += PE_R(end - start) * PE_R(0.000001);
 
         // collision detection
         start = COMMON_GetMicroTickCount();
         _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
         end = COMMON_GetMicroTickCount();
-        broad_phase_time += R(end - start) * R(0.000001);
+        broad_phase_time += PE_R(end - start) * PE_R(0.000001);
 
         start = COMMON_GetMicroTickCount();
         _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
         execCollisionCallbacks();
         end = COMMON_GetMicroTickCount();
-        narrow_phase_time += R(end - start) * R(0.000001);
+        narrow_phase_time += PE_R(end - start) * PE_R(0.000001);
 
         // constraints
         start = COMMON_GetMicroTickCount();
         _constraint_solver->setupSolver(_dt, _gravity, _collision_objects, _contact_results, _constraints);
         _constraint_solver->solve();
         end = COMMON_GetMicroTickCount();
-        constraint_solver_time += R(end - start) * R(0.000001);
+        constraint_solver_time += PE_R(end - start) * PE_R(0.000001);
     }
 
 } // namespace pe_intf

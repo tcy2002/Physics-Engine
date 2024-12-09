@@ -17,7 +17,7 @@ namespace pe_phys_constraint {
         pe::VectorX gradient(const pe::VectorX &in) const override {
             const pe::Real r2 = in[1] * in[1] + in[2] * in[2] + _perturbation;
             const pe::Real r = PE_SQRT(r2);
-            pe::VectorX ret(2);
+            pe::Vector2 ret;
             ret[0] = in[1] / r;
             ret[1] = in[2] / r;
             return std::move(ret);
@@ -26,12 +26,12 @@ namespace pe_phys_constraint {
         pe::MatrixMN hessian(const pe::VectorX &in) const override {
             const pe::Real p = PE_MAX(_perturbation, 1e-6);
             const pe::Real r2 = in[1] * in[1] + in[2] * in[2] + p;
-            pe::MatrixMN ret(2, 2);
-            const pe::Real r3 = r2 * PE_SQRT(r2);
-            ret(0, 0) = in[2] * in[2] + p;
-            ret(0, 1) = ret(1, 0) = -in[1] * in[2];
-            ret(1, 1) = in[1] * in[1] + p;
-            ret /= r3;
+            pe::Matrix2 ret = pe::Matrix2::Zero();
+            const pe::Real r3 = PE_POW(r2, -1.5);
+            pe::Vector2 zmy;
+            zmy << in[2], -in[1];
+            ret << zmy * zmy.transpose() + p * pe::Matrix2::Identity();
+            ret *= r3;
             return std::move(ret);
         }
 
@@ -43,12 +43,12 @@ namespace pe_phys_constraint {
 
         pe::VectorX project(const pe::VectorX &in, const pe::VectorX &start, pe::Real target) const override {
             pe::VectorX out = in;
-            out[0] = out[0] < 0 ? 0 : out[0];
+            if (in(0) < 0) {
+                out(0) = 0;
+            }
             if (constraint(out) > target) {
-                const pe::Real r = PE_MAX(radius_at(in[0]) + target, 0);
-                const pe::Real k = r / PE_SQRT(out[1] * out[1] + out[2] * out[2]);
-                out[1] *= k;
-                out[2] *= k;
+                const pe::Real r = PE_MAX(radius_at(int(0)) + target, pe::Real(0));
+                out.tail(2) *= r / out.tail(2).norm();
             }
             return std::move(out);
         }

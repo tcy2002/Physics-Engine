@@ -17,24 +17,35 @@ namespace pe_phys_constraint {
                 pe::Real c = constraint(out);
                 pe::Real c_diff = target - c;
                 pe::VectorX g = gradient(out);
-                pe::VectorX diff = (out - in) - g * l;
+                pe::VectorX diff = (out - in) - l * g;
                 if (diff.norm() < 1e-10 && PE_ABS(c_diff) < 1e-10) {
                     break;
                 }
                 pe::MatrixMN h = pe::MatrixMN::Identity(in.size(), in.size()) - l * hessian(out);
                 pe::MatrixMN lhs(in.size() + 1, in.size() + 1);
                 pe::VectorX rhs(in.size() + 1);
-                for (size_t j = 0; j < in.size(); j++) {
-                    for (size_t k = 0; k < in.size(); k++) {
-                        lhs(j, k) = h(j, k);
+                lhs << h, -g, -g.transpose(), 0;
+                rhs << -diff, -c_diff;
+                lhs.block(0, 0, in.size(), in.size()) += pe::MatrixMN::Identity(in.size(), in.size()) * diff.norm();
+                Eigen::JacobiSVD<pe::MatrixMN> svd(lhs, Eigen::ComputeThinU | Eigen::ComputeThinV);
+                pe::VectorX x = svd.solve(rhs);
+                pe::Real dl = x(x.size() - 1);
+                pe::VectorX dx = x.block(0, 0, in.size() - 1, 1);
+                pe::Real step = 1.0;
+                for (int j = 0; j < 30; j++) {
+                    pe::VectorX test_out = out + step * dx;
+                    pe::Real test_l = l + step * dl;
+                    pe::Real test_c = constraint(test_out);
+                    pe::Real test_c_diff = target - test_c;
+                    pe::VectorX test_g = gradient(test_out);
+                    pe::VectorX test_diff = (test_out - in) - test_l * test_g;
+                    if (test_diff.squaredNorm() + test_c_diff * test_c_diff < diff.squaredNorm() + c_diff * c_diff) {
+                        out = test_out;
+                        l = test_l;
+                        break;
                     }
-                    lhs(j, in.size()) = -g[j];
-                    lhs(in.size(), j) = -g[j];
-                    rhs[j] = diff[j];
+                    step *= 0.5;
                 }
-                lhs(in.size(), in.size()) = 0;
-                rhs[in.size()] = -c_diff;
-                // TODO
             }
             return out;
         }

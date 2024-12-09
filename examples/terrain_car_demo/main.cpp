@@ -22,7 +22,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
 
         // add a terrain ground
         auto rb1 = createConcaveRigidBody(TERRAIN_CAR_DEMO_SOURCE_DIR "/terrain.obj",
@@ -97,8 +97,8 @@ protected:
         shape->setMesh(mesh);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
+        rb->setFrictionCoeff(PE_R(0.5));
+        rb->setRestitutionCoeff(PE_R(0.5));
         rb->setKinematic(true);
         return rb;
     }
@@ -112,9 +112,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(PE_R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(PE_R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(PE_R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 };

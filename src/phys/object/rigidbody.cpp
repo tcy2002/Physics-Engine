@@ -22,7 +22,7 @@ namespace pe_phys_object {
 
     void RigidBody::setMass(pe::Real mass) {
         _mass = mass;
-        _inv_mass = mass > PE_EPS ? R(1.0) / mass : 0;
+        _inv_mass = mass > PE_EPS ? PE_R(1.0) / mass : 0;
         if (_collision_shape != nullptr) {
             _local_inertia = _collision_shape->getLocalInertia() * mass;
         } else if (_mass > PE_EPS) {
@@ -48,13 +48,13 @@ namespace pe_phys_object {
         updateWorldInertia();
     }
 
-    pe::Vector3 RigidBody::getTempLinearVelocity() {
+    const pe::Vector3& RigidBody::getTempLinearVelocity() {
 //        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         return _temp_linear_velocity;
     }
 
-    pe::Vector3 RigidBody::getTempAngularVelocity() {
-//        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
+    const pe::Vector3& RigidBody::getTempAngularVelocity() {
+//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         return _temp_angular_velocity;
     }
 
@@ -105,7 +105,7 @@ namespace pe_phys_object {
     pe::Real RigidBody::getAABBScale() const {
         const pe::Real scale = (_aabb_max - _aabb_min).norm();
         const pe::Real diff = (_aabb_max + _aabb_min - _transform.getOrigin() * 2).norm();
-        return (scale + diff) * R(0.5);
+        return (scale + diff) * PE_R(0.5);
     }
 
     void RigidBody::removeIgnoreCollisionId(uint32_t id) {
@@ -127,7 +127,7 @@ namespace pe_phys_object {
 
     pe::Real RigidBody::getKineticEnergy() const {
         return (_linear_velocity.dot(_mass * _linear_velocity) +
-            _angular_velocity.dot(_local_inertia * _angular_velocity)) * R(0.5);
+            _angular_velocity.dot(_local_inertia * _angular_velocity)) * PE_R(0.5);
     }
 
     pe::Real RigidBody::getImpulseDenominator(const pe::Vector3& world_point, const pe::Vector3& world_normal) const {
@@ -180,8 +180,8 @@ namespace pe_phys_object {
 
     void RigidBody::applyDamping(pe::Real dt) {
         if (isKinematic()) return;
-        _linear_velocity *= PE_POW(R(1.0) - _linear_damping, dt);
-        _angular_velocity *= PE_POW(R(1.0) - _angular_damping, dt);
+        _linear_velocity *= PE_POW(PE_R(1.0) - _linear_damping, dt);
+        _angular_velocity *= PE_POW(PE_R(1.0) - _angular_damping, dt);
     }
 
     bool RigidBody::step(pe::Real dt) {
@@ -200,7 +200,7 @@ namespace pe_phys_object {
         _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
 #   ifdef PE_USE_QUATERNION
         auto q = pe::Quaternion(_transform.getBasis());
-        const pe::Vector3 dr = _angular_velocity * dt * R(0.5);
+        const pe::Vector3 dr = _angular_velocity * dt * PE_R(0.5);
         const auto dq = pe::Quaternion(0, dr.x(), dr.y(), dr.z()) * q;
         q = pe::Quaternion(q.w() + dq.w(), q.x() + dq.x(), q.y() + dq.y(), q.z() + dq.z());
         q.normalize();

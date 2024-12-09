@@ -79,8 +79,8 @@ namespace pe_phys_collision {
             cx = p[0];
             cy = p[1];
         } else if (n == 2) {
-            cx = R(0.5) * (p[0] + p[2]);
-            cy = R(0.5) * (p[1] + p[3]);
+            cx = PE_R(0.5) * (p[0] + p[2]);
+            cy = PE_R(0.5) * (p[1] + p[3]);
         } else {
             a = 0;
             cx = 0;
@@ -95,7 +95,7 @@ namespace pe_phys_collision {
             const pe::Real p0 = p[0], p1 = p[1], pm1 = p[n * 2 - 1], pm2 = p[n * 2 - 2];
             q = pm2 * p1 - p0 * pm1;
             if (PE_ABS(a + q) > PE_EPS) {
-                a = R(1.0) / (R(3.0) * (a + q));
+                a = PE_R(1.0) / (PE_R(3.0) * (a + q));
             } else {
                 a = PE_REAL_MAX;
             }
@@ -114,7 +114,7 @@ namespace pe_phys_collision {
         i_ret[0] = i0;
         i_ret++;
         for (int j = 1; j < m; j++) {
-            a = R(j) * (2 * PE_PI / m) + A[i0];
+            a = PE_R(j) * (2 * PE_PI / m) + A[i0];
             if (a > PE_PI) a -= 2 * PE_PI;
             auto max_diff = PE_REAL_MAX;
 
@@ -159,12 +159,12 @@ namespace pe_phys_collision {
         // get side lengths / 2
         const auto& side1 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_a)->getSize();
         const auto& side2 = dynamic_cast<pe_phys_shape::BoxShape*>(shape_b)->getSize();
-        A[0] = side1[0] * R(0.5);
-        A[1] = side1[1] * R(0.5);
-        A[2] = side1[2] * R(0.5);
-        B[0] = side2[0] * R(0.5);
-        B[1] = side2[1] * R(0.5);
-        B[2] = side2[2] * R(0.5);
+        A[0] = side1[0] * PE_R(0.5);
+        A[1] = side1[1] * PE_R(0.5);
+        A[2] = side1[2] * PE_R(0.5);
+        B[0] = side2[0] * PE_R(0.5);
+        B[1] = side2[1] * PE_R(0.5);
+        B[2] = side2[2] * PE_R(0.5);
 
         // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
         pe::Matrix3 Rij = R1.transpose() * R2;
@@ -289,7 +289,7 @@ namespace pe_phys_collision {
             pa[2] = p1[2];
 
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R1.col(j)) > 0 ? R(1.0) : R(-1.0);
+                sign = normal.dot(R1.col(j)) > 0 ? PE_R(1.0) : PE_R(-1.0);
                 pa[0] += sign * A[j] * R1(0, j);
                 pa[1] += sign * A[j] * R1(1, j);
                 pa[2] += sign * A[j] * R1(2, j);
@@ -299,7 +299,7 @@ namespace pe_phys_collision {
             pe::Vector3 pb;
             for (i = 0; i < 3; i++) pb[i] = p2[i];
             for (j = 0; j < 3; j++) {
-                sign = normal.dot(R2.col(j)) > 0 ? R(-1.0) : R(1.0);
+                sign = normal.dot(R2.col(j)) > 0 ? PE_R(-1.0) : PE_R(1.0);
                 pb[0] += sign * B[j] * R2(0, j);
                 pb[1] += sign * B[j] * R2(1, j);
                 pb[2] += sign * B[j] * R2(2, j);
@@ -327,7 +327,7 @@ namespace pe_phys_collision {
                 alpha = 0;
                 beta = 0;
             } else {
-                d = R(1.0) / d;
+                d = PE_R(1.0) / d;
                 alpha = (q1 + ua_ub * q2) * d;
                 beta = (ua_ub * q1 + q2) * d;
             }

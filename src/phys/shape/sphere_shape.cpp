@@ -3,8 +3,8 @@
 namespace pe_phys_shape {
 
     SphereShape::SphereShape(pe::Real radius): _radius(radius) {
-        _volume = R(4.0 / 3.0) * PE_PI * radius * radius * radius;
-        const pe::Real i = R(2.0 / 5.0) * _radius * _radius;
+        _volume = PE_R(4.0 / 3.0) * PE_PI * radius * radius * radius;
+        const pe::Real i = PE_R(2.0 / 5.0) * _radius * _radius;
         _local_inertia <<
             i, 0, 0,
             0, i, 0,

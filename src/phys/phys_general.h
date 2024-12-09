@@ -24,18 +24,18 @@
 #define PE_DATA_DOWNLOAD_PATH "./data"
 
 //// type cast
-#define R(n) static_cast<pe::Real>(n)
-#define F(n) static_cast<float>(n)
-#define D(n) static_cast<double>(n)
-#define UI(n) static_cast<uint32_t>(n)
-#define I(n) static_cast<int>(n)
-#define IL(n) static_cast<int64_t>(n)
-#define UIL(n) static_cast<uint64_t>(n)
+#define PE_R(n) static_cast<pe::Real>(n)
+#define PE_F(n) static_cast<float>(n)
+#define PE_D(n) static_cast<double>(n)
+#define PE_UI(n) static_cast<uint32_t>(n)
+#define PE_I(n) static_cast<int>(n)
+#define PE_IL(n) static_cast<int64_t>(n)
+#define PE_UIL(n) static_cast<uint64_t>(n)
 
 //// real
 #ifdef PE_USE_DOUBLE
-#define PE_REAL_MAX R(1e100)
-#define PE_REAL_MIN R(-1e100)
+#define PE_REAL_MAX PE_R(1e100)
+#define PE_REAL_MIN PE_R(-1e100)
 #else
 #define PE_REAL_MAX R(1e30)
 #define PE_REAL_MIN R(-1e30)
@@ -72,6 +72,9 @@
 //// geometry types
 #include <common/mesh.h>
 #include <common/transform.h>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <Eigen/Sparse>
 namespace pe {
 #ifdef PE_USE_DOUBLE
     using Real = double;
@@ -82,13 +85,19 @@ namespace pe {
     using Vector2 = Eigen::Matrix<Real, 2, 1>;
     using Vector3 = common::Vector3<Real>;
     using Vector4 = Eigen::Matrix<Real, 4, 1>;
+    using Vector6 = Eigen::Matrix<Real, 6, 1>;
     using Matrix2 = Eigen::Matrix<Real, 2, 2>;
     using Matrix3 = common::Matrix3<Real>;
     using Matrix4 = Eigen::Matrix<Real, 4, 4>;
+    using Matrix6 = Eigen::Matrix<Real, 6, 6>;
     using Transform = common::Transform<Real>;
     using Quaternion = common::Quaternion<Real>;
     using VectorX = Eigen::Matrix<Real, Eigen::Dynamic, 1>;
     using MatrixMN = Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic>;
+    using SparseMatrix = Eigen::SparseMatrix<Real, Eigen::RowMajor>;
+    using CG = Eigen::ConjugateGradient<SparseMatrix, Eigen::Lower | Eigen::Upper>;
+    using LDLT = Eigen::SimplicialLDLT<SparseMatrix>;
+    using LU = Eigen::SparseLU<SparseMatrix, Eigen::COLAMDOrdering<int>>;
 } // namespace pe
 
 //// vector3
@@ -123,9 +132,9 @@ namespace pe {
     };
     struct Vector3Hash {
         uint32_t operator()(const pe::Vector3& v) const {
-            auto x = UI(std::round(v.x() / PE_EPS));
-            auto y = UI(std::round(v.y() / PE_EPS));
-            auto z = UI(std::round(v.z() / PE_EPS));
+            auto x = PE_UI(std::round(v.x() / PE_EPS));
+            auto y = PE_UI(std::round(v.y() / PE_EPS));
+            auto z = PE_UI(std::round(v.z() / PE_EPS));
             uint32_t h = 0x995af;
             h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
             h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);

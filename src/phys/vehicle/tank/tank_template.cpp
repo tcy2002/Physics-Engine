@@ -1,9 +1,9 @@
 #include "tank_template.h"
 #include "phys/shape/box_shape.h"
 
-#define PE_TANK_SUS_OFFSET R(0.15)
-#define PE_TANK_WHEEL_MARGIN R(0.025)
-#define PE_TANK_TRACK_MARGIN R(0.01)
+#define PE_TANK_SUS_OFFSET PE_R(0.15)
+#define PE_TANK_WHEEL_MARGIN PE_R(0.025)
+#define PE_TANK_TRACK_MARGIN PE_R(0.01)
 
 namespace pe_phys_vehicle {
 
@@ -72,7 +72,7 @@ namespace pe_phys_vehicle {
         pe::Vector3 wheelDirectionCS0(0, -1, 0);
         pe::Vector3 wheelAxleCS(-1, 0, 0);
         pe::Real suspensionRestLength = _bodyHeight / 2;
-        pe::Real gap = _bodyLength / R(_wheelNum / 2 - 1); //NOLINT
+        pe::Real gap = _bodyLength / PE_R(_wheelNum / 2 - 1); //NOLINT
 #   if PE_TANK_USE_CONTACT_VEHICLE
         ContactVehicle::VehicleTuning m_tuning;
 #   else
@@ -81,14 +81,14 @@ namespace pe_phys_vehicle {
 
         for (int i = 0; i < _wheelNum / 2; i++) {
             pe::Real wheelRadius = i == 0 || i == _wheelNum / 2 - 1 ? _powerWheelRadius : _drivenWheelRadius;
-            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (R(0.5) * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(-_bodyWidth / 2 - (PE_R(0.5) * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
             vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS,
                               suspensionRestLength, wheelRadius,
                               m_tuning, false);
-            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (R(0.5) * _wheelWidth),
+            connectionPointCS0 = pe::Vector3(_bodyWidth / 2 + (PE_R(0.5) * _wheelWidth),
                                              (i == 0 || i == _wheelNum / 2 - 1) ?
                                              connectionHeightEnds : connectionHeight,
                                              gap * i - _bodyLength / 2);
@@ -185,7 +185,7 @@ namespace pe_phys_vehicle {
 
     void TankTemplate::updateWheelsTransform() {
         static pe::Matrix3 wheelRot = pe::Matrix3::Identity();
-        static pe::Real theta = PE_PI / R(2.0);
+        static pe::Real theta = PE_PI / PE_R(2.0);
         static bool init = false;
         if (!init) {
             init = true;
@@ -195,7 +195,7 @@ namespace pe_phys_vehicle {
             wheelRot(1, 1) = cos(theta);
         }
 
-        for (int i = 0; i < I(wheels.size()); i++) {
+        for (int i = 0; i < PE_I(wheels.size()); i++) {
             auto& wi = vehicle->getWheelInfo(i);
             pe::Transform tr = wi.m_worldTransform;
             tr.setBasis(tr.getBasis() * wheelRot);
@@ -335,7 +335,7 @@ namespace pe_phys_vehicle {
         for (int i = side + 2; i < num - 2; i += 2) {
             avgDeltaDist += vehicle->getWheelInfo(i).m_deltaRotation * vehicle->getWheelInfo(i).m_wheelsRadius;
         }
-        avgDeltaDist /= R(num / 2 - 2); //NOLINT
+        avgDeltaDist /= PE_R(num / 2 - 2); //NOLINT
 
         auto& offset = (side == 0 ? trackOffsetLeft : trackOffsetRight);
         auto length = (side == 0 ? trackLengthLeft : trackLengthRight);
@@ -359,38 +359,38 @@ namespace pe_phys_vehicle {
 
     TankTemplate::TankTemplate():
             _transform(pe::Transform::Identity()),
-            _bodyWidth(R(2.3)),
-            _bodyLength(R(7.)),
-            _bodyHeight(R(1.0)),
-            _bodyMass(R(30.0)),
-            _turretWidth(R(2.7)),
-            _turretHeight(R(0.8)),
-            _turretLength(R(3.5)),
-            _turretMass(R(1.)),
-            _turretRotSpeed(R(1.0)),
-            _turretMaxAngle(PE_PI / R(2.4)),
-            _barrelRadius(R(0.128)),
-            _barrelLength(R(4.2)),
-            _barrelMass(R(1.)),
-            _barrelRotSpeed(R(1.0)),
-            _barrelMaxAngle(PE_PI / R(6.)),
+            _bodyWidth(PE_R(2.3)),
+            _bodyLength(PE_R(7.)),
+            _bodyHeight(PE_R(1.0)),
+            _bodyMass(PE_R(30.0)),
+            _turretWidth(PE_R(2.7)),
+            _turretHeight(PE_R(0.8)),
+            _turretLength(PE_R(3.5)),
+            _turretMass(PE_R(1.)),
+            _turretRotSpeed(PE_R(1.0)),
+            _turretMaxAngle(PE_PI / PE_R(2.4)),
+            _barrelRadius(PE_R(0.128)),
+            _barrelLength(PE_R(4.2)),
+            _barrelMass(PE_R(1.)),
+            _barrelRotSpeed(PE_R(1.0)),
+            _barrelMaxAngle(PE_PI / PE_R(6.)),
             _wheelNum(16),
-            _powerWheelRadius(R(0.3)),
-            _drivenWheelRadius(R(0.4)),
-            _wheelWidth(R(0.6)),
-            _wheelFriction(R(0.9)),
-            _wheelRollInfluence(R(0.1)),
-            _wheelRollDamping(R(0.03)),
-            _wheelMass(R(1.)),
-            _trackThickness(R(0.1)),
+            _powerWheelRadius(PE_R(0.3)),
+            _drivenWheelRadius(PE_R(0.4)),
+            _wheelWidth(PE_R(0.6)),
+            _wheelFriction(PE_R(0.9)),
+            _wheelRollInfluence(PE_R(0.1)),
+            _wheelRollDamping(PE_R(0.03)),
+            _wheelMass(PE_R(1.)),
+            _trackThickness(PE_R(0.1)),
             _trackSegmentNum(80),
-            _trackSegmentWidth(R(0.18)),
-            _suspensionStiffness(R(12.0)),
-            _suspensionDamping(R(2.0)),
-            _suspensionCompression(R(2.0)),
-            _engineForce(R(50.)),
-            _maxSpeed(R(50.0)),
-            _maxRotSpeed(R(2.0)) {}
+            _trackSegmentWidth(PE_R(0.18)),
+            _suspensionStiffness(PE_R(12.0)),
+            _suspensionDamping(PE_R(2.0)),
+            _suspensionCompression(PE_R(2.0)),
+            _engineForce(PE_R(50.)),
+            _maxSpeed(PE_R(50.0)),
+            _maxRotSpeed(PE_R(2.0)) {}
 
     void TankTemplate::init(pe_intf::World* dw) {
         forwardForce = _engineForce;
@@ -448,7 +448,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() < _maxSpeed ?
                 vehicle->getForwardVector() * -forwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * R(0.4)));
+        pe::Vector3 forceUp = vehicle->getUpVector() * ((body->getMass() * PE_R(0.4)));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);
@@ -465,7 +465,7 @@ namespace pe_phys_vehicle {
         setBrake(false);
         pe::Vector3 force = getSpeedKmHour() > -_maxSpeed ?
                             vehicle->getForwardVector() * backwardForce : pe::Vector3(0, 0, 0);
-        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * R(0.3));
+        pe::Vector3 forceUp = vehicle->getUpVector() * (body->getMass() * PE_R(0.3));
         if (vehicle->getNumWheelsOnGround() == 0) {
             force = pe::Vector3(0, 0, 0);
             forceUp = pe::Vector3(0, 0, 0);

@@ -18,12 +18,12 @@ namespace pe_phys_vehicle {
         m_wheelDirectionCS = ci.m_wheelDirectionCS;
         m_wheelAxleCS = ci.m_wheelAxleCS;
         m_frictionSlip = ci.m_frictionSlip;
-        m_steering = R(0.);
-        m_engineForce = R(0.);
-        m_rotation = R(0.);
-        m_deltaRotation = R(0.);
-        m_brake = R(0.);
-        m_rollInfluence = R(0.1);
+        m_steering = PE_R(0.);
+        m_engineForce = PE_R(0.);
+        m_rotation = PE_R(0.);
+        m_deltaRotation = PE_R(0.);
+        m_brake = PE_R(0.);
+        m_rollInfluence = PE_R(0.1);
         m_bIsFrontWheel = ci.m_bIsFrontWheel;
         m_maxSuspensionForce = ci.m_maxSuspensionForce;
     }

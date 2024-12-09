@@ -7,8 +7,8 @@ namespace pe_phys_collision {
     void SimpleNarrowPhase::calcContactResults(const pe::Array<CollisionPair>& pairs,
                                                pe::Array<ContactResult*>& results) {
         // clear old contact results
-        const int old_size = I(results.size());
-        const int new_size = I(pairs.size());
+        const int old_size = PE_I(results.size());
+        const int new_size = PE_I(pairs.size());
         if (old_size < new_size) {
             results.resize(new_size);
             for (int i = old_size; i < new_size; i++) {
@@ -22,7 +22,7 @@ namespace pe_phys_collision {
         }
 
 #   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(UI(pairs.size()), [&](int i) {
+        utils::ThreadPool::forLoop(PE_UI(pairs.size()), [&](int i) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);
@@ -40,7 +40,7 @@ namespace pe_phys_collision {
             results[i]->sortContactPoints();
         });
 
-        utils::ThreadPool::forLoop(UI(results.size()), [&](int i) {
+        utils::ThreadPool::forLoop(PE_UI(results.size()), [&](int i) {
             if (results[i]->getPointSize() == 0) {
                 return;
             }

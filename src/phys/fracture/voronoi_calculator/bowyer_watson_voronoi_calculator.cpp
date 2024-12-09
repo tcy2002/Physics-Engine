@@ -92,13 +92,13 @@ namespace pe_phys_fracture {
             }
 
             // remove bad tetrahedrons
-            for (uint32_t i = UI(bad_tetrahedrons.size()) - 1; i != -1; i--) {
+            for (uint32_t i = PE_UI(bad_tetrahedrons.size()) - 1; i != -1; i--) {
                 _manager.remove_tetrahedron(bad_tetrahedrons[i]);
             }
 
             // remove bad triangles
             std::sort(bad_triangles.begin(), bad_triangles.end());
-            for (uint32_t i = UI(bad_triangles.size()) - 1; i != -1; i--) {
+            for (uint32_t i = PE_UI(bad_triangles.size()) - 1; i != -1; i--) {
                 _manager.remove_triangle(bad_triangles[i]);
             }
         }

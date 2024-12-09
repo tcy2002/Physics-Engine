@@ -106,8 +106,8 @@ namespace pe_phys_collision {
 
             if (distanceFromPlane < 0) {
                 //triangle facing the other way
-                distanceFromPlane *= R(-1.);
-                normal *= R(-1.);
+                distanceFromPlane *= PE_R(-1.);
+                normal *= PE_R(-1.);
             }
 
             bool isInsideContactPlane = distanceFromPlane < radiusWithThreshold;

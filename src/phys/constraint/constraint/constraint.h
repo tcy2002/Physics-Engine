@@ -11,12 +11,12 @@ namespace pe_phys_constraint {
     };
 
     struct ConstraintParam {
-        pe::Real dt = R(0.01);
+        pe::Real dt = PE_R(0.01);
 
         // for sequential impulse solver
-        pe::Real restitutionVelocityThreshold = R(0.1);
-        pe::Real penetrationThreshold = R(0.3);
-        pe::Real kerp = R(0.2);
+        pe::Real restitutionVelocityThreshold = PE_R(0.1);
+        pe::Real penetrationThreshold = PE_R(0.3);
+        pe::Real kerp = PE_R(0.2);
 
         // for primal-dual solver
         pe::Vector3 gravity;
@@ -42,7 +42,9 @@ namespace pe_phys_constraint {
 
         // for primal-dual solver
         virtual void initPrimalDual(const ConstraintParam& param) {}
-        virtual bool iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+        virtual bool iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::CG& cg, pe::Real& hu,
+                                       pe::VectorX& du, pe::VectorX& df, pe::VectorX& dl,
+                                       pe::VectorX& ru, pe::VectorX& ru_add,
                                        pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                        pe::Real& exit_err, pe::Real tol) { return false; }
     };

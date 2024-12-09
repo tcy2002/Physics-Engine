@@ -51,7 +51,7 @@ namespace pe_phys_collision {
             auto& f = mesh_concave.faces[fi];
             pe_phys_shape::ConvexMeshShape shape_face;
             pe::Mesh::Face face_face;
-            for (int i = 0; i < I(f.indices.size()); i++) {
+            for (int i = 0; i < PE_I(f.indices.size()); i++) {
                 shape_face._mesh.vertices.push_back(mesh_concave.vertices[f.indices[i]]);
                 face_face.indices.push_back(i);
             }

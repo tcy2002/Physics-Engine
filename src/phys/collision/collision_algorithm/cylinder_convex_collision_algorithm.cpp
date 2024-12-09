@@ -73,7 +73,7 @@ namespace pe_phys_collision {
         // check if the start or end point is inside the vertical face defined by the edge and the normal
         pe::Real t_min = 0, t_max = l_seg;
         auto min_dist_to_edge = PE_REAL_MAX;
-        for (int i = 0; i < I(face.indices.size()); i++) {
+        for (int i = 0; i < PE_I(face.indices.size()); i++) {
             const pe::Vector3& v0 = mesh.vertices[face.indices[i]].position;
             const pe::Vector3& v1 = mesh.vertices[face.indices[(i + 1) % face.indices.size()]].position;
             const pe::Vector3 to_center = face.normal.cross(v1 - v0).normalized();
@@ -115,7 +115,7 @@ namespace pe_phys_collision {
                      dynamic_cast<pe_phys_shape::ConcaveMeshShape*>(shape_o)->getMesh() :
                      dynamic_cast<pe_phys_shape::BoxShape*>(shape_o)->getMesh();
         const pe::Real cyl_r = shape_cyl->getRadius();
-        const pe::Real cyl_h = shape_cyl->getHeight() / R(2.0);
+        const pe::Real cyl_h = shape_cyl->getHeight() / PE_R(2.0);
         const pe::Transform trans_cyl2mesh = trans_o.inverse() * trans_cyl;
         const pe::Vector3 axis_cyl = trans_cyl2mesh.getBasis().col(1);
         const pe::Vector3& pos_cyl = trans_cyl2mesh.getOrigin();
@@ -183,7 +183,7 @@ namespace pe_phys_collision {
         // check whether there is an edge that intersects the cylinder
         for (const auto fi : intersect) {
             auto& f = mesh.faces[fi];
-            for (int i = 0; i < I(f.indices.size()); i++) {
+            for (int i = 0; i < PE_I(f.indices.size()); i++) {
                 const auto& v1 = mesh.vertices[f.indices[i]].position;
                 const auto& v2 = mesh.vertices[f.indices[(i + 1) % f.indices.size()]].position;
                 pe::Real t1, t2;

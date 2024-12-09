@@ -2,6 +2,16 @@
 #include "primal_dual/primal_dual_utils.h"
 #include "primal_dual/non_smooth_forces/non_smooth_contact_force.h"
 
+//#include <amgcl/adapter/block_matrix.hpp>
+//#include <amgcl/amg.hpp>
+//#include <amgcl/backend/eigen.hpp>
+//#include <amgcl/coarsening/smoothed_aggregation.hpp>
+//#include <amgcl/make_solver.hpp>
+//#include <amgcl/relaxation/as_preconditioner.hpp>
+//#include <amgcl/relaxation/gauss_seidel.hpp>
+//#include <amgcl/solver/cg.hpp>
+//#include <amgcl/value_type/static_matrix.hpp>
+
 // style-checked
 namespace pe_phys_constraint {
 
@@ -37,20 +47,20 @@ namespace pe_phys_constraint {
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.n);
                 pe::Vector3 rxn_b = r_b.cross(ci.n);
-                ci.n_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.n_denom_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                         (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             //// tangent denom
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t0);
                 pe::Vector3 rxn_b = r_b.cross(ci.t0);
-                ci.t0_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t0_denom_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
             {
                 pe::Vector3 rxn_a = r_a.cross(ci.t1);
                 pe::Vector3 rxn_b = r_b.cross(ci.t1);
-                ci.t1_denom_inv = R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
+                ci.t1_denom_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a).dot(rxn_a) +
                                          (rot_inv_inertia_b * rxn_b).dot(rxn_b));
             }
 
@@ -152,10 +162,10 @@ namespace pe_phys_constraint {
 
         // the linear systems
         _rhs = pe::VectorX(_n_rigid_dof);
-        _A = pe::MatrixMN(_n_rigid_dof, _n_rigid_dof);
+        _A = pe::SparseMatrix(_n_rigid_dof, _n_rigid_dof);
 
         // property matrices
-        _mass_mat = pe::MatrixMN(_n_rigid_dof, _n_rigid_dof);
+        _mass_mat = pe::SparseMatrix(_n_rigid_dof, _n_rigid_dof);
 
         // init the velocity vectors
         _dt = param.dt;
@@ -169,36 +179,38 @@ namespace pe_phys_constraint {
 
         // init the sparse matrix structure
         pe::Set<pe::KV<size_t, size_t>> obj_pairs;
-        pe::Array<pe::KV<pe::KV<size_t, size_t>, bool>> triplets;
+        pe::Array<Eigen::Triplet<pe::Real>> triplets;
         _nsf->linearSystemReserve(*_contact_results, *_objects, _object2index, obj_pairs, triplets);
-        for (const auto& p : triplets) {
-            if (p.second) {
-                _A(p.first.first, p.first.second) = 1;
+        _A.setFromTriplets(triplets.begin(), triplets.end());
+        for (int k = 0; k < _A.outerSize(); ++k) {
+            for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
+                _mat_pointers[{it.row(), it.col()}] = &it.valueRef();
             }
         }
-        // TODO: what is matPointer?
 
         // init forces and lambda
-        _nsf->preprocess(*_contact_results, *_objects, _object2index, _vel, _dt, _char_mass, _char_speed);
+        _nsf->preprocess(*_contact_results, _contact_size, *_objects, _object2index, _vel, _dt, _char_mass, _char_speed);
         _nsf->initForces(_forces, _lambda);
     }
 
-    bool FrictionContactConstraint::iteratePrimalDual(int iter, pe::VectorX& ru, pe::VectorX& ru_add,
+    bool FrictionContactConstraint::iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::CG& cg, pe::Real& hu,
+                                                      pe::VectorX& du, pe::VectorX& df, pe::VectorX& dl,
+                                                      pe::VectorX& ru, pe::VectorX& ru_add,
                                                       pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                                       pe::Real& exit_err, pe::Real tol) {
         _nsf->calcConstraints(_vel, _forces, _lambda);
         const pe::Real s_dual_gap = _nsf->surrogateDualGap(_lambda);
 
-        const pe::Real mu = s_dual_gap * R(0.1);
+        const pe::Real mu = s_dual_gap * PE_R(0.1);
         PrimalDualUtils::calcResiduals(true, *_contact_results, _contact_size, *_objects, _object2index,
                                        _vel, _forces, _lambda, _vel_old, _mass_mat, _char_mass, _char_speed,
                                        _dt, mu, ru, rf, wrf, rl, _nsf);
 
-        const pe::VectorX ac_vec = _nsf->ACVector(*_contact_results, *_objects, _object2index, _vel, _forces, _lambda);
+        const pe::VectorX ac_vec = _nsf->ACVector(*_contact_results, *_objects, _object2index, _vel, _forces);
         const pe::Real err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
         const pe::Real s_err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
         const pe::Real sac_err = ru.squaredNorm() + ac_vec.squaredNorm() + rl.squaredNorm();
-        const pe::Real eps = R(1e-4) * PE_POW(err, R(0.333333));
+        const pe::Real eps = PE_R(1e-4) * PE_POW(err, PE_R(0.333333));
         const pe::Real m_err = ru.squaredNorm() / _n_rigid_dof;
         exit_err = PE_MAX(m_err, wrf.norm() / _n_force_dof);
         exit_err = PE_MAX(exit_err, rl.norm() / _n_constraint_dof);
@@ -209,11 +221,22 @@ namespace pe_phys_constraint {
         }
 
         _rhs.setConstant(0);
-        _A.setConstant(0);
-        // TODO: what is matPointer?
+        for (int k = 0; k < _A.outerSize(); k++) {
+            for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
+                it.valueRef() = 0;
+            }
+        }
+        for (int k = 0; k < _mass_mat.outerSize(); k++) {
+            for (pe::SparseMatrix::InnerIterator it(_mass_mat, k); it; ++it) {
+                *_mat_pointers[{it.row(), it.col()}] += it.value();
+                if (it.row() == it.col()) {
+                    *_mat_pointers[{it.row(), it.col()}] += eps;
+                }
+            }
+        }
 
         // calculate the linear system
-        //_nsf->linearSystemAddition(*_contact_results, _contact_size, *_objects, _object2index, _lambda, rf, rl, eps, _rhs, matPointer);
+        _nsf->linearSystemAddition(*_contact_results, _contact_size, *_objects, _object2index, _lambda, rf, rl, eps, _rhs, _mat_pointers);
 
         _rhs -= ru;
 
@@ -224,19 +247,113 @@ namespace pe_phys_constraint {
             }
         }
         // scale linear system for better convergence
-        for (size_t i = 0; i < _A.rows(); i++) {
-            d[i] = PE_SQRT(_A(i, i));
+        for (int k = 0; k < _A.outerSize(); k++) {
+            for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
+                if (it.row() == it.col()) {
+                    d[k] = PE_R(1) / PE_SQRT(it.value());
+                }
+            }
         }
-        for (size_t i = 0; i < _A.rows(); i++) {
-            for (size_t j = 0; j < _A.cols(); j++) {
-                _A(i, j) *= d[i] * d[j];
+        for (int k = 0; k < _A.outerSize(); k++) {
+            for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
+                it.valueRef() *= d[it.row()] * d[it.col()];
             }
         }
         _rhs = _rhs.cwiseProduct(d);
 
         size_t max_cg_it = 1000;
         size_t iters = 0;
-        // TODO: what is amgcl
+        pe::Real lin_err;
+
+        if (iter == 0) {
+            ldlt.analyzePattern(_A);
+        }
+        ldlt.factorize(_A);
+        if (ldlt.info() == Eigen::Success) {
+            du = ldlt.solve(_rhs);
+        }
+        else {
+            du.setZero();
+        }
+        
+        /*if (_objects->size() < 2000) {
+            if (iter == 0) {
+                ldlt.analyzePattern(_A);
+            }
+            ldlt.factorize(_A);
+            if (ldlt.info() == Eigen::Success) {
+                du = ldlt.solve(_rhs);
+            }
+            else {
+                du.setZero();
+            }
+        } else {
+            typedef amgcl::static_matrix<pe::Real, 6, 6> dmat_type;
+            typedef amgcl::static_matrix<pe::Real, 6, 1> dvec_type;
+            typedef amgcl::backend::eigen<pe::Real> backend;
+            typedef amgcl::make_solver <
+                amgcl::amg<
+                    backend,
+                    amgcl::coarsening::smoothed_aggregation,
+                    amgcl::relaxation::gauss_seidel
+                >,
+                amgcl::solver::cg<backend>
+            > amg_solver;
+
+            auto p_rhs = reinterpret_cast<dvec_type*>(_rhs.data());
+            auto end_rhs = p_rhs + _objects->size();
+            auto p_x = reinterpret_cast<dvec_type*>(du.data());
+            auto end_x = p_x + _objects->size();
+            auto b = amgcl::make_iterator_range<dvec_type*>(p_rhs, end_rhs);
+            auto x = amgcl::make_iterator_range<dvec_type*>(p_x, end_x);
+            amg_solver::params prm;
+            auto a_b = amgcl::adapter::block_matrix<dmat_type>(_A);
+            prm.solver.maxiter = max_cg_it;
+            amg_solver amgs(a_b, prm);
+            std::tie(iters, lin_err) = amgs(b, x);
+            if (!std::isfinite(lin_err)) {
+                du = cg.compute(_A).solve(_rhs);
+                iters = cg.iterations();
+                lin_err = cg.error();
+            }
+        }*/
+        du = du.cwiseProduct(d);
+
+        _nsf->retrieveNonSmoothForceInc(*_contact_results, _contact_size, *_objects, _object2index, _lambda, du, rf, rl, mu, df, dl);
+
+        auto step_search = PrimalDualUtils::lineSearch(*_contact_results, _contact_size, *_objects, _object2index, _mass_mat, 
+            _vel, _forces, _lambda, du, df, dl, _vel_old, s_err, sac_err, mu, _dt, _char_speed, _char_mass, 20, _nsf);
+
+        bool use_gd = false;
+        if (step_search.stepSize == 0) {
+            use_gd = true;
+            du = -ru;
+            df - rf;
+            dl = rl;
+            step_search = PrimalDualUtils::lineSearch(*_contact_results, _contact_size, *_objects, _object2index, _mass_mat,
+                _vel, _forces, _lambda, du, df, dl, _vel_old, s_err, sac_err, mu, _dt, _char_speed, _char_mass, 20, _nsf);
+        }
+
+        _vel = step_search.newU;
+        _forces = step_search.newF;
+        _lambda = step_search.newL;
+
+        if (!use_gd && step_search.stepSize == 1) {
+            if (iters == max_cg_it) {
+                hu *= PE_R(1.3);
+            } else {
+                hu /= PE_R(4);
+            }
+        } else {
+            hu *= PE_R(4);
+        }
+        hu = PE_MAX(hu, PE_R(1e-6));
+
+        // apply the new velocity to the objects
+        for (size_t i = 0; i < _n_objects; i++) {
+            (*_objects)[i]->setTempLinearVelocity(_vel.segment<3>(i * 6));
+            (*_objects)[i]->setTempAngularVelocity(_vel.segment<3>(i * 6 + 3));
+        }
     }
 
 } // namespace pe_phys_constraint

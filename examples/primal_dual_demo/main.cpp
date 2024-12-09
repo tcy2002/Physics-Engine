@@ -13,31 +13,21 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
         // _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
-        // // add a ground
-        // auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(),
-        //                                             pe::Vector3(0, -5, 0)),
-        //                               pe::Vector3(250, 10, 250), 10000);
-        // rb->setKinematic(true);
-        // _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
+         // add a ground
+         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                                     pe::Vector3(0, -5, 0)),
+                                       pe::Vector3(250, 10, 250), 10000);
+         rb->setKinematic(true);
+         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
         // cube tower
-        // addPyramidCubes();
-        // addUniformCubes();
-
-        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                              pe::Vector3(0, 0, 0)),
-                                pe::Vector3(1, 1, 1), 1);
-        rb->setKinematic(true);
-        _world.addRigidBody(rb);
-        rb = createBoxRigidBody(pe::Transform(Eigen::AngleAxis<pe::Real>(PE_PI / R(6), pe::Vector3(1, 2, 3)).toRotationMatrix(),
-                                              pe::Vector3(0, 2, 0)),
-                                pe::Vector3(1, 1, 1), 1);
-        _world.addRigidBody(rb);
+        addPyramidCubes();
+        //addUniformCubes();
     }
 
     void step() override {
@@ -48,31 +38,31 @@ public:
         // add box1
         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                    pe::Vector3(0, 2.6, 0)),
-                                pe::Vector3(1.2, 1.2, 1.2), 1);
+                                pe::Vector3(1.2, 1.2, 1.2), 1.728);
         _world.addRigidBody(rb);
 
         // add box2
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                               pe::Vector3(0, 4.1, 0)),
-                                pe::Vector3(1.8, 1.8, 1.8), 1);
+                                pe::Vector3(1.8, 1.8, 1.8), 5.832);
         _world.addRigidBody(rb);
 
         // add box3
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                               pe::Vector3(0, 6.3, 0)),
-                                pe::Vector3(2.6, 2.6, 2.6), 1);
+                                pe::Vector3(2.6, 2.6, 2.6), 17.576);
         _world.addRigidBody(rb);
 
         // add box4
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                               pe::Vector3(0, 9.4, 0)),
-                                pe::Vector3(3.6, 3.6, 3.6), 1);
+                                pe::Vector3(3.6, 3.6, 3.6), 46.656);
         _world.addRigidBody(rb);
 
         // add box5
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                               pe::Vector3(0, 13.6, 0)),
-                                pe::Vector3(4.8, 4.8, 4.8), 1);
+                                pe::Vector3(4.8, 4.8, 4.8), 110.592);
         _world.addRigidBody(rb);
     }
 
@@ -95,9 +85,9 @@ protected:
         auto shape = new pe_phys_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(PE_R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(PE_R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(PE_R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 };
