@@ -328,8 +328,8 @@ namespace {
 const std::string LQUOTE("\'");
 const std::string RQUOTE("\'");
 #else
-const std::string LQUOTE("â€˜");
-const std::string RQUOTE("â€™");
+const std::string LQUOTE("¡®");
+const std::string RQUOTE("¡¯");
 #endif
 } // namespace
 

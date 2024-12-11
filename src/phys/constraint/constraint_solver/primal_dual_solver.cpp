@@ -13,9 +13,14 @@ namespace pe_phys_constraint {
             const pe::Array<pe_phys_collision::ContactResult *> &contact_results,
             const pe::Array<Constraint *> &constraints) {
         _collision_objects = objects;
-        for (const auto co : _collision_objects) {
+        if (_collision_objects.empty()) {
+            return;
+        }
+        for (auto co : _collision_objects) {
             co->clearTempVelocity();
-            co->setTempLinearVelocity(co->getLinearVelocity() + gravity * dt);
+            if (!co->isKinematic()) {
+                co->setTempLinearVelocity(co->getLinearVelocity() + gravity * dt);
+            }
         }
 
         _param.dt = dt;
@@ -26,15 +31,24 @@ namespace pe_phys_constraint {
     }
 
     void PrimalDualSolver::solve() {
+        if (_collision_objects.empty()) {
+            return;
+        }
+
         // solve contact constraints
         pe::LDLT ldlt;
         pe::CG cg;
-        pe::Real hu, exit_err, tol = PE_R(1e-8);
+        pe::Real hu = PE_R(1e-4), exit_err, tol = PE_R(1e-4);
         pe::VectorX du, df, dl, ru, ru_add, rf, wrf, rl;
-        _fcc_constraint.iteratePrimalDual(_iteration, ldlt, cg, hu, du, df, dl, ru, ru_add, rf, wrf, rl, exit_err, tol);
+        for (int i = 0; i < _iteration; i++) {
+            if (!_fcc_constraint.iteratePrimalDual(i, ldlt, cg, hu, du, df, dl, ru, ru_add, rf, wrf, rl, exit_err, tol)) {
+                break;
+            }
+        }
 
-        // sync velocity
-        for (const auto co : _collision_objects) {
+        // update velocity
+        _fcc_constraint.afterPrimalDual();
+        for (auto co : _collision_objects) {
             co->syncTempVelocity();
         }
     }

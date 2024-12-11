@@ -135,8 +135,9 @@ namespace pe_phys_constraint {
     }
 
     void FrictionContactConstraint::initPrimalDual(const ConstraintParam &param) {
+        // checked1
         _nsf = new NonSmoothContactForce;
-
+        
         // map object to index
         _object2index.clear();
         for (size_t i = 0; i < _objects->size(); i++) {
@@ -148,6 +149,10 @@ namespace pe_phys_constraint {
         for (const auto cr : *_contact_results) {
             _contact_size += cr->getPointSize();
         }
+        if (_contact_size == 0) {
+            return;
+        }
+
         _n_objects = _objects->size();
         _n_rigid_dof = _n_objects * 6;
         _n_force_dof = _contact_size * _nsf->dimensions();
@@ -157,8 +162,8 @@ namespace pe_phys_constraint {
         // the unknowns are [vel, force, lambda]
         _vel_old = pe::VectorX(_n_rigid_dof);
         _vel = pe::VectorX(_n_rigid_dof);
-        _forces = pe::VectorX(_n_force_dof, 0);
-        _lambda = pe::VectorX(_n_constraint_dof, 0);
+        _forces = pe::VectorX(_n_force_dof);
+        _lambda = pe::VectorX(_n_constraint_dof);
 
         // the linear systems
         _rhs = pe::VectorX(_n_rigid_dof);
@@ -170,21 +175,23 @@ namespace pe_phys_constraint {
         // init the velocity vectors
         _dt = param.dt;
         PrimalDualUtils::initVelocity(*_objects, param.gravity, _dt, _vel_old, _vel);
-        PrimalDualUtils::nonDimensionalParams(_dt, param.gravity, *_objects, *_contact_results, _char_mass, _char_speed);
+        PrimalDualUtils::nonDimensionalParams(_dt, param.gravity, *_objects, _object2index, *_contact_results, _char_mass, _char_speed);
         _vel_old /= _char_speed;
         _vel /= _char_speed;
 
         // init the mass matrix
-        PrimalDualUtils::initMassMatrix(*_objects, _char_mass, _mass_mat);
+        pe::Array<Eigen::Triplet<pe::Real>> triplets;
+        PrimalDualUtils::initMassTriplets(*_objects, _char_mass, triplets);
+        _mass_mat.setFromTriplets(triplets.begin(), triplets.end());
 
         // init the sparse matrix structure
         pe::Set<pe::KV<size_t, size_t>> obj_pairs;
-        pe::Array<Eigen::Triplet<pe::Real>> triplets;
         _nsf->linearSystemReserve(*_contact_results, *_objects, _object2index, obj_pairs, triplets);
         _A.setFromTriplets(triplets.begin(), triplets.end());
+        _mat_pointers.clear();
         for (int k = 0; k < _A.outerSize(); ++k) {
             for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
-                _mat_pointers[{it.row(), it.col()}] = &it.valueRef();
+                _mat_pointers[{it.row(), it.col()}] = &(it.valueRef());
             }
         }
 
@@ -198,6 +205,11 @@ namespace pe_phys_constraint {
                                                       pe::VectorX& ru, pe::VectorX& ru_add,
                                                       pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                                       pe::Real& exit_err, pe::Real tol) {
+        // checked1
+        if (_contact_size == 0) {
+            return false;
+        }
+
         _nsf->calcConstraints(_vel, _forces, _lambda);
         const pe::Real s_dual_gap = _nsf->surrogateDualGap(_lambda);
 
@@ -208,10 +220,10 @@ namespace pe_phys_constraint {
 
         const pe::VectorX ac_vec = _nsf->ACVector(*_contact_results, *_objects, _object2index, _vel, _forces);
         const pe::Real err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
-        const pe::Real s_err = ru.squaredNorm() + wrf.squaredNorm() + rl.squaredNorm();
+        const pe::Real s_err = err;
         const pe::Real sac_err = ru.squaredNorm() + ac_vec.squaredNorm() + rl.squaredNorm();
-        const pe::Real eps = PE_R(1e-4) * PE_POW(err, PE_R(0.333333));
-        const pe::Real m_err = ru.squaredNorm() / _n_rigid_dof;
+        const pe::Real eps = hu * PE_POW(err, PE_R(0.333333));
+        const pe::Real m_err = ru.norm() / _n_rigid_dof;
         exit_err = PE_MAX(m_err, wrf.norm() / _n_force_dof);
         exit_err = PE_MAX(exit_err, rl.norm() / _n_constraint_dof);
         exit_err = PE_MAX(exit_err, s_dual_gap);
@@ -220,7 +232,7 @@ namespace pe_phys_constraint {
             return false;
         }
 
-        _rhs.setConstant(0);
+        _rhs.setZero();
         for (int k = 0; k < _A.outerSize(); k++) {
             for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
                 it.valueRef() = 0;
@@ -237,20 +249,21 @@ namespace pe_phys_constraint {
 
         // calculate the linear system
         _nsf->linearSystemAddition(*_contact_results, _contact_size, *_objects, _object2index, _lambda, rf, rl, eps, _rhs, _mat_pointers);
-
         _rhs -= ru;
 
         pe::VectorX d(_A.rows());
         for (size_t i = 0; i < _n_objects; i++) {
             if ((*_objects)[i]->isKinematic()) {
-                d.segment<6>(i * 6).setConstant(0);
+                d.segment<6>(i * 6).setZero();
             }
         }
+
         // scale linear system for better convergence
         for (int k = 0; k < _A.outerSize(); k++) {
             for (pe::SparseMatrix::InnerIterator it(_A, k); it; ++it) {
                 if (it.row() == it.col()) {
                     d[k] = PE_R(1) / PE_SQRT(it.value());
+                    break;
                 }
             }
         }
@@ -263,7 +276,7 @@ namespace pe_phys_constraint {
 
         size_t max_cg_it = 1000;
         size_t iters = 0;
-        pe::Real lin_err;
+        //pe::Real lin_err;
 
         if (iter == 0) {
             ldlt.analyzePattern(_A);
@@ -275,7 +288,7 @@ namespace pe_phys_constraint {
         else {
             du.setZero();
         }
-        
+
         /*if (_objects->size() < 2000) {
             if (iter == 0) {
                 ldlt.analyzePattern(_A);
@@ -322,13 +335,13 @@ namespace pe_phys_constraint {
         _nsf->retrieveNonSmoothForceInc(*_contact_results, _contact_size, *_objects, _object2index, _lambda, du, rf, rl, mu, df, dl);
 
         auto step_search = PrimalDualUtils::lineSearch(*_contact_results, _contact_size, *_objects, _object2index, _mass_mat, 
-            _vel, _forces, _lambda, du, df, dl, _vel_old, s_err, sac_err, mu, _dt, _char_speed, _char_mass, 20, _nsf);
+            _vel, _forces, _lambda, du, df, dl, _vel_old, s_err, sac_err, mu, _dt, _char_speed, _char_mass, 10, _nsf);
 
         bool use_gd = false;
         if (step_search.stepSize == 0) {
             use_gd = true;
             du = -ru;
-            df - rf;
+            df = rf;
             dl = rl;
             step_search = PrimalDualUtils::lineSearch(*_contact_results, _contact_size, *_objects, _object2index, _mass_mat,
                 _vel, _forces, _lambda, du, df, dl, _vel_old, s_err, sac_err, mu, _dt, _char_speed, _char_mass, 20, _nsf);
@@ -348,6 +361,14 @@ namespace pe_phys_constraint {
             hu *= PE_R(4);
         }
         hu = PE_MAX(hu, PE_R(1e-6));
+
+        return true;
+    }
+
+    void FrictionContactConstraint::afterPrimalDual() {
+        if (_contact_size == 0) {
+            return;
+        }
 
         // apply the new velocity to the objects
         for (size_t i = 0; i < _n_objects; i++) {

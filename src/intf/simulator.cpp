@@ -885,7 +885,7 @@ namespace pe_intf {
                 }
                 case pe_phys_shape::ShapeType::ST_Compound: {
                     auto shape_compound = dynamic_cast<pe_phys_shape::CompoundShape*>(shape);
-                    for (auto shape_child : shape_compound->getShapes()) {
+                    for (auto& shape_child : shape_compound->getShapes()) {
                         pe::Transform trans_child = rb->getTransform() * shape_child.local_transform;
                         switch (shape_child.shape->getType()) {
                             case pe_phys_shape::ShapeType::ST_Box: {
@@ -992,16 +992,19 @@ namespace pe_intf {
                 Viewer::remove(id);
             }
             ids.clear();
+            PE_LOG_DEBUG << "contact pair count: " << _world.getContactResults().size() << PE_ENDL;
             for (auto cr : _world.getContactResults()) {
                 for (int i = 0; i < cr->getPointSize(); i++) {
-                    auto p = cr->getContactPoint(i).getWorldPos();
-                    auto id = Viewer::addSphere(0.1);
-                    Viewer::updateTransform(id, pe_phys_shape::ShapeType::Sphere, pe::Transform(pe::Matrix3::identity(), p));
-                    Viewer::updateColor(id, pe_phys_shape::ShapeType::Sphere, pe::Vector3(0.8, 0.3, 0.3));
+                    auto& p = cr->getContactPoint(i).getWorldPosHalf();
+                    auto& n = cr->getContactPoint(i).getWorldNormal();
+                    auto d = cr->getContactPoint(i).getDistanceNonNeg();
+                    PE_LOG_DEBUG << "pos: [" << p.transpose() << "] nor: [" << n.transpose() << "] dist: " << d << PE_ENDL;
+                    auto id = Viewer::addSphere(0.06);
+                    Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Transform(pe::Matrix3::Identity(), p));
+                    Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_Sphere, pe::Vector3(0.8, 0.3, 0.3));
                     ids.push_back(id);
                 }
             }
-            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
 #       endif
 
             uint64_t blocking_time = 0;

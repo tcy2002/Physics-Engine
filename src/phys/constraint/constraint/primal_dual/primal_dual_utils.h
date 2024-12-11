@@ -6,21 +6,15 @@ namespace pe_phys_constraint {
     public:
         static void initVelocity(const pe::Array<pe_phys_object::RigidBody*>& objects,
                                  const pe::Vector3& gravity, pe::Real dt, pe::VectorX& vel_old, pe::VectorX& vel) {
+            // checked1
             for (size_t i = 0; i < objects.size(); i++) {
                 auto obj = objects[i];
-                const size_t offset = i * 6;
-                const auto& vel_ = obj->getTempLinearVelocity();
-                const auto& ang_vel = obj->getTempAngularVelocity();
                 const pe::Vector3 acc = gravity * dt;
-                vel_old[offset] = vel[offset] = vel_.x();
-                vel_old[offset + 1] = vel[offset + 1] = vel_.y();
-                vel_old[offset + 2] = vel[offset + 2] = vel_.z();
-                vel_old[offset + 3] = vel[offset + 3] = ang_vel.x();
-                vel_old[offset + 4] = vel[offset + 4] = ang_vel.y();
-                vel_old[offset + 5] = vel[offset + 5] = ang_vel.z();
-                vel_old[offset] += acc.x();
-                vel_old[offset + 1] += acc.y();
-                vel_old[offset + 2] += acc.z();
+                vel.segment<6>(i * 6) << obj->getLinearVelocity(), obj->getAngularVelocity();
+                vel_old.segment<6>(i * 6) = vel.segment<6>(i * 6);
+                if (!obj->isKinematic()) {
+                    vel.segment<3>(i * 6) += acc;
+                }
             }
         }
 
@@ -28,41 +22,56 @@ namespace pe_phys_constraint {
                 pe::Real dt,
                 const pe::Vector3& gravity,
                 const pe::Array<pe_phys_object::RigidBody*>& objects,
+                const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
                 const pe::Array<pe_phys_collision::ContactResult*>& contact_results,
                 pe::Real& char_mass, pe::Real& char_speed) {
+            // checked1
             char_mass = 0;
             int active_objects = 0;
             for (const auto obj : objects) {
                 if (!obj->isKinematic()) {
-                    char_mass += obj->getMass() * 3;
-                    const auto& inertia = obj->getWorldInertia();
-                    char_mass += inertia.trace();
+                    char_mass += obj->getMassMatrix6x6().trace();
                     active_objects++;
                 }
             }
-            char_mass = active_objects > 0 ? char_mass / active_objects : 1;
+            char_mass = active_objects > 0 ? char_mass / active_objects / 6 : 1;
 
-            pe::HashMap<pe_phys_object::RigidBody*, pe::Real> obj_speed;
-            for (const auto cr : contact_results) {
-                for (int i = 0; i < cr->getPointSize(); i++) {
-                    auto& p = cr->getContactPoint(i).getWorldPos();
-                    auto& trans_a = cr->getObjectA()->getTransform();
-                    auto& trans_b = cr->getObjectB()->getTransform();
-                    auto vel_a = cr->getObjectA()->getLinearVelocityAtLocalPoint(trans_a.inverseTransform(p));
-                    vel_a += gravity * dt;
-                    auto vel_b = cr->getObjectB()->getLinearVelocityAtLocalPoint(trans_b.inverseTransform(p));
-                    vel_b += gravity * dt;
-                    obj_speed[cr->getObjectA()] = PE_MAX(obj_speed[cr->getObjectA()], vel_a.norm());
-                    obj_speed[cr->getObjectB()] = PE_MAX(obj_speed[cr->getObjectB()], vel_b.norm());
+            pe::VectorX obj_speed = pe::VectorX::Zero(objects.size());
+            for (const auto contact : contact_results) {
+                const auto obj1 = object2index.at(contact->getObjectA());
+                const auto obj2 = object2index.at(contact->getObjectB());
+                const pe_phys_object::RigidBody* objs[2] = { contact->getObjectA(), contact->getObjectB() };
+                const size_t obj_ids[2] = { obj1, obj2 };
+                for (int pi = 0; pi < contact->getPointSize(); pi++) {
+                    auto& cp = contact->getContactPoint(pi);
+                    bool has_static = false;
+                    pe::Vector3 rel_vel = pe::Vector3::Zero();
+                    for (int j = 0; j < 2; j++) {
+                        pe::Vector6 vel_ext;
+                        vel_ext << objs[j]->getLinearVelocity(), objs[j]->getAngularVelocity();
+                        if (!objs[j]->isKinematic()) {
+                            vel_ext.head<3>() += gravity * dt;
+                        } else {
+                            has_static = true;
+                        }
+                        pe::Vector3 rel_vel_half = cp.toLocal(j, vel_ext);
+                        rel_vel += rel_vel_half;
+                        obj_speed[obj_ids[j]] = PE_MAX(obj_speed[obj_ids[j]], rel_vel_half.norm());
+                    }
+                    if (has_static) {
+                        for (int j = 0; j < 2; ++j) {
+                            obj_speed[obj_ids[j]] = PE_MAX(obj_speed[obj_ids[j]], rel_vel.norm());
+                        }
+                    }
                 }
             }
 
             char_speed = 0;
             pe::Real mass_sum = 0;
-            for (const auto& kv : obj_speed) {
-                if (!kv.first->isKinematic()) {
-                    char_speed += kv.second;
-                    mass_sum += kv.first->getMass();
+            for (size_t i = 0; i < objects.size(); i++) {
+                if (!objects[i]->isKinematic()) {
+                    char_speed += obj_speed[i] * objects[i]->getMass();
+                    mass_sum += objects[i]->getMass();
                 }
             }
             char_speed /= mass_sum;
@@ -70,49 +79,50 @@ namespace pe_phys_constraint {
             char_speed = PE_MAX(char_speed, PE_R(1e-4));
         }
 
-        static void initMassMatrix(const pe::Array<pe_phys_object::RigidBody*>& objects,
-                                   pe::Real char_mass, pe::SparseMatrix& m) {
-            pe::Array<Eigen::Triplet<pe::Real>> mass_triplets;
+        static void initMassTriplets(const pe::Array<pe_phys_object::RigidBody*>& objects,
+                                   pe::Real char_mass, pe::Array<Eigen::Triplet<pe::Real>>& triplets) {
+            // checked1
             for (int i = 0; i < PE_I(objects.size()); i++) {
                 if (objects[i]->isKinematic()) {
                     for (int j = 0; j < 6; j++) {
-                        mass_triplets.push_back({ i * 6 + j, i * 6 + j, 1 });
+                        triplets.push_back({ i * 6 + j, i * 6 + j, 1 });
                     }
                 } else {
                     pe::Matrix6 masses = objects[i]->getMassMatrix6x6() / char_mass;
                     for (int j = 0; j < 6; j++) {
                         for (int k = 0; k < 6; k++) {
                             if (masses(j, k)) {
-                                mass_triplets.push_back({ i * 6 + j, i * 6 + k, masses(j, k) });
+                                triplets.push_back({ i * 6 + j, i * 6 + k, masses(j, k) });
                             }
                         }
                     }
                 }
             }
-            m.setFromTriplets(mass_triplets.begin(), mass_triplets.end());
         }
 
         static void calcResiduals(
-            bool use_stored_constraints,
-            const pe::Array<pe_phys_collision::ContactResult*>& contacts,
-            size_t contact_size,
-            const pe::Array<pe_phys_object::RigidBody*>& objects,
-            const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
-            const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda, const pe::VectorX& vel_old,
-            const pe::MatrixMN& mass_mat, pe::Real char_mass, pe::Real char_speed, pe::Real dt, pe::Real mu,
-            pe::VectorX& ru, pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
-            NonSmoothForceBase* _nsf) {
+                bool use_stored_constraints,
+                const pe::Array<pe_phys_collision::ContactResult*>& contacts,
+                size_t contact_size,
+                const pe::Array<pe_phys_object::RigidBody*>& objects,
+                const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
+                const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda, const pe::VectorX& vel_old,
+                const pe::MatrixMN& mass_mat, pe::Real char_mass, pe::Real char_speed, pe::Real dt, pe::Real mu,
+                pe::VectorX& ru, pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
+                NonSmoothForceBase* _nsf) {
+            // checked1
             pe::VectorX ru_add;
             ru = mass_mat * (vel - vel_old);
             for (size_t i = 0; i < objects.size(); i++) {
                 if (objects[i]->isKinematic()) {
-                    ru.segment<6>(i * 6).setConstant(0);
+                    ru.segment<6>(i * 6).setZero();
                 }
             }
             pe::VectorX f_weight = _nsf->calcTangentWeight(contacts, objects, object2index, vel, forces, char_mass);
             _nsf->nonSmoothResiduals(contacts, contact_size, objects, object2index,
                 vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
             ru += ru_add;
+
             wrf = rf.cwiseProduct(f_weight);
         }
 
@@ -126,17 +136,18 @@ namespace pe_phys_constraint {
         };
 
         static LineSearchResult lineSearch(
-            const pe::Array<pe_phys_collision::ContactResult*>& contacts,
-            size_t contact_size,
-            const pe::Array<pe_phys_object::RigidBody*>& objects,
-            const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
-            const pe::SparseMatrix& mass_mat,
-            const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda,
-            const pe::VectorX& du, const pe::VectorX& df, const pe::VectorX& dl,
-            const pe::VectorX& vels_old, pe::Real s_err, pe::Real sac_err, pe::Real mu, pe::Real dt,
-            pe::Real char_speed, pe::Real char_mass, int max_linear_search,
-            NonSmoothForceBase* _nsf) {
-            pe::Real step = 1.0;
+                const pe::Array<pe_phys_collision::ContactResult*>& contacts,
+                size_t contact_size,
+                const pe::Array<pe_phys_object::RigidBody*>& objects,
+                const pe::Map<pe_phys_object::RigidBody*, size_t>& object2index,
+                const pe::SparseMatrix& mass_mat,
+                const pe::VectorX& vel, const pe::VectorX& forces, const pe::VectorX& lambda,
+                const pe::VectorX& du, const pe::VectorX& df, const pe::VectorX& dl,
+                const pe::VectorX& vels_old, pe::Real s_err, pe::Real sac_err, pe::Real mu, pe::Real dt,
+                pe::Real char_speed, pe::Real char_mass, int max_linear_search,
+                NonSmoothForceBase* _nsf) {
+            // checked1
+            pe::Real step = PE_R(1.0);
             LineSearchResult res;
             res.newU = vel;
             res.newF = forces;

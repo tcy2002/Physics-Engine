@@ -33,8 +33,9 @@ namespace pe_phys_constraint {
         void setContactResult(pe_phys_collision::ContactResult& cr) { _contact_result = &cr; }
 
         // for primal-dual solver
-    private:
+    public:
         size_t _contact_size;
+    private:
         size_t _n_objects;
         size_t _n_rigid_dof;
         size_t _n_force_dof;
@@ -76,6 +77,7 @@ namespace pe_phys_constraint {
                                pe::VectorX& ru, pe::VectorX& ru_add,
                                pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                pe::Real& exit_err, pe::Real tol) override;
+        void afterPrimalDual() override;
     };
 
 } // namespace pe_phys_constraint

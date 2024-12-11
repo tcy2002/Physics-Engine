@@ -23,41 +23,43 @@ namespace pe_phys_collision {
 
         // for primal-dual
     protected:
+        COMMON_MEMBER_SET_GET(pe::Vector3, world_pos_half, WorldPosHalf)
+        COMMON_MEMBER_SET_GET(pe::Real, distance_non_neg, DistanceNonNeg)
         pe::MatrixMN trans1;
         pe::MatrixMN trans2;
     public:
-        pe::VectorX toLocal(bool t, const pe::VectorX& global_quant) const {
+        pe::Vector3 toLocal(bool t, const pe::Vector6& global_quant) const {
             return -(t ? trans1 : trans2).transpose() * global_quant;
         }
-        pe::VectorX toLocal(const pe::VectorX& global_quant1, const pe::VectorX& global_quant2) const {
+        pe::Vector3 toLocal(const pe::Vector6& global_quant1, const pe::Vector6& global_quant2) const {
             return -trans1.transpose() * global_quant1 -
                 trans2.transpose() * global_quant2;
         }
-        pe::Real toNormal(const pe::VectorX& global_quant1, const pe::VectorX& global_quant2) const {
+        pe::Real toNormal(const pe::Vector6& global_quant1, const pe::Vector6& global_quant2) const {
             return -trans1.col(0).dot(global_quant1) -
                 trans2.col(0).dot(global_quant2);
         }
-        pe::VectorX toTangent(const pe::VectorX& global_quant1, const pe::VectorX& global_quant2) const {
+        pe::Vector2 toTangent(const pe::Vector6& global_quant1, const pe::Vector6& global_quant2) const {
             return -trans1.block<6, 2>(0, 1).transpose() * global_quant1 -
                 trans2.block<6, 2>(0, 1).transpose() * global_quant2;
         }
-        pe::VectorX toGlobal(bool t, const pe::VectorX& local_quant) const {
-            return (t ? trans1 : trans2) * local_quant;
+        pe::Vector6 toGlobal(bool t, const pe::Vector3& local_quant) const {
+            return -(t ? trans1 : trans2) * local_quant;
         }
-        pe::VectorX toGlobalNormal(bool t, const pe::Real& local_quant) const {
-            return (t ? trans1 : trans2).col(0) * local_quant;
+        pe::Vector6 toGlobalNormal(bool t, const pe::Real& local_quant) const {
+            return -(t ? trans1 : trans2).col(0) * local_quant;
         }
-        pe::VectorX toGlobalTangent(bool t, const pe::VectorX& local_quant) const {
-            return (t ? trans1 : trans2).block<6, 2>(0, 1) * local_quant;
+        pe::Vector6 toGlobalTangent(bool t, const pe::Vector2& local_quant) const {
+            return -(t ? trans1 : trans2).block<6, 2>(0, 1) * local_quant;
         }
-        const pe::MatrixMN& getTrans(bool t) {
-            return t ? trans1 : trans2;
+        Eigen::Matrix<pe::Real, 6, 3> getTrans(bool t) {
+            return -(t ? trans1 : trans2);
         }
-        pe::VectorX getTransNormal(bool t) const {
-            return (t ? trans1 : trans2).col(0);
+        pe::Vector6 getTransNormal(bool t) const {
+            return -(t ? trans1 : trans2).col(0);
         }
-        pe::MatrixMN getTransTangent(bool t) const {
-            return (t ? trans1 : trans2).block<6, 2>(0, 1);
+        Eigen::Matrix<pe::Real, 6, 2> getTransTangent(bool t) const {
+            return -(t ? trans1 : trans2).block<6, 2>(0, 1);
         }
 
     private:

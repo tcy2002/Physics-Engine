@@ -11,6 +11,7 @@ namespace pe_phys_constraint {
         virtual pe::MatrixMN hessian(const pe::VectorX& in) const = 0;
         virtual pe::Real radius_at(pe::Real i0) const { return 0; }
         virtual pe::VectorX project(const pe::VectorX& in, const pe::VectorX& start, pe::Real target = 0) const {
+            // checked1
             pe::VectorX out = start;
             pe::Real l = 0;
             for (int i = 0; i < 30; i++) {
@@ -30,7 +31,7 @@ namespace pe_phys_constraint {
                 Eigen::JacobiSVD<pe::MatrixMN> svd(lhs, Eigen::ComputeThinU | Eigen::ComputeThinV);
                 pe::VectorX x = svd.solve(rhs);
                 pe::Real dl = x(x.size() - 1);
-                pe::VectorX dx = x.block(0, 0, in.size() - 1, 1);
+                pe::VectorX dx = x.block(0, 0, x.size() - 1, 1);
                 pe::Real step = 1.0;
                 for (int j = 0; j < 30; j++) {
                     pe::VectorX test_out = out + step * dx;

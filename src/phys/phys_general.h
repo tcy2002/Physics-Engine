@@ -42,7 +42,7 @@
 #endif
 
 //// phys
-#define PE_MARGIN pe::Real(0.005)
+#define PE_MARGIN pe::Real(0)
 #define PE_DIST_REF_RADIO pe::Real(0.05)
 #define PE_DIST_TH pe::Real(0.02)
 #define PE_USE_QUATERNION

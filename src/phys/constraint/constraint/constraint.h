@@ -47,6 +47,7 @@ namespace pe_phys_constraint {
                                        pe::VectorX& ru, pe::VectorX& ru_add,
                                        pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                        pe::Real& exit_err, pe::Real tol) { return false; }
+        virtual void afterPrimalDual() {}
     };
 
 } // namespace pe_phys_constraint

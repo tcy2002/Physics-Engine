@@ -13,25 +13,36 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, 0, 0));
         // _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
-         // add a ground
-         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                     pe::Vector3(0, -5, 0)),
-                                       pe::Vector3(250, 10, 250), 10000);
-         rb->setKinematic(true);
-         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
+        // add a ground
+        auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                                    pe::Vector3(0, -0.5, 0)),
+                                     pe::Vector3(2, 1, 2), 1);
+        rb->setKinematic(true);
+        _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
+
+        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+            pe::Vector3(-0.1, 1, -0.1)),
+            pe::Vector3(1, 1, 1), 1);
+        rb->setLinearVelocity(pe::Vector3(0, -0.7, 0));
+        _world.addRigidBody(rb);
+
+        //rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+        //    pe::Vector3(0.1, 4, 0.1)),
+        //    pe::Vector3(1, 1, 1), 1);
+        //_world.addRigidBody(rb);
 
         // cube tower
-        addPyramidCubes();
+        //addPyramidCubes();
         //addUniformCubes();
     }
 
     void step() override {
-
+        PE_LOG_DEBUG << _world.getRigidBodies()[1]->getLinearVelocity() << std::endl;
     }
 
     void addPyramidCubes() {

@@ -34,7 +34,9 @@ namespace pe_phys_collision {
         _world_normal(pe::Vector3::UnitY()),
         _local_pos_a(pe::Vector3::Zero()),
         _local_pos_b(pe::Vector3::Zero()),
-        _distance(PE_REAL_MAX) {}
+        _distance(PE_REAL_MIN),
+        _world_pos_half(PE_VEC_MAX),
+        _distance_non_neg(PE_REAL_MIN) {}
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                                const pe_phys_object::RigidBody* object_a, const pe_phys_object::RigidBody* object_b,
@@ -48,25 +50,19 @@ namespace pe_phys_collision {
         getOrthoUnits(world_normal, _tangents[0], _tangents[1]);
 
         // for primal-dual
-        // const pe::Vector3 axis = pe::Vector3(1, 0, 0).cross(world_normal);
-        // const pe::Real c = pe::Vector3(1, 0, 0).dot(world_normal);
-        // const pe::Real angle = std::atan2(axis.norm(), c);
-        // const pe::Matrix3 rot = pe::Matrix3::fromRotation(axis, angle);
-        // const auto rot_x = pe::MatrixMN(rot);
-        //
-        // const pe::Vector3 c1 = world_pos - object_a->getTransform().getOrigin();
-        // const pe::Vector3 c2 = world_pos - object_b->getTransform().getOrigin();
-        // trans1 = pe::MatrixMN(6, 3);
-        // trans2 = pe::MatrixMN(6, 3);
-        // trans1.setSubMatrix(rot_x, 0, 0);
-        // trans2.setSubMatrix(-rot_x, 0, 0);
-        //
-        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(0))), 3, 0, false);
-        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(1))), 3, 1, false);
-        // trans1.setSubVector(pe::VectorX(c1.cross(rot.getColumn(2))), 3, 2, false);
-        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(0))), 3, 0, false);
-        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(1))), 3, 1, false);
-        // trans2.setSubVector(pe::VectorX(c2.cross(-rot.getColumn(2))), 3, 2, false);
+        _world_pos_half = world_pos + (distance / 2) * world_normal;
+        _distance_non_neg = -distance;
+        const pe::Vector3 axis = pe::Vector3(1, 0, 0).cross(-world_normal);
+        const pe::Real c = pe::Vector3(1, 0, 0).dot(-world_normal);
+        const pe::Real angle = std::atan2(axis.norm(), c);
+        const pe::Matrix3 rot = Eigen::AngleAxis<pe::Real>(angle, axis.normalized()).toRotationMatrix();
+        
+        const pe::Vector3 c1 = _world_pos_half - object_a->getTransform().getOrigin();
+        const pe::Vector3 c2 = _world_pos_half - object_b->getTransform().getOrigin();
+        trans1 = pe::MatrixMN(6, 3);
+        trans2 = pe::MatrixMN(6, 3);
+        trans1 << rot, c1.cross(rot.col(0)), c1.cross(rot.col(1)), c1.cross(rot.col(2));
+        trans2 << -rot, c2.cross(-rot.col(0)), c2.cross(-rot.col(1)), c2.cross(-rot.col(2));
     }
 
     ContactResult::ContactResult():
