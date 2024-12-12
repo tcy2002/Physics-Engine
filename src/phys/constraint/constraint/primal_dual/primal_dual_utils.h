@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils/logger.h"
+
 namespace pe_phys_constraint {
 
     class PrimalDualUtils {
@@ -13,7 +15,7 @@ namespace pe_phys_constraint {
                 vel.segment<6>(i * 6) << obj->getLinearVelocity(), obj->getAngularVelocity();
                 vel_old.segment<6>(i * 6) = vel.segment<6>(i * 6);
                 if (!obj->isKinematic()) {
-                    vel.segment<3>(i * 6) += acc;
+                    vel_old.segment<3>(i * 6) += acc;
                 }
             }
         }
@@ -113,6 +115,7 @@ namespace pe_phys_constraint {
             // checked1
             pe::VectorX ru_add;
             ru = mass_mat * (vel - vel_old);
+            //PE_LOG_DEBUG << "ru: " << ru.transpose() << PE_ENDL;
             for (size_t i = 0; i < objects.size(); i++) {
                 if (objects[i]->isKinematic()) {
                     ru.segment<6>(i * 6).setZero();
@@ -120,7 +123,8 @@ namespace pe_phys_constraint {
             }
             pe::VectorX f_weight = _nsf->calcTangentWeight(contacts, objects, object2index, vel, forces, char_mass);
             _nsf->nonSmoothResiduals(contacts, contact_size, objects, object2index,
-                vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
+                vel, forces, lambda, use_stored_constraints, mu, ru_add, rf.derived(), rl.derived());
+            //PE_LOG_DEBUG << "ru_add: " << ru_add.transpose() << PE_ENDL;
             ru += ru_add;
 
             wrf = rf.cwiseProduct(f_weight);

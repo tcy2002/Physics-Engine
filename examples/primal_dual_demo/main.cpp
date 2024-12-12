@@ -10,31 +10,34 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
         use_gui = true;
+        max_frame = 39;
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, 0, 0));
+        _world.setGravity(pe::Vector3(0, -9.81, 0));
         // _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
 
         // add a ground
         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                    pe::Vector3(0, -0.5, 0)),
+                                                   pe::Vector3(0, -0.5, 0)),
                                      pe::Vector3(2, 1, 2), 1);
         rb->setKinematic(true);
         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
-        rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-            pe::Vector3(-0.1, 1, -0.1)),
-            pe::Vector3(1, 1, 1), 1);
-        rb->setLinearVelocity(pe::Vector3(0, -0.7, 0));
-        _world.addRigidBody(rb);
-
-        //rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-        //    pe::Vector3(0.1, 4, 0.1)),
+        //rb = createBoxRigidBody(pe::Transform(Eigen::AngleAxis<pe::Real>(PE_PI / 5, pe::Vector3::UnitZ()).toRotationMatrix(),
+        //    pe::Vector3(-0.1, 1, -0.1)),
         //    pe::Vector3(1, 1, 1), 1);
         //_world.addRigidBody(rb);
+
+        pe::Matrix3 mat;
+        pe::Vector3 vec;
+        mat << 0.985692, -0.168557, 0, 0.168557, 0.985692, 0, 0, 0;
+        vec << 0.252675, 0.575811, -0.1;
+        rb = createBoxRigidBody(pe::Transform(mat, vec), pe::Vector3(1, 1, 1), 1);
+        
+        _world.addRigidBody(rb);
 
         // cube tower
         //addPyramidCubes();
@@ -42,7 +45,7 @@ public:
     }
 
     void step() override {
-        PE_LOG_DEBUG << _world.getRigidBodies()[1]->getLinearVelocity() << std::endl;
+        PE_LOG_DEBUG << _world.getRigidBodies()[1]->getTransform() << std::endl;
     }
 
     void addPyramidCubes() {
@@ -104,4 +107,4 @@ protected:
 };
 
 // Simulator class, Target frame rate
-PE_CUSTOM_MAIN(PrimalDualSimulator, 100)
+PE_CUSTOM_MAIN(PrimalDualSimulator, 60)

@@ -1,4 +1,5 @@
 #include "contact_result.h"
+#include "utils/logger.h"
 #include <algorithm>
 
 // style-checked
@@ -34,7 +35,7 @@ namespace pe_phys_collision {
         _world_normal(pe::Vector3::UnitY()),
         _local_pos_a(pe::Vector3::Zero()),
         _local_pos_b(pe::Vector3::Zero()),
-        _distance(PE_REAL_MIN),
+        _distance(PE_REAL_MAX),
         _world_pos_half(PE_VEC_MAX),
         _distance_non_neg(PE_REAL_MIN) {}
 
@@ -63,6 +64,8 @@ namespace pe_phys_collision {
         trans2 = pe::MatrixMN(6, 3);
         trans1 << rot, c1.cross(rot.col(0)), c1.cross(rot.col(1)), c1.cross(rot.col(2));
         trans2 << -rot, c2.cross(-rot.col(0)), c2.cross(-rot.col(1)), c2.cross(-rot.col(2));
+        //PE_LOG_DEBUG << "trans1: " << trans1 << PE_ENDL;
+        //PE_LOG_DEBUG << "trans2: " << trans2 << PE_ENDL;
     }
 
     ContactResult::ContactResult():

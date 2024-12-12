@@ -29,7 +29,7 @@ namespace pe_phys_collision {
         pe::MatrixMN trans2;
     public:
         pe::Vector3 toLocal(bool t, const pe::Vector6& global_quant) const {
-            return -(t ? trans1 : trans2).transpose() * global_quant;
+            return -(t ? trans2 : trans1).transpose() * global_quant;
         }
         pe::Vector3 toLocal(const pe::Vector6& global_quant1, const pe::Vector6& global_quant2) const {
             return -trans1.transpose() * global_quant1 -
@@ -44,22 +44,22 @@ namespace pe_phys_collision {
                 trans2.block<6, 2>(0, 1).transpose() * global_quant2;
         }
         pe::Vector6 toGlobal(bool t, const pe::Vector3& local_quant) const {
-            return -(t ? trans1 : trans2) * local_quant;
+            return -(t ? trans2 : trans1) * local_quant;
         }
         pe::Vector6 toGlobalNormal(bool t, const pe::Real& local_quant) const {
-            return -(t ? trans1 : trans2).col(0) * local_quant;
+            return -(t ? trans2 : trans1).col(0) * local_quant;
         }
         pe::Vector6 toGlobalTangent(bool t, const pe::Vector2& local_quant) const {
-            return -(t ? trans1 : trans2).block<6, 2>(0, 1) * local_quant;
+            return -(t ? trans2 : trans1).block<6, 2>(0, 1) * local_quant;
         }
         Eigen::Matrix<pe::Real, 6, 3> getTrans(bool t) {
-            return -(t ? trans1 : trans2);
+            return -(t ? trans2 : trans1);
         }
         pe::Vector6 getTransNormal(bool t) const {
-            return -(t ? trans1 : trans2).col(0);
+            return -(t ? trans2 : trans1).col(0);
         }
         Eigen::Matrix<pe::Real, 6, 2> getTransTangent(bool t) const {
-            return -(t ? trans1 : trans2).block<6, 2>(0, 1);
+            return -(t ? trans2 : trans1).block<6, 2>(0, 1);
         }
 
     private:

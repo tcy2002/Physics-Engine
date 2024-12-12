@@ -2,6 +2,7 @@
 
 #include "non_smooth_force_base.h"
 #include "force_constraint/lorentz_circle_constraint.h"
+#include "utils/logger.h"
 
 namespace pe_phys_constraint {
 
@@ -52,6 +53,7 @@ namespace pe_phys_constraint {
                     contact_i++;
                 }
             }
+            //PE_LOG_DEBUG << "non_smooth_k: " << _non_smooth_k.transpose() << std::endl;
         }
 
         void initForces(pe::VectorX& forces, pe::VectorX& lambda) override {
@@ -78,13 +80,15 @@ namespace pe_phys_constraint {
                 const auto obj2 = object2index.at(contact->getObjectB());
                 const pe_phys_object::RigidBody* objs[2] = {contact->getObjectA(), contact->getObjectB()};
                 const size_t obj_ids[2] = {obj1, obj2};
+                //PE_LOG_DEBUG << "obj: " << obj1 << ", " << obj2 << ", " << !contact->getObjectA()->isKinematic() << ", " << !contact->getObjectB()->isKinematic() << PE_ENDL;
                 for (int pi = 0; pi < contact->getPointSize(); pi++) {
                     const auto& cp = contact->getContactPoint(pi);
                     const pe::VectorX f = forces.segment<3>(contact_i * 3);
-                    const pe::VectorX local_u = cp.toLocal(vel.segment<6>(obj1 * 6), vel.segment<6>(obj2 * 6));
-                    rf.segment<3>(contact_i * 3) -= local_u;
+                    //PE_LOG_DEBUG << "f: " << f.transpose() << PE_ENDL;
+                    rf.segment<3>(contact_i * 3) -= cp.toLocal(vel.segment<6>(obj1 * 6), vel.segment<6>(obj2 * 6));
                     for (int i = 0; i < 2; i++) {
                         pe::Vector6 htf = -cp.toGlobal(i, f);
+                        //PE_LOG_DEBUG << "htf: " << htf.transpose() << PE_ENDL;
                         if (!objs[i]->isKinematic()) {
                             for (int rui = 0; rui < 6; rui++) {
                                 ru[obj_ids[i] * 6 + rui] += htf[rui];
@@ -149,7 +153,7 @@ namespace pe_phys_constraint {
                     pe::Real friction_weight = 0;
                     for (int i = 0; i < 2; i++) {
                         if (!objs[i]->isKinematic()) {
-                            pe::VectorX hh = -cp.toGlobalTangent(i, tangent_vel.tail<2>().normalized());
+                            pe::Vector6 hh = -cp.toGlobalTangent(i, tangent_vel.tail<2>().normalized());
                             friction_weight += hh.dot(objs[i]->getInvMassMatrix6x6() * hh) * char_mass;
                         }
                     }
@@ -257,7 +261,7 @@ namespace pe_phys_constraint {
                 for (int pi = 0; pi < contact->getPointSize(); pi++) {
                     const auto& cp = contact->getContactPoint(pi);
                     pe::VectorX dfi = _sf.segment<3>(contact_i * 3);
-                    dfi -= cp.toLocal(du.segment<6>(obj1), du.segment<6>(obj2));
+                    dfi -= cp.toLocal(du.segment<6>(obj1 * 6), du.segment<6>(obj2 * 6));
                     dfi[0] = _k_norm_inv[contact_i] * dfi[0];
                     dfi.tail<2>() = _k_mat_svd[contact_i].solve(dfi.tail<2>());
                     df.segment<3>(contact_i * 3) = dfi;

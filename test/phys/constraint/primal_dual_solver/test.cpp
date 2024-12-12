@@ -18,25 +18,23 @@ pe_phys_object::RigidBody* createRigidBody(const pe::Vector3& pos, const pe::Vec
 }
 
 void testFrictionContactConstraint() {
-    auto rb0 = createRigidBody(pe::Vector3(0, -0.99, 0), pe::Vector3(2, 1, 2));
+    auto rb0 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(2, 1, 2));
+    rb0->setMass(4.0);
     rb0->setKinematic(true);
-    auto rb1 = createRigidBody(pe::Vector3(0, 0, 0), pe::Vector3(1, 1, 1));
-    auto rb2 = createRigidBody(pe::Vector3(0, 0.99, 0), pe::Vector3(1, 1, 1));
+    auto rb1 = createRigidBody(pe::Vector3(-0.1, 0.466177, -0.1), pe::Vector3(1, 1, 1));
+    rb1->setLinearVelocity(pe::Vector3(0, -3.11271, 0));
 
     auto np = pe_phys_collision::SimpleNarrowPhase();
     pe::Array<pe_phys_collision::CollisionPair> pairs = { {rb0, rb1} };
     pe::Array<pe_phys_collision::ContactResult*> result;
     np.calcContactResults(pairs, result);
-    std::cout << "pos; " << result[0]->getContactPoint(0).getWorldPosHalf() << std::endl;
-    std::cout << "nor: " << result[0]->getContactPoint(0).getWorldNormal() << std::endl;
     auto solver = new PrimalDualSolver();
     //auto solver = new SequentialImpulseSolver();
-    solver->setupSolver(pe::Real(0.01), { 0, 0, 0 }, { rb0, rb1 }, result, {});
+    solver->setupSolver(pe::Real(0.0167), { 0, -9.81, 0 }, { rb0, rb1 }, result, {});
     solver->solve();
 
     std::cout << rb0->getLinearVelocity() << std::endl;
     std::cout << rb1->getLinearVelocity() << std::endl;
-    std::cout << rb2->getLinearVelocity() << std::endl;
 }
 
 int main() {
