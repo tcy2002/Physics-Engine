@@ -64,8 +64,12 @@ namespace pe_phys_collision {
         trans2 = pe::MatrixMN(6, 3);
         trans1 << rot, c1.cross(rot.col(0)), c1.cross(rot.col(1)), c1.cross(rot.col(2));
         trans2 << -rot, c2.cross(-rot.col(0)), c2.cross(-rot.col(1)), c2.cross(-rot.col(2));
-        //PE_LOG_DEBUG << "trans1: " << trans1 << PE_ENDL;
-        //PE_LOG_DEBUG << "trans2: " << trans2 << PE_ENDL;
+        PE_LOG_DEBUG << "rotation1: " << object_a->getTransform().getBasis() << PE_ENDL;
+        PE_LOG_DEBUG << "translation1: " << object_a->getTransform().getOrigin().transpose() << PE_ENDL;
+        PE_LOG_DEBUG << "rotation2: " << object_b->getTransform().getBasis() << PE_ENDL;
+        PE_LOG_DEBUG << "translation2: " << object_b->getTransform().getOrigin().transpose() << PE_ENDL;
+        PE_LOG_DEBUG << "trans1: " << trans1 << PE_ENDL;
+        PE_LOG_DEBUG << "trans2: " << trans2 << PE_ENDL;
     }
 
     ContactResult::ContactResult():

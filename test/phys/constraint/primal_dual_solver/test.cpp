@@ -21,13 +21,23 @@ void testFrictionContactConstraint() {
     auto rb0 = createRigidBody(pe::Vector3(0, -0.5, 0), pe::Vector3(2, 1, 2));
     rb0->setMass(4.0);
     rb0->setKinematic(true);
-    auto rb1 = createRigidBody(pe::Vector3(-0.1, 0.466177, -0.1), pe::Vector3(1, 1, 1));
-    rb1->setLinearVelocity(pe::Vector3(0, -3.11271, 0));
+    pe::Matrix3 mat;
+    pe::Vector3 vec;
+    mat << 0.987341, -0.158614, 0, 0.158614, 0.987341, 0, 0, 0, 1;
+    vec << 0.258654, 0.571685, -0.1;
+    auto rb1 = createRigidBody(pe::Vector3::Zero(), pe::Vector3(1, 1, 1));
+    rb1->setTransform(pe::Transform(mat, vec));
 
     auto np = pe_phys_collision::SimpleNarrowPhase();
     pe::Array<pe_phys_collision::CollisionPair> pairs = { {rb0, rb1} };
     pe::Array<pe_phys_collision::ContactResult*> result;
-    np.calcContactResults(pairs, result);
+//    np.calcContactResults(pairs, result);
+    result.push_back(new pe_phys_collision::ContactResult());
+    result[0]->setObjectA(rb0);
+    result[0]->setObjectB(rb1);
+    result[0]->addContactPoint(-pe::Vector3(0, 1, 0), pe::Vector3(-0.155709, -0.001291916, -0.6), -0.001291916);
+    result[0]->addContactPoint(-pe::Vector3(0, 1, 0), pe::Vector3(-0.155709, -0.001291916, 0.4), -0.001291916);
+    result[0]->sortContactPoints();
     auto solver = new PrimalDualSolver();
     //auto solver = new SequentialImpulseSolver();
     solver->setupSolver(pe::Real(0.0167), { 0, -9.81, 0 }, { rb0, rb1 }, result, {});

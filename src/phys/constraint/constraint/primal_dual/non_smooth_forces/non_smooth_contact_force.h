@@ -53,7 +53,7 @@ namespace pe_phys_constraint {
                     contact_i++;
                 }
             }
-            //PE_LOG_DEBUG << "non_smooth_k: " << _non_smooth_k.transpose() << std::endl;
+            PE_LOG_DEBUG << "non_smooth_k: " << _non_smooth_k.transpose() << std::endl;
         }
 
         void initForces(pe::VectorX& forces, pe::VectorX& lambda) override {
@@ -80,15 +80,15 @@ namespace pe_phys_constraint {
                 const auto obj2 = object2index.at(contact->getObjectB());
                 const pe_phys_object::RigidBody* objs[2] = {contact->getObjectA(), contact->getObjectB()};
                 const size_t obj_ids[2] = {obj1, obj2};
-                //PE_LOG_DEBUG << "obj: " << obj1 << ", " << obj2 << ", " << !contact->getObjectA()->isKinematic() << ", " << !contact->getObjectB()->isKinematic() << PE_ENDL;
+                PE_LOG_DEBUG << "obj: " << obj1 << ", " << obj2 << ", " << !contact->getObjectA()->isKinematic() << ", " << !contact->getObjectB()->isKinematic() << PE_ENDL;
                 for (int pi = 0; pi < contact->getPointSize(); pi++) {
                     const auto& cp = contact->getContactPoint(pi);
                     const pe::VectorX f = forces.segment<3>(contact_i * 3);
-                    //PE_LOG_DEBUG << "f: " << f.transpose() << PE_ENDL;
+                    PE_LOG_DEBUG << "f: " << f.transpose() << PE_ENDL;
                     rf.segment<3>(contact_i * 3) -= cp.toLocal(vel.segment<6>(obj1 * 6), vel.segment<6>(obj2 * 6));
                     for (int i = 0; i < 2; i++) {
                         pe::Vector6 htf = -cp.toGlobal(i, f);
-                        //PE_LOG_DEBUG << "htf: " << htf.transpose() << PE_ENDL;
+                        PE_LOG_DEBUG << "htf: " << htf.transpose() << PE_ENDL;
                         if (!objs[i]->isKinematic()) {
                             for (int rui = 0; rui < 6; rui++) {
                                 ru[obj_ids[i] * 6 + rui] += htf[rui];

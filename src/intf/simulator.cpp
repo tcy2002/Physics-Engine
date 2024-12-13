@@ -741,14 +741,8 @@ namespace pe_intf {
                 _model.buffers.push_back(_buffer_animation_time_step);*/
 
                 tinygltf::TinyGLTF gltf;
+                mergeGLTFBuffers(_model);
                 gltf.WriteGltfSceneToFile(&_model, _path, true, true, true, true);
-
-                tinygltf::TinyGLTF glb;
-                tinygltf::Model mdl;
-                std::string err, warn;
-                glb.LoadASCIIFromFile(&mdl, &err, &warn, "./1733912202220.gltf");
-                mergeGLTFBuffers(mdl);
-                glb.WriteGltfSceneToFile(&mdl, "./1733912202220.glb", true, true, true, true);
             }
 
             static void mergeGLTFBuffers(tinygltf::Model& mdl) {
