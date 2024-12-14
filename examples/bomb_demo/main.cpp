@@ -15,9 +15,9 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
         _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
+        //_world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
+        //_world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
+        //_world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
@@ -29,7 +29,7 @@ public:
         // add tower1
         createTower(pe::Vector3(0, 0, -20), 4, 12, 8);
         createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
-        createTower(pe::Vector3(0, 0, -20), 8, 11, 16);
+        createTower(pe::Vector3(0, 0, -20), 8, 12, 16);
         createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
         createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
         createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
@@ -40,9 +40,9 @@ public:
         createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
         // add tower3
-        // createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-        // createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-        // createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(),
@@ -50,14 +50,7 @@ public:
                                          PE_R(1.5), 50);
         rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
         _world.addRigidBody(rb2);
-
-        //saveScene("");
     }
-
-    // void step() override {
-    //     static int frame = 0;
-    //     std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
-    // }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
         /* This function creates a tower of cubic bricks, how it is built is not important */

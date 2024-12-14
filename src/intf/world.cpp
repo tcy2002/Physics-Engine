@@ -17,7 +17,7 @@ namespace pe_intf {
         _sleep_time_threshold(0),
         _broad_phase(new pe_phys_collision::BroadPhaseSweepAndPrune),
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
-        _constraint_solver(new pe_phys_constraint::PrimalDualSolver),
+        _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
         utils::ThreadPool::init();

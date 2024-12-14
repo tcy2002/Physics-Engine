@@ -21,13 +21,10 @@ namespace utils {
         static void addTask(Function&& fn, Args&&... args);
 
         template <typename Iterator, typename Function>
-        static void forEach(Iterator first, Iterator last, Function&& fn);
+        static void forEach(Iterator first, Iterator last, uint32_t count, Function&& fn);
 
         template <typename Function>
         static void forLoop(uint32_t count, Function&& fn);
-
-        template <typename Function>
-        static void forLoop(uint32_t count, uint32_t batchSize, Function&& fn);
 
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
@@ -55,26 +52,29 @@ namespace utils {
         std::unique_lock<std::mutex> lock(inst._mtx);
         inst._tasks.emplace([fn, &args...]{ fn(std::forward<Args>(args)...); });
         inst._task_count++;
-        inst._cv.notify_all();
+        inst._cv.notify_one();
     }
 
     template <typename Iterator, typename Function>
-    void ThreadPool::forEach(Iterator first, Iterator last, Function&& fn) {
-        std::vector<int> a(0);
+    void ThreadPool::forEach(Iterator first, Iterator last, uint32_t count, Function&& fn) {
         if (first == last) return;
         auto& inst = getInstance();
         if (inst._size <= 0) return;
-        int batchSize = (last - first) / inst._size / 2 + 1;
+        int batchSize = count / inst._size / 2 + 1;
         inst._mtx.lock();
         auto p = first;
-        while (p < last) {
-            inst._tasks.emplace([fn, p, batchSize, last] {
-                for (auto it = p; it < last && it < p + batchSize; ++it) {
-                    fn(*it);
-                }
-            });
-            inst._task_count++;
-            p += batchSize;
+        for (uint32_t i = 0; i < count; i++) {
+            if (i % batchSize == 0) {
+                inst._tasks.emplace([fn, p, i, count, batchSize] {
+                    auto q = p;
+                    for (uint32_t j = i; j < i + batchSize && j < count; j++) {
+                        fn(*q);
+                        ++q;
+                    }
+                });
+                inst._task_count++;
+            }
+            ++p;
         }
         inst._mtx.unlock();
         inst._cv.notify_all();

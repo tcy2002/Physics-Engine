@@ -13,7 +13,7 @@ void testViewer() {
         auto t = COMMON_GetTickCount();
         transform *= rotation;
         pe_intf::Viewer::updateTransform(id, pe_phys_shape::ShapeType::ST_Cylinder, transform);
-        COMMON_USleep(10000 - I(COMMON_GetMicroTickCount() - t));
+        COMMON_USleep(10000 - PE_I(COMMON_GetMicroTickCount() - t));
     }
 
     pe_intf::Viewer::close();

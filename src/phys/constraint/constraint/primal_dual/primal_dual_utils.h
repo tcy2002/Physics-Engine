@@ -115,7 +115,7 @@ namespace pe_phys_constraint {
             // checked1
             pe::VectorX ru_add;
             ru = mass_mat * (vel - vel_old);
-            PE_LOG_DEBUG << "ru: " << ru.transpose() << PE_ENDL;
+            //PE_LOG_DEBUG << "ru: " << ru.transpose() << PE_ENDL;
             for (size_t i = 0; i < objects.size(); i++) {
                 if (objects[i]->isKinematic()) {
                     ru.segment<6>(i * 6).setZero();
@@ -124,7 +124,7 @@ namespace pe_phys_constraint {
             pe::VectorX f_weight = _nsf->calcTangentWeight(contacts, objects, object2index, vel, forces, char_mass);
             _nsf->nonSmoothResiduals(contacts, contact_size, objects, object2index,
                 vel, forces, lambda, use_stored_constraints, mu, ru_add, rf, rl);
-            PE_LOG_DEBUG << "ru_add: " << ru_add.transpose() << PE_ENDL;
+            //PE_LOG_DEBUG << "ru_add: " << ru_add.transpose() << PE_ENDL;
             ru += ru_add;
 
             wrf = rf.cwiseProduct(f_weight);
@@ -150,7 +150,7 @@ namespace pe_phys_constraint {
                 const pe::VectorX& vels_old, pe::Real s_err, pe::Real sac_err, pe::Real mu, pe::Real dt,
                 pe::Real char_speed, pe::Real char_mass, int max_linear_search,
                 NonSmoothForceBase* _nsf) {
-            PE_LOG_DEBUG << "##################begin line search###################" << PE_ENDL;
+            //PE_LOG_DEBUG << "##################begin line search###################" << PE_ENDL;
             // checked1
             pe::Real step = PE_R(1.0);
             LineSearchResult res;
@@ -161,11 +161,18 @@ namespace pe_phys_constraint {
             res.acErr = sac_err;
             res.stepSize = 0;
             for (int step_it = 0; step_it < max_linear_search; step_it++) {
+                //PE_LOG_DEBUG << "$$$$$$$$$$step " << step_it << "$$$$$$$$$$" << PE_ENDL;
                 pe::VectorX du_in = step * du;
                 pe::VectorX df_in = step * df;
                 pe::VectorX dl_in = step * dl;
 
+                //PE_LOG_DEBUG << "du_in before: " << du_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "df_in before: " << df_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "dl_in before: " << dl_in.transpose() << PE_ENDL;
                 _nsf->filterLineSearch(contacts, contact_size, objects, object2index, vel, forces, lambda, mu, char_mass, du_in, df_in, dl_in);
+                //PE_LOG_DEBUG << "du_in: " << du_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "df_in: " << df_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "dl_in: " << dl_in.transpose() << PE_ENDL;
                 
                 const pe::VectorX l_inner = lambda + PE_R(0.99) * dl_in;
                 const pe::VectorX v_inner = vel + PE_R(0.99) * du_in;
@@ -174,15 +181,19 @@ namespace pe_phys_constraint {
                 pe::VectorX ru_in, rf_in, wrf_in, rl_in;
                 calcResiduals(false, contacts, contact_size, objects, object2index, v_inner, f_inner, l_inner, vels_old, mass_mat, 
                     char_mass, char_speed, dt, mu, ru_in, rf_in, wrf_in, rl_in, _nsf);
+                //PE_LOG_DEBUG << "ru_in: " << ru_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "rf_in: " << rf_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "wrf_in: " << wrf_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "rl_in: " << rl_in.transpose() << PE_ENDL;
 
                 const pe::Real in_err = ru_in.squaredNorm() + wrf_in.squaredNorm() + rl_in.squaredNorm();
                 const pe::VectorX ac_vec_in = _nsf->ACVector(contacts, objects, object2index, v_inner, f_inner);
                 const pe::Real sac_err_in = ru_in.squaredNorm() + ac_vec_in.squaredNorm() + rl_in.squaredNorm();
                 const pe::Real g_err = -du_in.dot(ru_in) + df_in.dot(rf_in) + dl_in.cwiseQuotient(l_inner).dot(rl_in);
-                PE_LOG_DEBUG << "in_err: " << in_err << PE_ENDL;
-                PE_LOG_DEBUG << "ac_vec_in: " << ac_vec_in.transpose() << PE_ENDL;
-                PE_LOG_DEBUG << "sac_err_in: " << sac_err_in << PE_ENDL;
-                PE_LOG_DEBUG << "g_err: " << g_err << PE_ENDL;
+                //PE_LOG_DEBUG << "in_err: " << in_err << PE_ENDL;
+                //PE_LOG_DEBUG << "ac_vec_in: " << ac_vec_in.transpose() << PE_ENDL;
+                //PE_LOG_DEBUG << "sac_err_in: " << sac_err_in << PE_ENDL;
+                //PE_LOG_DEBUG << "g_err: " << g_err << PE_ENDL;
 
                 bool in_err_acpt = in_err < s_err;
                 bool ac_err_acpt = sac_err_in < sac_err;

@@ -212,7 +212,7 @@ void testTank() {
         }
 
 //        while (pe_intf::Viewer::getKeyState('r') != 1)
-        COMMON_USleep(10000 - I(COMMON_GetMicroTickCount() - t));
+        COMMON_USleep(10000 - PE_I(COMMON_GetMicroTickCount() - t));
     }
 
     ret:

@@ -10,7 +10,6 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
         use_gui = true;
-        max_frame = 39;
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
@@ -21,62 +20,62 @@ public:
 
         // add a ground
         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                   pe::Vector3(0, -0.5, 0)),
-                                     pe::Vector3(2, 1, 2), 1);
+                                                   pe::Vector3(0, -1, 0)),
+                                     pe::Vector3(2, 2, 2), 4);
         rb->setKinematic(true);
         _world.addRigidBody(rb); // a rigidbody must be added into the _world to perform physical effects
 
-        //rb = createBoxRigidBody(pe::Transform(Eigen::AngleAxis<pe::Real>(PE_PI / 5, pe::Vector3::UnitZ()).toRotationMatrix(),
-        //    pe::Vector3(-0.1, 1, -0.1)),
-        //    pe::Vector3(1, 1, 1), 1);
-        //_world.addRigidBody(rb);
+        /*rb = createBoxRigidBody(pe::Transform(Eigen::AngleAxis<pe::Real>(PE_PI / 5, pe::Vector3::UnitZ()).toRotationMatrix(),
+            pe::Vector3(-0.1, 3, -0.1)),
+            pe::Vector3(1, 1, 1), 1);
+        _world.addRigidBody(rb);
 
         pe::Matrix3 mat;
         pe::Vector3 vec;
-        mat << 0.985692, -0.168557, 0, 0.168557, 0.985692, 0, 0, 0;
-        vec << 0.252675, 0.575811, -0.1;
-        rb = createBoxRigidBody(pe::Transform(mat, vec), pe::Vector3(1, 1, 1), 1);
+        mat << 0.985692, -0.168557, 0, 0.168557, 0.985692, 0, 0, 0, 1;
+        vec << 0.252675, 1, -0.1;
+        rb = createBoxRigidBody(pe::Transform(mat, vec), pe::Vector3(1, 1, 1), 1);*/
         
         _world.addRigidBody(rb);
 
         // cube tower
-        //addPyramidCubes();
+        addPyramidCubes();
         //addUniformCubes();
     }
 
     void step() override {
-        PE_LOG_DEBUG << _world.getRigidBodies()[1]->getTransform() << std::endl;
+        //PE_LOG_DEBUG << _world.getRigidBodies()[1]->getTransform() << std::endl;
     }
 
     void addPyramidCubes() {
         // add box1
         auto rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                   pe::Vector3(0, 2.6, 0)),
-                                pe::Vector3(1.2, 1.2, 1.2), 1.728);
+                                                   pe::Vector3(0, 1.116, 0)),
+                                pe::Vector3(0.5, 0.5, 0.5), 1);
         _world.addRigidBody(rb);
 
         // add box2
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                              pe::Vector3(0, 4.1, 0)),
-                                pe::Vector3(1.8, 1.8, 1.8), 5.832);
+                                              pe::Vector3(0, 1.752, 0)),
+                                pe::Vector3(0.7071, 0.7071, 0.7071), 4.243);
         _world.addRigidBody(rb);
 
         // add box3
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                              pe::Vector3(0, 6.3, 0)),
-                                pe::Vector3(2.6, 2.6, 2.6), 17.576);
+                                              pe::Vector3(0, 2.635, 0)),
+                                pe::Vector3(1, 1, 1), 9);
         _world.addRigidBody(rb);
 
         // add box4
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                              pe::Vector3(0, 9.4, 0)),
-                                pe::Vector3(3.6, 3.6, 3.6), 46.656);
+                                              pe::Vector3(0, 3.91, 0)),
+                                pe::Vector3(1.4142, 1.4142, 1.4142), 76.368);
         _world.addRigidBody(rb);
 
         // add box5
         rb = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                              pe::Vector3(0, 13.6, 0)),
-                                pe::Vector3(4.8, 4.8, 4.8), 110.592);
+                                              pe::Vector3(0, 5.674, 0)),
+                                pe::Vector3(2, 2, 2), 648);
         _world.addRigidBody(rb);
     }
 
@@ -107,4 +106,4 @@ protected:
 };
 
 // Simulator class, Target frame rate
-PE_CUSTOM_MAIN(PrimalDualSimulator, 60)
+PE_CUSTOM_MAIN(PrimalDualSimulator, 100)

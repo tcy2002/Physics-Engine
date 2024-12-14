@@ -40,7 +40,7 @@ namespace pe_intf { // interface
         // Called every frame to update the physics world
         virtual void step() {}
 
-        void start();
+        PE_API void start();
 
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;

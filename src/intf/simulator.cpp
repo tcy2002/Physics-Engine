@@ -608,7 +608,7 @@ namespace pe_intf {
                 _root.name = "root";
             }
             ~GltfWriter() {
-                /*for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++) {
                     tinygltf::Node node;
                     switch (i) {
                         case 0: node.name = "box"; break;
@@ -624,124 +624,114 @@ namespace pe_intf {
                     }
                     _model.nodes.push_back(node);
                     _root.children.push_back(_mesh_counter++);
-                }*/
+                }
 
-                //_model.nodes.push_back(_root);
+                _model.nodes.push_back(_root);
 
                 tinygltf::Scene scene;
                 scene.name = "rigidbody scene";
-                for (int i = 0; i < _mesh_counter; i++) {
-                    scene.nodes.push_back(i);
-                    _model.nodes[i].translation.push_back(PE_F(_animation_translation[i][0][0]));
-                    _model.nodes[i].translation.push_back(PE_F(_animation_translation[i][0][1]));
-                    _model.nodes[i].translation.push_back(PE_F(_animation_translation[i][0][2]));
-                    _model.nodes[i].rotation.push_back(PE_F(_animation_rotation[i][0].x()));
-                    _model.nodes[i].rotation.push_back(PE_F(_animation_rotation[i][0].y()));
-                    _model.nodes[i].rotation.push_back(PE_F(_animation_rotation[i][0].z()));
-                    _model.nodes[i].rotation.push_back(PE_F(_animation_rotation[i][0].w()));
-                }
-                //scene.nodes.push_back(_mesh_counter);
+                scene.nodes.push_back(_mesh_counter);
                 _model.scenes.push_back(scene);
                 _model.defaultScene = 0;
 
-                //tinygltf::Animation animation;
-                //animation.name = "animation";
-                //int anim_count = PE_I(_animation_translation.size());
-                //for (int i = 0; i < anim_count; i++) {
-                //    tinygltf::AnimationChannel channel_translation;
-                //    channel_translation.target_path = "translation";
-                //    channel_translation.target_node = i;
-                //    channel_translation.sampler = i * 2;
-                //    tinygltf::AnimationChannel channel_rotation;
-                //    channel_rotation.target_path = "rotation";
-                //    channel_rotation.target_node = i;
-                //    channel_rotation.sampler = i * 2 + 1;
-                //    tinygltf::AnimationSampler sampler_translation;
-                //    sampler_translation.input = _accessor_counter + 2;
-                //    sampler_translation.output = _accessor_counter;
-                //    tinygltf::AnimationSampler sampler_rotation;
-                //    sampler_rotation.input = _accessor_counter + 2;
-                //    sampler_rotation.output = _accessor_counter + 1;
-                //    animation.channels.push_back(channel_translation);
-                //    animation.channels.push_back(channel_rotation);
-                //    animation.samplers.push_back(sampler_translation);
-                //    animation.samplers.push_back(sampler_rotation);
+                tinygltf::Animation animation;
+                animation.name = "animation";
+                int anim_count = PE_I(_animation_translation.size());
+                for (int i = 0; i < anim_count; i++) {
+                    tinygltf::AnimationChannel channel_translation;
+                    channel_translation.target_path = "translation";
+                    channel_translation.target_node = i;
+                    channel_translation.sampler = i * 2;
+                    tinygltf::AnimationChannel channel_rotation;
+                    channel_rotation.target_path = "rotation";
+                    channel_rotation.target_node = i;
+                    channel_rotation.sampler = i * 2 + 1;
+                    tinygltf::AnimationSampler sampler_translation;
+                    sampler_translation.input = _accessor_counter + 2;
+                    sampler_translation.output = _accessor_counter;
+                    tinygltf::AnimationSampler sampler_rotation;
+                    sampler_rotation.input = _accessor_counter + 2;
+                    sampler_rotation.output = _accessor_counter + 1;
+                    animation.channels.push_back(channel_translation);
+                    animation.channels.push_back(channel_rotation);
+                    animation.samplers.push_back(sampler_translation);
+                    animation.samplers.push_back(sampler_rotation);
 
-                //    tinygltf::Accessor translation_accessor;
-                //    translation_accessor.bufferView = _accessor_counter;
-                //    translation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
-                //    translation_accessor.count = _animation_translation[i].size();
-                //    translation_accessor.type = TINYGLTF_TYPE_VEC3;
-                //    _model.accessors.push_back(translation_accessor);
-                //    tinygltf::BufferView translation_buffer_view;
-                //    translation_buffer_view.buffer = 3;
-                //    translation_buffer_view.byteOffset = _buffer_animation_translation_offset;
-                //    _buffer_animation_translation_offset += translation_accessor.count * sizeof(float) * 3;
-                //    translation_buffer_view.byteLength = translation_accessor.count * sizeof(float) * 3;
-                //    _model.bufferViews.push_back(translation_buffer_view);
-                //    pe::Array<float> data;
-                //    data.reserve(translation_accessor.count * 3);
-                //    for (auto& v : _animation_translation[i]) {
-                //        data.push_back(PE_F(v.x()));
-                //        data.push_back(PE_F(v.y()));
-                //        data.push_back(PE_F(v.z()));
-                //    }
-                //    _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+                    tinygltf::Accessor translation_accessor;
+                    translation_accessor.bufferView = _accessor_counter;
+                    translation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+                    translation_accessor.count = _animation_translation[i].size();
+                    translation_accessor.type = TINYGLTF_TYPE_VEC3;
+                    _model.accessors.push_back(translation_accessor);
+                    tinygltf::BufferView translation_buffer_view;
+                    translation_buffer_view.buffer = 3;
+                    translation_buffer_view.byteOffset = _buffer_animation_translation_offset;
+                    _buffer_animation_translation_offset += translation_accessor.count * sizeof(float) * 3;
+                    translation_buffer_view.byteLength = translation_accessor.count * sizeof(float) * 3;
+                    _model.bufferViews.push_back(translation_buffer_view);
+                    pe::Array<float> data;
+                    data.reserve(translation_accessor.count * 3);
+                    for (auto& v : _animation_translation[i]) {
+                        data.push_back(PE_F(v.x()));
+                        data.push_back(PE_F(v.y()));
+                        data.push_back(PE_F(v.z()));
+                    }
+                    _buffer_animation_translation.data.insert(_buffer_animation_translation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
-                //    tinygltf::Accessor rotation_accessor;
-                //    rotation_accessor.bufferView = _accessor_counter + 1;
-                //    rotation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
-                //    rotation_accessor.count = _animation_rotation[i].size();
-                //    rotation_accessor.type = TINYGLTF_TYPE_VEC4;
-                //    _model.accessors.push_back(rotation_accessor);
-                //    tinygltf::BufferView rotation_buffer_view;
-                //    rotation_buffer_view.buffer = 4;
-                //    rotation_buffer_view.byteOffset = _buffer_animation_rotation_offset;
-                //    _buffer_animation_rotation_offset += rotation_accessor.count * sizeof(float) * 4;
-                //    rotation_buffer_view.byteLength = rotation_accessor.count * sizeof(float) * 4;
-                //    _model.bufferViews.push_back(rotation_buffer_view);
-                //    data.clear();
-                //    data.reserve(rotation_accessor.count * 4);
-                //    for (auto& q : _animation_rotation[i]) {
-                //        data.push_back(PE_F(q.x()));
-                //        data.push_back(PE_F(q.y()));
-                //        data.push_back(PE_F(q.z()));
-                //        data.push_back(PE_F(q.w()));
-                //    }
-                //    _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+                    tinygltf::Accessor rotation_accessor;
+                    rotation_accessor.bufferView = _accessor_counter + 1;
+                    rotation_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+                    rotation_accessor.count = _animation_rotation[i].size();
+                    rotation_accessor.type = TINYGLTF_TYPE_VEC4;
+                    _model.accessors.push_back(rotation_accessor);
+                    tinygltf::BufferView rotation_buffer_view;
+                    rotation_buffer_view.buffer = 4;
+                    rotation_buffer_view.byteOffset = _buffer_animation_rotation_offset;
+                    _buffer_animation_rotation_offset += rotation_accessor.count * sizeof(float) * 4;
+                    rotation_buffer_view.byteLength = rotation_accessor.count * sizeof(float) * 4;
+                    _model.bufferViews.push_back(rotation_buffer_view);
+                    data.clear();
+                    data.reserve(rotation_accessor.count * 4);
+                    for (auto& q : _animation_rotation[i]) {
+                        data.push_back(PE_F(q.x()));
+                        data.push_back(PE_F(q.y()));
+                        data.push_back(PE_F(q.z()));
+                        data.push_back(PE_F(q.w()));
+                    }
+                    _buffer_animation_rotation.data.insert(_buffer_animation_rotation.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
-                //    tinygltf::Accessor time_step_accessor;
-                //    time_step_accessor.bufferView = _accessor_counter + 2;
-                //    time_step_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
-                //    time_step_accessor.count = _animation_time_step[i].size();
-                //    time_step_accessor.type = TINYGLTF_TYPE_SCALAR;
-                //    _model.accessors.push_back(time_step_accessor);
-                //    tinygltf::BufferView time_step_buffer_view;
-                //    time_step_buffer_view.buffer = 5;
-                //    time_step_buffer_view.byteOffset = _buffer_animation_time_step_offset;
-                //    _buffer_animation_time_step_offset += time_step_accessor.count * sizeof(float);
-                //    time_step_buffer_view.byteLength = time_step_accessor.count * sizeof(float);
-                //    _model.bufferViews.push_back(time_step_buffer_view);
-                //    data.clear();
-                //    data.reserve(time_step_accessor.count);
-                //    for (auto& t : _animation_time_step[i]) {
-                //        data.push_back(PE_F(t));
-                //    }
-                //    _buffer_animation_time_step.data.insert(_buffer_animation_time_step.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
+                    tinygltf::Accessor time_step_accessor;
+                    time_step_accessor.bufferView = _accessor_counter + 2;
+                    time_step_accessor.componentType = TINYGLTF_COMPONENT_TYPE_FLOAT;
+                    time_step_accessor.count = _animation_time_step[i].size();
+                    time_step_accessor.type = TINYGLTF_TYPE_SCALAR;
+                    _model.accessors.push_back(time_step_accessor);
+                    tinygltf::BufferView time_step_buffer_view;
+                    time_step_buffer_view.buffer = 5;
+                    time_step_buffer_view.byteOffset = _buffer_animation_time_step_offset;
+                    _buffer_animation_time_step_offset += time_step_accessor.count * sizeof(float);
+                    time_step_buffer_view.byteLength = time_step_accessor.count * sizeof(float);
+                    _model.bufferViews.push_back(time_step_buffer_view);
+                    data.clear();
+                    data.reserve(time_step_accessor.count);
+                    for (auto& t : _animation_time_step[i]) {
+                        data.push_back(PE_F(t));
+                    }
+                    _buffer_animation_time_step.data.insert(_buffer_animation_time_step.data.end(), (const uint8_t*)data.data(), (const uint8_t*)data.data() + data.size() * sizeof(float));
 
-                //    _accessor_counter += 3;
-                //}
-                //_model.animations.push_back(animation);
+                    _accessor_counter += 3;
+                }
+                _model.animations.push_back(animation);
 
                 _model.buffers.push_back(_buffer_position);
                 _model.buffers.push_back(_buffer_normal);
                 _model.buffers.push_back(_buffer_index);
-                /*_model.buffers.push_back(_buffer_animation_translation);
+                _model.buffers.push_back(_buffer_animation_translation);
                 _model.buffers.push_back(_buffer_animation_rotation);
-                _model.buffers.push_back(_buffer_animation_time_step);*/
+                _model.buffers.push_back(_buffer_animation_time_step);
 
                 tinygltf::TinyGLTF gltf;
-                mergeGLTFBuffers(_model);
+                //mergeGLTFBuffers(_model);
                 gltf.WriteGltfSceneToFile(&_model, _path, true, true, true, true);
             }
 
@@ -1012,7 +1002,7 @@ namespace pe_intf {
 
             step();
 
-#       if true
+#       if false
             static pe::Array<int> ids;
             for (auto id : ids) {
                 Viewer::remove(id);
@@ -1101,6 +1091,30 @@ namespace pe_intf {
     }
 
     bool Simulator::renderStep(uint64_t& blocking_time) {
+#   ifdef PE_MULTI_THREAD1
+        utils::ThreadPool::forEach(_id_map.begin(), _id_map.end(), _id_map.size(), [&](auto& rb) {
+            if (rb.second.empty()) {
+                return;
+            }
+            auto type = rb.first->getCollisionShape()->getType();
+            if (type != pe_phys_shape::ShapeType::ST_Compound) {
+                updateColor(rb.second[0], type, rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                if (!rb.first->isSleep()) {
+                    Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
+                }
+            }
+            else {
+                int i = 0;
+                for (auto& s : dynamic_cast<pe_phys_shape::CompoundShape*>(rb.first->getCollisionShape())->getShapes()) {
+                    updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
+                    if (!rb.first->isSleep()) {
+                        Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
+                    }
+                    i++;
+                }
+            }
+        });
+#   else
         for (auto& rb : _id_map) {
             if (rb.second.empty()) {
                 continue;
@@ -1111,9 +1125,10 @@ namespace pe_intf {
                 if (!rb.first->isSleep()) {
                     Viewer::updateTransform(rb.second[0], type, rb.first->getTransform());
                 }
-            } else {
+            }
+            else {
                 int i = 0;
-                for (auto& s : dynamic_cast<pe_phys_shape::CompoundShape *>(rb.first->getCollisionShape())->getShapes()) {
+                for (auto& s : dynamic_cast<pe_phys_shape::CompoundShape*>(rb.first->getCollisionShape())->getShapes()) {
                     updateColor(rb.second[i], s.shape->getType(), rb.first->getTag(), rb.first->isKinematic() || rb.first->isSleep());
                     if (!rb.first->isSleep()) {
                         Viewer::updateTransform(rb.second[i], s.shape->getType(), rb.first->getTransform() * s.local_transform);
@@ -1122,6 +1137,7 @@ namespace pe_intf {
                 }
             }
         }
+#   endif
 
         if (!Viewer::isOpen() || Viewer::getKeyState(27) == 0) {
             Viewer::close();

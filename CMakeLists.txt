@@ -7,6 +7,8 @@ set(ENABLE_EXTENDED_ALIGNED_STORAGE ON)
 
 add_definitions(-DAMGCL_NO_BOOST)
 
+find_package(OpenMP REQUIRED)
+
 if (ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_compile_definitions("_ENABLE_EXTENDED_ALIGNED_STORAGE")
 else()

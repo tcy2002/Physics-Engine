@@ -43,8 +43,8 @@ void testFrictionContactConstraint() {
     solver->setupSolver(pe::Real(0.0167), { 0, -9.81, 0 }, { rb0, rb1 }, result, {});
     solver->solve();
 
-    std::cout << rb0->getLinearVelocity() << std::endl;
-    std::cout << rb1->getLinearVelocity() << std::endl;
+    std::cout << "lin: " << rb0->getLinearVelocity().transpose() << " ang: " << rb0->getAngularVelocity().transpose() << std::endl;
+    std::cout << "lin: " << rb1->getLinearVelocity().transpose() << " ang: " << rb1->getAngularVelocity().transpose() << std::endl;
 }
 
 int main() {

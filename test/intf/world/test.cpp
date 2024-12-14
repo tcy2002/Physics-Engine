@@ -298,7 +298,7 @@ void testWorld() {
 #   if !defined(PE_TEST_FRAMERATE)
         if (++frame > PE_TEST_FRAME_TH) while (pe_intf::Viewer::getKeyState('r') != 1);
 #   endif
-        COMMON_USleep(10000 - I(COMMON_GetMicroTickCount() - t));
+        COMMON_USleep(10000 - PE_I(COMMON_GetMicroTickCount() - t));
     }
 
     ret:
