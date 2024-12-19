@@ -8,7 +8,7 @@
 
 - 碰撞检测：SAT
 
-- 约束求解：Sequential Impulse
+- 约束求解：Sequential Impulse / Primal-Dual
 
 - 毁伤算法：Voronoi剖分
 
