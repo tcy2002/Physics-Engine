@@ -17,12 +17,12 @@ namespace pe_intf { // interface
     class Simulator {
     protected:
         World _world;
-        bool _saving = false;
 
     public:
         bool use_gui = true;
         int max_frame = INT32_MAX;
         int target_framerate = 60;
+        bool saving = false;
         std::string save_path = "./data";
 
         Simulator() {}
@@ -33,7 +33,7 @@ namespace pe_intf { // interface
         // Load a config file
         bool loadScene(int argc, char** argv);
         // store the simulation flow into a gltf file
-        void saveGltf(const std::string& path_to_write_gltf) const;
+        void saveGltf() const;
 
         // Initialize the physics world here before running
         virtual void init() {}
@@ -45,7 +45,7 @@ namespace pe_intf { // interface
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;
         bool renderInit();
-        bool renderStep(uint64_t& blocking_time);
+        void renderStep();
         void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
         void removeModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
         void updateColor(int id, pe_phys_shape::ShapeType type, const std::string& tag, bool kinematic);

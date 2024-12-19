@@ -1,4 +1,6 @@
 #include "intf/simulator.h"
+#include "phys/constraint/constraint_solver/primal_dual_solver.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -10,11 +12,16 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
         use_gui = true;
-        //max_frame = 1000;
+        //max_frame = 500;
+        //saving = true;
+
+        auto solver = new pe_phys_constraint::PrimalDualSolver;
+        solver->setIteration(30);
+        _world.setConstraintSolver(solver);
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
-        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, PE_R(-9.81), 0));
         //_world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
         //_world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
         //_world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
@@ -22,33 +29,33 @@ public:
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                     pe::Vector3(0, -5, 0)),
-                                      pe::Vector3(250, 10, 250), 10000);
+                                      pe::Vector3(250, 10, 250), 625000);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add tower1
-        createTower(pe::Vector3(0, 0, -20), 4, 12, 8);
-        createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
-        createTower(pe::Vector3(0, 0, -20), 8, 12, 16);
-        createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
-        createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
-        createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
+        createTower(pe::Vector3(0, 0, 0), 4, 4, 2);
+        /*createTower(pe::Vector3(0, 0, -20), 6, 3, 6);
+        createTower(pe::Vector3(0, 0, -20), 8, 2, 8);*/
+        //createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
+        //createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
+        //createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
-        // add tower2
-        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
+        //// add tower2
+        //createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
+        //createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+        //createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
-        // add tower3
-        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        //// add tower3
+        //createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+        //createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+        //createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
         // add a bomb
-        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                       pe::Vector3(0, 2, 50)),
-                                         PE_R(1.5), 50);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
+        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                                    pe::Vector3(20, 20, 50)),
+                                      pe::Vector3(2.5, 2.5, 2.5), 15.625);
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -50)); // give an initial velocity
         _world.addRigidBody(rb2);
     }
 
@@ -59,6 +66,7 @@ public:
         pe::Real brick_length = radius * angle / PE_R(1.25);
         pe::Real brick_width = brick_length / PE_R(4.0);
         pe::Real brick_height = brick_width * PE_R(1.5);
+        pe::Real mass = brick_length * brick_height * brick_width;
 
         for (int i = 0; i < layer; i++) {
             pe::Real offset = (i % 2) * angle / PE_R(2.0);
@@ -70,8 +78,9 @@ public:
                 vec.y() = brick_height * PE_R(0.5 + i);
                 vec.z() = radius * std::sin(brick_angle);
                 auto rb = createBoxRigidBody(pe::Transform(mat, pos + vec),
-                                             pe::Vector3(brick_width, brick_height, brick_length), 1.0);
+                                             pe::Vector3(brick_width, brick_height, brick_length), mass);
                 _world.addRigidBody(rb);
+                PE_LOG_DEBUG << rb->getTransform() << PE_ENDL;
             }
         }
     }

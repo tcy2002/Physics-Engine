@@ -1,4 +1,5 @@
 #include "intf/simulator.h"
+#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
 #include <random>
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
@@ -10,6 +11,9 @@ public:
 
     void init() override {
         /* Initialize the physics world here before running */
+        auto solver = new pe_phys_constraint::SequentialImpulseSolver;
+        solver->setIteration(30);
+        _world.setConstraintSolver(solver);
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
@@ -133,10 +137,10 @@ protected:
         rb->setTransform(trans);
         rb->setFrictionCoeff(friction);
         rb->setRestitutionCoeff(restitution);
-        rb->setAngularDamping(0);
+        rb->setAngularDamping(0.4);
         return rb;
     }
 };
 
 // Simulator class, Target frame rate
-PE_CUSTOM_MAIN(ConcaveSimulator, 60)
+PE_CUSTOM_MAIN(ConcaveSimulator, 200)

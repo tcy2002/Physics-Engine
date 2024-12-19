@@ -11,7 +11,7 @@ namespace pe_phys_constraint {
         FrictionContactConstraint _fcc_constraint;
 
     public:
-        PrimalDualSolver();
+        PE_API PrimalDualSolver();
         virtual ~PrimalDualSolver() {}
 
         ConstraintSolverType getType() const override { return ConstraintSolverType::CST_PRIMAL_DUAL; }

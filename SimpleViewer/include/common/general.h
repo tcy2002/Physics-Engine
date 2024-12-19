@@ -18,6 +18,7 @@ COMMON_FORCE_INLINE unsigned long long COMMON_GetMicroTickCount() {
     return std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
 }
+#define COMMON_Sleep(ms)std::this_thread::sleep_for(std::chrono::milliseconds(ms))
 #define COMMON_USleep(us) std::this_thread::sleep_for(std::chrono::microseconds(us))
 
 //// linear types

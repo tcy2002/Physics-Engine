@@ -38,13 +38,12 @@ namespace pe_phys_constraint {
 
         // solve contact constraints
         pe::LDLT ldlt;
-        pe::CG cg;
         pe::Real hu = PE_R(1e-4), exit_err, tol = PE_R(1e-4);
         pe::VectorX du, df, dl, ru, ru_add, rf, wrf, rl;
         //PE_LOG_DEBUG << "iter count: " << _iteration << PE_ENDL;
         for (int i = 0; i < _iteration; i++) {
             //PE_LOG_DEBUG << "*****************************************************begin iter " << i << " *****************************************************" << PE_ENDL;
-            if (!_fcc_constraint.iteratePrimalDual(i, ldlt, cg, hu, du, df, dl, ru, ru_add, rf, wrf, rl, exit_err, tol)) {
+            if (!_fcc_constraint.iteratePrimalDual(i, ldlt, hu, du, df, dl, ru, ru_add, rf, wrf, rl, exit_err, tol)) {
                 break;
             }
         }

@@ -3,16 +3,6 @@
 #include "primal_dual/non_smooth_forces/non_smooth_contact_force.h"
 #include "utils/logger.h"
 
-//#include <amgcl/adapter/block_matrix.hpp>
-//#include <amgcl/amg.hpp>
-//#include <amgcl/backend/eigen.hpp>
-//#include <amgcl/coarsening/smoothed_aggregation.hpp>
-//#include <amgcl/make_solver.hpp>
-//#include <amgcl/relaxation/as_preconditioner.hpp>
-//#include <amgcl/relaxation/gauss_seidel.hpp>
-//#include <amgcl/solver/cg.hpp>
-//#include <amgcl/value_type/static_matrix.hpp>
-
 // style-checked
 namespace pe_phys_constraint {
 
@@ -216,7 +206,7 @@ namespace pe_phys_constraint {
         //PE_LOG_DEBUG << "lambda: " << _lambda.transpose() << PE_ENDL;
     }
 
-    bool FrictionContactConstraint::iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::CG& cg, pe::Real& hu,
+    bool FrictionContactConstraint::iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::Real& hu,
                                                       pe::VectorX& du, pe::VectorX& df, pe::VectorX& dl,
                                                       pe::VectorX& ru, pe::VectorX& ru_add,
                                                       pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
@@ -311,8 +301,6 @@ namespace pe_phys_constraint {
         //PE_LOG_DEBUG << "rhs: " << _rhs.transpose() << PE_ENDL;
 
         size_t max_cg_it = 1000;
-        size_t iters = 0;
-        //pe::Real lin_err;
 
         if (iter == 0) {
             ldlt.analyzePattern(_A);
@@ -324,48 +312,6 @@ namespace pe_phys_constraint {
         else {
             du.setZero();
         }
-
-        /*if (_objects->size() < 2000) {
-            if (iter == 0) {
-                ldlt.analyzePattern(_A);
-            }
-            ldlt.factorize(_A);
-            if (ldlt.info() == Eigen::Success) {
-                du = ldlt.solve(_rhs);
-            }
-            else {
-                du.setZero();
-            }
-        } else {
-            typedef amgcl::static_matrix<pe::Real, 6, 6> dmat_type;
-            typedef amgcl::static_matrix<pe::Real, 6, 1> dvec_type;
-            typedef amgcl::backend::eigen<pe::Real> backend;
-            typedef amgcl::make_solver <
-                amgcl::amg<
-                    backend,
-                    amgcl::coarsening::smoothed_aggregation,
-                    amgcl::relaxation::gauss_seidel
-                >,
-                amgcl::solver::cg<backend>
-            > amg_solver;
-
-            auto p_rhs = reinterpret_cast<dvec_type*>(_rhs.data());
-            auto end_rhs = p_rhs + _objects->size();
-            auto p_x = reinterpret_cast<dvec_type*>(du.data());
-            auto end_x = p_x + _objects->size();
-            auto b = amgcl::make_iterator_range<dvec_type*>(p_rhs, end_rhs);
-            auto x = amgcl::make_iterator_range<dvec_type*>(p_x, end_x);
-            amg_solver::params prm;
-            auto a_b = amgcl::adapter::block_matrix<dmat_type>(_A);
-            prm.solver.maxiter = max_cg_it;
-            amg_solver amgs(a_b, prm);
-            std::tie(iters, lin_err) = amgs(b, x);
-            if (!std::isfinite(lin_err)) {
-                du = cg.compute(_A).solve(_rhs);
-                iters = cg.iterations();
-                lin_err = cg.error();
-            }
-        }*/
         du = du.cwiseProduct(d);
         //PE_LOG_DEBUG << "du: " << du.transpose() << PE_ENDL;
 
@@ -401,11 +347,7 @@ namespace pe_phys_constraint {
         //PE_LOG_DEBUG << "lambda: " << _lambda.transpose() << PE_ENDL;
 
         if (!use_gd && step_search.stepSize == 1) {
-            if (iters == max_cg_it) {
-                hu *= PE_R(1.3);
-            } else {
-                hu /= PE_R(4);
-            }
+            hu /= PE_R(4);
         } else {
             hu *= PE_R(4);
         }

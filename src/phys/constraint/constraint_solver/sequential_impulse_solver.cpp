@@ -61,21 +61,12 @@ namespace pe_phys_constraint {
     void SequentialImpulseSolver::solve() {
         // solve contact constraints
         for (int i = 0; i < _iteration; i++) {
-#   ifdef PE_MULTI_THREAD
-            utils::ThreadPool::forLoop(PE_UI(_fcc_constraints.size()),[&](int i){
-                _fcc_constraints[i]->iterateSequentialImpulse(i);
-            });
-            utils::ThreadPool::forLoop(PE_UI(_other_constraints.size()),[&](int i){
-                _other_constraints[i]->iterateSequentialImpulse(i);
-            });
-#   else
             for (auto constraint : _fcc_constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
             for (auto constraint : _other_constraints) {
                 constraint->iterateSequentialImpulse(i);
             }
-#   endif
         }
 
         // sync velocity

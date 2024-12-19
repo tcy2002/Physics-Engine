@@ -21,7 +21,7 @@ namespace pe_phys_collision {
         }
         constexpr auto margin = PE_MARGIN;
 
-        if (result.getObjectA()->getTag() == "wheel") {
+        if (true) {
 #       if false
             const auto shape_box = shape_a->getType() == pe_phys_shape::ShapeType::ST_Box ? shape_a : shape_b;
             const auto shape_cyl = dynamic_cast<pe_phys_shape::CylinderShape*>(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder ? shape_a : shape_b);

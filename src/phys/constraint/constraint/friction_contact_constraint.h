@@ -72,7 +72,7 @@ namespace pe_phys_constraint {
 
         // for primal-dual solver
         void initPrimalDual(const ConstraintParam& param) override;
-        bool iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::CG& cg, pe::Real& hu,
+        bool iteratePrimalDual(int iter, pe::LDLT& ldlt, pe::Real& hu,
                                pe::VectorX& du, pe::VectorX& df, pe::VectorX& dl,
                                pe::VectorX& ru, pe::VectorX& ru_add,
                                pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,

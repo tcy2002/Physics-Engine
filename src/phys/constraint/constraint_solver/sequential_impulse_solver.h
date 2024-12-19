@@ -15,7 +15,7 @@ namespace pe_phys_constraint {
         utils::ObjectPool<FrictionContactConstraint, 2048> _fcc_pool;
 
     public:
-        SequentialImpulseSolver();
+        PE_API SequentialImpulseSolver();
         virtual ~SequentialImpulseSolver() {}
 
         ConstraintSolverType getType() const override { return ConstraintSolverType::CST_SEQUENTIAL_IMPULSE; }
