@@ -38,7 +38,7 @@ public:
 
         // add a car
         _car1 = new pe_phys_vehicle::CarTemplate();
-        _car1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 5, 0)));
+        _car1->setTransform(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 2, 0)));
         _car1->init(&_world);
     }
 

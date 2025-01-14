@@ -302,6 +302,8 @@ namespace pe_phys_constraint {
 
         size_t max_cg_it = 1000;
 
+        // pcg/bicgstab/amgcl
+        // ldlt: 分解上三角，比较慢
         if (iter == 0) {
             ldlt.analyzePattern(_A);
         }

@@ -12,8 +12,8 @@ public:
     void init() override {
         /* Initialize the physics world here before running */
         use_gui = true;
-        max_frame = 300;
-        saving = true;
+        //max_frame = 300;
+        //saving = true;
         
         auto solver = new pe_phys_constraint::PrimalDualSolver;
         solver->setIteration(30);

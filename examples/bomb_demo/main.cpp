@@ -15,8 +15,8 @@ public:
         //max_frame = 500;
         //saving = true;
 
-        auto solver = new pe_phys_constraint::PrimalDualSolver;
-        solver->setIteration(30);
+        auto solver = new pe_phys_constraint::SequentialImpulseSolver;
+        solver->setIteration(20);
         _world.setConstraintSolver(solver);
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
@@ -30,32 +30,28 @@ public:
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
                                                     pe::Vector3(0, -5, 0)),
                                       pe::Vector3(250, 10, 250), 625000);
+        rb1->setFrictionCoeff(0.8);
         rb1->setKinematic(true);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
         // add tower1
-        createTower(pe::Vector3(0, 0, 0), 4, 4, 2);
-        /*createTower(pe::Vector3(0, 0, -20), 6, 3, 6);
-        createTower(pe::Vector3(0, 0, -20), 8, 2, 8);*/
-        //createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
-        //createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
-        //createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
+        createTower(pe::Vector3(0, 0, -20), 4, 5, 5);
+        createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
+        createTower(pe::Vector3(0, 0, -20), 8, 11, 16);
+        createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
+        createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
+        createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
-        //// add tower2
-        //createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
-        //createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
-        //createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
-
-        //// add tower3
-        //createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-        //createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-        //createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        // add tower2
+        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
+        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
         // add a bomb
-        auto rb2 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                    pe::Vector3(20, 20, 50)),
-                                      pe::Vector3(2.5, 2.5, 2.5), 15.625);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -50)); // give an initial velocity
+        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(),
+                                                       pe::Vector3(0, 20, 50)),
+                                         3, 1000);
+        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
         _world.addRigidBody(rb2);
     }
 
@@ -80,7 +76,7 @@ public:
                 auto rb = createBoxRigidBody(pe::Transform(mat, pos + vec),
                                              pe::Vector3(brick_width, brick_height, brick_length), mass);
                 _world.addRigidBody(rb);
-                PE_LOG_DEBUG << rb->getTransform() << PE_ENDL;
+                //PE_LOG_DEBUG << rb->getTransform() << PE_ENDL;
             }
         }
     }

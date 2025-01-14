@@ -24,8 +24,8 @@ void testThreadPool() {
     utils::ThreadPool::addTask([](int& b){ std::cout << "Hello, world!" << std::endl; b = 2; }, a);
     utils::ThreadPool::join();
     std::cout << a << std::endl;
-    std::vector<int> v(100);
-    utils::ThreadPool::forEach(v.begin(), v.end(), test);
+    std::vector<int> v(100, 100);
+    utils::ThreadPool::forEach(v.begin(), v.end(), v.size(), test);
     utils::ThreadPool::join();
 }
 

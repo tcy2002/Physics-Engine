@@ -1050,7 +1050,8 @@ namespace pe_intf {
         }
 
         const uint64_t target_tick = dt * 1000000;
-        uint64_t frame = 0;
+        std::atomic<uint64_t> frame = 0;
+        uint64_t render_frame = 0;
         uint64_t total_step_tick = 0;
         uint64_t total_tick = 0;
         bool running = true;
@@ -1062,8 +1063,9 @@ namespace pe_intf {
         std::thread render_thread([&] {
             while (running) {
                 auto start = COMMON_GetMicroTickCount();
-
-                step();
+                while (running && render_frame > frame.load()) {
+                    COMMON_USleep(100);
+                }
 
 #       if false
                 static pe::Array<int> ids;
@@ -1088,6 +1090,7 @@ namespace pe_intf {
                 
                 renderStep();
 
+                render_frame++;
                 auto actual_tick = COMMON_GetMicroTickCount() - start;
                 if (actual_tick < target_tick) {
                     COMMON_Sleep((target_tick - actual_tick) / 1000);
@@ -1101,6 +1104,8 @@ namespace pe_intf {
             auto step_start = COMMON_GetMicroTickCount();
             _world.step();
             total_step_tick += COMMON_GetMicroTickCount() - step_start;
+
+            step();
 
             if (use_gui) {
                 if (!_world.getRigidBodiesToRemove().empty()) {

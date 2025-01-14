@@ -19,13 +19,17 @@ void testCollisionPair() {
     auto rb4 = createRigidBody(pe::Vector3(0, 1.6, 0), pe::Vector3(1, 1, 1));
     rb3->setKinematic(true);
     rb4->setKinematic(true);
+    rb1->step(0);
+    rb2->step(0);
+    rb3->step(0);
+    rb4->step(0);
 
     auto bp = new BroadPhaseSweepAndPrune();
     pe::Array<pe_phys_object::RigidBody*> collision_objects = {rb1, rb2, rb3, rb4};
     pe::Array<pe_phys_collision::CollisionPair> result;
     bp->calcCollisionPairs(collision_objects, result);
 
-    ASSERT_EQUAL_INT(result.size(), 3)
+    ASSERT_EQUAL_INT(result.size(), 2)
 }
 
 int main() {
