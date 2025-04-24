@@ -62,7 +62,7 @@ namespace pe_phys_collision {
             }
         });
 #   else
-        for (int i = 0; i < I(pairs.size()); i++) {
+        for (int i = 0; i < PE_I(pairs.size()); i++) {
             results[i]->clearContactPoints();
             pe_phys_object::RigidBody* obj_a = pairs[i].first, *obj_b = pairs[i].second;
             if (obj_b->getTag() == "wheel") PE_SWAP(obj_a, obj_b);

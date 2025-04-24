@@ -1,5 +1,6 @@
 #include "file_system.h"
 #include <algorithm>
+#include <cstring>
 
 namespace utils {
     void StringTools::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
