@@ -1,10 +1,10 @@
 #include "world.h"
-#include "phys/object/rigidbody.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
-#include "phys/constraint/constraint_solver/primal_dual_solver.h"
-#include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
-#include "phys/collision/broad_phase/simple_broad_phase.h"
-#include "phys/collision/narrow_phase/simple_narrow_phase.h"
+#include "rigid/object/rigidbody.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
+#include "rigid/constraint/constraint_solver/primal_dual_solver.h"
+#include "rigid/collision/broad_phase/broad_phase_sweep_and_prune.h"
+#include "rigid/collision/broad_phase/simple_broad_phase.h"
+#include "rigid/collision/narrow_phase/simple_narrow_phase.h"
 #include "utils/thread_pool.h"
 
 namespace pe_intf {
@@ -20,6 +20,7 @@ namespace pe_intf {
         _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   ifdef PE_MULTI_THREAD
+        std::cout << "multi-thread" << std::endl;
         utils::ThreadPool::init();
 #   endif
     }
@@ -69,10 +70,10 @@ namespace pe_intf {
             rb->resetDynamicCount();
         });
 #   else
-        for (int i = 0; i < I(_collision_objects.size()); i++) {
+        for (int i = 0; i < PE_I(_collision_objects.size()); i++) {
             auto rb = _collision_objects[i];
             if (rb->isKinematic()) continue;
-            const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            const auto ratio = (rb->getStaticCount() + 1) / PE_R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().squaredNorm() >= _sleep_lin_vel2_threshold * ratio ||
                     rb->getAngularVelocity().squaredNorm() >= _sleep_ang_vel2_threshold * ratio) {
@@ -164,7 +165,7 @@ namespace pe_intf {
             }
             pos /= cr->getPointSize();
             nor.normalize();
-            depth /= R(cr->getPointSize());
+            depth /= PE_R(cr->getPointSize());
             vel /= cr->getPointSize();
 
             for (auto& cb : rb1->getCollisionCallbacks()) {

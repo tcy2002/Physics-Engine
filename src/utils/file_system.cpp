@@ -297,6 +297,14 @@ namespace utils {
         }
         return "";
     }
+#else
+    const std::string FileSystem::fileDialog(
+        int dialogType,
+        const std::string &initialDir,
+        const std::string &filterName,
+        const std::string &filter) {
+        return "";
+    }
 #endif
 
 }

@@ -1,6 +1,6 @@
 #include "intf/simulator.h"
-#include "phys/constraint/constraint_solver/primal_dual_solver.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
+#include "rigid/constraint/constraint_solver/primal_dual_solver.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "phys/phys_general.h"
+#include "rigid/phys_general.h"
 #include "common/mesh.h"
-#include "phys/shape/shape.h"
+#include "rigid/shape/shape.h"
 #include "opengl_viewer.h"
 
 namespace pe_intf { // interface

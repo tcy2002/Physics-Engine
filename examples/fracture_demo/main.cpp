@@ -1,4 +1,6 @@
 #include "intf/simulator.h"
+#include "rigid/constraint/constraint_solver/primal_dual_solver.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -13,9 +15,13 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
+        // _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
+        // _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
+        // _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
+
+        auto solver = new pe_phys_constraint::PrimalDualSolver;
+        solver->setIteration(20);
+        _world.setConstraintSolver(solver);
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),

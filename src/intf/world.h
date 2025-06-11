@@ -1,12 +1,12 @@
 #pragma once
 
-#include "phys/phys_general.h"
-#include "phys/object/rigidbody.h"
-#include "phys/collision/broad_phase/broad_phase_base.h"
-#include "phys/collision/narrow_phase/narrow_phase_base.h"
-#include "phys/constraint/constraint/constraint.h"
-#include "phys/constraint/constraint_solver/constraint_solver.h"
-#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
+#include "rigid/phys_general.h"
+#include "rigid/object/rigidbody.h"
+#include "rigid/collision/broad_phase/broad_phase_base.h"
+#include "rigid/collision/narrow_phase/narrow_phase_base.h"
+#include "rigid/constraint/constraint/constraint.h"
+#include "rigid/constraint/constraint_solver/constraint_solver.h"
+#include "rigid/fracture/fracture_solver/simple_fracture_solver.h"
 
 // NO include: will cause circular dependency
 namespace pe_phys_vehicle { class ContactVehicle; }

@@ -2,7 +2,7 @@
 #include "json/json.hpp"
 #include "opts/cxxopts.hpp"
 #include "utils/file_system.h"
-#include "phys/shape/default_mesh.h"
+#include "rigid/shape/default_mesh.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -1050,7 +1050,7 @@ namespace pe_intf {
         }
 
         const uint64_t target_tick = dt * 1000000;
-        std::atomic<uint64_t> frame = 0;
+        std::atomic<uint64_t> frame(0);
         uint64_t render_frame = 0;
         uint64_t total_step_tick = 0;
         uint64_t total_tick = 0;

@@ -1,6 +1,6 @@
 #include "intf/simulator.h"
-#include "phys/constraint/constraint_solver/primal_dual_solver.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
+#include "rigid/constraint/constraint_solver/primal_dual_solver.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -16,7 +16,7 @@ public:
         //saving = true;
 
         auto solver = new pe_phys_constraint::SequentialImpulseSolver;
-        solver->setIteration(20);
+        solver->setIteration(10);
         _world.setConstraintSolver(solver);
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
@@ -43,9 +43,9 @@ public:
         createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
         // add tower2
-        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
+        // createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
+        // createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+        // createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
         // add a bomb
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(),

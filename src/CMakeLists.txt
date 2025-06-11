@@ -1,7 +1,7 @@
-file(GLOB_RECURSE PHYS_SOURCES phys/*.cpp)
+file(GLOB_RECURSE RIGID_SOURCES rigid/*.cpp)
 
 add_library(PEngine SHARED intf/world.cpp
-        ${PHYS_SOURCES})
+        ${RIGID_SOURCES})
 add_library(PEViewer STATIC intf/simulator.cpp intf/viewer.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp
