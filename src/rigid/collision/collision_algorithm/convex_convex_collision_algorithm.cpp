@@ -412,7 +412,7 @@ namespace pe_phys_collision {
                                                           const pe::Transform &trans_a, const pe::Transform &trans_b,
                                                           pe::Real margin, pe::Real refScale, ContactResult& result) {
         if (use_gjk) {
-
+            return false;
         } else {
             pe::Vector3 sep;
 

@@ -4,7 +4,7 @@
 // style-checked
 namespace pe_phys_object {
 
-    std::atomic<uint32_t> RigidBody::_globalIdCounter(0);
+    std::atomic<uint32_t> RigidBody::_global_id_counter(0);
 
     void RigidBody::setCollisionShape(pe_phys_shape::Shape *shape) {
         if (shape == nullptr) {
@@ -71,7 +71,7 @@ namespace pe_phys_object {
     }
 
     RigidBody::RigidBody():
-            _global_id(++_globalIdCounter),
+            _global_id(++_global_id_counter),
             _kinematic(false),
             _ignore_collision(false),
             _mass(1.),

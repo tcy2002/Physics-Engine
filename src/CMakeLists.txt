@@ -1,7 +1,8 @@
 file(GLOB_RECURSE RIGID_SOURCES rigid/*.cpp)
+file(GLOB_RECURSE CLOTH_SOURCES cloth/*.cpp)
 
 add_library(PEngine SHARED intf/world.cpp
-        ${RIGID_SOURCES})
+        ${RIGID_SOURCES} ${CLOTH_SOURCES})
 add_library(PEViewer STATIC intf/simulator.cpp intf/viewer.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp

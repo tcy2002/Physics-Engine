@@ -132,9 +132,9 @@ namespace pe {
     };
     struct Vector3Hash {
         uint32_t operator()(const pe::Vector3& v) const {
-            auto x = PE_UI(std::round(v.x() / PE_EPS));
-            auto y = PE_UI(std::round(v.y() / PE_EPS));
-            auto z = PE_UI(std::round(v.z() / PE_EPS));
+            auto x = PE_UI(v.x() * 1e5);
+            auto y = PE_UI(v.y() * 1e5);
+            auto z = PE_UI(v.z() * 1e5);
             uint32_t h = 0x995af;
             h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2);
             h ^= y + 0x9e3779b9 + (h << 6) + (h >> 2);

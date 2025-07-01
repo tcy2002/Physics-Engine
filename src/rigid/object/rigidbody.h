@@ -61,7 +61,7 @@ namespace pe_phys_object {
         COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
         COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
     private:
-        static std::atomic<uint32_t> _globalIdCounter;
+        static std::atomic<uint32_t> _global_id_counter;
         pe::HashSet<uint32_t> _ignore_collision_ids;
 
         /* Sleep */

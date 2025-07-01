@@ -44,10 +44,13 @@ namespace pe_intf { // interface
 
     private:
         pe::Map<pe_phys_object::RigidBody*, pe::Array<int>> _id_map;
+        pe::Map<pe_phys_object::ClothObject*, int> _cloth_id_map;
         bool renderInit();
         void renderStep();
         void addModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
+        void addModels(const pe::Array<pe_phys_object::ClothObject*>& cloths);
         void removeModels(const pe::Array<pe_phys_object::RigidBody*>& rbs);
+        void removeModels(const pe::Array<pe_phys_object::ClothObject*>& cloths);
         void updateColor(int id, pe_phys_shape::ShapeType type, const std::string& tag, bool kinematic);
     };
 

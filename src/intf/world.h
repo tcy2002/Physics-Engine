@@ -2,6 +2,7 @@
 
 #include "rigid/phys_general.h"
 #include "rigid/object/rigidbody.h"
+#include "cloth/object/cloth_object.h"
 #include "rigid/collision/broad_phase/broad_phase_base.h"
 #include "rigid/collision/narrow_phase/narrow_phase_base.h"
 #include "rigid/constraint/constraint/constraint.h"
@@ -27,7 +28,8 @@ namespace pe_intf { // interface
         COMMON_MEMBER_SET_GET(pe::Real, sleep_time_threshold, SleepTimeThreshold);
 
     protected:
-        pe::Array<pe_phys_object::RigidBody*> _collision_objects;
+        pe::Array<pe_phys_object::RigidBody*> _rigid_objects;
+        pe::Array<pe_phys_object::ClothObject*> _cloth_objects;
         pe::Array<pe_phys_constraint::Constraint*> _constraints;
         pe_phys_collision::BroadPhaseBase* _broad_phase;
         pe_phys_collision::NarrowPhaseBase* _narrow_phase;
@@ -36,7 +38,9 @@ namespace pe_intf { // interface
 
         pe::Array<pe_phys_fracture::FractureSource> _fracture_sources;
         pe::Array<pe_phys_object::RigidBody*> _rigidbodies_to_add;
+        pe::Array<pe_phys_object::ClothObject*> _clothobjects_to_add;
         pe::Array<pe_phys_object::RigidBody*> _rigidbodies_to_remove;
+        pe::Array<pe_phys_object::ClothObject*> _clothobjects_to_remove;
         pe::Array<pe_phys_collision::CollisionPair> _collision_pairs;
         pe::Array<pe_phys_collision::ContactResult*> _contact_results;
         friend class pe_phys_vehicle::ContactVehicle;
@@ -59,8 +63,8 @@ namespace pe_intf { // interface
         /*********************************************/
 
         /**** rigid body *****************************/
-        const std::vector<pe_phys_object::RigidBody*>& getRigidBodies() const { return _collision_objects; }
-        pe_phys_object::RigidBody* getRigidBody(uint32_t idx) const { return _collision_objects[idx]; }
+        const pe::Array<pe_phys_object::RigidBody*>& getRigidBodies() const { return _rigid_objects; }
+        pe_phys_object::RigidBody* getRigidBody(uint32_t idx) const { return _rigid_objects[idx]; }
         PE_API void addRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API void removeRigidBody(pe_phys_object::RigidBody* rigidbody);
         PE_API void updateRigidBody(pe_phys_object::RigidBody* rigidbody);
@@ -68,6 +72,18 @@ namespace pe_intf { // interface
         PE_API void clearRigidBodiesToAdd() { _rigidbodies_to_add.clear(); }
         PE_API const pe::Array<pe_phys_object::RigidBody*>& getRigidBodiesToRemove() { return _rigidbodies_to_remove; }
         PE_API void clearRigidBodiesToRemove() { _rigidbodies_to_remove.clear(); }
+        /*********************************************/
+
+        /**** cloth object **************************/
+        const pe::Array<pe_phys_object::ClothObject*>& getClothObjects() const { return _cloth_objects; }
+        pe_phys_object::ClothObject* getClothObject(uint32_t idx) const { return _cloth_objects[idx]; }
+        PE_API void addClothObject(pe_phys_object::ClothObject* cloth_object);
+        PE_API void removeClothObject(pe_phys_object::ClothObject* cloth_object);
+        PE_API void updateClothObject(pe_phys_object::ClothObject* cloth_object);
+        PE_API const pe::Array<pe_phys_object::ClothObject*>& getClothObjectsToAdd() const { return _cloth_objects; }
+        PE_API void clearClothObjectsToAdd() { _clothobjects_to_add.clear(); }
+        PE_API const pe::Array<pe_phys_object::ClothObject*>& getClothObjectsToRemove() { return _clothobjects_to_remove; }
+        PE_API void clearClothObjectsToRemove() { _clothobjects_to_remove.clear(); }
         /*********************************************/
 
         /**** constraint *****************************/
