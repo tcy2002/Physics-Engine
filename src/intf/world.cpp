@@ -1,10 +1,10 @@
 #include "world.h"
-#include "phys/object/rigidbody.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
-#include "phys/constraint/constraint_solver/primal_dual_solver.h"
-#include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
-#include "phys/collision/broad_phase/simple_broad_phase.h"
-#include "phys/collision/narrow_phase/simple_narrow_phase.h"
+#include "rigid/object/rigidbody.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
+#include "rigid/constraint/constraint_solver/primal_dual_solver.h"
+#include "rigid/collision/broad_phase/broad_phase_sweep_and_prune.h"
+#include "rigid/collision/broad_phase/simple_broad_phase.h"
+#include "rigid/collision/narrow_phase/simple_narrow_phase.h"
 #include "utils/thread_pool.h"
 
 namespace pe_intf {
@@ -19,7 +19,8 @@ namespace pe_intf {
         _narrow_phase(new pe_phys_collision::SimpleNarrowPhase),
         _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
-#   ifdef PE_MULTI_THREAD
+#   if true
+        std::cout << "multi-thread" << std::endl;
         utils::ThreadPool::init();
 #   endif
     }
@@ -32,9 +33,17 @@ namespace pe_intf {
     }
 
     void World::updateObjectStatus() {
-#   ifdef PE_MULTI_THREAD
-        utils::ThreadPool::forLoop(PE_UI(_collision_objects.size()), [&](int i) {
-            auto rb = _collision_objects[i];
+#   if true
+        utils::ThreadPool::forLoop(PE_UI(_cloth_objects.size()), [&](int i) {
+            auto co = _cloth_objects[i];
+            co->step(_dt);
+        });
+        for (int i = 0; i < PE_I(_cloth_objects.size()); i++) {
+            auto co = _cloth_objects[i];
+            updateClothObject(co);
+        }
+        utils::ThreadPool::forLoop(PE_UI(_rigid_objects.size()), [&](int i) {
+            auto rb = _rigid_objects[i];
             if (rb->isKinematic()) {
                 rb->step(_dt); // only update AABB
                 return;
@@ -49,7 +58,7 @@ namespace pe_intf {
             } else {
                 if (!rb->step(_dt)) {
                     _rigidbodies_to_remove.push_back(rb);
-                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    _rigid_objects.erase(_rigid_objects.begin() + i--);
                     return;
                 }
                 rb->applyDamping(_dt);
@@ -69,10 +78,15 @@ namespace pe_intf {
             rb->resetDynamicCount();
         });
 #   else
-        for (int i = 0; i < I(_collision_objects.size()); i++) {
-            auto rb = _collision_objects[i];
+        for (int i = 0; i < PE_I(_cloth_objects.size()); i++) {
+            auto co = _cloth_objects[i];
+            co->step(_dt);
+            updateClothObject(co);
+        }
+        for (int i = 0; i < PE_I(_rigid_objects.size()); i++) {
+            auto rb = _rigid_objects[i];
             if (rb->isKinematic()) continue;
-            const auto ratio = (rb->getStaticCount() + 1) / R(rb->getDynamicCount() + rb->getStaticCount() + 1);
+            const auto ratio = (rb->getStaticCount() + 1) / PE_R(rb->getDynamicCount() + rb->getStaticCount() + 1);
             if (rb->isSleep()) {
                 if (rb->getLinearVelocity().squaredNorm() >= _sleep_lin_vel2_threshold * ratio ||
                     rb->getAngularVelocity().squaredNorm() >= _sleep_ang_vel2_threshold * ratio) {
@@ -82,7 +96,7 @@ namespace pe_intf {
             } else {
                 if (!rb->step(_dt)) {
                     _rigidbodies_to_remove.push_back(rb);
-                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    _rigid_objects.erase(_rigid_objects.begin() + i--);
                     continue;
                 }
                 rb->applyDamping(_dt);
@@ -105,7 +119,7 @@ namespace pe_intf {
     }
 
     void World::applyExternalForce() {
-        for (auto& rb : _collision_objects) {
+        for (auto& rb : _rigid_objects) {
             if (rb->isKinematic()) continue;
             rb->addCentralForce(_gravity * rb->getMass());
             rb->applyForce(_dt);
@@ -113,7 +127,7 @@ namespace pe_intf {
     }
 
     void World::execCollisionCallbacks() {
-#   ifdef PE_MULTI_THREAD
+#   if true
         utils::ThreadPool::forLoop(PE_UI(_contact_results.size()), [&](int i) {
             const auto& cr = _contact_results[i];
             if (cr->getPointSize() == 0) return;
@@ -164,7 +178,7 @@ namespace pe_intf {
             }
             pos /= cr->getPointSize();
             nor.normalize();
-            depth /= R(cr->getPointSize());
+            depth /= PE_R(cr->getPointSize());
             vel /= cr->getPointSize();
 
             for (auto& cb : rb1->getCollisionCallbacks()) {
@@ -181,18 +195,18 @@ namespace pe_intf {
         if (_fracture_sources.empty()) {
             return;
         }
-        for (int i = 0; i < PE_I(_collision_objects.size()); i++) {
-            auto rb = _collision_objects[i];
+        for (int i = 0; i < PE_I(_rigid_objects.size()); i++) {
+            auto rb = _rigid_objects[i];
             if (rb->isFracturable()) {
                 _fracture_solver->setFracturableObject((pe_phys_object::FracturableObject*)rb);
                 _fracture_solver->solve(_fracture_sources);
                 if (!_fracture_solver->getFragments().empty()) {
                     for (auto frag : _fracture_solver->getFragments()) {
-                        _collision_objects.push_back(frag);
+                        _rigid_objects.push_back(frag);
                         _rigidbodies_to_add.push_back(frag);
                     }
                     _rigidbodies_to_remove.push_back(rb);
-                    _collision_objects.erase(_collision_objects.begin() + i--);
+                    _rigid_objects.erase(_rigid_objects.begin() + i--);
                     _fracture_solver->clearFragments();
                 }
             }
@@ -202,14 +216,14 @@ namespace pe_intf {
 
 
     void World::addRigidBody(pe_phys_object::RigidBody* rigidbody) {
-        _collision_objects.push_back(rigidbody);
+        _rigid_objects.push_back(rigidbody);
         _rigidbodies_to_add.push_back(rigidbody);
     }
 
     void World::removeRigidBody(pe_phys_object::RigidBody *rigidbody) {
-        for (int i = 0; i < PE_I(_collision_objects.size()); i++) {
-            if (_collision_objects[i]->getGlobalId() == rigidbody->getGlobalId()) {
-                _collision_objects.erase(_collision_objects.begin() + i);
+        for (int i = 0; i < PE_I(_rigid_objects.size()); i++) {
+            if (_rigid_objects[i]->getGlobalId() == rigidbody->getGlobalId()) {
+                _rigid_objects.erase(_rigid_objects.begin() + i);
                 _rigidbodies_to_remove.push_back(rigidbody);
                 break;
             }
@@ -219,6 +233,26 @@ namespace pe_intf {
     void World::updateRigidBody(pe_phys_object::RigidBody *rigidbody) {
         _rigidbodies_to_remove.push_back(rigidbody);
         _rigidbodies_to_add.push_back(rigidbody);
+    }
+
+    void World::addClothObject(pe_phys_object::ClothObject *cloth_object) {
+        _cloth_objects.push_back(cloth_object);
+        _clothobjects_to_add.push_back(cloth_object);
+    }
+
+    void World::removeClothObject(pe_phys_object::ClothObject *cloth_object) {
+        for (int i = 0; i < PE_I(_cloth_objects.size()); i++) {
+            if (_cloth_objects[i]->getGlobalId() == cloth_object->getGlobalId()) {
+                _cloth_objects.erase(_cloth_objects.begin() + i);
+                _clothobjects_to_remove.push_back(cloth_object);
+                break;
+            }
+        }
+    }
+
+    void World::updateClothObject(pe_phys_object::ClothObject *cloth_object) {
+        _clothobjects_to_remove.push_back(cloth_object);
+        _clothobjects_to_add.push_back(cloth_object);
     }
 
     void World::removeConstraint(pe_phys_constraint::Constraint *constraint) {
@@ -247,7 +281,7 @@ namespace pe_intf {
 
         // collision detection
         start = COMMON_GetMicroTickCount();
-        _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
+        _broad_phase->calcCollisionPairs(_rigid_objects, _collision_pairs);
         end = COMMON_GetMicroTickCount();
         broad_phase_time += PE_R(end - start) * PE_R(0.000001);
 
@@ -259,7 +293,7 @@ namespace pe_intf {
 
         // constraints
         start = COMMON_GetMicroTickCount();
-        _constraint_solver->setupSolver(_dt, _gravity, _collision_objects, _contact_results, _constraints);
+        _constraint_solver->setupSolver(_dt, _gravity, _rigid_objects, _contact_results, _constraints);
         _constraint_solver->solve();
         end = COMMON_GetMicroTickCount();
         constraint_solver_time += PE_R(end - start) * PE_R(0.000001);

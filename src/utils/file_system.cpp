@@ -1,5 +1,6 @@
 #include "file_system.h"
 #include <algorithm>
+#include <cstring>
 
 namespace utils {
     void StringTools::tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
@@ -294,6 +295,14 @@ namespace utils {
             if (GetSaveFileName(&ofn))
                 return std::string(fileNameBuffer);
         }
+        return "";
+    }
+#else
+    const std::string FileSystem::fileDialog(
+        int dialogType,
+        const std::string &initialDir,
+        const std::string &filterName,
+        const std::string &filter) {
         return "";
     }
 #endif

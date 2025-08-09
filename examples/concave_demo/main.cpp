@@ -1,5 +1,5 @@
 #include "intf/simulator.h"
-#include "phys/constraint/constraint_solver/sequential_impulse_solver.h"
+#include "rigid/constraint/constraint_solver/sequential_impulse_solver.h"
 #include <random>
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control

@@ -1,5 +1,5 @@
 #include "intf/simulator.h"
-#include "phys/vehicle/car/car_template.h"
+#include "rigid/vehicle/car/car_template.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()

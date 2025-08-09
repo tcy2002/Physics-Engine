@@ -2,7 +2,7 @@
 #include "json/json.hpp"
 #include "opts/cxxopts.hpp"
 #include "utils/file_system.h"
-#include "phys/shape/default_mesh.h"
+#include "rigid/shape/default_mesh.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -1050,7 +1050,7 @@ namespace pe_intf {
         }
 
         const uint64_t target_tick = dt * 1000000;
-        std::atomic<uint64_t> frame = 0;
+        std::atomic<uint64_t> frame(0);
         uint64_t render_frame = 0;
         uint64_t total_step_tick = 0;
         uint64_t total_tick = 0;
@@ -1116,6 +1116,16 @@ namespace pe_intf {
                     addModels(_world.getRigidBodiesToAdd());
                     _world.clearRigidBodiesToAdd();
                 }
+                std::cout << "cloth num: " << _world.getClothObjects().size() << std::endl;
+                if (!_world.getClothObjectsToRemove().empty()) {
+                    removeModels(_world.getClothObjectsToRemove());
+                    _world.clearClothObjectsToRemove();
+                }
+                if (!_world.getClothObjectsToAdd().empty()) {
+                    addModels(_world.getClothObjectsToAdd());
+                    _world.clearClothObjectsToAdd();
+                }
+                std::cout << "cloth num: " << _world.getClothObjects().size() << std::endl;
             }
 
             auto block_start = COMMON_GetMicroTickCount();
@@ -1169,6 +1179,8 @@ namespace pe_intf {
         // initialize models
         addModels(_world.getRigidBodiesToAdd());
         _world.clearRigidBodiesToAdd();
+        addModels(_world.getClothObjectsToAdd());
+        _world.clearClothObjectsToAdd();
 
         // wait for the window to open
         while (!Viewer::isOpen()) {
@@ -1265,6 +1277,32 @@ namespace pe_intf {
         }
     }
 
+    void Simulator::addModels(const pe::Array<pe_phys_object::ClothObject*>& cloths) {
+        for (auto co : cloths) {
+            pe::Mesh mesh;
+            mesh.vertices.reserve(co->getVertices().size());
+            for (int i = 0; i < PE_I(co->getVertices().size()); i++) {
+                pe::Mesh::Vertex vert;
+                vert.position = co->getVertices()[i];
+                vert.normal = co->getNormals()[i];
+                mesh.vertices.push_back(vert);
+            }
+            mesh.faces.reserve(co->getTriangles().size() / 3);
+            for (int i = 0; i < PE_I(co->getTriangles().size()) / 3; i++) {
+                pe::Mesh::Face face;
+                face.indices.reserve(3);
+                face.normal = pe::Vector3::UnitX();
+                for (int j = 0; j < 3; j++) {
+                    face.indices.push_back(co->getTriangles()[i * 3 + j]);
+                }
+                mesh.faces.push_back(face);
+            }
+            auto id = Viewer::addMesh(mesh);
+            Viewer::updateColor(id, pe_phys_shape::ShapeType::ST_ConvexMesh, pe::Vector3(0.3, 0.8, 0.8));
+            _cloth_id_map[co] = id;
+        }
+    }
+
     void Simulator::updateColor(int id, pe_phys_shape::ShapeType type, const std::string& tag, bool kinematic) {
         auto color_p = tag.find("color:");
         if (color_p != std::string::npos) {
@@ -1310,6 +1348,15 @@ namespace pe_intf {
                     Viewer::remove(id);
                 }
                 _id_map[rb] = {};
+            }
+        }
+    }
+
+    void Simulator::removeModels(const pe::Array<pe_phys_object::ClothObject*>& cloths) {
+        for (auto co : cloths) {
+            if (_cloth_id_map.find(co) != _cloth_id_map.end()) {
+                Viewer::remove(_cloth_id_map[co]);
+                _cloth_id_map.erase(co);
             }
         }
     }

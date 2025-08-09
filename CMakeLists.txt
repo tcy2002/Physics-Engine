@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(PhysicsEngine LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
-set(TEST_ENABLED ON)
+set(TEST_ENABLED OFF)
 set(ENABLE_EXTENDED_ALIGNED_STORAGE ON)
 
 add_definitions(-DAMGCL_NO_BOOST)

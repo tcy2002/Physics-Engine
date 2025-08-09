@@ -69,6 +69,12 @@ namespace utils
 			const std::string &initialDir,
 			const std::string &filterName,
 			const std::string &filter);
+#else
+		static const std::string fileDialog(
+			int dialogType,
+			const std::string &initialDir,
+			const std::string &filterName,
+			const std::string &filter);
 #endif
 	};
 
