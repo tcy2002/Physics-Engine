@@ -13,12 +13,13 @@ namespace pe_phys_shape {
             Shape* shape;
         };
         pe::Array<ShapeEle> _shapes;
-        pe::Real _mass_ratio = 0;
+        pe::Real _total_mass = 0;
 
     public:
         PE_API void addShape(const pe::Transform& pos, pe::Real massRatio, Shape* shape);
         PE_API const pe::Array<ShapeEle>& getShapes() const { return _shapes; }
-        PE_API void clearShapes() { _shapes.clear(); _mass_ratio = 0; }
+        PE_API void clearShapes() { _shapes.clear(); _total_mass = 0; }
+        PE_API pe::Vector3 init();
 
         CompoundShape() {}
         virtual ~CompoundShape() {}

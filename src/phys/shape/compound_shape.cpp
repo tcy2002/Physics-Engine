@@ -15,14 +15,26 @@ namespace pe_phys_shape {
             throw std::runtime_error("mass ratio must be greater than 0");
         }
         _shapes.push_back({pos, massRatio, shape});
-        _mass_ratio += massRatio;
+        _total_mass += massRatio;
         _volume += shape->getVolume();
+    }
 
-        // update local inertia and volume
+    // All the shapes will be relocated to the center of mass.
+    // Returns the relocation vector.
+    pe::Vector3 CompoundShape::init() {
+        // compute center of mass
+        pe::Vector3 centroid = pe::Vector3::Zero();
+        for (auto& s : _shapes) {
+            centroid += s.local_transform.getOrigin() * s.mass_ratio;
+        }
+        centroid /= _total_mass;
+
+        // update local inertia and transform
         _local_inertia = pe::Matrix3::Zero();
-        for (auto& s: _shapes) {
+        for (auto& s : _shapes) {
             pe::Matrix3 s_inertia = s.shape->getLocalInertia();
-            pe::Vector3 p = s.local_transform.getOrigin();
+            pe::Vector3 p = s.local_transform.getOrigin() - centroid;
+            s.local_transform.setOrigin(p);
             pe::Matrix3 rot = s.local_transform.getBasis();
             pe::Matrix3 t_inertia = pe::Matrix3::Identity() * (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
             for (int i = 0; i < 3; i++) {
@@ -30,8 +42,10 @@ namespace pe_phys_shape {
                     t_inertia(i, j) -= p[i] * p[j];
                 }
             }
-            _local_inertia += (rot * s_inertia * rot.transpose() + t_inertia) * (s.mass_ratio / _mass_ratio);
+            _local_inertia += (rot * s_inertia * rot.transpose() + t_inertia) * (s.mass_ratio / _total_mass);
         }
+
+        return centroid;
     }
 
     void CompoundShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {

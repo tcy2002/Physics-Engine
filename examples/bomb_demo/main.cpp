@@ -16,7 +16,7 @@ public:
         //saving = true;
 
         auto solver = new pe_phys_constraint::SequentialImpulseSolver;
-        solver->setIteration(20);
+        solver->setIteration(10);
         _world.setConstraintSolver(solver);
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,

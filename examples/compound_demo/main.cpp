@@ -37,7 +37,7 @@ public:
         // add some compound-shaped rigidbodies
         for (int i = 0; i < 10; i++) {
             auto rb = createCompoundRigidBody(pe::Transform(pe::Matrix3::Identity(),
-                                                            pe::Vector3(0, 10 + i * 4, 0)), 1);
+                                                            pe::Vector3(0, 10 + i * 5, 0)), 1);
             _world.addRigidBody(rb);
         }
 
@@ -45,21 +45,21 @@ public:
     }
 
 protected:
-    static pe_phys_object::RigidBody* createCompoundRigidBody(const pe::Transform& trans, pe::Real mass) {
+    static pe_phys_object::RigidBody* createCompoundRigidBody(pe::Transform trans, pe::Real mass) {
         /* This function creates a compound-shaped rigidbody */
 
         auto rb = new pe_phys_object::RigidBody();
         rb->setMass(mass);
         auto shape1 = new pe_phys_shape::BoxShape(pe::Vector3(1, 1, 1));
-        auto shape2 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
+        auto shape2 = new pe_phys_shape::CylinderShape(PE_R(0.2), 2);
         auto shape3 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
         auto shape4 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
         auto shape5 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
         auto shape6 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
         auto shape7 = new pe_phys_shape::CylinderShape(PE_R(0.2), 1);
         auto shape = new pe_phys_shape::CompoundShape();
-        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0, 0)), pe::Real(0.4), shape1);
-        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 1, 0)), pe::Real(0.1), shape2);
+        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0, 0)), pe::Real(0.3), shape1);
+        shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 1.5, 0)), pe::Real(0.2), shape2);
         shape->addShape(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -1, 0)), pe::Real(0.1), shape3);
         pe::Transform trans1;
         trans1.setRotation(pe::Vector3::UnitZ(), PE_PI / 2);
@@ -74,6 +74,8 @@ protected:
         trans1.setRotation(pe::Vector3::UnitX(), PE_PI / 2);
         trans1.setTranslation(pe::Vector3(0, 0, -1));
         shape->addShape(trans1, PE_R(0.1), shape7);
+        auto rel_pos = shape->init();
+        trans.setOrigin(trans.getOrigin() - rel_pos);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
         rb->setFrictionCoeff(0.5);
