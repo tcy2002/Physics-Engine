@@ -133,6 +133,8 @@ namespace pe_phys_object {
 
         PE_API void applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
         PE_API void applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
+        PE_API void applyTempAngularImpulse(const pe::Vector3& impulse);
+        PE_API void applyAngularImpulse(const pe::Vector3& impulse);
 
         PE_API void addForce(const pe::Vector3& world_point, const pe::Vector3& force);
         PE_API void addCentralForce(const pe::Vector3& force) { _force += force; }

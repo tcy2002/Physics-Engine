@@ -5,7 +5,7 @@
 namespace pe_phys_constraint {
 
     SequentialImpulseSolver::SequentialImpulseSolver() {
-        _iteration = 30;
+        _iteration = 10;
     }
 
     void SequentialImpulseSolver::setupSolver(

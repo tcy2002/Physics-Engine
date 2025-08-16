@@ -303,7 +303,7 @@ namespace pe_phys_constraint {
         size_t max_cg_it = 1000;
 
         // pcg/bicgstab/amgcl
-        // ldlt: ·Ö½âÉÏÈý½Ç£¬±È½ÏÂý
+        // ldlt: ï¿½Ö½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½ï¿½È½ï¿½ï¿½ï¿½
         if (iter == 0) {
             ldlt.analyzePattern(_A);
         }

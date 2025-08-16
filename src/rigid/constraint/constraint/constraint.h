@@ -7,6 +7,7 @@ namespace pe_phys_constraint {
 
     enum class ConstraintType {
         CT_BALL_JOINT,
+        CT_HINGE_JOINT,
         CT_FRICTION_CONTACT,
     };
 
@@ -48,6 +49,8 @@ namespace pe_phys_constraint {
                                        pe::VectorX& rf, pe::VectorX& wrf, pe::VectorX& rl,
                                        pe::Real& exit_err, pe::Real tol) { return false; }
         virtual void afterPrimalDual() {}
+
+        static void getSkewSymmetricMatrix(const pe::Vector3& v, pe::Matrix3& m);
     };
 
 } // namespace pe_phys_constraint

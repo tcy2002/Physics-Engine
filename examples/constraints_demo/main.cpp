@@ -1,5 +1,6 @@
 #include "intf/simulator.h"
 #include "rigid/constraint/constraint/ball_joint_constraint.h"
+#include "rigid/constraint/constraint/hinge_joint_constraint.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -14,19 +15,21 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
+        // _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
+        // _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
+        // _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
 
         // add a ground
         auto rb1 = createBoxRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(30, 10, 30), 10000);
         rb1->setKinematic(true);
+        rb1->setRestitutionCoeff(0.5);
         _world.addRigidBody(rb1); // a rigidbody must be added into the _world to perform physical effects
 
+        /***************** ball joint ****************/
         // add a ball base
         auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::Identity(), pe::Vector3(0, 0.5, 0)),
-                                         PE_R(0.5), 10);
+                                         PE_R(0.5), 1);
         rb2->setKinematic(true);
         _world.addRigidBody(rb2);
 
@@ -49,7 +52,7 @@ public:
         // add the second sphere base
         trans.setBasis(pe::Matrix3::Identity());
         trans.setOrigin(pe::Vector3(PE_R(-6.6) * PE_SIN(PE_PI / 6), PE_R(6.6) * PE_COS(PE_PI / 6) + PE_R(0.5), 0));
-        auto rb4 = createSphereRigidBody(trans, PE_R(0.4), 10);
+        rb4 = createSphereRigidBody(trans, PE_R(0.4), 1);
         rb4->addIgnoreCollisionId(rb3->getGlobalId());
         _world.addRigidBody(rb4);
 
@@ -75,6 +78,60 @@ public:
         c3->setAnchorA(pe::Vector3(0, PE_R(3.3), 0));
         c3->setAnchorB(pe::Vector3(0, 0, 0));
         _world.addConstraint(c3);
+
+        /***************** hinge joint ****************/
+        // add a pole base
+        trans.setRotation(pe::Vector3::UnitX(), PE_PI / 6);
+        trans.setOrigin(pe::Vector3(4, 6, 0));
+        auto rb6 = createCylinderRigidBody(trans, PE_R(0.2), 1, 1);
+        rb6->setKinematic(true);
+        _world.addRigidBody(rb6);
+
+        // add a stick to rotate
+        pe::Transform trans2;
+        trans2.setRotation(-pe::Vector3::UnitZ(), PE_PI / 2);
+        trans2.setOrigin(pe::Vector3(2, 0, 0));
+        rb7 = createCylinderRigidBody(trans * trans2, PE_R(0.2), PE_R(4), 1);
+        rb6->addIgnoreCollisionId(rb7->getGlobalId());
+        _world.addRigidBody(rb7);
+
+        // add a hinge joint constraint
+        auto c4 = new pe_phys_constraint::HingeJointConstraint();
+        c4->setObjectA(rb6);
+        c4->setObjectB(rb7);
+        c4->setAnchorA(pe::Vector3(0, 0, 0));
+        c4->setAnchorB(pe::Vector3(0, -2, 0));
+        c4->setAxisA(pe::Vector3::UnitY());
+        c4->setAxisB(-pe::Vector3::UnitX());
+        _world.addConstraint(c4);
+
+        // add a second stick to rotate
+        trans2.setRotation(pe::Vector3::UnitX(), PE_PI / 2);
+        trans2.setOrigin(pe::Vector3(4, 0, 0.75));
+        auto rb8 = createCylinderRigidBody(trans * trans2, PE_R(0.2), PE_R(2), 1);
+        rb7->addIgnoreCollisionId(rb8->getGlobalId());
+        _world.addRigidBody(rb8);
+
+        // add a second hinge joint constraint
+        auto c5 = new pe_phys_constraint::HingeJointConstraint();
+        c5->setObjectA(rb7);
+        c5->setObjectB(rb8);
+        c5->setAnchorA(pe::Vector3(0, 2, 0));
+        c5->setAnchorB(pe::Vector3(0, -0.75, 0));
+        c5->setAxisA(pe::Vector3::UnitY());
+        c5->setAxisB(-pe::Vector3::UnitZ());
+        _world.addConstraint(c5);
+    }
+
+    pe_phys_object::RigidBody* rb4 = nullptr;
+    pe_phys_object::RigidBody* rb7 = nullptr;
+    void step() override {
+        if (pe_intf::Viewer::getKeyState('k') == 0 && rb4 != nullptr) {
+            rb4->addCentralForce(pe::Vector3::UnitY() * 25);
+        }
+        if (pe_intf::Viewer::getKeyState('l') == 0 && rb7 != nullptr) {
+            rb7->addCentralForce(rb7->getTransform().getBasis() * -pe::Vector3::UnitZ() * 15);
+        }
     }
 
 protected:

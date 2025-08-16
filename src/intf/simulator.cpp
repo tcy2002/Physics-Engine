@@ -1116,7 +1116,6 @@ namespace pe_intf {
                     addModels(_world.getRigidBodiesToAdd());
                     _world.clearRigidBodiesToAdd();
                 }
-                std::cout << "cloth num: " << _world.getClothObjects().size() << std::endl;
                 if (!_world.getClothObjectsToRemove().empty()) {
                     removeModels(_world.getClothObjectsToRemove());
                     _world.clearClothObjectsToRemove();
@@ -1125,7 +1124,6 @@ namespace pe_intf {
                     addModels(_world.getClothObjectsToAdd());
                     _world.clearClothObjectsToAdd();
                 }
-                std::cout << "cloth num: " << _world.getClothObjects().size() << std::endl;
             }
 
             auto block_start = COMMON_GetMicroTickCount();

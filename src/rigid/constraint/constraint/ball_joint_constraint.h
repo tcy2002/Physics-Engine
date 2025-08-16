@@ -23,8 +23,6 @@ namespace pe_phys_constraint {
 
         PE_API void initSequentialImpulse(const ConstraintParam& param) override;
         PE_API void iterateSequentialImpulse(int iter) override;
-
-        static void getSkewSymmetricMatrix(const pe::Vector3& v, pe::Matrix3& m);
     };
 
 } // namespace pe_phys_constraint

@@ -1,6 +1,8 @@
 #include <algorithm>
 #include "rigidbody.h"
 
+#include <utils/logger.h>
+
 // style-checked
 namespace pe_phys_object {
 
@@ -49,23 +51,19 @@ namespace pe_phys_object {
     }
 
     const pe::Vector3& RigidBody::getTempLinearVelocity() {
-//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         return _temp_linear_velocity;
     }
 
     const pe::Vector3& RigidBody::getTempAngularVelocity() {
-//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         return _temp_angular_velocity;
     }
 
     void RigidBody::setTempLinearVelocity(const pe::Vector3 &v) {
-//        std::lock_guard<std::mutex> lock(_temp_linear_velocity_mutex);
         if (isKinematic()) return;
         _temp_linear_velocity = v;
     }
 
     void RigidBody::setTempAngularVelocity(const pe::Vector3 &v) {
-//        std::lock_guard<std::mutex> lock(_temp_angular_velocity_mutex);
         if (isKinematic()) return;
         _temp_angular_velocity = v;
     }
@@ -151,18 +149,24 @@ namespace pe_phys_object {
 
     void RigidBody::applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse) {
         if (isKinematic()) return;
-        _temp_linear_velocity_mutex.lock();
         _temp_linear_velocity += impulse * _inv_mass;
-        _temp_linear_velocity_mutex.unlock();
-        _temp_angular_velocity_mutex.lock();
         _temp_angular_velocity += _world_inv_inertia * world_rel_vec.cross(impulse);
-        _temp_angular_velocity_mutex.unlock();
     }
 
     void RigidBody::applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse) {
         if (isKinematic()) return;
         _linear_velocity += impulse * _inv_mass;
         _angular_velocity += _world_inv_inertia * world_rel_vec.cross(impulse);
+    }
+
+    void RigidBody::applyTempAngularImpulse(const pe::Vector3 &impulse) {
+        if (isKinematic()) return;
+        _temp_angular_velocity += _world_inv_inertia * impulse;
+    }
+
+    void RigidBody::applyAngularImpulse(const pe::Vector3 &impulse) {
+        if (isKinematic()) return;
+        _angular_velocity += _world_inv_inertia * impulse;
     }
 
     void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &force) {

@@ -83,7 +83,7 @@ namespace pe_phys_collision {
         _object_a = object_a;
         _object_b = object_b;
         _friction_coeff = PE_SQRT(object_a->getFrictionCoeff() * object_b->getFrictionCoeff());
-        _restitution_coeff = object_a->getRestitutionCoeff() * object_b->getRestitutionCoeff();
+        _restitution_coeff = PE_SQRT(object_a->getRestitutionCoeff() * object_b->getRestitutionCoeff());
     }
 
     void ContactResult::addContactPoint(const pe::Vector3& world_normal,

@@ -62,10 +62,8 @@ namespace pe_phys_collision {
             return -(t ? trans2 : trans1).block<6, 2>(0, 1);
         }
 
-    private:
         static void getOrthoUnits(pe::Vector3 normal, pe::Vector3& tangent1, pe::Vector3& tangent2);
 
-    public:
         ContactPoint();
         ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                      const pe_phys_object::RigidBody* object_a, const pe_phys_object::RigidBody* object_b,

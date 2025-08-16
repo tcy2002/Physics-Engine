@@ -20,7 +20,7 @@ namespace pe_intf {
         _constraint_solver(new pe_phys_constraint::SequentialImpulseSolver),
         _fracture_solver(new pe_phys_fracture::SimpleFractureSolver) {
 #   if true
-        std::cout << "multi-thread" << std::endl;
+        PE_LOG_INFO << "Using Multi-thread" << PE_ENDL;
         utils::ThreadPool::init();
 #   endif
     }
