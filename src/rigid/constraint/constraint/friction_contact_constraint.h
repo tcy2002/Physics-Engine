@@ -19,9 +19,9 @@ namespace pe_phys_constraint {
             pe::Vector3 t0;
             pe::Vector3 t1;
             pe::Real n_rhs = 0;
-            pe::Real n_denom_inv = 0;
-            pe::Real t0_denom_inv = 0;
-            pe::Real t1_denom_inv = 0;
+            pe::Real n_jmj_inv = 0;
+            pe::Real t0_jmj_inv = 0;
+            pe::Real t1_jmj_inv = 0;
             pe::Real n_applied_impulse = 0;
             pe::Real t0_applied_impulse = 0;
             pe::Real t1_applied_impulse = 0;
@@ -33,9 +33,8 @@ namespace pe_phys_constraint {
         void setContactResult(pe_phys_collision::ContactResult& cr) { _contact_result = &cr; }
 
         // for primal-dual solver
-    public:
-        size_t _contact_size;
     private:
+        size_t _contact_size;
         size_t _n_objects;
         size_t _n_rigid_dof;
         size_t _n_force_dof;

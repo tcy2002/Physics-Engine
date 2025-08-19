@@ -14,14 +14,15 @@ namespace pe_phys_constraint {
     protected:
         pe::Vector3 _r_a;
         pe::Vector3 _r_b;
-        pe::Vector3 _rhs_ball;
-        pe::Matrix3 _jmj_inv_ball;
-
         pe::Vector3 _w_axis_a;
         pe::Vector3 _w_axis_b;
         pe::Vector3 _w_t_a[2]{};
-        pe::Real _jmj_inv_hinge[2]{};
+
+        pe::Vector3 _rhs_ball;
+        pe::Matrix3 _jmj_inv_ball;
+
         pe::Real _rhs_hinge[2]{};
+        pe::Real _jmj_inv_hinge[2]{};
 
     public:
         ConstraintType getType() const override { return ConstraintType::CT_HINGE_JOINT; }
