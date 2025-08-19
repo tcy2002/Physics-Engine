@@ -67,7 +67,6 @@ namespace pe_phys_collision {
         ContactPoint();
         ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                      const pe_phys_object::RigidBody* object_a, const pe_phys_object::RigidBody* object_b,
-                     const pe::Vector3& world_vel_a, const pe::Vector3& world_vel_b,
                      const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance);
 
         COMMON_FORCE_INLINE void invalidate() { _world_pos = PE_VEC_MAX; }

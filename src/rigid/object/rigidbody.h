@@ -26,6 +26,11 @@ namespace pe_phys_object {
         COMMON_MEMBER_GET(pe::Matrix3, world_inv_inertia, WorldInvInertia)
     protected:
         PE_API void updateWorldInertia();
+    public:
+        PE_API pe::Real getKinematicMass() const;
+        PE_API pe::Real getKinematicInvMass() const;
+        PE_API pe::Matrix3 getKinematicWorldInertia() const;
+        PE_API pe::Matrix3 getKinematicWorldInvInertia() const;
 
         /* Life Time */
         COMMON_MEMBER_SET_GET(pe::Real, life_time, LifeTime)

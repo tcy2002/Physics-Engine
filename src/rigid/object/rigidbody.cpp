@@ -45,6 +45,22 @@ namespace pe_phys_object {
         _world_inv_inertia = _transform.getBasis() * _local_inv_inertia * _transform.getBasis().transpose();
     }
 
+    pe::Real RigidBody::getKinematicMass() const {
+        return _kinematic ? PE_REAL_MAX : _mass;
+    }
+
+    pe::Real RigidBody::getKinematicInvMass() const {
+        return _kinematic ? 0 : _inv_mass;
+    }
+
+    pe::Matrix3 RigidBody::getKinematicWorldInertia() const {
+        return _kinematic ? _world_inertia * PE_REAL_MAX : _world_inertia;
+    }
+
+    pe::Matrix3 RigidBody::getKinematicWorldInvInertia() const {
+        return _kinematic ? pe::Matrix3::Zero() : _world_inv_inertia;
+    }
+
     void RigidBody::setTransform(const pe::Transform &transform) {
         _transform = transform;
         updateWorldInertia();

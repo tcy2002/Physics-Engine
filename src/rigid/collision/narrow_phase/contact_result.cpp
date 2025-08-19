@@ -41,7 +41,6 @@ namespace pe_phys_collision {
 
     ContactPoint::ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                                const pe_phys_object::RigidBody* object_a, const pe_phys_object::RigidBody* object_b,
-                               const pe::Vector3& world_vel_a, const pe::Vector3& world_vel_b,
                                const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance):
         _world_pos(world_pos),
         _world_normal(world_normal),
@@ -107,22 +106,20 @@ namespace pe_phys_collision {
 
         const pe::Vector3 local_pos_a = _object_a->getTransform().inverseTransform(point_a);
         const pe::Vector3 local_pos_b = _object_b->getTransform().inverseTransform(point_b);
-        const pe::Vector3 world_vel_a = _object_a->getLinearVelocityAtLocalPoint(local_pos_a);
-        const pe::Vector3 world_vel_b = _object_b->getLinearVelocityAtLocalPoint(local_pos_b);
 
         // find the same closest point
         const int cp_idx = getExistingClosestPoint(local_pos_b);
         if (cp_idx >= 0) {
             // if found, update the contact point info when the new depth is bigger
             if (depth < _points[cp_idx].getDistance()) {
-                _points[cp_idx] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
+                _points[cp_idx] = ContactPoint(point, n, _object_a, _object_b, local_pos_a, local_pos_b, depth);
             }
         } else {
             // otherwise, find an empty slot and replace it
             bool found = false;
             for (int i = 0; i < PE_CONTACT_CACHE_SIZE; i++) {
                 if (!_points[i].isValid()) {
-                    _points[i] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
+                    _points[i] = ContactPoint(point, n, _object_a, _object_b, local_pos_a, local_pos_b, depth);
                     found = true;
                     break;
                 }
@@ -138,7 +135,7 @@ namespace pe_phys_collision {
                     }
                 }
                 if (idx >= 0) {
-                    _points[idx] = ContactPoint(point, n, _object_a, _object_b, world_vel_a, world_vel_b, local_pos_a, local_pos_b, depth);
+                    _points[idx] = ContactPoint(point, n, _object_a, _object_b, local_pos_a, local_pos_b, depth);
                 }
             }
         }

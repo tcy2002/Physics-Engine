@@ -23,39 +23,39 @@ namespace pe_phys_constraint {
             const pe::Vector3& r_a = transform_a.getBasis() * cp.getLocalPosA();
             const pe::Vector3& r_b = transform_b.getBasis() * cp.getLocalPosB();
 
-            //// setup ci
+            // setup ci
             ci.r_a = r_a;
             ci.r_b = r_b;
             ci.n = cp.getWorldNormal();
             ci.t0 = cp.getTangent(0);
             ci.t1 = cp.getTangent(1);
 
-            const pe::Real& inv_mass_sum = _object_a->getInvMass() + _object_b->getInvMass();
-            const pe::Matrix3& rot_inv_inertia_a = _object_a->getWorldInvInertia();
-            const pe::Matrix3& rot_inv_inertia_b = _object_b->getWorldInvInertia();
+            const pe::Real& inv_mass_sum = _object_a->getKinematicInvMass() + _object_b->getKinematicInvMass();
+            const pe::Matrix3& inv_inertia_a = _object_a->getKinematicWorldInvInertia();
+            const pe::Matrix3& inv_inertia_b = _object_b->getKinematicWorldInvInertia();
 
-            //// normal jmj
+            // normal jmj
             const pe::Vector3& rxn_a_n = r_a.cross(ci.n);
             const pe::Vector3& rxn_b_n = r_b.cross(ci.n);
-            ci.n_jmj_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a_n).dot(rxn_a_n)
-                + (rot_inv_inertia_b * rxn_b_n).dot(rxn_b_n));
+            ci.n_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_n).dot(rxn_a_n)
+                + (inv_inertia_b * rxn_b_n).dot(rxn_b_n));
 
-            //// tangent 0 jmj
+            // tangent 0 jmj
             const pe::Vector3& rxn_a_t0 = r_a.cross(ci.t0);
             const pe::Vector3& rxn_b_t0 = r_b.cross(ci.t0);
-            ci.t0_jmj_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a_t0).dot(rxn_a_t0)
-                + (rot_inv_inertia_b * rxn_b_t0).dot(rxn_b_t0));
+            ci.t0_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_t0).dot(rxn_a_t0)
+                + (inv_inertia_b * rxn_b_t0).dot(rxn_b_t0));
 
-            //// tangent 1 jmj
+            // tangent 1 jmj
             pe::Vector3 rxn_a_t1 = r_a.cross(ci.t1);
             pe::Vector3 rxn_b_t1 = r_b.cross(ci.t1);
-            ci.t1_jmj_inv = PE_R(1.0) / (inv_mass_sum + (rot_inv_inertia_a * rxn_a_t1).dot(rxn_a_t1)
-                + (rot_inv_inertia_b * rxn_b_t1).dot(rxn_b_t1));
+            ci.t1_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_t1).dot(rxn_a_t1)
+                + (inv_inertia_b * rxn_b_t1).dot(rxn_b_t1));
 
             const pe::Vector3& vel_a = _object_a->getLinearVelocity() + _object_a->getAngularVelocity().cross(r_a);
             const pe::Vector3& vel_b = _object_b->getLinearVelocity() + _object_b->getAngularVelocity().cross(r_b);
 
-            //// normal rhs
+            // normal rhs
             pe::Real rev_vel_r = -ci.n.dot(vel_a - vel_b);
             if (PE_ABS(rev_vel_r) < param.restitutionVelocityThreshold) {
                 rev_vel_r = 0;
@@ -74,7 +74,7 @@ namespace pe_phys_constraint {
 
     void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
         for (auto& ci : _cis) {
-            const pe::Vector3 vel_r = _object_a->getTempLinearVelocity()
+            const pe::Vector3& vel_r = _object_a->getTempLinearVelocity()
                 + _object_a->getTempAngularVelocity().cross(ci.r_a)
                 - _object_b->getTempLinearVelocity()
                 -_object_b->getTempAngularVelocity().cross(ci.r_b);
@@ -95,7 +95,8 @@ namespace pe_phys_constraint {
             }
 
             // total impulse
-            pe::Vector3 impulse_vector = n_impulse * ci.n + (t0_total_impulse - ci.t0_applied_impulse) * ci.t0 +
+            const pe::Vector3& impulse_vector = n_impulse * ci.n +
+                (t0_total_impulse - ci.t0_applied_impulse) * ci.t0 +
                 (t1_total_impulse - ci.t1_applied_impulse) * ci.t1;
 
             ci.t0_applied_impulse = t0_total_impulse;

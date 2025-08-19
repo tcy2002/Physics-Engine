@@ -8,6 +8,7 @@ namespace pe_phys_constraint {
     enum class ConstraintType {
         CT_BALL_JOINT,
         CT_HINGE_JOINT,
+        CT_SLIDER_JOINT,
         CT_FRICTION_CONTACT,
     };
 
