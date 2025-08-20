@@ -15,7 +15,7 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
+        _world.setGravity(pe::Vector3(0, PE_R(0), 0));
         // _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
         // _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
         // _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
@@ -91,13 +91,13 @@ public:
         // add a stick to rotate
         pe::Transform trans2;
         trans2.setRotation(-pe::Vector3::UnitZ(), PE_PI / 2);
-        trans2.setOrigin(pe::Vector3(2, 0, 0));
+        trans2.setOrigin(pe::Vector3(2, 2, 0));
         rb7 = createCylinderRigidBody(trans * trans2, PE_R(0.2), PE_R(4), 1);
         rb6->addIgnoreCollisionId(rb7->getGlobalId());
         _world.addRigidBody(rb7);
 
         // add a hinge joint constraint
-        auto c4 = new pe_phys_constraint::HingeJointConstraint();
+        c4 = new pe_phys_constraint::HingeJointConstraint();
         c4->setObjectA(rb6);
         c4->setObjectB(rb7);
         c4->setAnchorA(pe::Vector3(0, 0, 0));
@@ -108,7 +108,7 @@ public:
 
         // add a second stick to rotate
         trans2.setRotation(pe::Vector3::UnitX(), PE_PI / 2);
-        trans2.setOrigin(pe::Vector3(4, 0, 0.75));
+        trans2.setOrigin(pe::Vector3(4, 2, 0.75));
         auto rb8 = createCylinderRigidBody(trans * trans2, PE_R(0.2), PE_R(2), 1);
         rb7->addIgnoreCollisionId(rb8->getGlobalId());
         _world.addRigidBody(rb8);
@@ -163,12 +163,16 @@ public:
     pe_phys_object::RigidBody* rb4 = nullptr;
     pe_phys_object::RigidBody* rb7 = nullptr;
     pe_phys_object::RigidBody* rb10 = nullptr;
+    pe_phys_constraint::HingeJointConstraint* c4 = nullptr;
     void step() override {
         if (pe_intf::Viewer::getKeyState('j') == 0 && rb4 != nullptr) {
             rb4->addCentralForce(pe::Vector3::UnitY() * 25);
         }
-        if (pe_intf::Viewer::getKeyState('k') == 0 && rb10 != nullptr) {
-            rb10->addCentralForce(rb10->getTransform().getBasis() * pe::Vector3::UnitY() * 25);
+        if (pe_intf::Viewer::getKeyState('k') == 0 && c4 != nullptr) {
+            c4->setUseMotor(true);
+            c4->setTargetSpeed(1);
+        } else if (c4 != nullptr) {
+            c4->setUseMotor(false);
         }
         if (pe_intf::Viewer::getKeyState('l') == 0 && rb7 != nullptr) {
             rb7->addTorque(rb7->getTransform().getBasis() * -pe::Vector3::UnitX() * 40);

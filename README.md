@@ -89,6 +89,8 @@
   - capsule碰撞
 
   - GJK+EPA
+  
+  - 完善布料，补充软体
 
   - broadphase优化
 

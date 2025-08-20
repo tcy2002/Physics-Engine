@@ -11,6 +11,14 @@ namespace pe_phys_constraint {
         COMMON_MEMBER_SET_GET(pe::Vector3, axis_a, AxisA)
         COMMON_MEMBER_SET_GET(pe::Vector3, axis_b, AxisB)
 
+        COMMON_BOOL_SET_GET(use_limits, UseLimits)
+        COMMON_MEMBER_SET_GET(pe::Real, min_angle, MinAngle)
+        COMMON_MEMBER_SET_GET(pe::Real, max_angle, MaxAngle)
+        COMMON_MEMBER_SET_GET(pe::Real, limit_bounceness, LimitBounciness)
+
+        COMMON_BOOL_SET_GET(use_motor, UseMotor)
+        COMMON_MEMBER_SET_GET(pe::Real, target_speed, TargetSpeed)
+
     protected:
         pe::Vector3 _r_a;
         pe::Vector3 _r_b;
@@ -21,8 +29,8 @@ namespace pe_phys_constraint {
         pe::Vector3 _rhs_ball;
         pe::Matrix3 _jmj_inv_ball;
 
-        pe::Real _rhs_hinge[2]{};
-        pe::Real _jmj_inv_hinge[2]{};
+        pe::Real _rhs_hinge[3]{};
+        pe::Real _jmj_inv_hinge[3]{};
 
     public:
         ConstraintType getType() const override { return ConstraintType::CT_HINGE_JOINT; }
