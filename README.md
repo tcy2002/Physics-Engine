@@ -42,7 +42,7 @@
 
   - PEDemoFracture：破碎
 
-  - PEDemoIntegrated：坦克城镇作战集成案例
+  - PEDemoIntegrated：坦克+城镇集成案例
 
   - PEDemoMechArm：机械臂
 

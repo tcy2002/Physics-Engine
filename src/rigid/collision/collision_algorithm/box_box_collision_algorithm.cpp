@@ -2,12 +2,11 @@
 #include "rigid/shape/box_shape.h"
 
 // box-box collision (from bullet)
-// style-checked.
 namespace pe_phys_collision {
 
     bool BoxBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                     pe::Transform trans_a, pe::Transform trans_b,
-                                                    pe::Real refScale, ContactResult& result) {
+                                                    pe::Real ref_scale, ContactResult& result) {
         if (shape_a->getType() != pe_phys_shape::ShapeType::ST_Box ||
             shape_b->getType() != pe_phys_shape::ShapeType::ST_Box) {
             return false;

@@ -7,7 +7,7 @@ namespace pe_phys_collision {
 
     bool ConvexConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
-                                                          pe::Real refScale, ContactResult &result) {
+                                                          pe::Real ref_scale, ContactResult &result) {
         if (shape_a->getType() != pe_phys_shape::ShapeType::ST_ConvexMesh ||
             shape_b->getType() != pe_phys_shape::ShapeType::ST_ConvexMesh) {
             return false;
@@ -23,7 +23,7 @@ namespace pe_phys_collision {
         constexpr auto margin = PE_MARGIN;
 
         return getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
-                               trans_a, trans_b, margin, refScale, result);
+                               trans_a, trans_b, margin, ref_scale, result);
     }
 
     static void clipFace(const VertexArray &p_in, VertexArray &p_out,

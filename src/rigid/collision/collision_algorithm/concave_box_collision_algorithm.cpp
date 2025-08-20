@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     bool ConcaveBoxCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                         pe::Transform trans_a, pe::Transform trans_b,
-                                                        pe::Real refScale, ContactResult& result) {
+                                                        pe::Real ref_scale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Box &&
             shape_b->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh) ||
             (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh &&
@@ -29,7 +29,7 @@ namespace pe_phys_collision {
         result.setSwapFlag(shape_a->getType() == pe_phys_shape::ShapeType::ST_ConcaveMesh);
         bool ret = ConcaveConvexCollisionAlgorithm::getClosestPoints(
             shape_concave, shape_box, trans_concave, trans_box, edges_box,
-            mesh_concave, mesh_box, margin, refScale, result);
+            mesh_concave, mesh_box, margin, ref_scale, result);
         result.setSwapFlag(false);
 
         return ret;

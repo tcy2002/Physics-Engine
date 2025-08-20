@@ -10,7 +10,7 @@ namespace pe_phys_collision {
 
     bool SphereConvexCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                           pe::Transform trans_a, pe::Transform trans_b,
-                                                          pe::Real refScale, ContactResult& result) {
+                                                          pe::Real ref_scale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Sphere &&
                shape_b->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh) ||
               (shape_a->getType() == pe_phys_shape::ShapeType::ST_ConvexMesh &&

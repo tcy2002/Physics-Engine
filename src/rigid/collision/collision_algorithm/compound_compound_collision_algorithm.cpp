@@ -7,7 +7,7 @@ namespace pe_phys_collision {
 
     bool CompoundCompoundCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                               pe::Transform trans_a, pe::Transform trans_b,
-                                                              const pe::Real refScale, ContactResult& result) {
+                                                              const pe::Real ref_scale, ContactResult& result) {
         if (shape_b->getType() == pe_phys_shape::ShapeType::ST_Compound) {
             std::swap(shape_a, shape_b);
             std::swap(trans_a, trans_b);
@@ -26,11 +26,11 @@ namespace pe_phys_collision {
                 for (auto& s_b : compound_b->getShapes()) {
                     pe::Transform trans_b_w = trans_b * s_b.local_transform;
                     has_contact |= processSubCollision(s.shape, s_b.shape,
-                                                       trans_a_w, trans_b_w, refScale, result);
+                                                       trans_a_w, trans_b_w, ref_scale, result);
                 }
             } else {
                 has_contact |= processSubCollision(s.shape, shape_b,
-                                                   trans_a_w, trans_b, refScale, result);
+                                                   trans_a_w, trans_b, ref_scale, result);
             }
         }
 

@@ -10,7 +10,7 @@ namespace pe_phys_collision {
     public:
         bool processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                               pe::Transform trans_a, pe::Transform trans_b,
-                              pe::Real refScale, ContactResult& result) override;
+                              pe::Real ref_scale, ContactResult& result) override;
 
         static bool getClosestPoints(pe_phys_shape::SphereShape* shape_sph, pe_phys_shape::CylinderShape* shape_cyl,
                                      const pe::Transform& trans_sph, const pe::Transform& trans_cyl,

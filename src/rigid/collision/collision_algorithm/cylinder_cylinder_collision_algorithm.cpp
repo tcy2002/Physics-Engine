@@ -8,7 +8,7 @@ namespace pe_phys_collision {
 
     bool CylinderCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                               pe::Transform trans_a, pe::Transform trans_b,
-                                                              pe::Real refScale, ContactResult& result) {
+                                                              pe::Real ref_scale, ContactResult& result) {
         if (!(shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder &&
               shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder)) {
             return false;
@@ -24,7 +24,7 @@ namespace pe_phys_collision {
         auto& edges_b = shape_cyl_b->getUniqueEdges();
 
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b,
-            edges_a, edges_b, trans_a, trans_b, margin, refScale, result);
+            edges_a, edges_b, trans_a, trans_b, margin, ref_scale, result);
 #   else
         // TODO
 #   endif

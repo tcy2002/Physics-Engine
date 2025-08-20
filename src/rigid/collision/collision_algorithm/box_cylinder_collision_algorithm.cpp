@@ -12,7 +12,7 @@ namespace pe_phys_collision {
 
     bool BoxCylinderCollisionAlgorithm::processCollision(pe_phys_shape::Shape* shape_a, pe_phys_shape::Shape* shape_b,
                                                          pe::Transform trans_a, pe::Transform trans_b,
-                                                         pe::Real refScale, ContactResult& result) {
+                                                         pe::Real ref_scale, ContactResult& result) {
         if (!((shape_a->getType() == pe_phys_shape::ShapeType::ST_Box &&
                shape_b->getType() == pe_phys_shape::ShapeType::ST_Cylinder) ||
               (shape_a->getType() == pe_phys_shape::ShapeType::ST_Cylinder &&
@@ -64,7 +64,7 @@ namespace pe_phys_collision {
                         dynamic_cast<pe_phys_shape::BoxShape *>(shape_b)->getUniqueEdges();
 
         return ConvexConvexCollisionAlgorithm::getClosestPoints(shape_a, shape_b, mesh_a, mesh_b, edges_a, edges_b,
-                                                                trans_a, trans_b, margin, refScale, result);
+                                                                trans_a, trans_b, margin, ref_scale, result);
 
     }
 
