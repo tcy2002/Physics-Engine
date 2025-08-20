@@ -25,12 +25,18 @@ namespace pe_phys_constraint {
         pe::Vector3 _w_axis_a;
         pe::Vector3 _w_axis_b;
         pe::Vector3 _w_t_a[2]{};
+        pe::Vector3 _w_t_b[2]{};
 
         pe::Vector3 _rhs_ball;
         pe::Matrix3 _jmj_inv_ball;
 
-        pe::Real _rhs_hinge[3]{};
-        pe::Real _jmj_inv_hinge[3]{};
+        pe::Real _rhs_hinge[2]{};
+        pe::Real _jmj_inv_hinge[2]{};
+
+        pe::Real _rhs_motor;
+        pe::Real _rhs_limit;
+        bool _limit_exceeded;
+        pe::Real _jmj_inv_motor_limit;
 
     public:
         ConstraintType getType() const override { return ConstraintType::CT_HINGE_JOINT; }
