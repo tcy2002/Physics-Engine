@@ -1,10 +1,12 @@
 ## 刚体物理引擎（rigidbody dynamics）
 
 - 参考bullet physics，kd engine
+
+  - 参考文章：[Kenny Erleben 2005](https://erleben.github.io/pubs/2005/erleben.05/erleben.05.pdf)
   
   - 重写了引擎框架：宽域+窄域+约束（主流刚体物理引擎结构）
   
-  - 重写了大部分物理算法：基本碰撞对、射线检测、车辆封装
+  - 重写了所有物理算法：基本碰撞对、约束求解、射线检测、地形、车辆封装等
 
 - 碰撞检测：SAT
 
@@ -17,25 +19,44 @@
 - 构建：
   
   - win：cmake生成visual studio工程，打开.sln，编译，然后将SimpleViewer/lib中的freeglut.dll和glew32.dll放入可执行文件路径下（bin/Release(Debug))
-  
+
   - linux：cmake直接构建、编译
 
 - Demo：
   
-  - PEDemoBomb/PEDemoFracture/PEDemoCar/PEDemoTank/PEDemoIntegrated
-    按x键开始物理模拟（区分大小写），摄像机视角操作方式与UE类似
-  
-  - PEDemoCar/PEDemoTank的操作方法请参考examples/car_demo和examples/tank_demo内的注释
+  - PEDemoBomb：小球击中砖块塔
 
-- 后续开发
+  - PEDemoCar：四轮车
 
-  - 破碎优化、集成
+  - PEDemoCloth：布料
 
-  - 场景设计和搭建
+  - PEDemoCompound：复合刚体
+
+  - PEDemoConcave：凹体碰撞
+
+  - PEDemoConfigCustom：配置文件+自定义模拟
+
+  - PEDemoConfig：配置文件
+
+  - PEDemoConstraints：各类约束
+
+  - PEDemoFracture：破碎
+
+  - PEDemoIntegrated：坦克城镇作战集成案例
+
+  - PEDemoMechArm：机械臂
+
+  - PEDemoPrimalDual：Primal-Dual求解器示例
+
+  - PEDemoTank：履带坦克
+
+  - PEDemoTerrain：地形+坦克
+
+- 后续补充开发：
 
   - 4.13 支持linux下编译运行
 
-  - 4.14 修了Pool的bug（疑似），支持显示Debug Points（单元测试）
+  - 4.14 修了Pool的bug，支持显示Debug Points（辅助测试）
 
   - 10.9 修复sphere-cylinder碰撞的bug
 
@@ -51,21 +72,29 @@
 
   - 11.7 机械臂demo
 
-  - 11.11 支持导出gltf格式; ball-joint
+  - 11.11 支持导出gltf格式动画
 
   - 11.17 convex-cylinder碰撞：面片vs圆柱体
 
-  - 12.3 将线性几何工具换成eigen
+  - 12.3 将线性几何换成eigen
 
   - 12.14 primal-dual solver复现完成 [论文（siggraph2024）](https://dl.acm.org/doi/10.1145/3641519.3657485) [论文代码](https://github.com/ETSTribology/primal_dual_contacts_miror)
+
+  - 25.8.9 修了compound shape计算惯性张量的错误
 
   - 25.8.19 ball-joint hinge-joint slider-joint 等约束完成
 
 - TODO:
 
-  - broadphase加速: 八叉树，hash grid等
+  - capsule碰撞
 
-  - capsule相关碰撞
+  - GJK+EPA
+
+  - broadphase优化
+
+  - 约束分组
+
+  - CCD碰撞
 
 ### 效果
 
@@ -115,7 +144,7 @@
 
 ![terrain](./screenshots/tank_terrain.gif)
 
-### 开发日志
+### 24.4之前的开发日志
 
 - 2.26-3.3
   
@@ -205,7 +234,7 @@
     - 仿真器类，用于管理整个物理引擎，负责后台管理物理引擎和前台渲染，用户只需要重写init和step函数即可
     - 已完成
 
-### 问题日志
+### 24.4之前的问题日志
 
 - 窄域碰撞优化：contact point cache size需要设置较大一点，实际计算时取depth最大的若干个即可，由于contact points已排过序，此时这些contact point即为最深的点
 
