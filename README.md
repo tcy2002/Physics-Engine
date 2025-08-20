@@ -59,9 +59,9 @@
 
   - 12.14 primal-dual solver复现完成 [论文（siggraph2024）](https://dl.acm.org/doi/10.1145/3641519.3657485) [论文代码](https://github.com/ETSTribology/primal_dual_contacts_miror)
 
-- TODO:
+  - 25.8.19 ball-joint hinge-joint slider-joint 等约束完成
 
-  - 复杂约束（hinge，slider等）
+- TODO:
 
   - broadphase加速: 八叉树，hash grid等
 
@@ -76,6 +76,10 @@
 - 凹体碰撞
 
 ![concave.gif](./screenshots/concave.gif)
+
+- 各类约束
+
+![constraints.gif](./screenshots/constraints.gif)
 
 - 履带坦克
   
