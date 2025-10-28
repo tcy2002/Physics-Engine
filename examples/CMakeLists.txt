@@ -1,0 +1,5 @@
+add_subdirectory(fracture_demo)
+add_subdirectory(bomb_demo)
+add_subdirectory(compound_demo)
+add_subdirectory(concave_demo)
+add_subdirectory(constraints_demo)

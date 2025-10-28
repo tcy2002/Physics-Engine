@@ -1,0 +1,108 @@
+{
+    "Configuration": {
+        "gravity": [
+            0.0,
+            -9.8,
+            0.0
+        ],
+        "sleep_angular_velocity2_threshold": 0.01,
+        "sleep_linear_velocity2_threshold": 0.01,
+        "sleep_time_threshold": 1.0
+    },
+    "DamageSources": [
+        {
+            "intensity": [
+                1.5,
+                1.5,
+                1.5
+            ],
+            "position": [
+                1.5,
+                3.5,
+                1.5
+            ],
+            "type": "sphere"
+        }
+    ],
+    "RigidBodies": [
+        {
+            "fracturable": false,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": true,
+            "lifetime": 1e+100,
+            "mass": 10000.0,
+            "name": "",
+            "position": [
+                0.0,
+                -5.0,
+                0.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                250.0,
+                10.0,
+                250.0
+            ],
+            "tag": "",
+            "type": "box"
+        },
+        {
+            "angular_damping": 0.8,
+            "angular_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "fracturable": true,
+            "fracture_threshold": 1.0,
+            "friction": 0.5,
+            "ignore_collision": false,
+            "kinematic": false,
+            "lifetime": 1e+100,
+            "linear_damping": 0.0,
+            "linear_velocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "mass": 1.0,
+            "name": "",
+            "position": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "restitution": 0.5,
+            "rotation": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                4.0,
+                4.0,
+                4.0
+            ],
+            "tag": "",
+            "type": "box"
+        }
+    ]
+}
