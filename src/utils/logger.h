@@ -17,13 +17,13 @@
 COMMON_FORCE_INLINE char* PE_GetTimeString() {
     static char str[24];
     static struct tm now_time;
-    time_t time_seconds = time(0);
+    time_t time_seconds = time(nullptr);
 #ifdef _WIN32
     localtime_s(&now_time, &time_seconds);
 #else
     localtime_r(&time_seconds, &now_time);
 #endif
-    sprintf(str, "%04d-%02d-%02d %02d:%02d:%02d",
+    sprintf_s(str, "%04d-%02d-%02d %02d:%02d:%02d",
         now_time.tm_year + 1900,
         now_time.tm_mon + 1,
         now_time.tm_mday,

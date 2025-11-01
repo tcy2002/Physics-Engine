@@ -1,12 +1,12 @@
-file(GLOB_RECURSE PHYS_SOURCES phys/*.cpp)
+file(GLOB_RECURSE PHYS_SOURCES physics/*.cpp)
 
-add_library(PEngine SHARED intf/world.cpp
+add_library(PEngine SHARED interface/world.cpp
         ${PHYS_SOURCES})
-add_library(PEViewer STATIC intf/viewer.cpp intf/simulator.cpp)
+add_library(PEViewer STATIC interface/viewer.cpp interface/simulator.cpp)
 add_library(PEUtils STATIC
         utils/logger.cpp
         utils/thread_pool.cpp
-        utils/bvh.cpp)
+        utils/bvh.inl)
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEngine PRIVATE PEUtils PEViewer)

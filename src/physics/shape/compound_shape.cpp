@@ -1,0 +1,101 @@
+#include "compound_shape.h"
+#include <algorithm>
+
+namespace pe_physics_shape {
+
+void CompoundShape::addShape(const pe::Transform& pos, pe::Real massRatio, Shape *shape) {
+    if (shape->getType() == ShapeType::ST_Compound) {
+        throw std::runtime_error("CompoundShape cannot contain another CompoundShape");
+    }
+    if (shape->getType() == ShapeType::ST_ConcaveMesh) {
+        throw std::runtime_error("CompoundShape cannot contain ConcaveMeshShape");
+    }
+    if (massRatio < PE_EPS) {
+        throw std::runtime_error("mass ratio must be greater than 0");
+    }
+    _shapes.push_back({pos, massRatio, shape});
+    _total_mass += massRatio;
+    _volume += shape->getVolume();
+}
+
+pe::Vector3 CompoundShape::init() {
+    // compute center of mass
+    pe::Vector3 centroid = pe::Vector3::zeros();
+    for (auto& s : _shapes) {
+        centroid += s.local_transform.getOrigin() * s.mass_ratio;
+    }
+    centroid /= _total_mass;
+
+    // update local inertia and transform
+    _local_inertia = pe::Matrix3::zeros();
+    for (auto& s: _shapes) {
+        pe::Matrix3 s_inertia = s.shape->getLocalInertia();
+        pe::Vector3 p = s.local_transform.getOrigin() - centroid;
+        s.local_transform.setOrigin(p);
+        pe::Matrix3 rot = s.local_transform.getBasis();
+        pe::Matrix3 t_inertia = pe::Matrix3::identity() * (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                t_inertia[i][j] -= p[i] * p[j];
+            }
+        }
+        _local_inertia += (rot * s_inertia * rot.transposed() + t_inertia) * (s.mass_ratio / _total_mass);
+    }
+
+    return centroid;
+}
+
+void CompoundShape::getAABB(const pe::Transform &transform, pe::Vector3 &min, pe::Vector3 &max) const {
+    min = PE_VEC3_MAX;
+    max = PE_VEC3_MIN;
+    for (auto& s: _shapes) {
+        pe::Vector3 s_min, s_max;
+        s.shape->getAABB(transform * s.local_transform, s_min, s_max);
+        min = pe::Vector3::min2(min, s_min);
+        max = pe::Vector3::max2(max, s_max);
+    }
+}
+
+bool CompoundShape::localIsInside(const pe::Vector3 &point) const {
+    return std::any_of(_shapes.begin(), _shapes.end(), [&](auto &s) {
+        pe::Vector3 local_point = s.local_transform.inverseTransform(point);
+        return s.shape->localIsInside(local_point);
+    });
+}
+
+pe::Vector3 CompoundShape::getLocalSupportPoint(const pe::Vector3 &dir) const {
+    pe::Real max_dot = PE_REAL_MIN;
+    pe::Vector3 support_point = pe::Vector3::zeros();
+    for (auto& s: _shapes) {
+        pe::Vector3 s_support = s.shape->getLocalSupportPoint(s.local_transform.getBasis().transposed() * dir);
+        pe::Vector3 support2self = s.local_transform * s_support;
+        pe::Real d = support2self.dot(dir);
+        if (d > max_dot) {
+            max_dot = d;
+            support_point = support2self;
+        }
+    }
+    return support_point;
+}
+
+void CompoundShape::project(const pe::Transform &transform, const pe::Vector3 &axis, pe::Real &minProj,
+                            pe::Real &maxProj, pe::Vector3& minPoint, pe::Vector3& maxPoint) const {
+    minProj = PE_REAL_MAX;
+    maxProj = PE_REAL_MIN;
+    for (auto& s: _shapes) {
+        pe::Real s_min, s_max;
+        pe::Vector3 s_min_point, s_max_point;
+        s.shape->project(transform * s.local_transform, axis, s_min, s_max,
+                         s_min_point, s_max_point);
+        if (s_min < minProj) {
+            minProj = s_min;
+            minPoint = s_min_point;
+        }
+        if (s_max > maxProj) {
+            maxProj = s_max;
+            maxPoint = s_max_point;
+        }
+    }
+}
+
+} // namespace pe_physics_shape

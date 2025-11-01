@@ -1,19 +1,34 @@
-#include "intf/simulator.h"
+#include "interface/simulator.h"
+#include "interface/viewer.h"
+#include "physics/shape/box_shape.h"
+#include "physics/shape/sphere_shape.h"
+#include "physics/shape/convex_mesh_shape.h"
+#include "physics/object/fracturable_object.h"
+#include "physics/shape/capsule_shape.h"
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
-class FractureSimulator : public pe_intf::Simulator {
+class FractureSimulator : public pe_interface::Simulator {
 public:
     FractureSimulator() {}
     virtual ~FractureSimulator() {}
 
     void step() override {
-        // auto& rbs = _world.getRigidBodies();
-        // for (auto rb : rbs) {
-        //     if (!rb->isSleep()) {
-        //         std::cout << rb->getGlobalId() << " " << rb->getLinearVelocity() << std::endl;
-        //     }
-        // }
+        if (pe_interface::Viewer::getKeyState('k') == 0) {
+            // auto& rbs = _world.getRigidBodies();
+            // for (auto rb : rbs) {
+            //     if (!rb->isSleep()) {
+            //         std::cout << rb->getGlobalId() << " " << rb->getTransform() << std::endl;
+            //     }
+            // }
+
+            auto& rbs = _world.getRigidBodies();
+            for (auto rb : rbs) {
+                if (rb->getGlobalId() != 85 && rb->getGlobalId() > 6) {
+                    _world.removeRigidBody(rb);
+                }
+            }
+        }
     }
 
     void init() override {
@@ -21,10 +36,10 @@ public:
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
-        _world.setGravity(pe::Vector3(0, R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(R(0.01)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(R(1.0));     // sleep time threshold
+        _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
+        _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
+        _world.setSleepAngVel2Threshold(PE_R(0.01)); // angular velocity threshold for sleep
+        _world.setSleepTimeThreshold(PE_R(1.0));     // sleep time threshold
 
         // add a ground
         auto ground = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
@@ -62,79 +77,104 @@ public:
         wall4->setKinematic(true);
         _world.addRigidBody(wall4);
 
+        auto cap = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / PE_R(1.3)), pe::Vector3(0, 2, 0)),
+                                          1, 2, 4);
+        _world.addRigidBody(cap);
+
+        auto cap2 = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / PE_R(3.5)), pe::Vector3(0, 5, 0.1)),
+                                          0.5, 1, 2);
+        _world.addRigidBody(cap2);
+
+        auto sph = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 8, 0)),
+                                          1, 4);
+        _world.addRigidBody(sph);
+
         // pe::Mesh mesh;
-        // pe::Mesh::loadFromObj("D:\\ClionProjects\\Physics-Engine-clean\\Physics-Engine-84da628\\test.obj", mesh, pe::Vector3::ones());
-        // auto shape = new pe_phys_shape::ConvexMeshShape();
+        // pe::Mesh::loadFromObj("D:\\ClionProjects\\Physics-Engine-clean\\Physics-Engine-84da628\\fragment-28.obj", mesh, pe::Vector3::ones());
+        // auto shape = new pe_physics_shape::ConvexMeshShape();
         // auto offset = shape->setMesh(mesh);
         // pe::Transform offsetTrans(pe::Matrix3::identity(), offset);
-        // pe::Transform trans(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 3.8), pe::Vector3(0, 1.2, 0));
-        // // pe::Transform trans(pe::Matrix3(1, -0, 0, 0, 3.96461e-13, 1, -0, -1, 3.96461e-13),
-        // //     pe::Vector3(-0.812162, 0.777112, -0.516398));
-        // // pe::Transform trans(pe::Matrix3(1, -0, 0, 0, 3.96461e-13, 1, -0, -1, 3.96461e-13),
-        // //     pe::Vector3(-0.812162, 0.777112, -0.516398));
-        // auto rb2 = new pe_phys_object::RigidBody();
-        // rb2->setMass(1.0);
+        // // pe::Transform trans(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 3.8), pe::Vector3(0, 1.2, 0));
+        // pe::Transform trans(pe::Matrix3(-0.270472, 0.716382, 0.64315, -0.962443, -0.184994, -0.198746, -0.0234314, -0.67275, 0.739498),
+        // pe::Vector3(3.86159, 10.145254, -5.06953));
+        // auto rb2 = new pe_physics_object::RigidBody();
+        // rb2->setMass(0.05);
         // rb2->setCollisionShape(shape);
-        // rb2->setTransform(trans * offsetTrans);
+        // rb2->setTransform(trans);
         // _world.addRigidBody(rb2);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 0; i++) {
             // add a fracturable box
             auto rb = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, i + 0.5, 0)),
                                                pe::Vector3(4, 1, 4), 1);
             _world.addRigidBody(rb);
 
-            pe_phys_fracture::FractureSource src;
-            src.type = pe_phys_fracture::FractureType::Sphere;
-            src.position = pe::Vector3(R(1.5), R(i + 0.5), R(1.5));
-            src.intensity = pe::Vector3(R(1.5), R(1.5), R(1.5));
+            pe_physics_fracture::FractureSource src;
+            src.type = pe_physics_fracture::FractureType::Sphere;
+            src.position = pe::Vector3(PE_R(1.5), PE_R(i + 0.5), PE_R(1.5));
+            src.intensity = pe::Vector3(PE_R(1.5), PE_R(1.5), PE_R(1.5));
             _world.addFractureSource(src);
         }
     }
 
 protected:
-    static pe_phys_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
-                                                         const pe::Vector3& size, pe::Real mass) {
+    static pe_physics_object::RigidBody* createCapsuleRigidBody(const pe::Transform& trans,
+                                                                pe::Real radius, pe::Real height, pe::Real mass) {
+        /* This function creates a capsule-shaped rigidbody */
+
+        auto rb = new pe_physics_object::RigidBody();
+        rb->setMass(mass);
+        auto shape = new pe_physics_shape::CapsuleShape(radius, height);
+        rb->setCollisionShape(shape);
+        rb->setTransform(trans);
+        rb->setFrictionCoeff(PE_R(0.5));
+        rb->setRestitutionCoeff(PE_R(0.5));
+        rb->setAngularDamping(PE_R(0.8));
+        return rb;
+    }
+
+    static pe_physics_object::RigidBody* createBoxRigidBody(const pe::Transform& trans,
+                                                            const pe::Vector3& size, pe::Real mass) {
         /* This function creates a box-shaped rigidbody */
 
-        auto rb = new pe_phys_object::RigidBody();
+        auto rb = new pe_physics_object::RigidBody();
         rb->setMass(mass);
-        auto shape = new pe_phys_shape::BoxShape(size);
+        auto shape = new pe_physics_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5)); // friction coefficient
-        rb->setRestitutionCoeff(R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
-        rb->setAngularDamping(R(0.8)); // angular damping parameter (slows down the rotation speed)
+        rb->setFrictionCoeff(PE_R(0.5)); // friction coefficient
+        rb->setRestitutionCoeff(PE_R(0.5)); // restitution coefficient (the radio of relative velocity after/before collision)
+        rb->setAngularDamping(PE_R(0.8)); // angular damping parameter (slows down the rotation speed)
         return rb;
     }
 
-    static pe_phys_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
-                                                            pe::Real radius, pe::Real mass) {
+    static pe_physics_object::RigidBody* createSphereRigidBody(const pe::Transform& trans,
+                                                               pe::Real radius, pe::Real mass) {
         /* This function creates a sphere-shaped rigidbody */
 
-        auto rb = new pe_phys_object::RigidBody();
+        auto rb = new pe_physics_object::RigidBody();
         rb->setMass(mass);
-        auto shape = new pe_phys_shape::SphereShape(radius);
+        auto shape = new pe_physics_shape::SphereShape(radius);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
-        rb->setAngularDamping(R(0.8));
+        rb->setFrictionCoeff(PE_R(0.5));
+        rb->setRestitutionCoeff(PE_R(0.5));
+        rb->setAngularDamping(PE_R(0.8));
         return rb;
     }
 
-    static pe_phys_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
-                                                                      const pe::Vector3& size, pe::Real th) {
+    static pe_physics_object::FracturableObject* createFracturableObject(const pe::Transform& trans,
+                                                                         const pe::Vector3& size, pe::Real th) {
         /* This function creates a fracturable object */
 
-        auto rb = new pe_phys_object::FracturableObject();
+        auto rb = new pe_physics_object::FracturableObject();
         rb->setMass(1.0);
-        auto shape = new pe_phys_shape::BoxShape(size);
+        auto shape = new pe_physics_shape::BoxShape(size);
         rb->setCollisionShape(shape);
         rb->setTransform(trans);
-        rb->setFrictionCoeff(R(0.5));
-        rb->setRestitutionCoeff(R(0.5));
-        rb->setAngularDamping(R(0.8));
+        rb->setFrictionCoeff(PE_R(0.5));
+        rb->setRestitutionCoeff(PE_R(0.5));
+        rb->setAngularDamping(PE_R(0.8));
         rb->setThreshold(th);
         return rb;
     }
