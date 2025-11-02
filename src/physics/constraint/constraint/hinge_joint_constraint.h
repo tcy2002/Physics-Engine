@@ -1,0 +1,52 @@
+#pragma once
+
+#include "physics/physics.h"
+#include "constraint.h"
+
+namespace pe_physics_constraint {
+
+class HingeJointConstraint : public Constraint {
+    COMMON_MEMBER_SET_GET(pe::Vector3, anchor_a, AnchorA)
+    COMMON_MEMBER_SET_GET(pe::Vector3, anchor_b, AnchorB)
+    COMMON_MEMBER_SET_GET(pe::Vector3, axis_a, AxisA)
+    COMMON_MEMBER_SET_GET(pe::Vector3, axis_b, AxisB)
+
+    COMMON_BOOL_SET_GET(use_limits, UseLimits)
+    COMMON_MEMBER_SET_GET(pe::Real, min_angle, MinAngle)
+    COMMON_MEMBER_SET_GET(pe::Real, max_angle, MaxAngle)
+
+    COMMON_BOOL_SET_GET(use_motor, UseMotor)
+    COMMON_MEMBER_SET_GET(pe::Real, target_speed, TargetSpeed)
+
+protected:
+    pe::Vector3 _r_a;
+    pe::Vector3 _r_b;
+    pe::Vector3 _w_axis_a;
+    pe::Vector3 _w_axis_b;
+    pe::Vector3 _w_t_a[2]{};
+    pe::Vector3 _w_t_b[2]{};
+
+    pe::Vector3 _rhs_ball;
+    pe::Matrix3 _jmj_inv_ball;
+
+    pe::Real _rhs_hinge[2]{};
+    pe::Real _jmj_inv_hinge[2]{};
+
+    pe::Real _rhs_motor;
+    pe::Real _rhs_limit;
+    bool _limit_exceeded;
+    pe::Real _jmj_inv_motor_limit;
+
+public:
+    ConstraintType getType() const override { return ConstraintType::CT_HINGE_JOINT; }
+
+    HingeJointConstraint(): _anchor_a(pe::Vector3::zeros()), _anchor_b(pe::Vector3::zeros()),
+                            _axis_a(pe::Vector3::right()), _axis_b(pe::Vector3::right()),
+                            _use_limits(false), _use_motor(false) {}
+    virtual ~HingeJointConstraint() = default;
+
+    PE_API void initSequentialImpulse(const ConstraintParam& param) override;
+    PE_API void iterateSequentialImpulse(int iter) override;
+};
+
+} // namespace pe_physics_constraint

@@ -38,12 +38,12 @@ void RigidBody::setTransform(const pe::Transform &transform) {
     updateWorldInertia();
 }
 
-pe::Vector3 RigidBody::getTempLinearVelocity() {
+const pe::Vector3& RigidBody::getTempLinearVelocity() {
     if (isKinematic()) return pe::Vector3::zeros();
     return _temp_linear_velocity;
 }
 
-pe::Vector3 RigidBody::getTempAngularVelocity() {
+const pe::Vector3& RigidBody::getTempAngularVelocity() {
     if (isKinematic()) return pe::Vector3::zeros();
     return _temp_angular_velocity;
 }
@@ -70,18 +70,18 @@ RigidBody::RigidBody():
         _global_id(++_globalIdCounter),
         _kinematic(false),
         _ignore_collision(false),
-        _mass(1.),
-        _inv_mass(1.),
-        _local_inertia(pe::Matrix3::identity()),
-        _local_inv_inertia(pe::Matrix3::identity()),
-        _world_inertia(pe::Matrix3::identity()),
-        _world_inv_inertia(pe::Matrix3::identity()),
+        _mass(PE_REAL_MAX),
+        _inv_mass(PE_R(0.0)),
+        _local_inertia(pe::Matrix3::identity() * PE_REAL_MAX),
+        _local_inv_inertia(pe::Matrix3::zeros()),
+        _world_inertia(pe::Matrix3::identity() * PE_REAL_MAX),
+        _world_inv_inertia(pe::Matrix3::zeros()),
         _life_time(PE_REAL_MAX),
-        _last_time(0),
-        _friction_coeff(0.5),
-        _restitution_coeff(0.5),
-        _linear_damping(0.0),
-        _angular_damping(0.0),
+        _last_time(PE_R(0.0)),
+        _friction_coeff(PE_R(0.5)),
+        _restitution_coeff(PE_R(0.5)),
+        _linear_damping(PE_R(0.0)),
+        _angular_damping(PE_R(0.0)),
         _transform(pe::Transform::identity()),
         _linear_velocity(pe::Vector3::zeros()),
         _angular_velocity(pe::Vector3::zeros()),
@@ -163,6 +163,16 @@ void RigidBody::addForce(const pe::Vector3 &world_point, const pe::Vector3 &forc
     if (isKinematic()) return;
     _force += force;
     _torque += (world_point - _transform.getOrigin()).cross(force);
+}
+
+void RigidBody::applyTempAngularImpulse(const pe::Vector3 &impulse) {
+    if (isKinematic()) return;
+    _temp_angular_velocity += _world_inv_inertia * impulse;
+}
+
+void RigidBody::applyAngularImpulse(const pe::Vector3 &impulse) {
+    if (isKinematic()) return;
+    _angular_velocity += _world_inv_inertia * impulse;
 }
 
 void RigidBody::applyForce(pe::Real dt) {

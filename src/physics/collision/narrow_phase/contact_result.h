@@ -21,11 +21,8 @@ protected:
 public:
     const pe::Array<pe::Vector3>& getTangents() const { return _tangents; }
     const pe::Vector3& getTangent(int index) const { return _tangents[index]; }
-
-private:
     static void getOrthoUnits(pe::Vector3 normal, pe::Vector3& tangent1, pe::Vector3& tangent2);
 
-public:
     ContactPoint();
     ContactPoint(const pe::Vector3& world_pos, const pe::Vector3& world_normal,
                  const pe::Vector3& local_pos_a, const pe::Vector3& local_pos_b, pe::Real distance);

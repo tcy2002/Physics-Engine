@@ -5,6 +5,8 @@
 namespace pe_physics_object {
 
 class RigidBody {
+    static std::atomic<uint32_t> _globalIdCounter;
+
     /* Base properties */
     COMMON_MEMBER_SET_GET(std::string, name, Name)
     COMMON_MEMBER_SET_GET(std::string, tag, Tag)
@@ -49,8 +51,8 @@ protected:
     pe::Vector3 _temp_linear_velocity;
     pe::Vector3 _temp_angular_velocity;
 public:
-    PE_API pe::Vector3 getTempLinearVelocity();
-    PE_API pe::Vector3 getTempAngularVelocity();
+    PE_API const pe::Vector3& getTempLinearVelocity();
+    PE_API const pe::Vector3& getTempAngularVelocity();
     PE_API void setTempLinearVelocity(const pe::Vector3& v);
     PE_API void setTempAngularVelocity(const pe::Vector3& v);
     PE_API pe::Vector3 getAvgLinearVelocity2Frames() const;
@@ -60,13 +62,13 @@ public:
     COMMON_MEMBER_GET(pe::Vector3, aabb_min, AABBMin)
     COMMON_MEMBER_GET(pe::Vector3, aabb_max, AABBMax)
 private:
-    static std::atomic<uint32_t> _globalIdCounter;
     pe::HashSet<uint32_t> _ignore_collision_ids;
 
     /* Sleep */
     COMMON_BOOL_SET_GET(sleep, Sleep)
     COMMON_MEMBER_GET(pe::Real, sleep_time, SleepTime)
 
+    /* Public methods */
 public:
     PE_API RigidBody();
     virtual ~RigidBody() = default;
@@ -94,6 +96,8 @@ public:
 
     PE_API void applyTempImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
     PE_API void applyImpulse(const pe::Vector3& world_rel_vec, const pe::Vector3& impulse);
+    PE_API void applyTempAngularImpulse(const pe::Vector3& impulse);
+    PE_API void applyAngularImpulse(const pe::Vector3& impulse);
 
     PE_API void addForce(const pe::Vector3& world_point, const pe::Vector3& force);
     PE_API void addCentralForce(const pe::Vector3& force) { _force += force; }
