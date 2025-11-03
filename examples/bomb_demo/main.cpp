@@ -11,8 +11,8 @@ public:
 
     void init() override {
         /* Initialize the physics world here before running */
-        use_gui = true;
-        // max_frame = 1000;
+        use_gui = false;
+        max_frame = 1000;
 
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: outward screen)
@@ -33,33 +33,33 @@ public:
         createTower(pe::Vector3(0, 0, -20), 6, 12, 12);
         createTower(pe::Vector3(0, 0, -20), 8, 11, 16);
         createTower(pe::Vector3(0, 0, -20), 10, 10, 20);
-        createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
-        createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
+        // createTower(pe::Vector3(0, 0, -20), 12, 9, 24);
+        // createTower(pe::Vector3(0, 0, -20), 14, 8, 28);
 
-        // add tower2
-        createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
+        // // add tower2
+        // createTower(pe::Vector3(0, 0, -60), 4, 28, 8);
+        // createTower(pe::Vector3(0, 0, -60), 6, 27, 12);
+        // createTower(pe::Vector3(0, 0, -60), 8, 26, 16);
 
-        // add tower3
-        createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
-        createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
-        createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
+        // // add tower3
+        // createTower(pe::Vector3(0, 0, -100), 4, 28, 8);
+        // createTower(pe::Vector3(0, 0, -100), 6, 27, 12);
+        // createTower(pe::Vector3(0, 0, -100), 8, 26, 16);
 
-        // add a bomb
-        auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
-                                                       pe::Vector3(0, 20, 50)),
-                                         3, 1000);
-        rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
-        _world.addRigidBody(rb2);
+        // // add a bomb
+        // auto rb2 = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(),
+        //                                                pe::Vector3(0, 20, 50)),
+        //                                  3, 1000);
+        // rb2->setLinearVelocity(pe::Vector3(0, 0, -100)); // give an initial velocity
+        // _world.addRigidBody(rb2);
 
-        //saveScene("");
+        std::cout << _world.getRigidBodies().size() << std::endl;
     }
 
-    // void step() override {
-    //     static int frame = 0;
-    //     std::cout << frame++ << ": " << _world.getContactResults().size() << std::endl;
-    // }
+    void step() override {
+        _world.setDt(PE_R(0.01));
+        _world.step();
+    }
 
     void createTower(const pe::Vector3& pos, pe::Real radius, int layer, int brick_per_layer) {
         /* This function creates a tower of cubic bricks, how it is built is not important */
@@ -118,5 +118,20 @@ protected:
     }
 };
 
-// Simulator class, Target frame rate
-PE_CUSTOM_MAIN(BombSimulator, 100)
+// // Simulator class, Target frame rate
+// PE_CUSTOM_MAIN(BombSimulator, 100)
+
+int main() {
+    BombSimulator sim;
+    sim.init();
+
+    int frame = 1000;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < frame; i++) {
+        sim.step();
+        std::cout << i << std::endl;
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    pe::Real duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() * (pe::Real)0.000001;
+    std::cout << "total time: " << duration << " fps: " << frame / duration << std::endl;
+}
