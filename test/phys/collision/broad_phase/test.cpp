@@ -1,7 +1,7 @@
 #include "test_general.h"
-#include "phys/collision/broad_phase/broad_phase_sweep_and_prune.h"
-#include "phys/object/rigidbody.h"
-#include "phys/shape/box_shape.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 
 using namespace pe_phys_collision;
 

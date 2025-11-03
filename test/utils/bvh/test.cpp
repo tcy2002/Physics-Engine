@@ -2,9 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include "test_general.h"
-#include "phys/shape/concave_mesh_shape.h"
+#include "../../../src/physics"
 #include "utils/bvh.h"
-#include "intf/viewer.h"
+#include "../../../src/interface"
 
 void objToMesh(pe::Mesh& mesh, const std::string& filename) {
     std::fstream file(filename);

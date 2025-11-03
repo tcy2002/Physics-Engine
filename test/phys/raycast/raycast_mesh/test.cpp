@@ -1,7 +1,7 @@
-#include "phys/raycast/raycast/raycast_mesh.h"
-#include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/default_mesh.h"
-#include "phys/object/rigidbody.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 
 using namespace pe_phys_raycast;
 

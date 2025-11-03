@@ -1,6 +1,6 @@
-#include "phys/raycast/raycast/raycast_box.h"
-#include "phys/shape/box_shape.h"
-#include "phys/object/rigidbody.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 
 using namespace pe_phys_raycast;
 

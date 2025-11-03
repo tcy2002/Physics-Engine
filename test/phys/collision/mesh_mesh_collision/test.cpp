@@ -1,9 +1,9 @@
 #include "test_general.h"
-#include "phys/collision/collision_algorithm/convex_convex_collision_algorithm.h"
-#include "phys/collision/collision_algorithm/box_convex_collision_algorithm.h"
-#include "phys/object/rigidbody.h"
-#include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/box_shape.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 
 using namespace pe_phys_collision;
 

@@ -1,11 +1,11 @@
-#include "intf/world.h"
-#include "phys/shape/box_shape.h"
-#include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/sphere_shape.h"
-#include "phys/shape/cylinder_shape.h"
-#include "phys/fracture/fracture_solver/simple_fracture_solver.h"
-#include "phys/object/fracturable_object.h"
-#include "intf/viewer.h"
+#include "../../../src/interface"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/interface"
 #include <fstream>
 #include <utils/logger.h>
 

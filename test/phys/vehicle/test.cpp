@@ -1,7 +1,7 @@
 #include <iomanip>
-#include "phys/vehicle/tank/tank_template.h"
-#include "phys/shape/box_shape.h"
-#include "intf/viewer.h"
+#include "../../../src/physics"
+#include "../../../src/physics"
+#include "../../../src/interface"
 
 using namespace pe_phys_vehicle;
 

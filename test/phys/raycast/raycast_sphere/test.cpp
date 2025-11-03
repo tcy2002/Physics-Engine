@@ -1,6 +1,6 @@
-#include "phys/raycast/raycast/raycast_sphere.h"
-#include "phys/shape/sphere_shape.h"
-#include "phys/object/rigidbody.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 
 using namespace pe_phys_raycast;
 

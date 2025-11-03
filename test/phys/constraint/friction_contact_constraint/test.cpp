@@ -1,7 +1,7 @@
 #include "test_general.h"
-#include "phys/constraint/constraint/friction_contact_constraint.h"
-#include "phys/collision/narrow_phase/simple_narrow_phase.h"
-#include "phys/shape/box_shape.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 #include "utils/thread_pool.h"
 
 using namespace pe_phys_constraint;

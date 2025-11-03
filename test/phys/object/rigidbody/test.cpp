@@ -1,5 +1,5 @@
-#include "phys/object/rigidbody.h"
-#include "phys/shape/box_shape.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 #include "test_general.h"
 
 using namespace pe_phys_object;

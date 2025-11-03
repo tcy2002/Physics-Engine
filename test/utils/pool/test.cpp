@@ -1,5 +1,5 @@
 #include "utils/pool.h"
-#include "phys/constraint/constraint/friction_contact_constraint.h"
+#include "../../../src/physics"
 
 using namespace utils;
 

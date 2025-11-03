@@ -1,4 +1,4 @@
-#include "intf/viewer.h"
+#include "../../../src/interface"
 
 void testViewer() {
     pe_intf::Viewer::open("ViewerTest", 800, 600, {0, 5, 10}, 0, (float)(PE_PI / 6.0));

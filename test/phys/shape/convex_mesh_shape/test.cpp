@@ -1,9 +1,9 @@
 #include <fstream>
 #include <sstream>
-#include "phys/shape/box_shape.h"
-#include "phys/shape/cylinder_shape.h"
-#include "phys/shape/convex_mesh_shape.h"
-#include "phys/shape/default_mesh.h"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
+#include "../../../../src/physics"
 #include "test_general.h"
 
 using namespace pe_phys_shape;

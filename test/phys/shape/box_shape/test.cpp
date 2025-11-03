@@ -1,4 +1,4 @@
-#include "phys/shape/box_shape.h"
+#include "../../../../src/physics"
 #include "test_general.h"
 
 using namespace pe_phys_shape;
