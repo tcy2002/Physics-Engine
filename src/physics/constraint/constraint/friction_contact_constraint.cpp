@@ -9,6 +9,7 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
 
     _object_a = _contact_result->getObjectA();
     _object_b = _contact_result->getObjectB();
+    if (!_object_a || !_object_b) return;
     const pe::Transform& transform_a = _object_a->getTransform();
     const pe::Transform& transform_b = _object_b->getTransform();
 
@@ -65,6 +66,8 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
 }
 
 void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
+    if (!_object_a || !_object_b) return;
+
     for (auto& ci : _cis) {
         const pe::Vector3 vel_r = (_object_a->getTempLinearVelocity() +
             _object_a->getTempAngularVelocity().cross(ci.r_a))

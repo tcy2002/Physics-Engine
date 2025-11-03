@@ -16,11 +16,8 @@ enum class ConstraintType {
 struct ConstraintParam {
     pe::Real dt = PE_R(0.01);
 
-    // position correction factor
+    // correction factor
     pe::Real kerp = PE_R(0.2);
-
-    // angle correction factor
-    pe::Real kerp_angle = PE_R(1.0);
 };
 
 class Constraint {

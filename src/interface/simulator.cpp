@@ -35,7 +35,7 @@ void Simulator::showDebugPoints() {
                     ids.push_back(id);
                 }
             }
-            PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
+            // PE_LOG_DEBUG << "contact point count: " << ids.size() << PE_ENDL;
         }
 }
 
@@ -221,10 +221,11 @@ void Simulator::addModels(const pe::Array<pe_physics_object::RigidBody*>& rbs) {
                 pe::Mesh mesh = PE_CAPSULE_DEFAULT_MESH;
                 auto shape = dynamic_cast<pe_physics_shape::CapsuleShape *>(rb->getCollisionShape());
                 const pe::Real radius = shape->getRadius() * 2;
-                const pe::Real height = shape->getHeight();
+                const pe::Real half_height = shape->getHeight() * PE_R(0.5);
                 for (auto& v : mesh.vertices) {
                     v.position.x *= radius;
-                    v.position.y *= height;
+                    v.position.y = v.position.y > PE_R(0.0) ? (half_height + (v.position.y - PE_R(0.5)) * radius) :
+                                                              (-half_height + (v.position.y + PE_R(0.5)) * radius);
                     v.position.z *= radius;
                 }
                 ids.push_back(Viewer::addMesh(mesh));
@@ -259,10 +260,11 @@ void Simulator::addModels(const pe::Array<pe_physics_object::RigidBody*>& rbs) {
                             pe::Mesh mesh = PE_CAPSULE_DEFAULT_MESH;
                             auto shape = dynamic_cast<pe_physics_shape::CapsuleShape *>(rb->getCollisionShape());
                             const pe::Real radius = shape->getRadius() * 2;
-                            const pe::Real height = shape->getHeight();
+                            const pe::Real half_height = shape->getHeight() * PE_R(0.5);
                             for (auto& v : mesh.vertices) {
                                 v.position.x *= radius;
-                                v.position.y *= height;
+                                v.position.y = v.position.y > PE_R(0.0) ? (half_height + (v.position.y - PE_R(0.5)) * radius) :
+                                                                          (-half_height + (v.position.y + PE_R(0.5)) * radius);
                                 v.position.z *= radius;
                             }
                             ids.push_back(Viewer::addMesh(mesh));

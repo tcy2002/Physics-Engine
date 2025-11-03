@@ -38,12 +38,12 @@ void RigidBody::setTransform(const pe::Transform &transform) {
     updateWorldInertia();
 }
 
-const pe::Vector3& RigidBody::getTempLinearVelocity() {
+const pe::Vector3& RigidBody::getTempLinearVelocity() const {
     if (isKinematic()) return pe::Vector3::zeros();
     return _temp_linear_velocity;
 }
 
-const pe::Vector3& RigidBody::getTempAngularVelocity() {
+const pe::Vector3& RigidBody::getTempAngularVelocity() const {
     if (isKinematic()) return pe::Vector3::zeros();
     return _temp_angular_velocity;
 }

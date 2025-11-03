@@ -335,10 +335,16 @@ bool BoxCapsuleCollisionAlgorithm::getClosestPoints(pe_physics_shape::CapsuleSha
 
     bool ret = false;
     if (depth0 > PE_R(0.0)) {
+        if (depth0 > PE_R(0.1)) {
+            std::cout << "error depth0: " << depth0 << std::endl;
+        }
         result.addContactPoint(world_normal, world_a0 - world_normal * margin, -depth0 + margin);
         ret = true;
     }
     if (depth1 > PE_R(0.0)) {
+        if (depth0 > PE_R(0.1)) {
+            std::cout << "error depth1: " << depth1 << std::endl;
+        }
         result.addContactPoint(world_normal, world_a1 - world_normal * margin, -depth1 + margin);
         ret = true;
     }

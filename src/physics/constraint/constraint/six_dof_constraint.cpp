@@ -3,6 +3,8 @@
 namespace pe_physics_constraint {
 
 void SixDofConstraint::initSequentialImpulse(const ConstraintParam &param) {
+    if (!_object_a || !_object_b) return;
+
     auto& trans_a = _object_a->getTransform();
     auto& trans_b = _object_b->getTransform();
     _r_a = trans_a.getBasis() * _frame_a.getOrigin();
@@ -50,11 +52,13 @@ void SixDofConstraint::initSequentialImpulse(const ConstraintParam &param) {
         }
         _jmj_inv_rot[i] = PE_R(1.0) / _axb[i].dot(inv_inertia_sum * _axb[i]);
         // Also, using arc-cos here would be more accurate, but not necessary
-        _rhs_rot[i] = _jmj_inv_rot[i] * (axis_a.dot(axis_b) * -param.kerp_angle / param.dt);
+        _rhs_rot[i] = _jmj_inv_rot[i] * (axis_a.dot(axis_b) * -param.kerp / param.dt);
     }
 }
 
 void SixDofConstraint::iterateSequentialImpulse(int iter) {
+    if (!_object_a || !_object_b) return;
+
     // position impulse
     const pe::Vector3& vel_a = _object_a->getTempLinearVelocity() + _object_a->getTempAngularVelocity().cross(_r_a);
     const pe::Vector3& vel_b = _object_b->getTempLinearVelocity() + _object_b->getTempAngularVelocity().cross(_r_b);

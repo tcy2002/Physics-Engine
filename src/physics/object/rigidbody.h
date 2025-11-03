@@ -51,8 +51,8 @@ protected:
     pe::Vector3 _temp_linear_velocity;
     pe::Vector3 _temp_angular_velocity;
 public:
-    PE_API const pe::Vector3& getTempLinearVelocity();
-    PE_API const pe::Vector3& getTempAngularVelocity();
+    PE_API const pe::Vector3& getTempLinearVelocity() const;
+    PE_API const pe::Vector3& getTempAngularVelocity() const;
     PE_API void setTempLinearVelocity(const pe::Vector3& v);
     PE_API void setTempAngularVelocity(const pe::Vector3& v);
     PE_API pe::Vector3 getAvgLinearVelocity2Frames() const;

@@ -32,17 +32,17 @@ protected:
     pe::Real _rhs_hinge[2]{};
     pe::Real _jmj_inv_hinge[2]{};
 
-    pe::Real _rhs_motor;
     pe::Real _rhs_limit;
-    bool _limit_exceeded;
+    int _limit_exceeded_type;
     pe::Real _jmj_inv_motor_limit;
+    pe::Real _total_impulse_limit;
 
 public:
     ConstraintType getType() const override { return ConstraintType::CT_HINGE_JOINT; }
 
     HingeJointConstraint(): _anchor_a(pe::Vector3::zeros()), _anchor_b(pe::Vector3::zeros()),
                             _axis_a(pe::Vector3::right()), _axis_b(pe::Vector3::right()),
-                            _use_limits(false), _use_motor(false) {}
+                            _use_limits(false), _use_motor(false), _limit_exceeded_type(0) {}
     virtual ~HingeJointConstraint() = default;
 
     PE_API void initSequentialImpulse(const ConstraintParam& param) override;

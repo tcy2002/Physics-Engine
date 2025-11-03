@@ -96,7 +96,7 @@ using Quaternion = common::Quaternion<Real>;
 //// math
 #define PE_EPS pe::Real(0.00001)
 #define PE_APPROX_EQUAL(a, b) (std::abs((a) - (b)) < PE_EPS)
-#define PE_PI pe::Real(3.141592653589)
+#define PE_PI pe::Real(3.14159265358979323846)
 
 //// other date types
 #include "utils/hash_vector.h"

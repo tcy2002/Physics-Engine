@@ -43,7 +43,7 @@ namespace pe_physics_constraint {
 
         // rotation rhs
         // Also, using arc-sin here would be more accurate, but not necessary
-        _rhs_rot = _jmj_inv_rot * (_w_t_a[0].cross(_w_t_b[0]) + _w_t_a[1].cross(_w_t_b[1])) * (param.kerp_angle / param.dt);
+        _rhs_rot = _jmj_inv_rot * (_w_t_a[0].cross(_w_t_b[0]) + _w_t_a[1].cross(_w_t_b[1])) * (param.kerp / param.dt);
     }
 
     void SliderJointConstraint::iterateSequentialImpulse(int iter) {
