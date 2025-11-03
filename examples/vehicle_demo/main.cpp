@@ -101,13 +101,21 @@ public:
         wheel6->addIgnoreCollisionId(_chassis->getGlobalId());
 
         // add constraints between chassis and wheels
-        auto sus1 = new pe_physics_constraint::HingeJointConstraint();
-        sus1->setObjectA(_chassis);
-        sus1->setObjectB(wheel1);
-        sus1->setAnchorA(pe::Vector3(-1.5, -0.5, -1.5));
-        sus1->setAnchorB(pe::Vector3(0, 0, 0));
-        sus1->setAxisA(-pe::Vector3::right());
-        sus1->setAxisB(pe::Vector3::up());
+        auto sus1 = new pe_physics_constraint::SixDofConstraint();
+        sus1->setObjectA(wheel1);
+        sus1->setObjectB(_chassis);
+        sus1->setFrameA(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)));
+        sus1->setFrameB(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, -0.5, -1.5)));
+        sus1->setXPosFixed(true);
+        sus1->setYPosFixed(true);
+        sus1->setZPosFixed(true);
+        sus1->setXRotFixed(false);
+        sus1->setYRotFixed(false);
+        sus1->setZRotFixed(true);
+        // sus1->setAnchorA(pe::Vector3(-1.5, -0.5, -1.5));
+        // sus1->setAnchorB(pe::Vector3(0, 0, 0));
+        // sus1->setAxisA(-pe::Vector3::right());
+        // sus1->setAxisB(pe::Vector3::up());
         _world.addConstraint(sus1);
         auto sus2 = new pe_physics_constraint::HingeJointConstraint();
         sus2->setObjectA(_chassis);
@@ -150,15 +158,15 @@ public:
         sus6->setAxisB(pe::Vector3::up());
         _world.addConstraint(sus6);
 
-        // add left track
-        createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 1.5, 0)),
-                    PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-                    PE_R(0.8), 30, 1);
-
-        // add right track
-        createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 1.5, 0)),
-                    PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-                    PE_R(0.8), 30, 1);
+        // // add left track
+        // createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 1.5, 0)),
+        //             PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
+        //             PE_R(0.8), 30, 1);
+        //
+        // // add right track
+        // createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 1.5, 0)),
+        //             PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
+        //             PE_R(0.8), 30, 1);
     }
 
     void step() override {

@@ -20,9 +20,9 @@ public:
         // set gravity (in our physics world, we use the same right-hand coordinates as opengl,
         // namely, x: right, y: up, z: screen outward)
         _world.setGravity(pe::Vector3(0, PE_R(-9.8), 0));
-        _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
-        _world.setSleepAngVel2Threshold(PE_R(0.005)); // angular velocity threshold for sleep
-        _world.setSleepTimeThreshold(PE_R(2.0));     // sleep time threshold
+        // _world.setSleepLinVel2Threshold(PE_R(0.01)); // linear velocity threshold for sleep
+        // _world.setSleepAngVel2Threshold(PE_R(0.005)); // angular velocity threshold for sleep
+        // _world.setSleepTimeThreshold(PE_R(2.0));     // sleep time threshold
 
         // add a ground
         auto ground = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
@@ -137,7 +137,7 @@ public:
         c4->setAnchorB(pe::Vector3(0, -2, 0));
         c4->setAxisA(pe::Vector3::up());
         c4->setAxisB(-pe::Vector3::right());
-        c4->setUseLimits(true);
+        c4->setLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
         c4->setMinAngle(-PE_PI / 3);
         c4->setMaxAngle(PE_PI / 3);
         _world.addConstraint(c4);
@@ -167,7 +167,6 @@ public:
         trans4.setRotation(pe::Vector3::forward(), PE_PI / 6);
         trans4.setOrigin(pe::Vector3::zeros());
         auto rb9_0 = createBoxRigidBody(trans3 * trans4, pe::Vector3(PE_R(0.3), 10, PE_R(0.3)), 1);
-        // rb9_0->setKinematic(true);
         _world.addRigidBody(rb9_0);
         trans5.setBasis(pe::Matrix3::identity());
         trans5.setOrigin(pe::Vector3(0, PE_R(5.2), 0));
@@ -195,6 +194,9 @@ public:
         c6->setAnchorB(pe::Vector3(0, 0, 0));
         c6->setAxisA(pe::Vector3::up());
         c6->setAxisB(pe::Vector3::up());
+        c6->setLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
+        c6->setMaxPosition(PE_R(4.4));
+        c6->setMinPosition(-PE_R(4.4));
         _world.addConstraint(c6);
 
         auto s_dof_1 = new pe_physics_constraint::SixDofConstraint();
@@ -226,9 +228,6 @@ public:
         sdof->setObjectB(person);
         sdof->setFrameA(pe::Transform::identity());
         sdof->setFrameB(pe::Transform::identity());
-        // sdof->setXPosFixed(true);
-        // sdof->setYPosFixed(true);
-        // sdof->setZPosFixed(true);
         sdof->setXRotFixed(true);
         sdof->setZRotFixed(true);
         _world.addConstraint(sdof);
@@ -282,17 +281,17 @@ public:
             rb4->addCentralForce(pe::Vector3::up() * 25);
         }
         if (pe_interface::Viewer::getKeyState('m') == 0 && rb10 != nullptr) {
-            rb10->addCentralForce(rb10->getTransform().getBasis() * pe::Vector3::up() * 100);
+            rb10->addCentralForce(rb10->getTransform().getBasis() * pe::Vector3::up() * 50);
         }
         if (c4 != nullptr) {
             if (pe_interface::Viewer::getKeyState(',') == 0) {
-                c4->setUseMotor(true);
-                c4->setTargetSpeed(-3);
+                c4->setMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+                c4->setTargetSpeed(-2);
             } else if (pe_interface::Viewer::getKeyState('.') == 0) {
-                c4->setUseMotor(true);
-                c4->setTargetSpeed(3);
+                c4->setMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+                c4->setTargetSpeed(2);
             } else {
-                c4->setUseMotor(false);
+                c4->setMotorType(pe_physics_constraint::ConstraintMotorType::CMT_NONE);
             }
         }
     }
