@@ -11,6 +11,14 @@ namespace pe_physics_constraint {
         COMMON_MEMBER_SET_GET(pe::Vector3, axis_a, AxisA)
         COMMON_MEMBER_SET_GET(pe::Vector3, axis_b, AxisB)
 
+        COMMON_MEMBER_SET_GET(ConstraintLimitType, limit_type, LimitType)
+        COMMON_MEMBER_SET_GET(pe::Real, min_position, MinPosition)
+        COMMON_MEMBER_SET_GET(pe::Real, max_position, MaxPosition)
+
+        COMMON_MEMBER_SET_GET(ConstraintMotorType, motor_type, MotorType)
+        COMMON_MEMBER_SET_GET(pe::Real, target_speed, TargetSpeed)
+        COMMON_MEMBER_SET_GET(pe::Real, target_position, TargetPosition)
+
     protected:
         pe::Vector3 _r_a;
         pe::Vector3 _r_b;
@@ -24,6 +32,12 @@ namespace pe_physics_constraint {
 
         pe::Vector3 _rhs_rot;
         pe::Matrix3 _jmj_inv_rot;
+
+        pe::Real _rhs_limit;
+        pe::Real _rhs_motor;
+        int _limit_exceeded_type;
+        pe::Real _jmj_inv_motor_limit;
+        pe::Real _total_impulse_limit;
 
     public:
         ConstraintType getType() const override { return ConstraintType::CT_SLIDER_JOINT; }

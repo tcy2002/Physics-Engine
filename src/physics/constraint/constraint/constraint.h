@@ -20,6 +20,19 @@ struct ConstraintParam {
     pe::Real kerp = PE_R(0.2);
 };
 
+enum class ConstraintLimitType {
+    CLT_NONE,
+    CLT_LOWER,
+    CLT_UPPER,
+    CLT_LOWER_UPPER,
+};
+
+enum class ConstraintMotorType {
+    CMT_NONE,
+    CMT_VELOCITY,
+    CMT_POSITION,
+};
+
 class Constraint {
     COMMON_MEMBER_PTR_GET(pe_physics_object::RigidBody, object_a, ObjectA)
     COMMON_MEMBER_PTR_GET(pe_physics_object::RigidBody, object_b, ObjectB)

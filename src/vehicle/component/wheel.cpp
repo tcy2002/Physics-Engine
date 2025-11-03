@@ -21,10 +21,23 @@ Wheel::Wheel(WheelType type, pe::Real radius, pe::Real width, pe::Real mass, pe:
             break;
         case WheelType::WT_Cylinder:
             // not implemented yet
-            PE_LOG_ERROR << "Cylinder wheel shape is not implemented yet." << PE_ENDL;
-            break;
+            throw std::runtime_error("Cylinder wheel shape is not implemented yet.");
     }
     _wheel->setCollisionShape(shape);
+}
+
+Wheel::~Wheel() {
+    delete _wheel->getCollisionShape();
+    delete _wheel;
+}
+
+void Wheel::init(pe_interface::World* phys_world) {
+    phys_world->addRigidBody(_wheel);
+}
+
+void Wheel::step(pe::Real dt) {
+    (void)dt;
+    // nothing to do for now
 }
 
 } // namespace pe_vehicle

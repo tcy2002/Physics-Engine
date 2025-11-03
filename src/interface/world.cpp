@@ -169,26 +169,22 @@ void World::step() {
 
     // fracture
     calcDamageEffects();
-    // std::cout << "2" << std::endl;
 
     // external force
     applyExternalForce();
     auto end = COMMON_GetMicroTickCount();
     update_status_time += PE_R(end - start) * PE_R(0.000001);
-    // std::cout << "3" << std::endl;
 
     // collision detection
     start = COMMON_GetMicroTickCount();
     _broad_phase->calcCollisionPairs(_collision_objects, _collision_pairs);
     end = COMMON_GetMicroTickCount();
     broad_phase_time += PE_R(end - start) * PE_R(0.000001);
-    // std::cout << "4" << std::endl;
 
     start = COMMON_GetMicroTickCount();
     _narrow_phase->calcContactResults(_collision_pairs, _contact_results);
     end = COMMON_GetMicroTickCount();
     narrow_phase_time += PE_R(end - start) * PE_R(0.000001);
-    // std::cout << "5" << std::endl;
 
     // constraints
     start = COMMON_GetMicroTickCount();
@@ -196,7 +192,6 @@ void World::step() {
     _constraint_solver->solve();
     end = COMMON_GetMicroTickCount();
     constraint_solver_time += PE_R(end - start) * PE_R(0.000001);
-    // std::cout << "6" << std::endl;
 }
 
 } // namespace pe_interface
