@@ -15,7 +15,7 @@ ChassisPart Chassis::createBoxPart(const pe::Transform& part_trans, const pe::Ve
     auto body = new pe_physics_object::RigidBody();
     body->setMass(mass);
     body->setCollisionShape(shape);
-    body->setTransform(_transform * part_trans);
+    body->setTransform(getTransform() * part_trans);
     return ChassisPart{body, part_trans};
 }
 
@@ -24,7 +24,7 @@ ChassisPart Chassis::createSpherePart(const pe::Transform& part_trans, pe::Real 
     auto body = new pe_physics_object::RigidBody();
     body->setMass(mass);
     body->setCollisionShape(shape);
-    body->setTransform(_transform * part_trans);
+    body->setTransform(getTransform() * part_trans);
     return ChassisPart{body, part_trans};
 }
 
@@ -33,7 +33,7 @@ ChassisPart Chassis::createCapsulePart(const pe::Transform& part_trans, pe::Real
     auto body = new pe_physics_object::RigidBody();
     body->setMass(mass);
     body->setCollisionShape(shape);
-    body->setTransform(_transform * part_trans);
+    body->setTransform(getTransform() * part_trans);
     return ChassisPart{body, part_trans};
 }
 
@@ -63,11 +63,10 @@ void Chassis::init(pe_interface::World* phys_world) {
 
 void Chassis::step(pe::Real dt) {
     (void)dt;
-    _transform = _base_part.body->getTransform() * _base_part.local_transform.inverse();
 }
 
 void Chassis::setTransform(const pe::Transform& trans) {
-    _transform = trans;
+    if (_base_part.body == nullptr) return;
     const pe::Transform base_part_new_trans = trans * _base_part.local_transform;
     const pe::Transform delta_trans = _base_part.body->getTransform().inverse() * base_part_new_trans;
     _base_part.body->setTransform(base_part_new_trans);
@@ -77,16 +76,24 @@ void Chassis::setTransform(const pe::Transform& trans) {
     }
 }
 
-void Chassis::setBoxBase(const pe::Transform& part_trans, const pe::Vector3& size, pe::Real mass) {
+pe::Transform Chassis::getTransform() const {
+    if (_base_part.body == nullptr) return pe::Transform::identity();
+    return _base_part.body->getTransform() * _base_part.local_transform.inverse();
+}
+
+int Chassis::setBoxBase(const pe::Transform& part_trans, const pe::Vector3& size, pe::Real mass) {
     _base_part = createBoxPart(part_trans, size, mass);
+    return 0;
 }
 
-void Chassis::setSphereBase(const pe::Transform& part_trans, pe::Real radius, pe::Real mass) {
+int Chassis::setSphereBase(const pe::Transform& part_trans, pe::Real radius, pe::Real mass) {
     _base_part = createSpherePart(part_trans, radius, mass);
+    return 0;
 }
 
-void Chassis::setCapsuleBase(const pe::Transform& part_trans, pe::Real radius, pe::Real height, pe::Real mass) {
+int Chassis::setCapsuleBase(const pe::Transform& part_trans, pe::Real radius, pe::Real height, pe::Real mass) {
     _base_part = createCapsulePart(part_trans, radius, height, mass);
+    return 0;
 }
 
 int Chassis::addBoxPart(const pe::Transform& part_trans, const pe::Vector3& size, pe::Real mass) {
@@ -134,9 +141,9 @@ int Chassis::addBallLink(int part1_index, int part2_index, const pe::Vector3 &an
 }
 
 int Chassis::addHingeLink(int part1_index, int part2_index,
-                           const pe::Vector3 &anchor1, const pe::Vector3 &axis1,
-                           const pe::Vector3 &anchor2, const pe::Vector3 &axis2,
-                           bool use_limits, pe::Real min_angle, pe::Real max_angle) {
+                          const pe::Vector3 &anchor1, const pe::Vector3 &axis1,
+                          const pe::Vector3 &anchor2, const pe::Vector3 &axis2,
+                          pe_physics_constraint::ConstraintLimitType type, pe::Real min_angle, pe::Real max_angle) {
     if (part1_index < 0 || part1_index >= PE_I(_other_parts.size() + 1) ||
         part2_index < 0 || part2_index >= PE_I(_other_parts.size() + 1)) {
         PE_LOG_ERROR << "Invalid part index for adding ball link: " << part1_index << ", " << part2_index << PE_CUSTOM_ENDL;
@@ -152,7 +159,7 @@ int Chassis::addHingeLink(int part1_index, int part2_index,
     link->setAxisA(axis1);
     link->setAnchorB(anchor2);
     link->setAxisB(axis2);
-    link->setUseLimits(use_limits);
+    link->setLimitType(type);
     link->setMinAngle(min_angle);
     link->setMaxAngle(max_angle);
     _links.push_back(link);
@@ -203,7 +210,8 @@ int Chassis::addSixDofLink(int part1_index, int part2_index,
     return PE_I(_links.size() - 1);
 }
 
-void Chassis::controlHingeLink(int link_index, bool use_motor, pe::Real target_speed) const {
+void Chassis::controlHingeLink(int link_index, pe_physics_constraint::ConstraintMotorType type,
+                               pe::Real target_speed_or_angle) const {
     if (link_index < 0 || link_index >= PE_I(_links.size())) {
         PE_LOG_ERROR << "Invalid link index for controlling hinge link: " << link_index << PE_CUSTOM_ENDL;
         return;
@@ -216,8 +224,34 @@ void Chassis::controlHingeLink(int link_index, bool use_motor, pe::Real target_s
 
     auto hinge_link = static_cast<pe_physics_constraint::HingeJointConstraint*>(_links[link_index]);
 
-    hinge_link->setUseMotor(use_motor);
-    hinge_link->setTargetSpeed(target_speed);
+    hinge_link->setMotorType(type);
+    if (type == pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY) {
+        hinge_link->setTargetSpeed(target_speed_or_angle);
+    } else if (type == pe_physics_constraint::ConstraintMotorType::CMT_POSITION) {
+        hinge_link->setTargetAngle(target_speed_or_angle);
+    }
+}
+
+void Chassis::controlSliderLink(int link_index, pe_physics_constraint::ConstraintMotorType type,
+                                pe::Real target_speed_or_angle) const {
+    if (link_index < 0 || link_index >= PE_I(_links.size())) {
+        PE_LOG_ERROR << "Invalid link index for controlling slider link: " << link_index << PE_CUSTOM_ENDL;
+        return;
+    }
+
+    if (_links[link_index]->getType() != pe_physics_constraint::ConstraintType::CT_SLIDER_JOINT) {
+        PE_LOG_ERROR << "The specified link is not a slider link: " << link_index << PE_CUSTOM_ENDL;
+        return;
+    }
+
+    auto slider_link = static_cast<pe_physics_constraint::SliderJointConstraint*>(_links[link_index]);
+
+    slider_link->setMotorType(type);
+    if (type == pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY) {
+        slider_link->setTargetSpeed(target_speed_or_angle);
+    } else if (type == pe_physics_constraint::ConstraintMotorType::CMT_POSITION) {
+        slider_link->setTargetPosition(target_speed_or_angle);
+    }
 }
 
 } // namespace pe_vehicle

@@ -24,7 +24,6 @@ struct ChassisPart {
  */
 class Chassis {
 protected:
-    COMMON_MEMBER_GET(pe::Transform, transform, Transform)
     ChassisPart _base_part;
     pe::Array<ChassisPart> _other_parts;
     pe::Array<pe_physics_constraint::Constraint*> _links;
@@ -37,17 +36,18 @@ public:
     Chassis() = default;
     virtual ~Chassis();
 
-    void init(pe_interface::World* phys_world);
-    void step(pe::Real dt);
+    virtual void init(pe_interface::World* phys_world);
+    virtual void step(pe::Real dt);
 
-    void setTransform(const pe::Transform& trans);
+    virtual void setTransform(const pe::Transform& trans);
+    virtual pe::Transform getTransform() const;
 
     /* The index of base part is 0 */
-    void setBoxBase(const pe::Transform& part_trans, const pe::Vector3& size, pe::Real mass);
+    int setBoxBase(const pe::Transform& part_trans, const pe::Vector3& size, pe::Real mass);
     /* The index of base part is 0 */
-    void setSphereBase(const pe::Transform& part_trans, pe::Real radius, pe::Real mass);
+    int setSphereBase(const pe::Transform& part_trans, pe::Real radius, pe::Real mass);
     /* The index of base part is 0 */
-    void setCapsuleBase(const pe::Transform& part_trans, pe::Real radius, pe::Real height, pe::Real mass);
+    int setCapsuleBase(const pe::Transform& part_trans, pe::Real radius, pe::Real height, pe::Real mass);
 
     const ChassisPart& getBasePart() const { return _base_part; }
 
@@ -62,16 +62,20 @@ public:
 
     int addBallLink(int part1_index, int part2_index, const pe::Vector3& anchor1, const pe::Vector3& anchor2);
     int addHingeLink(int part1_index, int part2_index,
-                      const pe::Vector3& anchor1, const pe::Vector3& axis1,
-                      const pe::Vector3& anchor2, const pe::Vector3& axis2,
-                      bool use_limits = false, pe::Real min_angle = 0, pe::Real max_angle = 0);
+                     const pe::Vector3& anchor1, const pe::Vector3& axis1,
+                     const pe::Vector3& anchor2, const pe::Vector3& axis2,
+                     pe_physics_constraint::ConstraintLimitType type = pe_physics_constraint::ConstraintLimitType::CLT_NONE,
+                     pe::Real min_angle = 0, pe::Real max_angle = 0);
     int addSliderLink(int part1_index, int part2_index,
-                       const pe::Vector3& anchor1, const pe::Vector3& axis1,
-                       const pe::Vector3& anchor2, const pe::Vector3& axis2);
+                      const pe::Vector3& anchor1, const pe::Vector3& axis1,
+                      const pe::Vector3& anchor2, const pe::Vector3& axis2);
     int addSixDofLink(int part1_index, int part2_index,
                       const pe::Transform& frame1, const pe::Transform& frame2);
 
-    void controlHingeLink(int link_index, bool use_motor, pe::Real target_speed) const;
+    void controlHingeLink(int link_index, pe_physics_constraint::ConstraintMotorType type,
+                          pe::Real target_speed_or_angle) const;
+    void controlSliderLink(int link_index, pe_physics_constraint::ConstraintMotorType type,
+                           pe::Real target_speed_or_position) const;
 };
 
 } // namespace pe_vehicle

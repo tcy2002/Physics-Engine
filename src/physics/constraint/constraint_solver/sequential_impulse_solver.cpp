@@ -33,7 +33,7 @@ void SequentialImpulseSolver::setupSolver(
     }
 
     _param.dt = dt;
-#   ifdef PE_MULTI_THREAD
+#   ifdef PE_MULTI_THREAD1
     utils::ThreadPool::forLoop(PE_UI(contact_results.size()), [&](int i){
         const auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
         fcc->setContactResult(*contact_results[i]);
@@ -43,11 +43,10 @@ void SequentialImpulseSolver::setupSolver(
         constraints[i]->initSequentialImpulse(_param);
     });
 #   else
-    for (int i = 0; i < I(contact_results.size()); i++) {
+    for (int i = 0; i < PE_UI(contact_results.size()); i++) {
         auto fcc = dynamic_cast<FrictionContactConstraint *>(_fcc_constraints[i]);
         fcc->setContactResult(*contact_results[i]);
         fcc->initSequentialImpulse(_param);
-        fcc->warmStart();
     }
     for (auto constraint : constraints) {
         constraint->initSequentialImpulse(_param);

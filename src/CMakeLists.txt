@@ -8,10 +8,10 @@ add_library(PEUtils STATIC
         utils/logger.cpp
         utils/thread_pool.cpp
         utils/bvh.inl)
-add_library(PEVehicle SHARED ${VEHICLE_SOURCES})
+add_library(PEVehicle STATIC ${VEHICLE_SOURCES})
 
 target_link_libraries(PEngine PRIVATE PEUtils)
-target_link_libraries(PEVehicle PRIVATE PEngine PEUtils)
+target_link_libraries(PEVehicle PRIVATE PEUtils)
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(PEViewer PRIVATE

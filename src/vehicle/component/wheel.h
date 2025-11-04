@@ -3,6 +3,7 @@
 #include "physics/physics.h"
 #include "interface/world.h"
 #include "physics/object/rigidbody.h"
+#include "json/json.hpp"
 
 namespace pe_vehicle {
 
@@ -14,7 +15,7 @@ enum class WheelType {
 
 /*
  * A wheel is represented as a rigid body with a specific shape: sphere, capsule, or cylinder.
- * (cylinder shape is not implemented yet)
+ * (cylinder shape is not supported yet)
  * The wheel can be attached to a chassis via suspension.
  */
 class Wheel {
@@ -25,6 +26,7 @@ class Wheel {
 
 protected:
     pe_physics_object::RigidBody* _wheel = nullptr;
+    pe::Transform _delta_transform = pe::Transform::identity();
 
 public:
     Wheel() = delete;
@@ -33,10 +35,17 @@ public:
 
     pe_physics_object::RigidBody* getBody() const { return _wheel; }
 
-    void init(pe_interface::World* phys_world);
-    void step(pe::Real dt);
+    pe::Vector3 getAngularVelocity() const { return _wheel->getAngularVelocity(); }
+    
+    void applyTorque(pe::Real torque);
 
-    const pe::Transform& getTransform() const { return _wheel->getTransform(); }
+    virtual void init(pe_interface::World* phys_world);
+    virtual void step(pe::Real dt);
+
+    virtual void setTransform(const pe::Transform& trans);
+    virtual pe::Transform getTransform() const;
+
+    virtual void loadConfigFromJson(const nlohmann::json& j) {}
 };
 
 } // namespace pe_vehicle

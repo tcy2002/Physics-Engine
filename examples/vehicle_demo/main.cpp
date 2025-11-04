@@ -6,6 +6,10 @@
 #include "physics/shape/box_shape.h"
 #include "physics/shape/sphere_shape.h"
 #include "physics/shape/capsule_shape.h"
+#include "vehicle/component/chassis.h"
+#include "vehicle/vehicle_base.h"
+#include "json/json.hpp"
+#include <fstream>
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
 // To turn off the viewer, set use_gui = false in init()
@@ -15,6 +19,7 @@ public:
     virtual ~VehicleSimulator() {}
 
     pe_physics_object::RigidBody* _chassis = nullptr;
+    pe_vehicle::VehicleBase* _vehicle = nullptr;
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -62,115 +67,176 @@ public:
         wall4->setKinematic(true);
         _world.addRigidBody(wall4);
 
-        // add a chasis
-        _chassis = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-                                      pe::Vector3(2, 1, 4), 50);
-        _world.addRigidBody(_chassis);
+        auto chassis = new pe_vehicle::Chassis();
+        chassis->setBoxBase(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
+                                          pe::Vector3(2, 1, 4), 50);
+        _chassis = chassis->getBasePart().body;
 
-        // add six wheels
-        auto wheel1 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
-                                                                      pe::Vector3(-1.5, 1.5, -1.5)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel1);
-        auto wheel2 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 2),
-                                                                      pe::Vector3(1.5, 1.5, -1.5)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel2);
-        auto wheel3 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
-                                                                      pe::Vector3(-1.5, 1.5, 0)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel3);
-        auto wheel4 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 2),
-                                                                      pe::Vector3(1.5, 1.5, 0)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel4);
-        auto wheel5 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
-                                                                      pe::Vector3(-1.5, 1.5, 1.5)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel5);
-        auto wheel6 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 2),
-                                                                      pe::Vector3(1.5, 1.5, 1.5)),
-                                                    PE_R(0.5), 10);
-        _world.addRigidBody(wheel6);
+        auto engine = new pe_vehicle::Engine(6);
+        std::fstream file("D:/ClionProjects/Physics-Engine-clean/Physics-Engine-84da628/examples/vehicle_demo/config/Engine.json");
+        nlohmann::json j = nlohmann::json::parse(file);
+        engine->loadConfigFromJson(j);
 
-        wheel1->addIgnoreCollisionId(_chassis->getGlobalId());
-        wheel2->addIgnoreCollisionId(_chassis->getGlobalId());
-        wheel3->addIgnoreCollisionId(_chassis->getGlobalId());
-        wheel4->addIgnoreCollisionId(_chassis->getGlobalId());
-        wheel5->addIgnoreCollisionId(_chassis->getGlobalId());
-        wheel6->addIgnoreCollisionId(_chassis->getGlobalId());
+        auto vehicle = new pe_vehicle::VehicleBase();
+        vehicle->setChassis(chassis);
+        vehicle->setEngine(engine);
+        vehicle->setWheelCountPerSide(2);
+        vehicle->setWheelRegionLength(PE_R(3.0));
+        vehicle->setWheelRegionWidth(PE_R(3.0));
+        vehicle->setWheelRegionOffset(pe::Vector3(0, 1, 0));
+        vehicle->setWheelInfo(0, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
+        vehicle->setWheelInfo(1, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
+        vehicle->setWheelInfo(2, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
+        vehicle->setWheelInfo(3, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
+        vehicle->init(&_world);
+        _vehicle = vehicle;
+        _vehicle->setTransform(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), PE_PI / PE_R(6.0)), pe::Vector3::up() * PE_R(5.0)));
 
-        // add constraints between chassis and wheels
-        auto sus1 = new pe_physics_constraint::SixDofConstraint();
-        sus1->setObjectA(wheel1);
-        sus1->setObjectB(_chassis);
-        sus1->setFrameA(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)));
-        sus1->setFrameB(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, -0.5, -1.5)));
-        sus1->setXPosFixed(true);
-        sus1->setYPosFixed(true);
-        sus1->setZPosFixed(true);
-        sus1->setXRotFixed(false);
-        sus1->setYRotFixed(false);
-        sus1->setZRotFixed(true);
-        // sus1->setAnchorA(pe::Vector3(-1.5, -0.5, -1.5));
-        // sus1->setAnchorB(pe::Vector3(0, 0, 0));
-        // sus1->setAxisA(-pe::Vector3::right());
-        // sus1->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus1);
-        auto sus2 = new pe_physics_constraint::HingeJointConstraint();
-        sus2->setObjectA(_chassis);
-        sus2->setObjectB(wheel2);
-        sus2->setAnchorA(pe::Vector3(1.5, -0.5, -1.5));
-        sus2->setAnchorB(pe::Vector3(0, 0, 0));
-        sus2->setAxisA(pe::Vector3::right());
-        sus2->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus2);
-        auto sus3 = new pe_physics_constraint::HingeJointConstraint();
-        sus3->setObjectA(_chassis);
-        sus3->setObjectB(wheel3);
-        sus3->setAnchorA(pe::Vector3(-1.5, -0.5, 0));
-        sus3->setAnchorB(pe::Vector3(0, 0, 0));
-        sus3->setAxisA(-pe::Vector3::right());
-        sus3->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus3);
-        auto sus4 = new pe_physics_constraint::HingeJointConstraint();
-        sus4->setObjectA(_chassis);
-        sus4->setObjectB(wheel4);
-        sus4->setAnchorA(pe::Vector3(1.5, -0.5, 0));
-        sus4->setAnchorB(pe::Vector3(0, 0, 0));
-        sus4->setAxisA(pe::Vector3::right());
-        sus4->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus4);
-        auto sus5 = new pe_physics_constraint::HingeJointConstraint();
-        sus5->setObjectA(_chassis);
-        sus5->setObjectB(wheel5);
-        sus5->setAnchorA(pe::Vector3(-1.5, -0.5, 1.5));
-        sus5->setAnchorB(pe::Vector3(0, 0, 0));
-        sus5->setAxisA(-pe::Vector3::right());
-        sus5->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus5);
-        auto sus6 = new pe_physics_constraint::HingeJointConstraint();
-        sus6->setObjectA(_chassis);
-        sus6->setObjectB(wheel6);
-        sus6->setAnchorA(pe::Vector3(1.5, -0.5, 1.5));
-        sus6->setAnchorB(pe::Vector3(0, 0, 0));
-        sus6->setAxisA(pe::Vector3::right());
-        sus6->setAxisB(pe::Vector3::up());
-        _world.addConstraint(sus6);
-
-        // // add left track
-        // createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 1.5, 0)),
-        //             PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-        //             PE_R(0.8), 30, 1);
-        //
-        // // add right track
-        // createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 1.5, 0)),
-        //             PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-        //             PE_R(0.8), 30, 1);
+         //// add a chasis
+         //_chassis = createBoxRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), PE_PI / 3), pe::Vector3(0, 5, 0)),
+         //                              pe::Vector3(2, 1, 4), 50);
+         //_world.addRigidBody(_chassis);
+         //// _chassis->setKinematic(true);
+        
+         //// add six wheels
+         //auto wheel1 = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(-1.5, 1.5, -1.5)),
+         //                                            PE_R(0.5), PE_R(0.2), 10);
+         //_world.addRigidBody(wheel1);
+         //auto wheel2 = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(1.5, 1.5, -1.5)),
+         //                                            PE_R(0.5), PE_R(0.2), 10);
+         //_world.addRigidBody(wheel2);
+         //auto wheel3 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(-1.5, 1.5, 0)),
+         //                                            PE_R(0.5), 10);
+         //_world.addRigidBody(wheel3);
+         //auto wheel4 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(1.5, 1.5, 0)),
+         //                                            PE_R(0.5), 10);
+         //_world.addRigidBody(wheel4);
+         //auto wheel5 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(-1.5, 1.5, 1.5)),
+         //                                            PE_R(0.5), 10);
+         //_world.addRigidBody(wheel5);
+         //auto wheel6 = createSphereRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 2),
+         //                                                              pe::Vector3(1.5, 1.5, 1.5)),
+         //                                            PE_R(0.5), 10);
+         //_world.addRigidBody(wheel6);
+        
+         //wheel1->addIgnoreCollisionId(_chassis->getGlobalId());
+         //wheel2->addIgnoreCollisionId(_chassis->getGlobalId());
+         //wheel3->addIgnoreCollisionId(_chassis->getGlobalId());
+         //wheel4->addIgnoreCollisionId(_chassis->getGlobalId());
+         //wheel5->addIgnoreCollisionId(_chassis->getGlobalId());
+         //wheel6->addIgnoreCollisionId(_chassis->getGlobalId());
+        
+         //// add constraints between chassis and wheels
+         //// auto sus1 = new pe_physics_constraint::SixDofConstraint();
+         //// sus1->setObjectA(_chassis);
+         //// sus1->setObjectB(wheel1);
+         //// sus1->setFrameA(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, -0.5, -1.5)));
+         //// sus1->setFrameB(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), -PE_PI / 2), pe::Vector3::zeros()));
+         //// sus1->setXPosFixed(true);
+         //// sus1->setYPosFixed(true);
+         //// sus1->setZPosFixed(true);
+         //// sus1->setXRotFixed(true);
+         //// sus1->setYRotFixed(false);
+         //// sus1->setZRotFixed(false);
+         //// sus1->setYRotLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
+         //// sus1->setMinAngleY(PE_PI * PE_R(-3.0 / 4));
+         //// sus1->setMaxAngleY(PE_PI * PE_R(-1.0 / 4));
+         //// // sus1->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_POSITION);
+         //// // sus1->setTargetAngleZ(PE_PI * PE_R(-1.5 / 4));
+         //// // sus1->setYRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+         //// // sus1->setTargetSpeedY(-1);
+         //// _world.addConstraint(sus1);
+        
+         //auto sus1 = new pe_physics_constraint::SixDofConstraint();
+         //sus1->setObjectA(_chassis);
+         //sus1->setObjectB(wheel1);
+         //sus1->setFrameA(pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, -0.5, -1.5)));
+         //sus1->setFrameB(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 2), pe::Vector3::zeros()));
+         //sus1->setXPosFixed(true);
+         //sus1->setYPosFixed(true);
+         //sus1->setZPosFixed(true);
+         //sus1->setXRotFixed(false);
+         //sus1->setYRotFixed(true);
+         //sus1->setZRotFixed(true);
+         //// sus1->setZRotLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
+         //// sus1->setMinAngleZ(PE_PI * PE_R(-3.0 / 4));
+         //// sus1->setMaxAngleZ(PE_PI * PE_R(-1.0 / 4));
+         //// sus1->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_POSITION);
+         //// sus1->setTargetAngleZ(PE_PI * PE_R(-1.5 / 4));
+         //sus1->setXRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+         //sus1->setTargetSpeedX(1);
+         //_world.addConstraint(sus1);
+        
+         //auto sus2 = new pe_physics_constraint::SixDofConstraint();
+         //sus2->setObjectA(_chassis);
+         //sus2->setObjectB(wheel2);
+         //sus2->setFrameA(pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, -0.5, -1.5)));
+         //sus2->setFrameB(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), -PE_PI / 2), pe::Vector3::zeros()));
+         //sus2->setXPosFixed(true);
+         //sus2->setYPosFixed(true);
+         //sus2->setZPosFixed(true);
+         //sus2->setXRotFixed(true);
+         //sus2->setYRotFixed(false);
+         //sus2->setZRotFixed(false);
+         //sus2->setYRotLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
+         //sus2->setMinAngleY(PE_PI * PE_R(-3.0 / 4));
+         //sus2->setMaxAngleY(PE_PI * PE_R(-1.0 / 4));
+         //sus2->setYRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_POSITION);
+         //sus2->setTargetAngleY(PE_PI * PE_R(-2.0 / 4));
+         //sus2->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+         //sus2->setTargetSpeedZ(-1);
+         //_world.addConstraint(sus2);
+         //auto sus3 = new pe_physics_constraint::HingeJointConstraint();
+         //sus3->setObjectA(_chassis);
+         //sus3->setObjectB(wheel3);
+         //sus3->setAnchorA(pe::Vector3(-1.5, -0.5, 0));
+         //sus3->setAnchorB(pe::Vector3(0, 0, 0));
+         //sus3->setAxisA(-pe::Vector3::right());
+         //sus3->setAxisB(pe::Vector3::up());
+         //_world.addConstraint(sus3);
+         //auto sus4 = new pe_physics_constraint::HingeJointConstraint();
+         //sus4->setObjectA(_chassis);
+         //sus4->setObjectB(wheel4);
+         //sus4->setAnchorA(pe::Vector3(1.5, -0.5, 0));
+         //sus4->setAnchorB(pe::Vector3(0, 0, 0));
+         //sus4->setAxisA(-pe::Vector3::right());
+         //sus4->setAxisB(pe::Vector3::up());
+         //_world.addConstraint(sus4);
+         //auto sus5 = new pe_physics_constraint::HingeJointConstraint();
+         //sus5->setObjectA(_chassis);
+         //sus5->setObjectB(wheel5);
+         //sus5->setAnchorA(pe::Vector3(-1.5, -0.5, 1.5));
+         //sus5->setAnchorB(pe::Vector3(0, 0, 0));
+         //sus5->setAxisA(-pe::Vector3::right());
+         //sus5->setAxisB(pe::Vector3::up());
+         //_world.addConstraint(sus5);
+         //auto sus6 = new pe_physics_constraint::HingeJointConstraint();
+         //sus6->setObjectA(_chassis);
+         //sus6->setObjectB(wheel6);
+         //sus6->setAnchorA(pe::Vector3(1.5, -0.5, 1.5));
+         //sus6->setAnchorB(pe::Vector3(0, 0, 0));
+         //sus6->setAxisA(-pe::Vector3::right());
+         //sus6->setAxisB(pe::Vector3::up());
+         //_world.addConstraint(sus6);
+        
+         ////// add left track
+         ////createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 1.5, 0)),
+         ////            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
+         ////            PE_R(0.8), 30, 1);
+        
+         ////// add right track
+         ////createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 1.5, 0)),
+         ////            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
+         ////            PE_R(0.8), 30, 1);
     }
 
     void step() override {
-        if (pe_interface::Viewer::getKeyState('i') == 0 && _chassis) {
+        /*if (pe_interface::Viewer::getKeyState('i') == 0 && _chassis) {
             _chassis->addCentralForce(_chassis->getTransform().getBasis().getColumn(2) * -800);
         }
         if (pe_interface::Viewer::getKeyState('k') == 0 && _chassis) {
@@ -184,7 +250,52 @@ public:
         }
         if (pe_interface::Viewer::getKeyState('m') == 0 && _chassis) {
             _chassis->addCentralForce(_chassis->getLinearVelocity() * -4000);
+        }*/
+
+        if (pe_interface::Viewer::getKeyState('1') == 0 && _vehicle) {
+            _vehicle->setGear(1);
         }
+        if (pe_interface::Viewer::getKeyState('2') == 0 && _vehicle) {
+            _vehicle->setGear(2);
+        }
+        if (pe_interface::Viewer::getKeyState('3') == 0 && _vehicle) {
+            _vehicle->setGear(3);
+        }
+        if (pe_interface::Viewer::getKeyState('4') == 0 && _vehicle) {
+            _vehicle->setGear(4);
+        }
+        if (pe_interface::Viewer::getKeyState('5') == 0 && _vehicle) {
+            _vehicle->setGear(5);
+        }
+        if (pe_interface::Viewer::getKeyState('6') == 0 && _vehicle) {
+            _vehicle->setGear(6);
+        }
+
+        if (pe_interface::Viewer::getKeyState('i') == 0 && _vehicle) {
+            _vehicle->setThrottle(PE_R(1.0));
+        } else if (pe_interface::Viewer::getKeyState('k') == 0 && _vehicle) {
+            _vehicle->setGear(-1);
+            _vehicle->setThrottle(PE_R(1.0));
+        } else if (_vehicle) {
+            _vehicle->setGear(0);
+            _vehicle->setThrottle(PE_R(0.0));
+        }
+
+        if (pe_interface::Viewer::getKeyState('j') == 0 && _vehicle) {
+            _vehicle->setSteerAngle(0, PE_PI / PE_R(6));
+            _vehicle->setSteerAngle(2, PE_PI / PE_R(6));
+        } else if (pe_interface::Viewer::getKeyState('l') == 0 && _vehicle) {
+            _vehicle->setSteerAngle(0, -PE_PI / PE_R(6));
+            _vehicle->setSteerAngle(2, -PE_PI / PE_R(6));
+        } else if (_vehicle) {
+            _vehicle->setSteerAngle(0, 0);
+            _vehicle->setSteerAngle(2, 0);
+        }
+        if (pe_interface::Viewer::getKeyState('m') == 0 && _chassis) {
+            _chassis->addCentralForce(_chassis->getLinearVelocity() * -4000);
+        }
+
+        _vehicle->step(_world.getDt());
     }
 
 protected:

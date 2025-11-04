@@ -171,11 +171,11 @@ public:
         trans5.setBasis(pe::Matrix3::identity());
         trans5.setOrigin(pe::Vector3(0, PE_R(5.2), 0));
         auto rb9_1 = createBoxRigidBody(trans3 * trans4 * trans5, pe::Vector3(1, PE_R(0.4), 1), 1);
-        rb9_1->setKinematic(true);
+        // rb9_1->setKinematic(true);
         _world.addRigidBody(rb9_1);
         trans5.setOrigin(pe::Vector3(0, PE_R(-5.2), 0));
         auto rb9_2 = createBoxRigidBody(trans3 * trans4 * trans5, pe::Vector3(1, PE_R(0.4), 1), 1);
-        rb9_2->setKinematic(true);
+        // rb9_2->setKinematic(true);
         _world.addRigidBody(rb9_2);
         rb9_0->addIgnoreCollisionId(rb9_1->getGlobalId());
         rb9_0->addIgnoreCollisionId(rb9_2->getGlobalId());
@@ -220,7 +220,7 @@ public:
         _world.addConstraint(s_dof_2);
 
         /***************** 6-dof joint ****************/
-        person = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3(1, 2, 3), 0), pe::Vector3(0, 21, -3)),
+        person = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / 4), pe::Vector3(0, 21, -3)),
                                                PE_R(0.5), 1, 4);
         _world.addRigidBody(person);
         auto sdof = new pe_physics_constraint::SixDofConstraint();
