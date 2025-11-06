@@ -64,6 +64,7 @@
 #define PE_ACOS std::acos
 #define PE_ASIN std::asin
 #define PE_ATAN2 std::atan2
+#define PE_ATAN std::atan
 
 //// geometry types
 #include <common/mesh.h>

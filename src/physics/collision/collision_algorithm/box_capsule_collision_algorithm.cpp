@@ -92,7 +92,7 @@ static COMMON_FORCE_INLINE void testBoxEdge(const pe::Real& offset_a_x, const pe
     closest_point_on_a.y = ta * capsule_axis_y + offset_a_y;
     closest_point_on_a.z = ta * capsule_axis_z + offset_a_z;
     nx = closest_point_on_a.x - box_edge_center_x;
-    ny = closest_point_on_a.x - box_edge_center_y;
+    ny = closest_point_on_a.y - box_edge_center_y;
     nz = closest_point_on_a.z - tb;
     pe::Real squared_length = nx * nx + ny * ny + nz * nz;
     //If the box edge and capsule segment intersect, the normal will be zero. That's inconvenient, so add in a fallback based on cross(capsuleAxis, boxEdge).
@@ -203,16 +203,15 @@ bool BoxCapsuleCollisionAlgorithm::getClosestPoints(pe_physics_shape::CapsuleSha
     select(depth, ta, local_normal.x, local_normal.y, local_normal.z,
            ey_depth, ey_ta, ey_nx, ey_ny, ey_nz);
     //Swizzle XYZ -> XYZ
-    pe::Real ez_ta, ez_depth;
-    pe::Vector3 ez_normal;
+    pe::Real ez_ta, ez_depth, ez_nx, ez_ny, ez_nz;
     testAndRefineBoxEdge(local_offset_a.x, local_offset_a.y, local_offset_a.z,
                          capsule_axis.x, capsule_axis.y, capsule_axis.z,
                          capsule_half_height,
                          edge_centers.x, edge_centers.y,
                          box_half_extent.x, box_half_extent.y, box_half_extent.z,
-                         ez_ta, ez_depth, ez_normal.x, ez_normal.y, ez_normal.z);
+                         ez_ta, ez_depth, ez_nx, ez_ny, ez_nz);
     select(depth, ta, local_normal.x, local_normal.y, local_normal.z,
-           ez_depth, ez_ta, ez_normal.x, ez_normal.y, ez_normal.z);
+           ez_depth, ez_ta, ez_nx, ez_ny, ez_nz);
 
     //Face X
     pe::Real fx_depth, fx_n;
@@ -270,12 +269,10 @@ bool BoxCapsuleCollisionAlgorithm::getClosestPoints(pe_physics_shape::CapsuleSha
     pe::Real tangent_space_center_x = use_x ? unprojected_center.y : unprojected_center.x;
     pe::Real tangent_space_center_y = use_x ? unprojected_center.y : unprojected_center.z;
     //Slightly boost the size of the face to avoid minor numerical issues that could block coplanar contacts.
-    // const pe::Real epsilon_scale = PE_MIN(PE_MAX(box_half_extent.x, PE_MAX(box_half_extent.y, box_half_extent.z)), PE_MAX(capsule_half_height, capsule_radius));
-    // const pe::Real epsilon = epsilon_scale * PE_R(1e-3);
-    // const pe::Real half_extent_x = epsilon + (use_x ? box_half_extent.y : box_half_extent.x);
-    // const pe::Real half_extent_y = epsilon + (use_z ? box_half_extent.y : box_half_extent.z);
-    const pe::Real half_extent_x = use_x ? box_half_extent.y : box_half_extent.x;
-    const pe::Real half_extent_y = use_z ? box_half_extent.y : box_half_extent.z;
+    const pe::Real epsilon_scale = PE_MIN(PE_MAX(box_half_extent.x, PE_MAX(box_half_extent.y, box_half_extent.z)), PE_MAX(capsule_half_height, capsule_radius));
+    const pe::Real epsilon = epsilon_scale * PE_R(1e-3);
+    const pe::Real half_extent_x = epsilon + (use_x ? box_half_extent.y : box_half_extent.x);
+    const pe::Real half_extent_y = epsilon + (use_z ? box_half_extent.y : box_half_extent.z);
 
     //Compute interval bounded by edge normals pointing along tangentX.
     //tX = -dot(tangentSpaceCenter +- halfExtentX, edgeNormal) / dot(unprojectedCapsuleAxis, edgeNormal)
@@ -291,10 +288,10 @@ bool BoxCapsuleCollisionAlgorithm::getClosestPoints(pe_physics_shape::CapsuleSha
     pe::Real min_y = PE_MIN(ty_0, ty_1);
     pe::Real max_y = PE_MAX(ty_0, ty_1);
     //Protect against division by zero. If the unprojected capsule is within the slab, use an infinite interval. If it's outside and parallel, use an invalid interval.
-    const bool use_fallback_x = PE_ABS(tangent_space_axis_x, PE_R(1e-15));
-    const bool use_fallback_y = PE_ABS(tangent_space_axis_y, PE_R(1e-15));
-    const bool center_contained_x = PE_ABS(tangent_space_center_x <= half_extent_x);
-    const bool center_contained_y = PE_ABS(tangent_space_center_y <= half_extent_y);
+    const bool use_fallback_x = PE_ABS(tangent_space_axis_x) < PE_R(1e-15);
+    const bool use_fallback_y = PE_ABS(tangent_space_axis_y) < PE_R(1e-15);
+    const bool center_contained_x = PE_ABS(tangent_space_center_x) <= half_extent_x;
+    const bool center_contained_y = PE_ABS(tangent_space_center_y) <= half_extent_y;
     min_x = use_fallback_x ? (center_contained_x ? PE_REAL_MIN : PE_REAL_MAX) : min_x;
     max_x = use_fallback_x ? (center_contained_x ? PE_REAL_MAX : PE_REAL_MIN) : max_x;
     min_y = use_fallback_y ? (center_contained_y ? PE_REAL_MIN : PE_REAL_MAX) : min_y;

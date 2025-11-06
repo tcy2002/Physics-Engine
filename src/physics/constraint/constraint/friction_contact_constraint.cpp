@@ -27,19 +27,21 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
         ci.t0 = cp.getTangent(0);
         ci.t1 = cp.getTangent(1);
 
-        const pe::Real& inv_mass_sum = _object_a->getInvMass() + _object_b->getInvMass();
-        const pe::Matrix3& inv_inertia_a = _object_a->getWorldInvInertia();
-        const pe::Matrix3& inv_inertia_b = _object_b->getWorldInvInertia();
+        const pe::Real inv_mass_a = _object_a->isKinematic() ? PE_R(0.0) : _object_a->getInvMass();
+        const pe::Real inv_mass_b = _object_b->isKinematic() ? PE_R(0.0) : _object_b->getInvMass();
+        const pe::Matrix3& inv_inertia_a = _object_a->isKinematic() ? pe::Matrix3::zeros() : _object_a->getWorldInvInertia();
+        const pe::Matrix3& inv_inertia_b = _object_b->isKinematic() ? pe::Matrix3::zeros() : _object_b->getWorldInvInertia();
+        const pe::Real inv_mass_sum = inv_mass_a + inv_mass_b;
 
         // normal jmj
-        const pe::Vector3& rxn_a_n = r_a.cross(ci.n);
-        const pe::Vector3& rxn_b_n = r_b.cross(ci.n);
+        const pe::Vector3 rxn_a_n = r_a.cross(ci.n);
+        const pe::Vector3 rxn_b_n = r_b.cross(ci.n);
         ci.n_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_n).dot(rxn_a_n)
             + (inv_inertia_b * rxn_b_n).dot(rxn_b_n));
 
         // tangent 0 jmj
-        const pe::Vector3& rxn_a_t0 = r_a.cross(ci.t0);
-        const pe::Vector3& rxn_b_t0 = r_b.cross(ci.t0);
+        const pe::Vector3 rxn_a_t0 = r_a.cross(ci.t0);
+        const pe::Vector3 rxn_b_t0 = r_b.cross(ci.t0);
         ci.t0_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_t0).dot(rxn_a_t0)
             + (inv_inertia_b * rxn_b_t0).dot(rxn_b_t0));
 
@@ -49,8 +51,8 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
         ci.t1_jmj_inv = PE_R(1.0) / (inv_mass_sum + (inv_inertia_a * rxn_a_t1).dot(rxn_a_t1)
             + (inv_inertia_b * rxn_b_t1).dot(rxn_b_t1));
 
-        const pe::Vector3& vel_a = _object_a->getLinearVelocity() + _object_a->getAngularVelocity().cross(r_a);
-        const pe::Vector3& vel_b = _object_b->getLinearVelocity() + _object_b->getAngularVelocity().cross(r_b);
+        const pe::Vector3 vel_a = _object_a->getLinearVelocity() + _object_a->getAngularVelocity().cross(r_a);
+        const pe::Vector3 vel_b = _object_b->getLinearVelocity() + _object_b->getAngularVelocity().cross(r_b);
 
         // normal rhs
         pe::Real rev_vel_r = -ci.n.dot(vel_a - vel_b);
@@ -90,7 +92,7 @@ void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
         }
 
         // total impulse
-        const pe::Vector3& impulse_vector = n_impulse * ci.n +
+        const pe::Vector3 impulse_vector = n_impulse * ci.n +
             (t0_total_impulse - ci.t0_applied_impulse) * ci.t0 +
             (t1_total_impulse - ci.t1_applied_impulse) * ci.t1;
 

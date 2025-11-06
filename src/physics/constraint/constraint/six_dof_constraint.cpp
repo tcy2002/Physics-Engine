@@ -12,9 +12,11 @@ void SixDofConstraint::initSequentialImpulse(const ConstraintParam &param) {
     _w_axis_a = trans_a.getBasis() * _frame_a.getBasis();
     _w_axis_b = trans_b.getBasis() * _frame_b.getBasis();
 
-    const pe::Real inv_mass_sum = _object_a->getInvMass() + _object_b->getInvMass();
-    const pe::Matrix3& inv_inertia_a = _object_a->getWorldInvInertia();
-    const pe::Matrix3& inv_inertia_b = _object_b->getWorldInvInertia();
+    const pe::Real inv_mass_a = _object_a->isKinematic() ? PE_R(0.0) : _object_a->getInvMass();
+    const pe::Real inv_mass_b = _object_b->isKinematic() ? PE_R(0.0) : _object_b->getInvMass();
+    const pe::Matrix3& inv_inertia_a = _object_a->isKinematic() ? pe::Matrix3::zeros() : _object_a->getWorldInvInertia();
+    const pe::Matrix3& inv_inertia_b = _object_b->isKinematic() ? pe::Matrix3::zeros() : _object_b->getWorldInvInertia();
+    const pe::Real inv_mass_sum = inv_mass_a + inv_mass_b;
     const pe::Matrix3 inv_inertia_sum = inv_inertia_a + inv_inertia_b;
 
     /*

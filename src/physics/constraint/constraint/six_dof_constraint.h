@@ -46,6 +46,12 @@ public:
     void setXRotFixed(bool fixed) { _rot_fixed[0] = fixed; }
     void setYRotFixed(bool fixed) { _rot_fixed[1] = fixed; }
     void setZRotFixed(bool fixed) { _rot_fixed[2] = fixed; }
+    bool isXPosFixed() const { return _pos_fixed[0]; }
+    bool isYPosFixed() const { return _pos_fixed[1]; }
+    bool isZPosFixed() const { return _pos_fixed[2]; }
+    bool isXRotFixed() const { return _rot_fixed[0]; }
+    bool isYRotFixed() const { return _rot_fixed[1]; }
+    bool isZRotFixed() const { return _rot_fixed[2]; }
 
     void setXRotLimitType(ConstraintLimitType type) { _limit_type[0] = type; }
     void setYRotLimitType(ConstraintLimitType type) { _limit_type[1] = type; }
@@ -53,6 +59,12 @@ public:
     void setXRotMotorType(ConstraintMotorType type) { _motor_type[0] = type; }
     void setYRotMotorType(ConstraintMotorType type) { _motor_type[1] = type; }
     void setZRotMotorType(ConstraintMotorType type) { _motor_type[2] = type; }
+    ConstraintLimitType getXRotLimitType() const { return _limit_type[0]; }
+    ConstraintLimitType getYRotLimitType() const { return _limit_type[1]; }
+    ConstraintLimitType getZRotLimitType() const { return _limit_type[2]; }
+    ConstraintMotorType getXRotMotorType() const { return _motor_type[0]; }
+    ConstraintMotorType getYRotMotorType() const { return _motor_type[1]; }
+    ConstraintMotorType getZRotMotorType() const { return _motor_type[2]; }
 
     void setMinAngleX(pe::Real angle) { _min_angle.x = angle; }
     void setMinAngleY(pe::Real angle) { _min_angle.y = angle; }
@@ -60,6 +72,12 @@ public:
     void setMaxAngleX(pe::Real angle) { _max_angle.x = angle; }
     void setMaxAngleY(pe::Real angle) { _max_angle.y = angle; }
     void setMaxAngleZ(pe::Real angle) { _max_angle.z = angle; }
+    pe::Real getMinAngleX() const { return _min_angle.x; }
+    pe::Real getMinAngleY() const { return _min_angle.y; }
+    pe::Real getMinAngleZ() const { return _min_angle.z; }
+    pe::Real getMaxAngleX() const { return _max_angle.x; }
+    pe::Real getMaxAngleY() const { return _max_angle.y; }
+    pe::Real getMaxAngleZ() const { return _max_angle.z; }
 
     void setTargetSpeedX(pe::Real speed) { _target_speed.x = speed; }
     void setTargetSpeedY(pe::Real speed) { _target_speed.y = speed; }
@@ -67,6 +85,11 @@ public:
     void setTargetAngleX(pe::Real angle) { _target_angle.x = angle; }
     void setTargetAngleY(pe::Real angle) { _target_angle.y = angle; }
     void setTargetAngleZ(pe::Real angle) { _target_angle.z = angle; }
+    pe::Real getTargetSpeedX() const { return _target_speed.x; }
+    pe::Real getTargetSpeedY() const { return _target_speed.y; }
+    pe::Real getTargetSpeedZ() const { return _target_speed.z; }
+    pe::Real getTargetAngleX() const { return _target_angle.x; }
+    pe::Real getTargetAngleY() const { return _target_angle.y; }
 
     PE_API void initSequentialImpulse(const ConstraintParam& param) override;
     PE_API void iterateSequentialImpulse(int iter) override;
