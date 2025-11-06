@@ -30,10 +30,11 @@ class Suspension {
     COMMON_MEMBER_GET(pe::Real, rest_length, RestLength)
     COMMON_MEMBER_GET(pe::Real, stiffness, Stiffness)
     COMMON_MEMBER_GET(pe::Real, damping, Damping)
-    COMMON_MEMBER_GET(pe::Vector3, anchor_chassis, AnchorChassis)
 
 protected:
     pe_physics_constraint::SixDofConstraint* _constraint = nullptr;
+    pe::Vector3 _anchor_chassis;
+    pe::Vector3 _axis_chassis;
 
 public:
     Suspension() = delete;
@@ -44,6 +45,7 @@ public:
     void setSteerAngle(pe::Real angle);
     void releaseSteerAngle();
     void setTargetWheelSpeed(pe::Real speed);
+    void releaseTargetWheelSpeed();
 
     virtual void init(pe_interface::World* phys_world);
     virtual void step(pe::Real dt);

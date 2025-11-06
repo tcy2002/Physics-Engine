@@ -1,36 +1,26 @@
 #pragma once
 
 #include "vehicle/vehicle_base.h"
+#include "track.h"
 
 namespace pe_vehicle {
 
 class TrackedVehicle : public VehicleBase {
-    COMMON_MEMBER_SET_GET(pe::Vector3, chassis_size, ChassisSize)
-    COMMON_MEMBER_SET_GET(pe::Real, chassis_mass, ChassisMass)
-    COMMON_MEMBER_SET_GET(pe::Real, wheel_region_length, WheelRegionLength)
-    COMMON_MEMBER_SET_GET(pe::Real, wheel_region_offset, WheelRegionOffset)
-    COMMON_MEMBER_SET_GET(int, wheel_count_per_side, WheelCountPerSide)
-    COMMON_MEMBER_SET_GET(pe::Real, track_width, TrackWidth)
-    COMMON_MEMBER_SET_GET(pe::Real, track_segment_mass, TrackSegmentMass)
-    COMMON_MEMBER_SET_GET(int, track_segment_count_per_side, TrackSegmentCountPerSide)
+    COMMON_MEMBER_SET_GET(pe::Real, left_throttle, LeftThrottle)
+    COMMON_MEMBER_SET_GET(pe::Real, right_throttle, RightThrottle)
 
 protected:
-    struct WheelInfo {
-        pe::Real radius;
-        pe::Real width;
-        pe::Real anchor_offset;
-        pe::Real suspension_rest_length;
-    };
-    pe::Array<WheelInfo> _wheel_info;
+    Track* _left_track = nullptr;
+    Track* _right_track = nullptr;
 
 public:
-    TrackedVehicle() = default;
+
+public:
+    TrackedVehicle(): VehicleBase(), _left_throttle(PE_R(0.0)), _right_throttle(PE_R(0.0)) {}
     virtual ~TrackedVehicle();
 
     virtual void init(pe_interface::World* phys_world) override;
     virtual void step(pe::Real dt) override;
-
-    virtual pe::Transform getTransform() const override;
 
     virtual void loadConfigFromJson(const nlohmann::json& j) {}
 };

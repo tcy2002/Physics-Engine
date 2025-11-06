@@ -55,7 +55,7 @@ void VehicleBase::init(pe_interface::World* phys_world) {
         if (wi.type == AxleType::AT_NONE) continue; // ignore the wheel not properly set
         const pe::Real x = (i < _wheel_count_per_side ? -half_wheel_region_width : half_wheel_region_width) + _wheel_region_offset.x;
         const pe::Real y = _wheel_region_offset.y;
-        const pe::Real z = (_wheel_count_per_side > 0 ? (-half_wheel_region_length + PE_R(i % _wheel_count_per_side) * wheel_gap) : PE_R(0.0)) + _wheel_region_offset.z;
+        const pe::Real z = (_wheel_count_per_side > 1 ? (-half_wheel_region_length + PE_R(i % _wheel_count_per_side) * wheel_gap) : PE_R(0.0)) + _wheel_region_offset.z;
         Wheel* wheel = new Wheel(WheelType::WT_Capsule, wi.radius, _wheel_width, wi.mass, wi.friction);
         const pe::Transform wheel_local_transform = pe::Transform(pe::Matrix3::identity(), pe::Vector3(x, y - wi.anchor_offset - wi.suspension_rest_length, z));
         wheel->setTransform(getTransform() * wheel_local_transform);
@@ -91,19 +91,19 @@ void VehicleBase::step(pe::Real dt) {
             const pe::Real avg_angular_velocity = total_angular_velocity / PE_R(motored_wheel_count);
             const pe::Real torque = _engine->getTorque(PE_ABS(avg_angular_velocity)) * _throttle;
             const pe::Real wheel_torque = torque / PE_R(motored_wheel_count);
-            std::cout << "torque: " << torque << std::endl;
             for (int i = 0; i < PE_I(_suspensions.size()); i++) {
-                if (_wheel_info[i].motor && PE_ABS(torque) > 0) {
-                    _wheels[i]->applyTorque(-1);
+                if (_wheel_info[i].motor) {
+                    _wheels[i]->applyTorque(torque);
                 }
             }
         }
-        
     }
     for (auto& wheel : _wheels) {
         wheel->step(dt);
     }
     for (auto& suspension : _suspensions) {
+        if (_brake) suspension->setTargetWheelSpeed(PE_R(0.0));
+        else suspension->releaseTargetWheelSpeed();
         suspension->step(dt);
     }
 }

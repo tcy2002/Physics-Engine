@@ -32,12 +32,9 @@ class VehicleBase {
     COMMON_MEMBER_SET_GET(pe::Real, wheel_width, WheelWidth)
     COMMON_MEMBER_SET_GET(int, wheel_count_per_side, WheelCountPerSide)
 
-    pe::Array<Wheel*> _wheels;
-    pe::Array<Suspension*> _suspensions;
-
-protected:
+public:
     struct WheelInfo {
-        AxleType type;
+        AxleType type = AxleType::AT_NONE;
         bool motor;
         pe::Real radius;
         pe::Real mass;
@@ -47,10 +44,14 @@ protected:
         pe::Real suspension_stiffness;
         pe::Real suspension_damping;
     };
+protected:
     pe::Array<WheelInfo> _wheel_info;
+    pe::Array<Wheel*> _wheels;
+    pe::Array<Suspension*> _suspensions;
 
 public:
-    VehicleBase(): _wheel_region_length(PE_R(2.0)), _wheel_region_width(PE_R(2.0)), _wheel_width(PE_R(1.2)), _wheel_count_per_side(2) {}
+    VehicleBase(): _wheel_region_length(PE_R(2.0)), _wheel_region_width(PE_R(2.0)), _wheel_width(PE_R(1.2)), _wheel_count_per_side(2),
+                   _gear(0), _throttle(PE_R(0.0)), _brake(false) {}
     virtual ~VehicleBase();
 
     void setWheelInfo(int index, AxleType type, bool motor, pe::Real radius, pe::Real mass, pe::Real friction, pe::Real anchor_offset, 

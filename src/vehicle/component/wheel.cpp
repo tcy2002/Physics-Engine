@@ -10,6 +10,7 @@ Wheel::Wheel(WheelType type, pe::Real radius, pe::Real width, pe::Real mass, pe:
     _wheel = new pe_physics_object::RigidBody();
     _wheel->setMass(mass);
     _wheel->setFrictionCoeff(friction);
+    _wheel->setAngularDamping(PE_R(0.8));
     _delta_transform = pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / PE_R(2.0)), pe::Vector3::zeros());
     _wheel->setTransform(_delta_transform);
 
@@ -34,7 +35,7 @@ Wheel::~Wheel() {
 }
 
 void Wheel::applyTorque(pe::Real torque) {
-    _wheel->applyAngularImpulse(_wheel->getTransform().getBasis().getColumn(1) * torque);
+    _wheel->addTorque(_wheel->getTransform().getBasis().getColumn(1) * torque);
 }
 
 void Wheel::init(pe_interface::World* phys_world) {

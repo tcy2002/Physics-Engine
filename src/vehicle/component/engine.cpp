@@ -68,16 +68,17 @@ pe::Real Engine::getTorque(pe::Real wheel_rpm) const {
     if (_gear == 0) {
         return 0; // P
     }
-    pe::Real gear_ratio = (_gear == -1) ? _gear_ratios[0] : _gear_ratios[_gear];
-    pe::Real engine_rpm = PE_ABS(wheel_rpm * gear_ratio);
+    const pe::Real gear_ratio = (_gear == -1) ? _gear_ratios[0] : _gear_ratios[_gear];
+    const pe::Real ratio = gear_ratio * _final_drive_ratio;
+    pe::Real engine_rpm = PE_ABS(wheel_rpm * ratio);
     if (_torque_curve.empty()) {
         return 0;
     }
     if (engine_rpm <= _torque_curve.front().first) {
-        return _torque_curve.front().second * gear_ratio;
+        return _torque_curve.front().second * ratio;
     }
     if (engine_rpm >= _torque_curve.back().first) {
-        return _torque_curve.back().second * gear_ratio;
+        return _torque_curve.back().second * ratio;
     }
     for (size_t i = 0; i < _torque_curve.size() - 1; ++i) {
         if (engine_rpm >= _torque_curve[i].first && engine_rpm <= _torque_curve[i + 1].first) {
@@ -86,7 +87,7 @@ pe::Real Engine::getTorque(pe::Real wheel_rpm) const {
             const pe::Real r1 = _torque_curve[i].first;
             const pe::Real r2 = _torque_curve[i + 1].first;
             const pe::Real torque = t1 + (t2 - t1) * (engine_rpm - r1) / (r2 - r1);
-            return torque * gear_ratio;
+            return wheel_rpm > 0 ? torque * ratio : -torque * ratio;
         }
     }
     return 0;
@@ -102,6 +103,12 @@ void Engine::loadConfigFromJson(const nlohmann::json& j) {
         _gear_ratios.reserve(_gear_count + 1);
     } else {
         throw std::runtime_error("Engine config JSON must contain 'gear_count' field.");
+    }
+    if (j.contains("final_drive_ratio") && j["final_drive_ratio"].is_number()) {
+        _final_drive_ratio = j["final_drive_ratio"].get<pe::Real>();
+    }
+    else {
+        throw std::runtime_error("Engine config JSON must contain 'final_drive_ratio' field.");
     }
     if (j.contains("gear_ratios") && j["gear_ratios"].is_array()) {
         const auto& ratios = j["gear_ratios"];

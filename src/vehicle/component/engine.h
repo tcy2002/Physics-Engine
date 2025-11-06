@@ -17,6 +17,7 @@ class Engine {
 protected:
     COMMON_MEMBER_GET(int, gear_count, GearCount)
     COMMON_MEMBER_GET(int, gear, Gear)
+    COMMON_MEMBER_SET_GET(pe::Real, final_drive_ratio, FinalDriveRatio)
     pe::Array<pe::Real> _gear_ratios;
     pe::Array<pe::KV<pe::Real, pe::Real>> _torque_curve; // (rpm, torque)
 
