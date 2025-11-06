@@ -37,6 +37,8 @@ public:
     static void updateTransform(int id, pe_physics_shape::ShapeType type, const pe::Transform& transform);
     static void updateColor(int id, pe_physics_shape::ShapeType type, const pe::Vector3& color);
     static void remove(int id);
+
+    static void setCamera(const pe::Vector3& position, pe::Real yaw, pe::Real pitch);
 };
 
 } // namespace pe_interface

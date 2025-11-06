@@ -8,7 +8,9 @@
 #include "physics/shape/capsule_shape.h"
 #include "vehicle/component/chassis.h"
 #include "vehicle/vehicle_base.h"
+#include "vehicle/tracked_vehicle/tracked_vehicle.h"
 #include "json/json.hpp"
+#include "utils/logger.h"
 #include <fstream>
 
 // See SimpleViewer/include/opengl_viewer.h to learn the view control
@@ -20,6 +22,7 @@ public:
 
     pe_physics_object::RigidBody* _chassis = nullptr;
     pe_vehicle::VehicleBase* _vehicle = nullptr;
+    pe_vehicle::TrackedVehicle* _tracked = nullptr;
 
     void init() override {
         /* Initialize the physics world here before running */
@@ -35,6 +38,7 @@ public:
         auto ground = createBoxRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, -5, 0)),
                                       pe::Vector3(100, 10, 100), 1000);
         ground->setKinematic(true);
+        //ground->setFrictionCoeff(PE_R(1.0));
         _world.addRigidBody(ground); // a rigidbody must be added into the _world to perform physical effects
 
         // add a ceiling
@@ -67,33 +71,74 @@ public:
         wall4->setKinematic(true);
         _world.addRigidBody(wall4);
 
-        auto chassis = new pe_vehicle::Chassis();
-        chassis->setBoxBase(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 2, 0)),
-                                          pe::Vector3(2, 1, 4), 50);
-        _chassis = chassis->getBasePart().body;
+        try {
+            auto chassis = new pe_vehicle::Chassis();
+            chassis->setBoxBase(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)),
+                pe::Vector3(2, 1, 4), 1000);
+            _chassis = chassis->getBasePart().body;
 
-        auto engine = new pe_vehicle::Engine(6);
-        std::fstream file("D:/ClionProjects/Physics-Engine-clean/Physics-Engine-84da628/examples/vehicle_demo/config/Engine.json");
-        nlohmann::json j = nlohmann::json::parse(file);
-        engine->loadConfigFromJson(j);
+            auto engine = new pe_vehicle::Engine(6);
+            std::fstream file("D:/ClionProjects/Physics-Engine-clean/Physics-Engine-84da628/examples/vehicle_demo/config/Engine.json");
+            nlohmann::json j = nlohmann::json::parse(file);
+            engine->loadConfigFromJson(j);
 
-        auto vehicle = new pe_vehicle::VehicleBase();
-        vehicle->setChassis(chassis);
-        vehicle->setEngine(engine);
-        vehicle->setWheelCountPerSide(2);
-        vehicle->setWheelRegionLength(PE_R(3.0));
-        vehicle->setWheelRegionWidth(PE_R(3.0));
-        vehicle->setWheelRegionOffset(pe::Vector3(0, 1, 0));
-        vehicle->setWheelInfo(0, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
-        vehicle->setWheelInfo(1, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
-        vehicle->setWheelInfo(2, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
-        vehicle->setWheelInfo(3, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 5, PE_R(0.9), PE_R(0.5), PE_R(0.0), PE_R(50.0), PE_R(5.0));
-        vehicle->init(&_world);
-        _vehicle = vehicle;
-        _vehicle->setTransform(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), PE_PI / PE_R(6.0)), pe::Vector3::up() * PE_R(5.0)));
+            auto tracked = new pe_vehicle::TrackedVehicle();
+            tracked->setChassis(chassis);
+            tracked->setEngine(engine);
+            tracked->setWheelCountPerSide(4);
+            tracked->setWheelWidth(PE_R(1.0));
+            tracked->setWheelRegionLength(PE_R(4.5));
+            tracked->setWheelRegionWidth(PE_R(3.0));
+            tracked->setWheelRegionOffset(pe::Vector3(0, -1, 0));
+            tracked->setWheelInfo(0, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(1, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(2, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(3, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            //tracked->setWheelInfo(4, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(4, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(5, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(6, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setWheelInfo(7, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            //tracked->setWheelInfo(9, pe_vehicle::AxleType::AT_REAR, true, PE_R(0.5), 50, PE_R(1.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            tracked->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 3.5, 0)));
+            tracked->init(&_world);
+            _tracked = tracked;
+        } catch (const std::exception& e) {
+            PE_LOG_ERROR << "Exception caught during vehicle creation: " << e.what() << PE_ENDL;
+        }
+
+        /*try {
+            auto chassis = new pe_vehicle::Chassis();
+            chassis->setBoxBase(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 0, 0)),
+                pe::Vector3(2, 1, 4), 1000);
+            _chassis = chassis->getBasePart().body;
+
+            auto engine = new pe_vehicle::Engine(6);
+            std::fstream file("D:/ClionProjects/Physics-Engine-clean/Physics-Engine-84da628/examples/vehicle_demo/config/Engine.json");
+            nlohmann::json j = nlohmann::json::parse(file);
+            engine->loadConfigFromJson(j);
+
+            auto vehicle = new pe_vehicle::VehicleBase();
+            vehicle->setChassis(chassis);
+            vehicle->setEngine(engine);
+            vehicle->setWheelCountPerSide(2);
+            vehicle->setWheelRegionLength(PE_R(3.0));
+            vehicle->setWheelRegionWidth(PE_R(3.0));
+            vehicle->setWheelRegionOffset(pe::Vector3(0, -1, 0));
+            vehicle->setWheelInfo(0, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 50, PE_R(5.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            vehicle->setWheelInfo(1, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(5.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            vehicle->setWheelInfo(2, pe_vehicle::AxleType::AT_FRONT, true, PE_R(0.5), 50, PE_R(5.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            vehicle->setWheelInfo(3, pe_vehicle::AxleType::AT_REAR, false, PE_R(0.5), 50, PE_R(5.0), PE_R(0.5), PE_R(-0.5), PE_R(50000.0), PE_R(500.0));
+            vehicle->setTransform(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 3.5, 0)));
+            vehicle->init(&_world);
+            _vehicle = vehicle;
+        }
+        catch (const std::exception& e) {
+            PE_LOG_ERROR << "Exception caught during vehicle creation: " << e.what() << PE_ENDL;
+        }*/
 
          //// add a chasis
-         //_chassis = createBoxRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), PE_PI / 3), pe::Vector3(0, 5, 0)),
+         //_chassis = createBoxRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), 0), pe::Vector3(0, 3, 0)),
          //                              pe::Vector3(2, 1, 4), 50);
          //_world.addRigidBody(_chassis);
          //// _chassis->setKinematic(true);
@@ -168,8 +213,8 @@ public:
          //// sus1->setMaxAngleZ(PE_PI * PE_R(-1.0 / 4));
          //// sus1->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_POSITION);
          //// sus1->setTargetAngleZ(PE_PI * PE_R(-1.5 / 4));
-         //sus1->setXRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
-         //sus1->setTargetSpeedX(1);
+         //// sus1->setXRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+         //// sus1->setTargetSpeedX(1);
          //_world.addConstraint(sus1);
         
          //auto sus2 = new pe_physics_constraint::SixDofConstraint();
@@ -183,13 +228,13 @@ public:
          //sus2->setXRotFixed(true);
          //sus2->setYRotFixed(false);
          //sus2->setZRotFixed(false);
-         //sus2->setYRotLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
-         //sus2->setMinAngleY(PE_PI * PE_R(-3.0 / 4));
-         //sus2->setMaxAngleY(PE_PI * PE_R(-1.0 / 4));
+         //// sus2->setYRotLimitType(pe_physics_constraint::ConstraintLimitType::CLT_LOWER_UPPER);
+         //// sus2->setMinAngleY(PE_PI * PE_R(-3.0 / 4));
+         //// sus2->setMaxAngleY(PE_PI * PE_R(-1.0 / 4));
          //sus2->setYRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_POSITION);
          //sus2->setTargetAngleY(PE_PI * PE_R(-2.0 / 4));
-         //sus2->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
-         //sus2->setTargetSpeedZ(-1);
+         //// sus2->setZRotMotorType(pe_physics_constraint::ConstraintMotorType::CMT_VELOCITY);
+         //// sus2->setTargetSpeedZ(-1);
          //_world.addConstraint(sus2);
          //auto sus3 = new pe_physics_constraint::HingeJointConstraint();
          //sus3->setObjectA(_chassis);
@@ -224,78 +269,140 @@ public:
          //sus6->setAxisB(pe::Vector3::up());
          //_world.addConstraint(sus6);
         
-         ////// add left track
-         ////createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 1.5, 0)),
-         ////            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-         ////            PE_R(0.8), 30, 1);
+         //// add left track
+         //createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(-1.5, 2.5, 0)),
+         //            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(10), PE_R(0.1),
+         //            PE_R(0.8), 30, 1);
         
-         ////// add right track
-         ////createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 1.5, 0)),
-         ////            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(1.0), PE_R(0.1),
-         ////            PE_R(0.8), 30, 1);
+         //// add right track
+         //createTrack(_chassis, pe::Transform(pe::Matrix3::identity(), pe::Vector3(1.5, 2.5, 0)),
+         //            PE_R(3.0), PE_R(0.52), PE_R(0.8), PE_R(10), PE_R(0.1),
+         //            PE_R(0.8), 30, 1);
     }
 
     void step() override {
-        /*if (pe_interface::Viewer::getKeyState('i') == 0 && _chassis) {
-            _chassis->addCentralForce(_chassis->getTransform().getBasis().getColumn(2) * -800);
-        }
-        if (pe_interface::Viewer::getKeyState('k') == 0 && _chassis) {
-            _chassis->addCentralForce(_chassis->getTransform().getBasis().getColumn(2) * 800);
-        }
-        if (pe_interface::Viewer::getKeyState('j') == 0 && _chassis) {
-            _chassis->addTorque(pe::Vector3::up() * 2000);
-        }
-        if (pe_interface::Viewer::getKeyState('l') == 0 && _chassis) {
-            _chassis->addTorque(pe::Vector3::up() * -2000);
-        }
-        if (pe_interface::Viewer::getKeyState('m') == 0 && _chassis) {
-            _chassis->addCentralForce(_chassis->getLinearVelocity() * -4000);
-        }*/
+        if (_vehicle) {
+            if (pe_interface::Viewer::getKeyState('b') == 0) {
+                _vehicle->setGear(1);
+            }
+            else if (pe_interface::Viewer::getKeyState('n') == 0) {
+                _vehicle->setGear(2);
+            }
+            else if (pe_interface::Viewer::getKeyState('m') == 0) {
+                _vehicle->setGear(3);
+            }
+            else if (pe_interface::Viewer::getKeyState(',') == 0) {
+                _vehicle->setGear(4);
+            }
+            else if (pe_interface::Viewer::getKeyState('.') == 0) {
+                _vehicle->setGear(5);
+            }
+            else if (pe_interface::Viewer::getKeyState('/') == 0) {
+                _vehicle->setGear(6);
+            }
 
-        if (pe_interface::Viewer::getKeyState('1') == 0 && _vehicle) {
-            _vehicle->setGear(1);
-        }
-        if (pe_interface::Viewer::getKeyState('2') == 0 && _vehicle) {
-            _vehicle->setGear(2);
-        }
-        if (pe_interface::Viewer::getKeyState('3') == 0 && _vehicle) {
-            _vehicle->setGear(3);
-        }
-        if (pe_interface::Viewer::getKeyState('4') == 0 && _vehicle) {
-            _vehicle->setGear(4);
-        }
-        if (pe_interface::Viewer::getKeyState('5') == 0 && _vehicle) {
-            _vehicle->setGear(5);
-        }
-        if (pe_interface::Viewer::getKeyState('6') == 0 && _vehicle) {
-            _vehicle->setGear(6);
+            if (pe_interface::Viewer::getKeyState('h') == 0 || pe_interface::Viewer::getKeyState(';') == 0) {
+                _vehicle->setBrake(true);
+            } else {
+                _vehicle->setBrake(false);
+            }
+
+            if (pe_interface::Viewer::getKeyState('i') == 0) {
+                if (_vehicle->getGear() <= 0) {
+                    _vehicle->setGear(1);
+                }
+                _vehicle->setThrottle(PE_R(1.0));
+            }
+            else if (pe_interface::Viewer::getKeyState('k') == 0) {
+                _vehicle->setGear(-1);
+                _vehicle->setThrottle(PE_R(1.0));
+            }
+            else if (_vehicle) {
+                _vehicle->setThrottle(PE_R(0.0));
+            }
+
+            if (pe_interface::Viewer::getKeyState('j') == 0) {
+                _vehicle->setSteerAngle(0, PE_PI / PE_R(6));
+                _vehicle->setSteerAngle(2, PE_PI / PE_R(6));
+            }
+            else if (pe_interface::Viewer::getKeyState('l') == 0) {
+                _vehicle->setSteerAngle(0, -PE_PI / PE_R(6));
+                _vehicle->setSteerAngle(2, -PE_PI / PE_R(6));
+            }
+            else if (_vehicle) {
+                _vehicle->setSteerAngle(0, 0);
+                _vehicle->setSteerAngle(2, 0);
+            }
+
+            _vehicle->step(_world.getDt());
+
+            /*const pe::Transform vehi_trans = _vehicle->getTransform();
+            pe::Vector3 vehi_backward_horizon = vehi_trans.getAxis(0);
+            vehi_backward_horizon.y = PE_R(0.0);
+            vehi_backward_horizon.normalize();
+            const pe::Vector3 cam_pos = vehi_trans.getOrigin() + vehi_backward_horizon * 10 + pe::Vector3(0, 5, 0);
+            pe::Real cam_yaw = pe::Vector3::forward().angle(vehi_backward_horizon);
+            if (pe::Vector3::forward().cross(vehi_backward_horizon).dot(pe::Vector3::up()) < 0) cam_yaw = -cam_yaw;
+            pe_interface::Viewer::setCamera(cam_pos, cam_yaw, PE_PI / PE_R(8.0));*/
         }
 
-        if (pe_interface::Viewer::getKeyState('i') == 0 && _vehicle) {
-            _vehicle->setThrottle(PE_R(1.0));
-        } else if (pe_interface::Viewer::getKeyState('k') == 0 && _vehicle) {
-            _vehicle->setGear(-1);
-            _vehicle->setThrottle(PE_R(1.0));
-        } else if (_vehicle) {
-            _vehicle->setGear(0);
-            _vehicle->setThrottle(PE_R(0.0));
-        }
+        if (_tracked) {
+            if (pe_interface::Viewer::getKeyState('b') == 0) {
+                _tracked->setGear(1);
+            }
+            else if (pe_interface::Viewer::getKeyState('n') == 0) {
+                _tracked->setGear(2);
+            }
+            else if (pe_interface::Viewer::getKeyState('m') == 0) {
+                _tracked->setGear(3);
+            }
+            else if (pe_interface::Viewer::getKeyState(',') == 0) {
+                _tracked->setGear(4);
+            }
+            else if (pe_interface::Viewer::getKeyState('.') == 0) {
+                _tracked->setGear(5);
+            }
+            else if (pe_interface::Viewer::getKeyState('/') == 0) {
+                _tracked->setGear(6);
+            }
 
-        if (pe_interface::Viewer::getKeyState('j') == 0 && _vehicle) {
-            _vehicle->setSteerAngle(0, PE_PI / PE_R(6));
-            _vehicle->setSteerAngle(2, PE_PI / PE_R(6));
-        } else if (pe_interface::Viewer::getKeyState('l') == 0 && _vehicle) {
-            _vehicle->setSteerAngle(0, -PE_PI / PE_R(6));
-            _vehicle->setSteerAngle(2, -PE_PI / PE_R(6));
-        } else if (_vehicle) {
-            _vehicle->setSteerAngle(0, 0);
-            _vehicle->setSteerAngle(2, 0);
-        }
-        if (pe_interface::Viewer::getKeyState('m') == 0 && _chassis) {
-            _chassis->addCentralForce(_chassis->getLinearVelocity() * -4000);
-        }
+            if (pe_interface::Viewer::getKeyState('h') == 0 || pe_interface::Viewer::getKeyState(';') == 0) {
+                _tracked->setBrake(true);
+            }
+            else {
+                _tracked->setBrake(false);
+            }
 
-        _vehicle->step(_world.getDt());
+            if (pe_interface::Viewer::getKeyState('i') == 0) {
+                std::cout << 1 << std::endl;
+                if (_tracked->getGear() <= 0) {
+                    _tracked->setGear(1);
+                }
+                _tracked->setLeftThrottle(PE_R(1.0));
+                _tracked->setRightThrottle(PE_R(1.0));
+            }
+            else if (pe_interface::Viewer::getKeyState('k') == 0) {
+                _tracked->setGear(-1);
+                _tracked->setLeftThrottle(PE_R(1.0));
+                _tracked->setRightThrottle(PE_R(1.0));
+            }
+            else if (pe_interface::Viewer::getKeyState('j') == 0) {
+                _tracked->setGear(-1);
+                _tracked->setLeftThrottle(PE_R(1.0));
+                _tracked->setRightThrottle(PE_R(-1.0));
+            }
+            else if (pe_interface::Viewer::getKeyState('l') == 0) {
+                _tracked->setGear(-1);
+                _tracked->setLeftThrottle(PE_R(-1.0));
+                _tracked->setRightThrottle(PE_R(1.0));
+            }
+            else {
+                _tracked->setLeftThrottle(PE_R(0.0));
+                _tracked->setRightThrottle(PE_R(0.0));
+            }
+
+            _tracked->step(_world.getDt());
+        }
     }
 
 protected:
@@ -338,6 +445,7 @@ protected:
             const pe::Real current_length = track_length * PE_R(i) / PE_R(segment_count);
             const pe::Transform trans_seg = getTrackSegmentTransform(length, radius, segment_count, current_length);
             auto segment = createBoxRigidBody(trans * trans_seg, segment_size, segment_mass);
+            segment->setFrictionCoeff(PE_R(1.0));
             _world.addRigidBody(segment);
             segments.push_back(segment);
         }

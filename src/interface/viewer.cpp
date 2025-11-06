@@ -147,4 +147,8 @@ void Viewer::remove(int id) {
     _obj_map.erase(id);
 }
 
+void Viewer::setCamera(const pe::Vector3& position, pe::Real yaw, pe::Real pitch) {
+    simple_viewer::setCamera(convertVector3(position), yaw, pitch);
+}
+
 } // namespace pe_interface
