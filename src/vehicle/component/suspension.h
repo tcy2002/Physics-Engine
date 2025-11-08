@@ -30,6 +30,8 @@ class Suspension {
     COMMON_MEMBER_GET(pe::Real, rest_length, RestLength)
     COMMON_MEMBER_GET(pe::Real, stiffness, Stiffness)
     COMMON_MEMBER_GET(pe::Real, damping, Damping)
+    COMMON_MEMBER_PTR_GET(Wheel, wheel, Wheel)
+    COMMON_MEMBER_PTR_GET(Chassis, chassis, Chassis)
 
 protected:
     pe_physics_constraint::SixDofConstraint* _constraint = nullptr;

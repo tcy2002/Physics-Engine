@@ -21,7 +21,7 @@ class VehicleBase {
 
     COMMON_MEMBER_SET_GET(int, gear, Gear)
     COMMON_MEMBER_SET_GET(pe::Real, throttle, Throttle)
-    COMMON_MEMBER_SET_GET(bool, brake, Brake)
+    COMMON_MEMBER_SET_GET(pe::Real, brake, Brake)
 
     // The distance between the first wheel and the last wheel on one side
     COMMON_MEMBER_SET_GET(pe::Real, wheel_region_length, WheelRegionLength)
@@ -39,7 +39,8 @@ public:
         pe::Real radius;
         pe::Real mass;
         pe::Real friction;
-        pe::Real anchor_offset; // how far is the anchor away from chassis's xOz plane (downward)
+        pe::Real anchor_offset_y; // how far is the anchor away from the original xOz plane
+        pe::Real anchor_offset_z; // how far is the anchor away from the original z position
         pe::Real suspension_rest_length;
         pe::Real suspension_stiffness;
         pe::Real suspension_damping;
@@ -54,8 +55,8 @@ public:
                    _gear(0), _throttle(PE_R(0.0)), _brake(false) {}
     virtual ~VehicleBase();
 
-    void setWheelInfo(int index, AxleType type, bool motor, pe::Real radius, pe::Real mass, pe::Real friction, pe::Real anchor_offset, 
-                      pe::Real suspension_rest_length, pe::Real suspension_stiffness, pe::Real suspension_damping);
+    void setWheelInfo(int index, AxleType type, bool motor, pe::Real radius, pe::Real mass, pe::Real friction, pe::Real anchor_offset_y, 
+                      pe::Real anchor_offset_z, pe::Real suspension_rest_length, pe::Real suspension_stiffness, pe::Real suspension_damping);
 
     void setSteerAngle(int wheel_index, pe::Real angle);
 

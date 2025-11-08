@@ -31,7 +31,7 @@ bool SphereSphereCollisionAlgorithm::getClosestPoints(pe::Real radius_a, pe::Rea
     const pe::Vector3 normal = rel / dist;
     const pe::Vector3 pt_on_b = trans_b.getOrigin() + normal * radius_b;
     const pe::Real depth = dist - radius_a - radius_b;
-    result.addContactPoint(normal, pt_on_b - normal * margin, depth + 2 * margin);
+    result.addContactPoint(normal, pt_on_b - normal * margin, depth + margin);
     return true;
 }
 

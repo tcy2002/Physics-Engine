@@ -122,7 +122,7 @@ void Track::init(pe_interface::World* phys_world) {
     for (auto segment : _segments) {
         phys_world->addRigidBody(segment);
     }
-
+    
     // add joints in two passes to avoid instability (tricky but significant)
     for (int i = 0; i < PE_I(_joints.size()); i += 2) {
         phys_world->addConstraint(_joints[i]);

@@ -45,6 +45,9 @@ void Wheel::init(pe_interface::World* phys_world) {
 void Wheel::step(pe::Real dt) {
     (void)dt;
     // nothing to do for now
+    /*if (_wheel->getGlobalId() == 9) {
+        std::cout << "wheel ang vel: " << _wheel->getAngularVelocity() << std::endl;
+    }*/
 }
 
 void Wheel::setTransform(const pe::Transform& trans) {

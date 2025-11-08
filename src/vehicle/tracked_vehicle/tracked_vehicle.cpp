@@ -28,7 +28,7 @@ static COMMON_FORCE_INLINE pe::Real getBoundingLength(const pe::Array<VehicleBas
     std::vector<pe::KV<pe::Vector3, pe::Real>> stack; // <wheel center, wheel radius, slope>
     for (int i = start_index; i <= end_index; i++) {
         if (wheels[i].type == AxleType::AT_NONE) continue; // ignore the wheel not properly set
-        const pe::Vector3 o(wheel_gap * i, -(wheels[i].anchor_offset + wheels[i].suspension_rest_length), wheels[i].radius);
+        const pe::Vector3 o(wheel_gap * i + wheels[i].anchor_offset_z, wheels[i].anchor_offset_y - wheels[i].suspension_rest_length, wheels[i].radius);
         pe::Real k = PE_REAL_MAX;
         while (!stack.empty()) {
             const auto& top = stack.back();
@@ -51,7 +51,7 @@ static COMMON_FORCE_INLINE pe::Real getBoundingLength(const pe::Array<VehicleBas
     std::vector<pe::KV<pe::Vector3, pe::Real>> stack2;
     for (int i = end_index; i >= start_index; i--) {
         if (wheels[i].type == AxleType::AT_NONE) continue; // ignore the wheel not properly set
-        const pe::Vector3 o(wheel_gap * i, -(wheels[i].anchor_offset + wheels[i].suspension_rest_length), wheels[i].radius);
+        const pe::Vector3 o(wheel_gap * i + wheels[i].anchor_offset_z, wheels[i].anchor_offset_y - wheels[i].suspension_rest_length, wheels[i].radius);
         pe::Real k = PE_REAL_MAX;
         while (!stack2.empty()) {
             const auto& top = stack2.back();
@@ -103,15 +103,15 @@ static void getBoundingInfo(const pe::Array<VehicleBase::WheelInfo>& wheels, int
         if (wheels[i].type == AxleType::AT_NONE) continue; // ignore the wheel not properly set
         if (first_valid_wheel == -1) first_valid_wheel = i;
         last_valid_wheel = i;
-        top = PE_MAX(-(wheels[i].anchor_offset + wheels[i].suspension_rest_length) + wheels[i].radius, top);
-        down = PE_MIN(-(wheels[i].anchor_offset + wheels[i].suspension_rest_length) - wheels[i].radius, down);
+        top = PE_MAX(wheels[i].anchor_offset_y - wheels[i].suspension_rest_length + wheels[i].radius, top);
+        down = PE_MIN(wheels[i].anchor_offset_y - wheels[i].suspension_rest_length - wheels[i].radius, down);
     }
     radius = (top - down) / PE_R(2.0);
 
     if (first_valid_wheel == last_valid_wheel && first_valid_wheel != -1) {
         length = PE_R(0.0);
-        offset_x = PE_R(0.0);
-        offset_y = wheels[first_valid_wheel].anchor_offset + wheels[first_valid_wheel].suspension_rest_length;
+        offset_x = wheels[first_valid_wheel].anchor_offset_z;
+        offset_y = wheels[first_valid_wheel].anchor_offset_y + wheels[first_valid_wheel].suspension_rest_length;
         tightening_ratio = PE_R(1.0);
         return;
     }
@@ -121,9 +121,9 @@ static void getBoundingInfo(const pe::Array<VehicleBase::WheelInfo>& wheels, int
 
     // get the length
     const pe::Real first_wheel_diff = radius - wheels[first_valid_wheel].radius;
-    const pe::Real first_wheel_offset = wheels[first_valid_wheel].anchor_offset + wheels[first_valid_wheel].suspension_rest_length - offset_y;
+    const pe::Real first_wheel_offset = wheels[first_valid_wheel].anchor_offset_y - wheels[first_valid_wheel].suspension_rest_length + offset_y;
     const pe::Real last_wheel_diff = radius - wheels[last_valid_wheel].radius;
-    const pe::Real last_wheel_offset = wheels[last_valid_wheel].anchor_offset + wheels[last_valid_wheel].suspension_rest_length - offset_y;
+    const pe::Real last_wheel_offset = wheels[last_valid_wheel].anchor_offset_y - wheels[last_valid_wheel].suspension_rest_length + offset_y;
     const pe::Real former_part = -PE_SQRT(PE_MAX(PE_SQR(first_wheel_diff) - PE_SQR(first_wheel_offset), PE_R(0.0)));
     const pe::Real latter_part = -PE_SQRT(PE_MAX(PE_SQR(last_wheel_diff) - PE_SQR(last_wheel_offset), PE_R(0.0)));
     length = (last_valid_wheel - first_valid_wheel) * wheel_gap + former_part + latter_part;
@@ -192,8 +192,12 @@ void TrackedVehicle::step(pe::Real dt) {
     for (auto& wheel : _wheels) {
         wheel->step(dt);
     }
+    _brake = PE_MAX(_brake, PE_R(0.0));
     for (auto& suspension : _suspensions) {
-        if (_brake) suspension->setTargetWheelSpeed(PE_R(0.0));
+        if (_brake > PE_EPS) {
+            const pe::Real current_speed = -suspension->getWheel()->getBody()->getAngularVelocity().dot(suspension->getWheel()->getTransform().getAxis(0));
+            suspension->setTargetWheelSpeed(PE_MAX((PE_R(1.0) - _brake), PE_R(0.0)) * current_speed);
+        }
         else suspension->releaseTargetWheelSpeed();
         suspension->step(dt);
     }

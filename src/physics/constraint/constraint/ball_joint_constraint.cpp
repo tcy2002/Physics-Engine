@@ -3,7 +3,7 @@
 namespace pe_physics_constraint {
 
 void BallJointConstraint::initSequentialImpulse(const ConstraintParam &param) {
-    if (!_object_a || !_object_b) return;
+    if (!_object_a || !_object_b || (_object_a->isKinematic() && _object_b->isKinematic())) return;
 
     auto& trans_a = _object_a->getTransform();
     auto& trans_b = _object_b->getTransform();
@@ -26,7 +26,7 @@ void BallJointConstraint::initSequentialImpulse(const ConstraintParam &param) {
 }
 
 void BallJointConstraint::iterateSequentialImpulse(int iter) {
-    if (!_object_a || !_object_b) return;
+    if (!_object_a || !_object_b || (_object_a->isKinematic() && _object_b->isKinematic())) return;
 
     const pe::Vector3 vel_a = _object_a->getTempLinearVelocity() + _object_a->getTempAngularVelocity().cross(_r_a);
     const pe::Vector3 vel_b = _object_b->getTempLinearVelocity() + _object_b->getTempAngularVelocity().cross(_r_b);

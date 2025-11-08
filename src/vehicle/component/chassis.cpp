@@ -191,7 +191,9 @@ int Chassis::addSliderLink(int part1_index, int part2_index,
 }
 
 int Chassis::addSixDofLink(int part1_index, int part2_index,
-                           const pe::Transform &frame1, const pe::Transform &frame2) {
+                           const pe::Transform &frame1, const pe::Transform &frame2,
+                           bool x_pos_fixed, bool y_pos_fixed, bool z_pos_fixed,
+                           bool x_rot_fixed, bool y_rot_fixed, bool z_rot_fixed) {
     if (part1_index < 0 || part1_index >= PE_I(_other_parts.size() + 1) ||
         part2_index < 0 || part2_index >= PE_I(_other_parts.size() + 1)) {
         PE_LOG_ERROR << "Invalid part index for adding ball link: " << part1_index << ", " << part2_index << PE_CUSTOM_ENDL;
@@ -205,6 +207,12 @@ int Chassis::addSixDofLink(int part1_index, int part2_index,
     link->setObjectB(body2);
     link->setFrameA(frame1);
     link->setFrameB(frame2);
+    link->setXPosFixed(x_pos_fixed);
+    link->setYPosFixed(y_pos_fixed);
+    link->setZPosFixed(z_pos_fixed);
+    link->setXRotFixed(x_rot_fixed);
+    link->setYRotFixed(y_rot_fixed);
+    link->setZRotFixed(z_rot_fixed);
     _links.push_back(link);
 
     return PE_I(_links.size() - 1);

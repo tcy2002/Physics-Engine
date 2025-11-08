@@ -11,8 +11,8 @@ VehicleBase::~VehicleBase() {
     }
 }
 
-void VehicleBase::setWheelInfo(int index, AxleType type, bool motor, pe::Real radius, pe::Real mass, pe::Real friction, pe::Real anchor_offset,
-                               pe::Real suspension_rest_length, pe::Real suspension_stiffness, pe::Real suspension_damping) {
+void VehicleBase::setWheelInfo(int index, AxleType type, bool motor, pe::Real radius, pe::Real mass, pe::Real friction, pe::Real anchor_offset_y,
+                               pe::Real anchor_offset_z, pe::Real suspension_rest_length, pe::Real suspension_stiffness, pe::Real suspension_damping) {
     if (index < 0 || index >= _wheel_count_per_side * 2) {
         throw std::out_of_range("Invalid wheel index in VehicleBase::setWheelInfo: " + std::to_string(index));
     }
@@ -22,7 +22,8 @@ void VehicleBase::setWheelInfo(int index, AxleType type, bool motor, pe::Real ra
     _wheel_info[index].radius = radius;
     _wheel_info[index].mass = mass;
     _wheel_info[index].friction = friction;
-    _wheel_info[index].anchor_offset = anchor_offset;
+    _wheel_info[index].anchor_offset_y = anchor_offset_y;
+    _wheel_info[index].anchor_offset_z = anchor_offset_z;
     _wheel_info[index].suspension_rest_length = suspension_rest_length;
     _wheel_info[index].suspension_stiffness = suspension_stiffness;
     _wheel_info[index].suspension_damping = suspension_damping;
@@ -45,23 +46,25 @@ void VehicleBase::init(pe_interface::World* phys_world) {
         // Engine is not a physical object
     }
 
-    if (_wheel_info.empty()) return;
+    if (_wheel_info.empty() || !_chassis) return;
 
     const pe::Real wheel_gap = _wheel_count_per_side > 1 ? (_wheel_region_length / PE_R(_wheel_count_per_side - 1)) : PE_R(0.0);
     const pe::Real half_wheel_region_width = _wheel_region_width / PE_R(2.0);
     const pe::Real half_wheel_region_length = _wheel_region_length / PE_R(2.0);
+    const pe::Transform chassis_transform = _chassis->getTransform();
     for (int i = 0; i < _wheel_count_per_side * 2; i++) {
         auto& wi = _wheel_info[i];
         if (wi.type == AxleType::AT_NONE) continue; // ignore the wheel not properly set
         const pe::Real x = (i < _wheel_count_per_side ? -half_wheel_region_width : half_wheel_region_width) + _wheel_region_offset.x;
         const pe::Real y = _wheel_region_offset.y;
         const pe::Real z = (_wheel_count_per_side > 1 ? (-half_wheel_region_length + PE_R(i % _wheel_count_per_side) * wheel_gap) : PE_R(0.0)) + _wheel_region_offset.z;
-        Wheel* wheel = new Wheel(WheelType::WT_Capsule, wi.radius, _wheel_width, wi.mass, wi.friction);
-        const pe::Transform wheel_local_transform = pe::Transform(pe::Matrix3::identity(), pe::Vector3(x, y - wi.anchor_offset - wi.suspension_rest_length, z));
-        wheel->setTransform(getTransform() * wheel_local_transform);
+        auto* wheel = new Wheel(WheelType::WT_Sphere, wi.radius, _wheel_width, wi.mass, wi.friction);
+        const pe::Transform wheel_local_transform = pe::Transform(pe::Matrix3::identity(), pe::Vector3(x, y + wi.anchor_offset_y - wi.suspension_rest_length, z + wi.anchor_offset_z));
+        wheel->setTransform(chassis_transform * wheel_local_transform);
+        wheel->getBody()->addIgnoreCollisionId(_chassis->getBasePart().body->getGlobalId());
         _wheels.push_back(wheel);
-        Suspension* suspension = new Suspension(_chassis, wheel, wi.type, wi.suspension_rest_length, wi.suspension_stiffness,
-                                                wi.suspension_damping, pe::Vector3(x, y - wi.anchor_offset, z));
+        auto* suspension = new Suspension(_chassis, wheel, wi.type, wi.suspension_rest_length, wi.suspension_stiffness,
+                                          wi.suspension_damping, pe::Vector3(x, y + wi.anchor_offset_y, z + wi.anchor_offset_z));
         _suspensions.push_back(suspension);
     }
 
@@ -101,8 +104,12 @@ void VehicleBase::step(pe::Real dt) {
     for (auto& wheel : _wheels) {
         wheel->step(dt);
     }
+    _brake = PE_MAX(_brake, PE_R(0.0));
     for (auto& suspension : _suspensions) {
-        if (_brake) suspension->setTargetWheelSpeed(PE_R(0.0));
+        if (_brake > PE_EPS) {
+            const pe::Real current_speed = suspension->getWheel()->getBody()->getAngularVelocity().dot(suspension->getWheel()->getTransform().getAxis(0));
+            suspension->setTargetWheelSpeed(PE_MAX((PE_R(1.0) - _brake) * current_speed, PE_R(0.0)));
+        }
         else suspension->releaseTargetWheelSpeed();
         suspension->step(dt);
     }

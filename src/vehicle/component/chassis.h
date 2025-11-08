@@ -70,7 +70,9 @@ public:
                       const pe::Vector3& anchor1, const pe::Vector3& axis1,
                       const pe::Vector3& anchor2, const pe::Vector3& axis2);
     int addSixDofLink(int part1_index, int part2_index,
-                      const pe::Transform& frame1, const pe::Transform& frame2);
+                      const pe::Transform& frame1, const pe::Transform& frame2,
+                      bool x_pos_fixed, bool y_pos_fixed, bool z_pos_fixed, 
+                      bool x_rot_fixed, bool y_rot_fixed, bool z_rot_fixed);
 
     void controlHingeLink(int link_index, pe_physics_constraint::ConstraintMotorType type,
                           pe::Real target_speed_or_angle) const;

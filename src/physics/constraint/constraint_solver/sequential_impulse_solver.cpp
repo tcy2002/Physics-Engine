@@ -68,7 +68,7 @@ void SequentialImpulseSolver::solve() {
     }
 
     // sync velocity
-#ifdef PE_MULTI_THREAD
+#ifdef PE_MULTI_THREAD1
     utils::ThreadPool::forLoop(PE_UI(_collision_objects.size()),[&](int i){
         _collision_objects[i]->syncTempVelocity();
     });

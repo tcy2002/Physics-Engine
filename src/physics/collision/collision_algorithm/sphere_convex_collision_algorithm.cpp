@@ -173,7 +173,7 @@ bool SphereConvexCollisionAlgorithm::getClosestPoints(pe_physics_shape::SphereSh
                               point, normal, depth)) {
         normal = trans_tri.getBasis() * normal;
         point = trans_tri * point;
-        result.addContactPoint(normal, point - normal * margin, depth + 2 * margin);
+        result.addContactPoint(normal, point - normal * margin, depth + margin);
         return true;
     }
     return false;

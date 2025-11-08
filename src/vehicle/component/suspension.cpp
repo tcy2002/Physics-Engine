@@ -12,6 +12,8 @@ Suspension::Suspension(Chassis *chassis, Wheel *wheel, AxleType axle_type,
     _rest_length = rest_length;
     _stiffness = stiffness;
     _damping = damping;
+    _chassis = chassis;
+    _wheel = wheel;
     _anchor_chassis = chassis->getBasePart().local_transform.inverseTransform(anchor_chassis);
     _axis_chassis = chassis->getBasePart().local_transform.getBasis().transposed() * -pe::Vector3::up();
 
@@ -20,9 +22,9 @@ Suspension::Suspension(Chassis *chassis, Wheel *wheel, AxleType axle_type,
     _constraint->setObjectA(chassis->getBasePart().body);
     _constraint->setObjectB(wheel->getBody());
     _constraint->setXPosFixed(true);
-    _constraint->setYPosFixed(false);
+    _constraint->setYPosFixed(true);
     _constraint->setZPosFixed(true);
-    _constraint->setFrameA(chassis->getBasePart().local_transform.inverse() * pe::Transform(pe::Matrix3::identity(), _anchor_chassis));
+    _constraint->setFrameA(chassis->getBasePart().local_transform.inverse() * pe::Transform(pe::Matrix3::identity(), anchor_chassis));
     if (axle_type == AxleType::AT_FRONT) { // Hinge2
         _constraint->setXRotFixed(true);
         _constraint->setFrameB(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::right(), -PE_PI / 2), pe::Vector3::zeros()));
@@ -76,7 +78,7 @@ void Suspension::releaseTargetWheelSpeed() {
 }
 
 void Suspension::step(pe::Real dt) {
-    const pe::Vector3& wheel_pos = _constraint->getObjectB()->getTransform().getOrigin();
+    /*const pe::Vector3& wheel_pos = _constraint->getObjectB()->getTransform().getOrigin();
     const pe::Transform& trans_chassis = _constraint->getObjectA()->getTransform();
     const pe::Vector3& axis_chassis = trans_chassis.getBasis() * _axis_chassis;
     const pe::Vector3 anchor_pos = trans_chassis * _anchor_chassis;
@@ -92,7 +94,7 @@ void Suspension::step(pe::Real dt) {
 
     const pe::Vector3 total_impulse = correction_impulse + damping_impulse;
     _constraint->getObjectB()->applyImpulse(pe::Vector3::zeros(), total_impulse * dt);
-    _constraint->getObjectA()->applyImpulse(anchor_pos_world_rel, -total_impulse * dt);
+    _constraint->getObjectA()->applyImpulse(anchor_pos_world_rel, -total_impulse * dt);*/
 }
 
 } // namespace pe_vehicle

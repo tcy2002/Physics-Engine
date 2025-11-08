@@ -9,7 +9,7 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
 
     _object_a = _contact_result->getObjectA();
     _object_b = _contact_result->getObjectB();
-    if (!_object_a || !_object_b) return;
+    if (!_object_a || !_object_b || (_object_a->isKinematic() && _object_b->isKinematic())) return;
     const pe::Transform& transform_a = _object_a->getTransform();
     const pe::Transform& transform_b = _object_b->getTransform();
 
@@ -68,7 +68,7 @@ void FrictionContactConstraint::initSequentialImpulse(const ConstraintParam& par
 }
 
 void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
-    if (!_object_a || !_object_b) return;
+    if (!_object_a || !_object_b || (_object_a->isKinematic() && _object_b->isKinematic())) return;
 
     for (auto& ci : _cis) {
         const pe::Vector3 vel_r = (_object_a->getTempLinearVelocity() +
@@ -90,11 +90,14 @@ void FrictionContactConstraint::iterateSequentialImpulse(int iter) {
             t0_total_impulse *= scale;
             t1_total_impulse *= scale;
         }
+        const pe::Real t0_impulse = t0_total_impulse - ci.t0_applied_impulse;
+        const pe::Real t1_impulse = t1_total_impulse - ci.t1_applied_impulse;
+        //if (_object_b->getGlobalId() == 9) {
+        //    std::cout << _object_a->getGlobalId() << std::endl;
+        //}
 
         // total impulse
-        const pe::Vector3 impulse_vector = n_impulse * ci.n +
-            (t0_total_impulse - ci.t0_applied_impulse) * ci.t0 +
-            (t1_total_impulse - ci.t1_applied_impulse) * ci.t1;
+        const pe::Vector3 impulse_vector = n_impulse * ci.n + t0_impulse * ci.t0 + t1_impulse * ci.t1;
 
         ci.t0_applied_impulse = t0_total_impulse;
         ci.t1_applied_impulse = t1_total_impulse;

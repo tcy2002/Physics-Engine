@@ -339,7 +339,7 @@ bool COMMON_FORCE_INLINE BoxBoxCollisionAlgorithm::getClosestPoints(pe_physics_s
         {
             const pe::Vector3 normVec(normal[0], normal[1], normal[2]);
             result.addContactPoint(-normVec, pe::Vector3(pb[0], pb[1], pb[2]) +
-                                    normVec * margin, -depth + margin * 2);
+                                    normVec * margin, -depth + margin);
         }
         return true;
     }
