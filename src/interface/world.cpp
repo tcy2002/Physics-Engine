@@ -39,8 +39,8 @@ void World::updateObjectStatus() {
             return;
         }
         if (rb->isSleep()) {
-            if (rb->getLinearVelocity().norm2() >= _sleep_lin_vel2_threshold ||
-                rb->getAngularVelocity().norm2() >= _sleep_ang_vel2_threshold) {
+            if (rb->getAvgLinearVelocity2Frames().norm2() >= _sleep_lin_vel2_threshold ||
+                rb->getAvgAngularVelocity2Frames().norm2() >= _sleep_ang_vel2_threshold) {
                 rb->setSleep(false);
                 rb->resetSleepTime();
             }

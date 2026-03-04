@@ -63,6 +63,22 @@ bool ConcaveConvexCollisionAlgorithm::getClosestPoints(
             trans_convex, trans_concave, margin, refScale, result);
     }
 
+    /*for (int i = 0; i < mesh_concave.faces.size(); i++) {
+        auto& f = mesh_concave.faces[i];
+        pe_physics_shape::ConvexMeshShape shape_face;
+        pe::Mesh::Face face_face;
+        for (int j = 0; j < PE_I(f.indices.size()); j++) {
+            shape_face._mesh.vertices.push_back(mesh_concave.vertices[f.indices[j]]);
+            face_face.indices.push_back(j);
+        }
+        face_face.normal = f.normal;
+        shape_face._mesh.faces.push_back(face_face);
+        ConvexConvexCollisionAlgorithm::getClosestPoints(
+            shape_convex, &shape_face, mesh_convex, shape_face._mesh,
+            unique_edges_convex, shape_face.getUniqueEdges(),
+            trans_convex, trans_concave, margin, refScale, result);
+    }*/
+
     return true;
 }
 

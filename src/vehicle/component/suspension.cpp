@@ -22,7 +22,7 @@ Suspension::Suspension(Chassis *chassis, Wheel *wheel, AxleType axle_type,
     _constraint->setObjectA(chassis->getBasePart().body);
     _constraint->setObjectB(wheel->getBody());
     _constraint->setXPosFixed(true);
-    _constraint->setYPosFixed(true);
+    _constraint->setYPosFixed(false);
     _constraint->setZPosFixed(true);
     _constraint->setFrameA(chassis->getBasePart().local_transform.inverse() * pe::Transform(pe::Matrix3::identity(), anchor_chassis));
     if (axle_type == AxleType::AT_FRONT) { // Hinge2
@@ -78,7 +78,7 @@ void Suspension::releaseTargetWheelSpeed() {
 }
 
 void Suspension::step(pe::Real dt) {
-    /*const pe::Vector3& wheel_pos = _constraint->getObjectB()->getTransform().getOrigin();
+    const pe::Vector3& wheel_pos = _constraint->getObjectB()->getTransform().getOrigin();
     const pe::Transform& trans_chassis = _constraint->getObjectA()->getTransform();
     const pe::Vector3& axis_chassis = trans_chassis.getBasis() * _axis_chassis;
     const pe::Vector3 anchor_pos = trans_chassis * _anchor_chassis;
@@ -94,7 +94,7 @@ void Suspension::step(pe::Real dt) {
 
     const pe::Vector3 total_impulse = correction_impulse + damping_impulse;
     _constraint->getObjectB()->applyImpulse(pe::Vector3::zeros(), total_impulse * dt);
-    _constraint->getObjectA()->applyImpulse(anchor_pos_world_rel, -total_impulse * dt);*/
+    _constraint->getObjectA()->applyImpulse(anchor_pos_world_rel, -total_impulse * dt);
 }
 
 } // namespace pe_vehicle

@@ -35,6 +35,7 @@ void RigidBody::updateWorldInertia() {
 
 void RigidBody::setTransform(const pe::Transform &transform) {
     _transform = transform;
+    _transform_dirty = true;
     updateWorldInertia();
 }
 
@@ -191,8 +192,9 @@ void RigidBody::applyDamping(pe::Real dt) {
 
 bool RigidBody::step(pe::Real dt) {
     if (isKinematic()) {
-        if (_collision_shape != nullptr) {
+        if (_collision_shape != nullptr && _transform_dirty) {
             _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
+            _transform_dirty = false;
         }
         return true;
     }
@@ -202,11 +204,15 @@ bool RigidBody::step(pe::Real dt) {
         return false;
     }
 
+    _transform_dirty = _linear_velocity.norm2() > 1e-15;
+    _transform_dirty |= (_angular_velocity.norm2() > 1e-15);
+
     _transform.setOrigin(_transform.getOrigin() + _linear_velocity * dt);
 #   ifdef PE_USE_QUATERNION
     auto q = pe::Quaternion::fromRotationMatrix(_transform.getBasis());
     const pe::Vector3 dr = _angular_velocity * dt * PE_R(0.5);
     const auto dq = pe::Quaternion(0, dr.x, dr.y, dr.z) * q;
+    
     q += dq;
     q.normalize();
     _transform.setBasis(q.toRotationMatrix());
@@ -220,8 +226,9 @@ bool RigidBody::step(pe::Real dt) {
 #   endif
     updateWorldInertia();
 
-    if (_collision_shape != nullptr) {
+    if (_collision_shape != nullptr && _transform_dirty) {
         _collision_shape->getAABB(_transform, _aabb_min, _aabb_max);
+        _transform_dirty = false;
     }
 
     return true;

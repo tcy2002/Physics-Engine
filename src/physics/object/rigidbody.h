@@ -39,6 +39,8 @@ protected:
 
     /* Dynamic properties: transform, velocity, force, torque */
     COMMON_MEMBER_GET(pe::Transform, transform, Transform)
+private:
+    bool _transform_dirty = false;
 public:
     PE_API void setTransform(const pe::Transform& transform);
     COMMON_MEMBER_SET_GET(pe::Vector3, linear_velocity, LinearVelocity)

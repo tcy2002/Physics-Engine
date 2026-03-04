@@ -70,7 +70,7 @@ void Simulator::start() {
         if (use_gui) {
             if (!_world.getRigidBodiesToRemove().empty()) {
                 removeModels(_world.getRigidBodiesToRemove());
-                _world.clearRigidBodiesToRemove();
+                //_world.clearRigidBodiesToRemove();
             }
             if (!_world.getRigidBodiesToAdd().empty()) {
                 addModels(_world.getRigidBodiesToAdd());

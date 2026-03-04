@@ -13,24 +13,6 @@ public:
     FractureSimulator() {}
     virtual ~FractureSimulator() {}
 
-    void step() override {
-        if (pe_interface::Viewer::getKeyState('k') == 0) {
-            // auto& rbs = _world.getRigidBodies();
-            // for (auto rb : rbs) {
-            //     if (!rb->isSleep()) {
-            //         std::cout << rb->getGlobalId() << " " << rb->getTransform() << std::endl;
-            //     }
-            // }
-
-            auto& rbs = _world.getRigidBodies();
-            for (auto rb : rbs) {
-                if (rb->getGlobalId() != 85 && rb->getGlobalId() > 6) {
-                    _world.removeRigidBody(rb);
-                }
-            }
-        }
-    }
-
     void init() override {
         /* Initialize the physics world here before running */
 
@@ -76,38 +58,20 @@ public:
                                       pe::Vector3(100, 60, 10), 1000);
         wall4->setKinematic(true);
         _world.addRigidBody(wall4);
+    }
 
-        auto cap = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), PE_PI / PE_R(1.3)), pe::Vector3(0, 2, 0)),
-                                          1, 2, 4);
-        _world.addRigidBody(cap);
+    void step() override {
+        /* This function is called before each simulation step */
 
-        auto cap2 = createCapsuleRigidBody(pe::Transform(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / PE_R(3.5)), pe::Vector3(0, 5, 0.1)),
-                                          0.5, 1, 2);
-        _world.addRigidBody(cap2);
-
-        auto sph = createSphereRigidBody(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, 8, 0)),
-                                          1, 4);
-        _world.addRigidBody(sph);
-
-        // pe::Mesh mesh;
-        // pe::Mesh::loadFromObj("D:\\ClionProjects\\Physics-Engine-clean\\Physics-Engine-84da628\\fragment-28.obj", mesh, pe::Vector3::ones());
-        // auto shape = new pe_physics_shape::ConvexMeshShape();
-        // auto offset = shape->setMesh(mesh);
-        // pe::Transform offsetTrans(pe::Matrix3::identity(), offset);
-        // // pe::Transform trans(pe::Matrix3::fromRotation(pe::Vector3::forward(), -PE_PI / 3.8), pe::Vector3(0, 1.2, 0));
-        // pe::Transform trans(pe::Matrix3(-0.270472, 0.716382, 0.64315, -0.962443, -0.184994, -0.198746, -0.0234314, -0.67275, 0.739498),
-        // pe::Vector3(3.86159, 10.145254, -5.06953));
-        // auto rb2 = new pe_physics_object::RigidBody();
-        // rb2->setMass(0.05);
-        // rb2->setCollisionShape(shape);
-        // rb2->setTransform(trans);
-        // _world.addRigidBody(rb2);
-
-        for (int i = 0; i < 0; i++) {
+        static int frame = 0;
+        frame++;
+        if (frame == 1 || frame == 201 || frame == 401) {
+            int i = frame / 200;
             // add a fracturable box
             auto rb = createFracturableObject(pe::Transform(pe::Matrix3::identity(), pe::Vector3(0, i + 0.5, 0)),
-                                               pe::Vector3(4, 1, 4), 1);
+                pe::Vector3(4, 1, 4), 1);
             _world.addRigidBody(rb);
+            //std::cout << "Added fracturable object: " << rb->getGlobalId() << std::endl;
 
             pe_physics_fracture::FractureSource src;
             src.type = pe_physics_fracture::FractureType::Sphere;

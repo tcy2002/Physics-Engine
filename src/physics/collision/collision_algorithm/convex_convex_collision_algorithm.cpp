@@ -661,20 +661,20 @@ static COMMON_FORCE_INLINE bool computePolyhedronVsPolyhedronFaceContactPoints(b
         const int nb_faces = (int)incident_polyhedron->faces.size();
         for (int i = 0; i < nb_faces; i++) {
             // Get the face normal
-            // const pe::Real support_value = getFaceSupportValue(*incident_polyhedron, incident_polyhedron->faces[i], -axis_incident_space);
+            const pe::Real support_value = getFaceSupportValue(*incident_polyhedron, incident_polyhedron->faces[i], -axis_incident_space);
             const pe::Real dot_product = incident_polyhedron->faces[i].normal.dot(axis_incident_space);
-            // if (support_value > max_support_value + PE_EPS) {
-            //     max_support_value = support_value;
-            //     min_dot_product = dot_product;
-            //     incident_face_index = i;
-            // } else if (support_value >= max_support_value - PE_EPS && dot_product < min_dot_product) {
-            //     min_dot_product = dot_product;
-            //     incident_face_index = i;
-            // }
-            if (dot_product < min_dot_product) {
+            if (support_value > max_support_value + PE_EPS) {
+                max_support_value = support_value;
+                min_dot_product = dot_product;
+                incident_face_index = i;
+            } else if (support_value >= max_support_value - PE_EPS && dot_product < min_dot_product) {
                 min_dot_product = dot_product;
                 incident_face_index = i;
             }
+            /*if (dot_product < min_dot_product) {
+                min_dot_product = dot_product;
+                incident_face_index = i;
+            }*/
         }
     }
     if (incident_face_index == -1) {

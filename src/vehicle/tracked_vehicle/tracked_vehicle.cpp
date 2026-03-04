@@ -154,12 +154,12 @@ void TrackedVehicle::init(pe_interface::World* phys_world) {
 
     // create left track
     _left_track = new Track(_chassis, pe::Vector3(-_wheel_region_width / PE_R(2.0), offset_y_l, offset_x_l) + _wheel_region_offset,
-                            length_l, radius_l, _wheel_width, 30, PE_R(0.1), PE_R(0.8), 10, PE_R(1.0), tightening_ratio_l * PE_R(0.98));
+                            length_l, radius_l, _wheel_width, 30, PE_R(0.15), PE_R(0.8), 10, PE_R(1.0), tightening_ratio_l * PE_R(0.98));
     _left_track->init(phys_world);
 
     // create right track
     _right_track = new Track(_chassis, pe::Vector3(_wheel_region_width / PE_R(2.0), offset_y_r, offset_x_r) + _wheel_region_offset,
-                            length_r, radius_r, _wheel_width, 30, PE_R(0.1), PE_R(0.8), 10, PE_R(1.0), tightening_ratio_r * PE_R(0.98));
+                            length_r, radius_r, _wheel_width, 30, PE_R(0.15), PE_R(0.8), 10, PE_R(1.0), tightening_ratio_r * PE_R(0.98));
     _right_track->init(phys_world);
 }
 

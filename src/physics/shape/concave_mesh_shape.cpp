@@ -1,4 +1,5 @@
 #include "concave_mesh_shape.h"
+#include "physics/physics.h"
 
 namespace pe_physics_shape {
 

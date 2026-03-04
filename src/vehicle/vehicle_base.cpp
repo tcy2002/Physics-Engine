@@ -58,7 +58,7 @@ void VehicleBase::init(pe_interface::World* phys_world) {
         const pe::Real x = (i < _wheel_count_per_side ? -half_wheel_region_width : half_wheel_region_width) + _wheel_region_offset.x;
         const pe::Real y = _wheel_region_offset.y;
         const pe::Real z = (_wheel_count_per_side > 1 ? (-half_wheel_region_length + PE_R(i % _wheel_count_per_side) * wheel_gap) : PE_R(0.0)) + _wheel_region_offset.z;
-        auto* wheel = new Wheel(WheelType::WT_Sphere, wi.radius, _wheel_width, wi.mass, wi.friction);
+        auto* wheel = new Wheel(WheelType::WT_Capsule, wi.radius, _wheel_width, wi.mass, wi.friction);
         const pe::Transform wheel_local_transform = pe::Transform(pe::Matrix3::identity(), pe::Vector3(x, y + wi.anchor_offset_y - wi.suspension_rest_length, z + wi.anchor_offset_z));
         wheel->setTransform(chassis_transform * wheel_local_transform);
         wheel->getBody()->addIgnoreCollisionId(_chassis->getBasePart().body->getGlobalId());
